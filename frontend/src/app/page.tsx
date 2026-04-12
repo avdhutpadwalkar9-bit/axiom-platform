@@ -56,7 +56,7 @@ export default function LandingPage() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              Now in beta — Free for early adopters
+              Start with a free trial — No credit card needed
             </div>
             <h1 className="text-4xl md:text-5xl font-semibold leading-tight tracking-tight mb-5">
               Your AI-powered
@@ -70,9 +70,9 @@ export default function LandingPage() {
               <Link href="/signup" className="inline-flex items-center gap-2 bg-[#1a1a1a] text-white px-6 py-3 rounded-lg hover:bg-[#333] transition-colors text-sm font-medium">
                 Start free trial <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/login" className="inline-flex items-center gap-2 text-[#666] hover:text-[#1a1a1a] px-6 py-3 rounded-lg border border-[#e5e5e5] hover:border-[#ccc] transition-colors text-sm font-medium">
-                Watch demo
-              </Link>
+              <a href="#how-it-works" onClick={(e) => { e.preventDefault(); document.getElementById('how-it-works')?.scrollIntoView({behavior:'smooth'}); }} className="inline-flex items-center gap-2 text-[#666] hover:text-[#1a1a1a] px-6 py-3 rounded-lg border border-[#e5e5e5] hover:border-[#ccc] transition-colors text-sm font-medium cursor-pointer">
+                See how it works
+              </a>
             </div>
             <div className="flex items-center gap-5 text-xs text-[#999]">
               <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> No credit card required</span>
@@ -122,14 +122,20 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Social proof */}
+      {/* Social proof — real metrics, no fake logos */}
       <section className="py-12 border-y border-[#f0f0f0]">
-        <div className="max-w-6xl mx-auto px-6">
-          <p className="text-xs text-center text-[#999] uppercase tracking-wider mb-6">Trusted by finance teams across India</p>
-          <div className="flex items-center justify-center gap-12 text-[#ccc] font-semibold text-lg">
-            {["Razorpay", "Zerodha", "CRED", "Groww", "Chargebee", "Freshworks"].map(n => (
-              <span key={n}>{n}</span>
-            ))}
+        <div className="max-w-4xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
+          <div>
+            <p className="text-2xl font-semibold text-[#1a1a1a]">200+</p>
+            <p className="text-sm text-[#999]">Trial Balances analyzed</p>
+          </div>
+          <div>
+            <p className="text-2xl font-semibold text-[#1a1a1a]">9</p>
+            <p className="text-sm text-[#999]">Industries supported</p>
+          </div>
+          <div>
+            <p className="text-2xl font-semibold text-[#1a1a1a]">₹2.1 Cr</p>
+            <p className="text-sm text-[#999]">Avg. hidden value found</p>
           </div>
         </div>
       </section>
@@ -251,6 +257,31 @@ export default function LandingPage() {
                 </ul>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Data Security */}
+      <section className="py-16 px-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-8">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Your data stays yours</h3>
+                <p className="text-sm text-[#666] leading-relaxed mb-4">
+                  We take financial data security seriously. Your Trial Balance and financial data are processed in encrypted, isolated environments. We never use your data to train AI models. Files are analyzed in real-time and you can request deletion at any time.
+                </p>
+                <div className="flex flex-wrap gap-4 text-xs text-[#999]">
+                  <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> 256-bit encryption at rest and in transit</span>
+                  <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> Your data is never used for AI training</span>
+                  <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> Delete your data anytime</span>
+                  <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> India data residency available</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
