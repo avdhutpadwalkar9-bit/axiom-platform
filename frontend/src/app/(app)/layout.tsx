@@ -56,32 +56,34 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen bg-[#0a0a0f] text-white overflow-hidden">
+    <div className="flex h-screen bg-[#fafafa] text-[#1a1a1a] overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 bg-[#0c0c14]">
+      <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-[#e5e5e5] bg-white">
         {/* Logo — clickable to home */}
-        <a href="/" className="flex items-center gap-3 px-6 py-6 hover:opacity-80 transition-opacity">
-          <img src="/axiom-logo.png" alt="CortexCFO" className="h-9 w-9 rounded-lg object-cover shadow-lg shadow-indigo-500/20" />
-          <span className="text-lg font-semibold tracking-tight">CortexCFO</span>
+        <a href="/" className="flex items-center gap-3 px-6 py-5 hover:opacity-80 transition-opacity">
+          <div className="h-8 w-8 rounded-lg bg-emerald-600 flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+          </div>
+          <span className="text-lg font-semibold tracking-tight text-[#1a1a1a]">CortexCFO</span>
         </a>
 
         {/* Workspace */}
-        <div className="mx-4 mb-4 flex items-center gap-2.5 rounded-lg border border-white/5 bg-white/[0.03] px-3 py-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-500/10">
-            <Building2 className="h-3.5 w-3.5 text-indigo-400" />
+        <div className="mx-4 mb-4 flex items-center gap-2.5 rounded-lg border border-[#e5e5e5] bg-[#fafafa] px-3 py-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-50">
+            <Building2 className="h-3.5 w-3.5 text-emerald-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium text-white/80 truncate">
+            <p className="text-xs font-medium text-[#1a1a1a] truncate">
               TechFlow Solutions
             </p>
-            <p className="text-[10px] text-white/40">Active workspace</p>
+            <p className="text-[10px] text-[#999]">Active workspace</p>
           </div>
-          <ChevronRight className="h-3.5 w-3.5 text-white/20" />
+          <ChevronRight className="h-3.5 w-3.5 text-[#ccc]" />
         </div>
 
         {/* Navigation */}
         <nav className="flex-1 px-3 space-y-1">
-          <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-white/30">
+          <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-[#ccc]">
             Platform
           </p>
           {navItems.map((item) => {
@@ -97,31 +99,31 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 whileTap={{ scale: comingSoon ? 1 : 0.98 }}
                 className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   comingSoon
-                    ? "text-white/20 cursor-default"
+                    ? "text-[#ccc] cursor-default"
                     : isActive
-                    ? "bg-indigo-500/10 text-white"
-                    : "text-white/50 hover:bg-white/[0.04] hover:text-white/80"
+                    ? "bg-emerald-50 text-white"
+                    : "text-[#666] hover:bg-[#f5f5f5] hover:text-[#1a1a1a]"
                 }`}
               >
                 {isActive && !comingSoon && (
                   <motion.div
                     layoutId="sidebar-active"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-indigo-500"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-emerald-600"
                     transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   />
                 )}
-                <Icon className={`h-4.5 w-4.5 ${isActive && !comingSoon ? "text-indigo-400" : "text-white/25"}`} />
+                <Icon className={`h-4.5 w-4.5 ${isActive && !comingSoon ? "text-emerald-600" : "text-white/25"}`} />
                 <span>{item.label}</span>
                 {comingSoon && (
-                  <span className="ml-auto text-[9px] bg-white/5 text-white/30 px-1.5 py-0.5 rounded-full">Soon</span>
+                  <span className="ml-auto text-[9px] bg-[#f0f0f0] text-[#ccc] px-1.5 py-0.5 rounded-full">Soon</span>
                 )}
               </motion.button>
             );
           })}
 
           {/* Bottom nav items */}
-          <div className="mt-6 pt-4 border-t border-white/5">
-            <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-white/20">Account</p>
+          <div className="mt-6 pt-4 border-t border-[#e5e5e5]">
+            <p className="px-3 mb-2 text-[10px] font-semibold uppercase tracking-widest text-[#ccc]">Account</p>
             {bottomNavItems.map((item) => {
               const isActive = pathname.startsWith(item.href);
               const Icon = item.icon;
@@ -130,7 +132,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   onClick={() => router.push(item.href)}
                   className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive ? "bg-indigo-500/10 text-white" : "text-white/40 hover:bg-white/[0.04] hover:text-white/70"
+                    isActive ? "bg-emerald-50 text-white" : "text-[#999] hover:bg-[#f5f5f5] hover:text-white/70"
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -142,12 +144,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* User Section */}
-        <div className="border-t border-white/5 p-4">
+        <div className="border-t border-[#e5e5e5] p-4">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/50 transition-colors hover:bg-white/[0.04] hover:text-white/80"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[#666] transition-colors hover:bg-[#f5f5f5] hover:text-[#1a1a1a]"
           >
-            <LogOut className="h-4 w-4 text-white/40" />
+            <LogOut className="h-4 w-4 text-[#999]" />
             <span>Log out</span>
           </button>
         </div>
