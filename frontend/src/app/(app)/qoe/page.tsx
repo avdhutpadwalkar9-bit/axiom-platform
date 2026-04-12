@@ -57,14 +57,14 @@ export default function QoEPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Quality of Earnings</h1>
-          <p className="text-sm text-gray-500 mt-1">Continuous audit-readiness &middot; Compliance center</p>
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Quality of Earnings</h1>
+          <p className="text-sm text-[#999] mt-1">Continuous audit-readiness &middot; Compliance center</p>
         </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-xs text-gray-300 hover:bg-white/[0.08] transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#fafafa] border border-[#e5e5e5] rounded-lg text-xs text-[#666] hover:bg-white/[0.08] transition-colors">
             <Download className="w-3 h-3" /> Export Report
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs text-indigo-300 hover:bg-indigo-500/30 transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-600 hover:bg-emerald-600/30 transition-colors">
             <FileText className="w-3 h-3" /> Generate QoE Report
           </button>
         </div>
@@ -78,18 +78,18 @@ export default function QoEPage() {
           { label: "Approved", value: totalApproved, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-400/10" },
           { label: "Approved Add-backs", value: formatINR(totalAddbacks), icon: Shield, color: "text-purple-400", bg: "bg-purple-400/10" },
         ].map((card) => (
-          <div key={card.label} className="bg-white/[0.03] rounded-xl p-5 border border-white/5">
+          <div key={card.label} className="bg-white rounded-xl p-5 border border-[#e5e5e5]">
             <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center mb-3`}>
               <card.icon className={`w-4 h-4 ${card.color}`} />
             </div>
-            <p className="text-xs text-gray-500 mb-0.5">{card.label}</p>
-            <p className="text-2xl font-bold text-white">{card.value}</p>
+            <p className="text-xs text-[#999] mb-0.5">{card.label}</p>
+            <p className="text-2xl font-bold text-[#1a1a1a]">{card.value}</p>
           </div>
         ))}
       </div>
 
       {/* EBITDA Bridge */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+      <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
         <h3 className="text-sm font-semibold text-white mb-4">Adjusted EBITDA Bridge</h3>
         <div className="flex items-center gap-2 overflow-x-auto pb-2">
           {[
@@ -101,16 +101,16 @@ export default function QoEPage() {
             { label: "-", value: "", color: "" },
             { label: "Consulting Rev.", value: "-₹0.45L", color: "bg-red-500/60" },
             { label: "=", value: "", color: "" },
-            { label: "Adjusted EBITDA", value: "-₹4.8L", color: "bg-indigo-500" },
+            { label: "Adjusted EBITDA", value: "-₹4.8L", color: "bg-emerald-600" },
           ].map((item, i) => (
             <div key={i} className="flex items-center gap-2">
               {item.color ? (
                 <div className={`${item.color} rounded-xl px-5 py-3 text-center min-w-[120px]`}>
-                  <p className="text-[10px] text-white/70 mb-0.5">{item.label}</p>
-                  <p className="text-sm font-bold text-white">{item.value}</p>
+                  <p className="text-[10px] text-[#333] mb-0.5">{item.label}</p>
+                  <p className="text-sm font-bold text-[#1a1a1a]">{item.value}</p>
                 </div>
               ) : (
-                <span className="text-xl text-gray-600 font-light px-1">{item.label}</span>
+                <span className="text-xl text-[#666] font-light px-1">{item.label}</span>
               )}
             </div>
           ))}
@@ -119,15 +119,15 @@ export default function QoEPage() {
 
       {/* Filter Bar */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1 bg-white/[0.03] rounded-lg border border-white/5 p-1">
+        <div className="flex items-center gap-1 bg-white rounded-lg border border-[#e5e5e5] p-1">
           {["all", "flagged", "pending", "approved"].map((filter) => (
             <button
               key={filter}
               onClick={() => setStatusFilter(filter)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize ${
                 statusFilter === filter
-                  ? "bg-white/10 text-white"
-                  : "text-gray-500 hover:text-gray-300"
+                  ? "bg-white/10 text-[#1a1a1a]"
+                  : "text-[#999] hover:text-[#666]"
               }`}
             >
               {filter}
@@ -135,12 +135,12 @@ export default function QoEPage() {
           ))}
         </div>
         <div className="flex-1" />
-        <div className="flex items-center gap-2 bg-white/[0.03] rounded-lg border border-white/5 px-3 py-1.5">
-          <Search className="w-3 h-3 text-gray-500" />
+        <div className="flex items-center gap-2 bg-white rounded-lg border border-[#e5e5e5] px-3 py-1.5">
+          <Search className="w-3 h-3 text-[#999]" />
           <input
             type="text"
             placeholder="Search adjustments..."
-            className="bg-transparent text-xs text-gray-300 outline-none w-48 placeholder:text-gray-600"
+            className="bg-transparent text-xs text-[#666] outline-none w-48 placeholder:text-[#666]"
           />
         </div>
       </div>
@@ -156,19 +156,19 @@ export default function QoEPage() {
           if (filteredItems.length === 0) return null;
 
           return (
-            <div key={category.category} className="bg-white/[0.03] rounded-xl border border-white/5 overflow-hidden">
+            <div key={category.category} className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
               <button
                 onClick={() => toggleCategory(category.category)}
-                className="w-full flex items-center justify-between p-5 hover:bg-white/[0.02] transition-colors"
+                className="w-full flex items-center justify-between p-5 hover:bg-white transition-colors"
               >
                 <div className="flex items-center gap-3">
                   {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-gray-500" />
+                    <ChevronDown className="w-4 h-4 text-[#999]" />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-gray-500" />
+                    <ChevronRight className="w-4 h-4 text-[#999]" />
                   )}
-                  <h3 className="text-sm font-semibold text-white">{category.category}</h3>
-                  <span className="text-xs text-gray-500 bg-white/5 rounded-full px-2 py-0.5">
+                  <h3 className="text-sm font-semibold text-[#1a1a1a]">{category.category}</h3>
+                  <span className="text-xs text-[#999] bg-white/5 rounded-full px-2 py-0.5">
                     {filteredItems.length} items
                   </span>
                 </div>
@@ -187,18 +187,18 @@ export default function QoEPage() {
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="border-t border-white/5"
+                  className="border-t border-[#e5e5e5]"
                 >
                   <div className="divide-y divide-white/[0.03]">
                     {filteredItems.map((item, i) => {
                       const config = statusConfig[item.status as keyof typeof statusConfig];
                       const StatusIcon = config.icon;
                       return (
-                        <div key={i} className="flex items-center gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors">
+                        <div key={i} className="flex items-center gap-4 px-5 py-4 hover:bg-white transition-colors">
                           <StatusIcon className={`w-4 h-4 flex-shrink-0 ${config.color}`} />
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white">{item.description}</p>
-                            <p className="text-xs text-gray-500 mt-0.5 capitalize">{item.type}</p>
+                            <p className="text-sm text-[#1a1a1a]">{item.description}</p>
+                            <p className="text-xs text-[#999] mt-0.5 capitalize">{item.type}</p>
                           </div>
                           <div className="text-right">
                             {item.amount !== 0 && (
@@ -224,10 +224,10 @@ export default function QoEPage() {
       </div>
 
       {/* GST Health Panel */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+      <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
         <div className="flex items-center gap-2 mb-5">
-          <Shield className="w-5 h-5 text-indigo-400" />
-          <h3 className="text-sm font-semibold text-white">GST & Tax Compliance Health</h3>
+          <Shield className="w-5 h-5 text-emerald-600" />
+          <h3 className="text-sm font-semibold text-[#1a1a1a]">GST & Tax Compliance Health</h3>
         </div>
         <div className="grid md:grid-cols-3 gap-4">
           {[
@@ -250,14 +250,14 @@ export default function QoEPage() {
               items: ["TDS filed for Q4 FY26", "Short deduction flagged: ₹12K", "26AS reconciliation: 97% matched"],
             },
           ].map((panel) => (
-            <div key={panel.title} className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
+            <div key={panel.title} className="bg-white rounded-xl p-4 border border-[#e5e5e5]">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-medium text-gray-400">{panel.title}</p>
+                <p className="text-xs font-medium text-[#999]">{panel.title}</p>
                 <span className={`text-xs font-medium ${panel.statusColor}`}>{panel.status}</span>
               </div>
               <ul className="space-y-2">
                 {panel.items.map((item, i) => (
-                  <li key={i} className="text-xs text-gray-500 flex items-start gap-2">
+                  <li key={i} className="text-xs text-[#999] flex items-start gap-2">
                     <span className="w-1 h-1 rounded-full bg-gray-600 mt-1.5 flex-shrink-0" />
                     {item}
                   </li>

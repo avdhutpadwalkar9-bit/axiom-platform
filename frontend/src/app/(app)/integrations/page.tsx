@@ -22,8 +22,8 @@ export default function IntegrationsPage() {
     <div className="p-6 lg:p-8 space-y-6 max-w-[1400px]">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Integrations</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Integrations</h1>
+          <p className="text-sm text-[#999] mt-1">
             {connectedCount} connected &middot; {integrations.length - connectedCount} available
           </p>
         </div>
@@ -31,21 +31,21 @@ export default function IntegrationsPage() {
 
       {/* Search and Filter */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 bg-white/[0.03] rounded-lg border border-white/5 px-3 py-2 flex-1 max-w-sm">
-          <Search className="w-4 h-4 text-gray-500" />
+        <div className="flex items-center gap-2 bg-white rounded-lg border border-[#e5e5e5] px-3 py-2 flex-1 max-w-sm">
+          <Search className="w-4 h-4 text-[#999]" />
           <input
             type="text"
             placeholder="Search integrations..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-sm text-gray-300 outline-none w-full placeholder:text-gray-600"
+            className="bg-transparent text-sm text-[#666] outline-none w-full placeholder:text-[#666]"
           />
         </div>
-        <div className="flex items-center gap-1 bg-white/[0.03] rounded-lg border border-white/5 p-1">
+        <div className="flex items-center gap-1 bg-white rounded-lg border border-[#e5e5e5] p-1">
           <button
             onClick={() => setFilter("all")}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-              filter === "all" ? "bg-white/10 text-white" : "text-gray-500 hover:text-gray-300"
+              filter === "all" ? "bg-white/10 text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"
             }`}
           >
             All
@@ -55,7 +55,7 @@ export default function IntegrationsPage() {
               key={cat}
               onClick={() => setFilter(cat)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                filter === cat ? "bg-white/10 text-white" : "text-gray-500 hover:text-gray-300"
+                filter === cat ? "bg-white/10 text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"
               }`}
             >
               {cat}
@@ -72,10 +72,10 @@ export default function IntegrationsPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className={`relative rounded-xl p-5 border transition-all hover:border-white/10 ${
+            className={`relative rounded-xl p-5 border transition-all hover:border-[#e5e5e5] ${
               integration.status === "connected"
-                ? "bg-white/[0.04] border-white/10"
-                : "bg-white/[0.02] border-white/5"
+                ? "bg-[#f5f5f5] border-[#e5e5e5]"
+                : "bg-white border-[#e5e5e5]"
             }`}
           >
             <div className="flex items-start justify-between mb-4">
@@ -87,8 +87,8 @@ export default function IntegrationsPage() {
                   {integration.logo}
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white">{integration.name}</h3>
-                  <p className="text-xs text-gray-500">{integration.category}</p>
+                  <h3 className="text-sm font-semibold text-[#1a1a1a]">{integration.name}</h3>
+                  <p className="text-xs text-[#999]">{integration.category}</p>
                 </div>
               </div>
               {integration.status === "connected" && (
@@ -100,15 +100,15 @@ export default function IntegrationsPage() {
 
             {integration.status === "connected" ? (
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                <div className="flex items-center gap-1.5 text-xs text-[#999]">
                   <RefreshCw className="w-3 h-3" /> Last sync: {integration.lastSync}
                 </div>
-                <button className="text-xs text-gray-400 hover:text-white transition-colors">
+                <button className="text-xs text-[#999] hover:text-white transition-colors">
                   Settings
                 </button>
               </div>
             ) : (
-              <button className="w-full py-2 rounded-lg bg-white/5 border border-white/10 text-xs text-gray-300 hover:bg-white/10 transition-all flex items-center justify-center gap-1.5">
+              <button className="w-full py-2 rounded-lg bg-white/5 border border-[#e5e5e5] text-xs text-[#666] hover:bg-white/10 transition-all flex items-center justify-center gap-1.5">
                 <Plug className="w-3 h-3" /> Connect
               </button>
             )}
@@ -117,15 +117,15 @@ export default function IntegrationsPage() {
       </div>
 
       {/* API Section */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+      <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold text-white mb-1">Custom Integration</h3>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-[#999]">
               Use our REST API to connect any data source. Full documentation available.
             </p>
           </div>
-          <button className="flex items-center gap-1.5 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-gray-300 hover:bg-white/10 transition-colors">
+          <button className="flex items-center gap-1.5 px-4 py-2 bg-white/5 border border-[#e5e5e5] rounded-lg text-xs text-[#666] hover:bg-white/10 transition-colors">
             <ExternalLink className="w-3 h-3" /> API Docs
           </button>
         </div>

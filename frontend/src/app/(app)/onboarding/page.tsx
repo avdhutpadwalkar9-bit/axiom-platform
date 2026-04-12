@@ -191,7 +191,7 @@ export default function OnboardingPage() {
   // Step 3: AI Analysis Loading
   if (currentStep === 3) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0f] px-8">
+      <div className="flex items-center justify-center min-h-screen bg-[#fafafa] px-8">
         <div className="max-w-md w-full text-center">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-8">
             <Sparkles className="w-8 h-8 text-white animate-pulse" />
@@ -199,7 +199,7 @@ export default function OnboardingPage() {
           <h2 className="text-2xl font-light text-white mb-3 tracking-[-0.02em]">
             Analyzing your financials
           </h2>
-          <p className="text-sm text-white/40 mb-10">
+          <p className="text-sm text-[#999] mb-10">
             Our AI is reviewing your data against Indian accounting standards and generating strategic insights.
           </p>
 
@@ -210,7 +210,7 @@ export default function OnboardingPage() {
               style={{ width: `${analysisProgress}%` }}
             />
           </div>
-          <p className="text-xs text-white/30">{analysisProgress}% complete</p>
+          <p className="text-xs text-[#ccc]">{analysisProgress}% complete</p>
 
           {error && (
             <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
@@ -223,9 +223,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex">
+    <div className="min-h-screen bg-[#fafafa] flex">
       {/* Left Panel — Progress */}
-      <div className="hidden lg:flex w-80 flex-col border-r border-white/5 bg-[#0c0c14] p-8">
+      <div className="hidden lg:flex w-80 flex-col border-r border-[#e5e5e5] bg-white p-8">
         <div className="flex items-center gap-2.5 mb-12">
           <img src="/axiom-logo.png" alt="CortexCFO" className="w-8 h-8 rounded-lg object-cover" />
           <span className="text-lg font-bold text-white tracking-[-0.02em]">CortexCFO</span>
@@ -240,19 +240,19 @@ export default function OnboardingPage() {
               <div
                 key={step.id}
                 className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                  isActive ? "bg-white/[0.05] border border-white/10" : ""
+                  isActive ? "bg-[#fafafa] border border-[#e5e5e5]" : ""
                 }`}
               >
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  isDone ? "bg-emerald-500/20" : isActive ? "bg-indigo-500/20" : "bg-white/5"
+                  isDone ? "bg-emerald-500/20" : isActive ? "bg-emerald-50" : "bg-white/5"
                 }`}>
-                  {isDone ? <Check className="w-4 h-4 text-emerald-400" /> : <Icon className={`w-4 h-4 ${isActive ? "text-indigo-400" : "text-white/30"}`} />}
+                  {isDone ? <Check className="w-4 h-4 text-emerald-400" /> : <Icon className={`w-4 h-4 ${isActive ? "text-emerald-600" : "text-[#ccc]"}`} />}
                 </div>
                 <div>
-                  <p className={`text-sm font-medium ${isActive ? "text-white" : isDone ? "text-white/60" : "text-white/30"}`}>
+                  <p className={`text-sm font-medium ${isActive ? "text-[#1a1a1a]" : isDone ? "text-[#444]" : "text-[#ccc]"}`}>
                     {step.label}
                   </p>
-                  <p className="text-[10px] text-white/20">Step {step.id + 1} of 3</p>
+                  <p className="text-[10px] text-[#ccc]">Step {step.id + 1} of 3</p>
                 </div>
               </div>
             );
@@ -277,32 +277,32 @@ export default function OnboardingPage() {
           {currentStep === 0 && (
             <div className="space-y-8">
               <div>
-                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-indigo-400/70 mb-3">Step 1 of 3</p>
+                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-600/70 mb-3">Step 1 of 3</p>
                 <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">Tell us about yourself</h1>
-                <p className="text-sm text-white/40">This helps us personalize your experience.</p>
+                <p className="text-sm text-[#999]">This helps us personalize your experience.</p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5 font-medium">Full Name *</label>
+                  <label className="block text-xs text-[#666] mb-1.5 font-medium">Full Name *</label>
                   <input
                     value={personal.fullName}
                     onChange={(e) => setPersonal({ fullName: e.target.value })}
                     placeholder="e.g., Avdhut Padwalkar"
-                    className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5 font-medium">Phone Number</label>
+                  <label className="block text-xs text-[#666] mb-1.5 font-medium">Phone Number</label>
                   <input
                     value={personal.phone}
                     onChange={(e) => setPersonal({ phone: e.target.value })}
                     placeholder="+91 98765 43210"
-                    className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5 font-medium">Your Role *</label>
+                  <label className="block text-xs text-[#666] mb-1.5 font-medium">Your Role *</label>
                   <div className="grid grid-cols-2 gap-2">
                     {ROLES.map((role) => (
                       <button
@@ -310,8 +310,8 @@ export default function OnboardingPage() {
                         onClick={() => setPersonal({ role })}
                         className={`p-3 rounded-xl text-xs font-medium text-left transition-all ${
                           personal.role === role
-                            ? "bg-indigo-500/20 border border-indigo-500/30 text-white"
-                            : "bg-white/[0.03] border border-white/5 text-white/50 hover:bg-white/[0.06]"
+                            ? "bg-emerald-50 border border-emerald-200 text-[#1a1a1a]"
+                            : "bg-white border border-[#e5e5e5] text-[#666] hover:bg-white/[0.06]"
                         }`}
                       >
                         {role}
@@ -327,77 +327,77 @@ export default function OnboardingPage() {
           {currentStep === 1 && (
             <div className="space-y-8">
               <div>
-                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-indigo-400/70 mb-3">Step 2 of 3</p>
+                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-600/70 mb-3">Step 2 of 3</p>
                 <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">About your business</h1>
-                <p className="text-sm text-white/40">This helps our AI understand your industry context.</p>
+                <p className="text-sm text-[#999]">This helps our AI understand your industry context.</p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5 font-medium">Company Name *</label>
+                  <label className="block text-xs text-[#666] mb-1.5 font-medium">Company Name *</label>
                   <input
                     value={business.companyName}
                     onChange={(e) => setBusiness({ companyName: e.target.value })}
                     placeholder="e.g., TechFlow Solutions Pvt Ltd"
-                    className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">Industry *</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">Industry *</label>
                     <select
                       value={business.industry}
                       onChange={(e) => setBusiness({ industry: e.target.value })}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-all"
                     >
-                      <option value="" className="bg-[#1a1a2e]">Select industry</option>
+                      <option value="" className="bg-white">Select industry</option>
                       {INDUSTRIES.map((ind) => (
-                        <option key={ind} value={ind} className="bg-[#1a1a2e]">{ind}</option>
+                        <option key={ind} value={ind} className="bg-white">{ind}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">Entity Type *</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">Entity Type *</label>
                     <select
                       value={business.entityType}
                       onChange={(e) => setBusiness({ entityType: e.target.value })}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-all"
                     >
-                      <option value="" className="bg-[#1a1a2e]">Select type</option>
+                      <option value="" className="bg-white">Select type</option>
                       {ENTITY_TYPES.map((et) => (
-                        <option key={et} value={et} className="bg-[#1a1a2e]">{et}</option>
+                        <option key={et} value={et} className="bg-white">{et}</option>
                       ))}
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5 font-medium">
+                  <label className="block text-xs text-[#666] mb-1.5 font-medium">
                     Brief about services & products
-                    <span className="text-white/20 ml-1">(helps AI understand your business)</span>
+                    <span className="text-[#ccc] ml-1">(helps AI understand your business)</span>
                   </label>
                   <textarea
                     value={business.servicesDescription}
                     onChange={(e) => setBusiness({ servicesDescription: e.target.value })}
                     placeholder="e.g., We are a B2B SaaS company providing HR automation tools to mid-market companies in India. Our main products are payroll processing and employee engagement platforms."
                     rows={3}
-                    className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all resize-none"
+                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all resize-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">Website URL</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">Website URL</label>
                     <input
                       value={business.websiteUrl}
                       onChange={(e) => setBusiness({ websiteUrl: e.target.value })}
                       placeholder="https://example.com"
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">Year Founded</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">Year Founded</label>
                     <input
                       value={business.yearFounded}
                       onChange={(e) => setBusiness({ yearFounded: e.target.value })}
@@ -405,21 +405,21 @@ export default function OnboardingPage() {
                       type="number"
                       min="1900"
                       max="2026"
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/50 mb-1.5 font-medium">Any major pivots in the business?</label>
+                  <label className="block text-xs text-[#666] mb-1.5 font-medium">Any major pivots in the business?</label>
                   <div className="flex gap-2 mb-2">
                     <button
                       onClick={() => setBusiness({ hadPivot: false })}
-                      className={`px-4 py-2 rounded-lg text-xs font-medium ${!business.hadPivot ? "bg-indigo-500/20 border border-indigo-500/30 text-white" : "bg-white/[0.03] border border-white/5 text-white/50"}`}
+                      className={`px-4 py-2 rounded-lg text-xs font-medium ${!business.hadPivot ? "bg-emerald-50 border border-emerald-200 text-[#1a1a1a]" : "bg-white border border-[#e5e5e5] text-[#666]"}`}
                     >No</button>
                     <button
                       onClick={() => setBusiness({ hadPivot: true })}
-                      className={`px-4 py-2 rounded-lg text-xs font-medium ${business.hadPivot ? "bg-indigo-500/20 border border-indigo-500/30 text-white" : "bg-white/[0.03] border border-white/5 text-white/50"}`}
+                      className={`px-4 py-2 rounded-lg text-xs font-medium ${business.hadPivot ? "bg-emerald-50 border border-emerald-200 text-[#1a1a1a]" : "bg-white border border-[#e5e5e5] text-[#666]"}`}
                     >Yes</button>
                   </div>
                   {business.hadPivot && (
@@ -427,35 +427,35 @@ export default function OnboardingPage() {
                       value={business.pivotDescription}
                       onChange={(e) => setBusiness({ pivotDescription: e.target.value })}
                       placeholder="Briefly describe the pivot..."
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">Annual Turnover</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">Annual Turnover</label>
                     <select
                       value={business.turnoverRange}
                       onChange={(e) => setBusiness({ turnoverRange: e.target.value })}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-all"
                     >
-                      <option value="" className="bg-[#1a1a2e]">Select range</option>
+                      <option value="" className="bg-white">Select range</option>
                       {TURNOVER_RANGES.map((tr) => (
-                        <option key={tr} value={tr} className="bg-[#1a1a2e]">{tr}</option>
+                        <option key={tr} value={tr} className="bg-white">{tr}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">Accounting Software</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">Accounting Software</label>
                     <select
                       value={business.accountingSoftware}
                       onChange={(e) => setBusiness({ accountingSoftware: e.target.value })}
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-4 py-3 text-sm text-white outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-all"
                     >
-                      <option value="" className="bg-[#1a1a2e]">Select software</option>
+                      <option value="" className="bg-white">Select software</option>
                       {ACCOUNTING_SOFTWARE.map((sw) => (
-                        <option key={sw} value={sw} className="bg-[#1a1a2e]">{sw}</option>
+                        <option key={sw} value={sw} className="bg-white">{sw}</option>
                       ))}
                     </select>
                   </div>
@@ -463,31 +463,31 @@ export default function OnboardingPage() {
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">GSTIN</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">GSTIN</label>
                     <input
                       value={business.gstin}
                       onChange={(e) => setBusiness({ gstin: e.target.value })}
                       placeholder="Optional"
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3 py-3 text-xs text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">PAN</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">PAN</label>
                     <input
                       value={business.pan}
                       onChange={(e) => setBusiness({ pan: e.target.value })}
                       placeholder="Optional"
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3 py-3 text-xs text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-white/50 mb-1.5 font-medium">Employees</label>
+                    <label className="block text-xs text-[#666] mb-1.5 font-medium">Employees</label>
                     <input
                       value={business.employeeCount}
                       onChange={(e) => setBusiness({ employeeCount: e.target.value })}
                       placeholder="e.g., 25"
                       type="number"
-                      className="w-full rounded-xl bg-white/[0.05] border border-white/10 px-3 py-3 text-xs text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                 </div>
@@ -499,14 +499,14 @@ export default function OnboardingPage() {
           {currentStep === 2 && (
             <div className="space-y-8">
               <div>
-                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-indigo-400/70 mb-3">Step 3 of 3</p>
+                <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-600/70 mb-3">Step 3 of 3</p>
                 <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">Upload your financials</h1>
-                <p className="text-sm text-white/40">Upload a Trial Balance or General Ledger to unlock AI-powered analysis.</p>
+                <p className="text-sm text-[#999]">Upload a Trial Balance or General Ledger to unlock AI-powered analysis.</p>
               </div>
 
               {/* Financial Year Selection */}
               <div>
-                <label className="block text-xs text-white/50 mb-2 font-medium">Select Financial Year(s) *</label>
+                <label className="block text-xs text-[#666] mb-2 font-medium">Select Financial Year(s) *</label>
                 <div className="flex gap-2">
                   {FINANCIAL_YEARS.map((fy) => (
                     <button
@@ -514,8 +514,8 @@ export default function OnboardingPage() {
                       onClick={() => toggleFY(fy)}
                       className={`flex-1 p-3 rounded-xl text-xs font-medium text-center transition-all ${
                         upload.financialYears.includes(fy)
-                          ? "bg-indigo-500/20 border border-indigo-500/30 text-white"
-                          : "bg-white/[0.03] border border-white/5 text-white/40 hover:bg-white/[0.06]"
+                          ? "bg-emerald-50 border border-emerald-200 text-[#1a1a1a]"
+                          : "bg-white border border-[#e5e5e5] text-[#999] hover:bg-white/[0.06]"
                       }`}
                     >
                       {fy}
@@ -531,7 +531,7 @@ export default function OnboardingPage() {
                 className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
                   uploadedFile
                     ? "border-emerald-500/30 bg-emerald-500/5"
-                    : "border-white/10 hover:border-indigo-500/30 hover:bg-indigo-500/5"
+                    : "border-[#e5e5e5] hover:border-emerald-200 hover:bg-emerald-600/5"
                 }`}
                 onClick={() => document.getElementById("onboarding-file-input")?.click()}
               >
@@ -548,43 +548,43 @@ export default function OnboardingPage() {
                 {uploadedFile ? (
                   <>
                     <FileSpreadsheet className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
-                    <p className="text-sm font-medium text-white">{uploadedFile.name}</p>
-                    <p className="text-xs text-white/40 mt-1">{(uploadedFile.size / 1024).toFixed(0)} KB — Click to change</p>
+                    <p className="text-sm font-medium text-[#1a1a1a]">{uploadedFile.name}</p>
+                    <p className="text-xs text-[#999] mt-1">{(uploadedFile.size / 1024).toFixed(0)} KB — Click to change</p>
                   </>
                 ) : (
                   <>
-                    <Upload className="w-10 h-10 text-white/20 mx-auto mb-3" />
-                    <p className="text-sm text-white/60 mb-1">Drop your Trial Balance or GL here</p>
-                    <p className="text-xs text-white/30">CSV, JSON, or Excel files accepted</p>
+                    <Upload className="w-10 h-10 text-[#ccc] mx-auto mb-3" />
+                    <p className="text-sm text-[#444] mb-1">Drop your Trial Balance or GL here</p>
+                    <p className="text-xs text-[#ccc]">CSV, JSON, or Excel files accepted</p>
                   </>
                 )}
               </div>
 
               {/* Download sample */}
-              <div className="flex items-center justify-center gap-2 text-xs text-white/30">
+              <div className="flex items-center justify-center gap-2 text-xs text-[#ccc]">
                 <Info className="w-3 h-3" />
-                <span>Need a sample? <button className="text-indigo-400 hover:text-indigo-300 underline">Download CSV template</button></span>
+                <span>Need a sample? <button className="text-emerald-600 hover:text-emerald-600 underline">Download CSV template</button></span>
               </div>
 
               {/* OR Demo Mode */}
               <div className="flex items-center gap-4">
                 <div className="flex-1 h-px bg-white/5" />
-                <span className="text-xs text-white/20">OR</span>
+                <span className="text-xs text-[#ccc]">OR</span>
                 <div className="flex-1 h-px bg-white/5" />
               </div>
 
               <button
                 onClick={handleDemoMode}
-                className="w-full p-5 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all text-left flex items-center gap-4"
+                className="w-full p-5 rounded-xl border border-[#e5e5e5] bg-white hover:bg-[#f5f5f5] hover:border-[#e5e5e5] transition-all text-left flex items-center gap-4"
               >
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
                   <Sparkles className="w-5 h-5 text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Explore Demo Environment</p>
-                  <p className="text-xs text-white/40 mt-0.5">Don&apos;t have data ready? Try with Acme Tech Pvt Ltd — a sample manufacturing company.</p>
+                  <p className="text-sm font-semibold text-[#1a1a1a]">Explore Demo Environment</p>
+                  <p className="text-xs text-[#999] mt-0.5">Don&apos;t have data ready? Try with Acme Tech Pvt Ltd — a sample manufacturing company.</p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-white/20 ml-auto" />
+                <ArrowRight className="w-4 h-4 text-[#ccc] ml-auto" />
               </button>
             </div>
           )}
@@ -593,7 +593,7 @@ export default function OnboardingPage() {
           {currentStep < 3 && (
             <div className="flex items-center justify-between mt-10">
               {currentStep > 0 ? (
-                <button onClick={handleBack} className="flex items-center gap-2 text-sm text-white/40 hover:text-white/70 transition-colors">
+                <button onClick={handleBack} className="flex items-center gap-2 text-sm text-[#999] hover:text-[#333] transition-colors">
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
               ) : <div />}

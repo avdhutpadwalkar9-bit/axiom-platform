@@ -31,8 +31,8 @@ export default function UploadsPage() {
     <div className="p-6 lg:p-8 max-w-[1000px]">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Upload History</h1>
-          <p className="text-sm text-white/40 mt-1">Manage your financial data uploads and run new analyses.</p>
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Upload History</h1>
+          <p className="text-sm text-[#999] mt-1">Manage your financial data uploads and run new analyses.</p>
         </div>
         <button
           onClick={() => router.push("/analysis")}
@@ -45,11 +45,11 @@ export default function UploadsPage() {
       {uploads.length === 0 ? (
         <div className="text-center py-20">
           <FolderOpen className="w-12 h-12 text-white/10 mx-auto mb-4" />
-          <p className="text-lg text-white/40 mb-2">No uploads yet</p>
-          <p className="text-sm text-white/20 mb-6">Upload a Trial Balance or General Ledger to get started.</p>
+          <p className="text-lg text-[#999] mb-2">No uploads yet</p>
+          <p className="text-sm text-[#ccc] mb-6">Upload a Trial Balance or General Ledger to get started.</p>
           <button
             onClick={() => router.push("/analysis")}
-            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/70 px-5 py-2.5 rounded-full text-sm hover:bg-white/10 transition-all"
+            className="inline-flex items-center gap-2 bg-white/5 border border-[#e5e5e5] text-[#333] px-5 py-2.5 rounded-full text-sm hover:bg-white/10 transition-all"
           >
             <Upload className="w-4 h-4" /> Upload Financial Data
           </button>
@@ -57,19 +57,19 @@ export default function UploadsPage() {
       ) : (
         <div className="space-y-4">
           {uploads.map((upload) => (
-            <div key={upload.id} className="bg-white/[0.03] rounded-xl border border-white/5 p-5 hover:border-white/10 transition-all">
+            <div key={upload.id} className="bg-white rounded-xl border border-[#e5e5e5] p-5 hover:border-[#e5e5e5] transition-all">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-indigo-500/10 flex items-center justify-center flex-shrink-0">
-                  <FileSpreadsheet className="w-5 h-5 text-indigo-400" />
+                <div className="w-12 h-12 rounded-xl bg-emerald-600/10 flex items-center justify-center flex-shrink-0">
+                  <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-white">{upload.companyName}</h3>
+                    <h3 className="text-sm font-semibold text-[#1a1a1a]">{upload.companyName}</h3>
                     <span className="flex items-center gap-1 text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">
                       <CheckCircle2 className="w-2.5 h-2.5" /> Analyzed
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 mt-1 text-xs text-white/30">
+                  <div className="flex items-center gap-4 mt-1 text-xs text-[#ccc]">
                     <span>{upload.financialYear}</span>
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {upload.uploadDate} at {upload.uploadTime}</span>
                     <span>{upload.accounts} accounts</span>
@@ -78,7 +78,7 @@ export default function UploadsPage() {
                 </div>
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                  className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-600 transition-colors"
                 >
                   View Analysis <ArrowRight className="w-3 h-3" />
                 </button>

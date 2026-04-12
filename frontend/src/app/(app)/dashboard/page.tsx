@@ -234,16 +234,16 @@ export default function DashboardPage() {
   if (!hasData || !lastResult) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 text-center">
-        <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-6">
-          <FileUp className="w-10 h-10 text-indigo-400" />
+        <div className="w-20 h-20 rounded-2xl bg-emerald-600/10 border border-emerald-200 flex items-center justify-center mb-6">
+          <FileUp className="w-10 h-10 text-emerald-600" />
         </div>
         <h1 className="text-2xl font-bold text-white mb-2">No Financial Data Yet</h1>
-        <p className="text-white/50 max-w-md mb-8">
+        <p className="text-[#666] max-w-md mb-8">
           Upload your trial balance or financial statements to unlock your personalised executive dashboard with AI-powered insights.
         </p>
         <button
           onClick={() => router.push("/analysis")}
-          className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors flex items-center gap-2"
+          className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-emerald-600 text-white font-medium transition-colors flex items-center gap-2"
         >
           <FileUp className="w-4 h-4" /> Upload Financials
         </button>
@@ -297,16 +297,16 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Executive Dashboard</h1>
-          <p className="text-sm text-white/50 mt-1">
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Executive Dashboard</h1>
+          <p className="text-sm text-[#666] mt-1">
             {displayName} &middot; {formattedDate}
             {stage.label !== "Unknown" && (
-              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-600 border border-emerald-200">
                 {stage.label}{stage.years > 0 ? ` (${stage.years}y)` : ""}
               </span>
             )}
             {industry && (
-              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-white/5 text-white/40 border border-white/10">
+              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-white/5 text-[#999] border border-[#e5e5e5]">
                 {industry}
               </span>
             )}
@@ -315,14 +315,14 @@ export default function DashboardPage() {
       </div>
 
       {/* AI Summary */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+      <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            <Lightbulb className="w-4 h-4 text-white" />
+            <Lightbulb className="w-4 h-4 text-[#1a1a1a]" />
           </div>
-          <h2 className="text-sm font-semibold text-white">AI Summary</h2>
+          <h2 className="text-sm font-semibold text-[#1a1a1a]">AI Summary</h2>
         </div>
-        <p className="text-sm text-white/60 leading-relaxed">{summary}</p>
+        <p className="text-sm text-[#444] leading-relaxed">{summary}</p>
       </div>
 
       {/* KPI Cards */}
@@ -330,32 +330,32 @@ export default function DashboardPage() {
         {kpiCards.map((kpi) => (
           <div
             key={kpi.label}
-            className="bg-white/[0.03] rounded-xl p-5 border border-white/5 hover:border-white/10 transition-all"
+            className="bg-white rounded-xl p-5 border border-[#e5e5e5] hover:border-[#e5e5e5] transition-all"
           >
             <div className="flex items-start justify-between mb-3">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center opacity-80`}>
-                <kpi.icon className="w-5 h-5 text-white" />
+                <kpi.icon className="w-5 h-5 text-[#1a1a1a]" />
               </div>
             </div>
-            <p className="text-xs text-white/50 mb-1">{kpi.label}</p>
-            <p className="text-2xl font-bold text-white">{kpi.value}</p>
+            <p className="text-xs text-[#666] mb-1">{kpi.label}</p>
+            <p className="text-2xl font-bold text-[#1a1a1a]">{kpi.value}</p>
           </div>
         ))}
       </div>
 
       {/* Industry KPIs */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+      <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
         <div className="flex items-center gap-2 mb-4">
-          <BarChart3 className="w-4 h-4 text-indigo-400" />
-          <h3 className="text-sm font-semibold text-white">
+          <BarChart3 className="w-4 h-4 text-emerald-600" />
+          <h3 className="text-sm font-semibold text-[#1a1a1a]">
             {industryData.label} KPIs
           </h3>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {industryData.kpis.map((kpi) => (
-            <div key={kpi.label} className="bg-white/[0.02] rounded-lg p-4 border border-white/5">
-              <p className="text-xs text-white/50 mb-1">{kpi.label}</p>
-              <p className="text-lg font-bold text-white">{kpi.value}</p>
+            <div key={kpi.label} className="bg-white rounded-lg p-4 border border-[#e5e5e5]">
+              <p className="text-xs text-[#666] mb-1">{kpi.label}</p>
+              <p className="text-lg font-bold text-[#1a1a1a]">{kpi.value}</p>
             </div>
           ))}
         </div>
@@ -364,11 +364,11 @@ export default function DashboardPage() {
       {/* Charts Row */}
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Expense Breakdown Bar Chart */}
-        <div className="lg:col-span-2 bg-white/[0.03] rounded-xl border border-white/5 p-6">
+        <div className="lg:col-span-2 bg-white rounded-xl border border-[#e5e5e5] p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-sm font-semibold text-white">Expense Breakdown</h3>
-              <p className="text-xs text-white/50 mt-0.5">Top 10 expense heads &middot; Total: {fmt(totalExpenses)}</p>
+              <h3 className="text-sm font-semibold text-[#1a1a1a]">Expense Breakdown</h3>
+              <p className="text-xs text-[#666] mt-0.5">Top 10 expense heads &middot; Total: {fmt(totalExpenses)}</p>
             </div>
           </div>
           {expenseChartData.length > 0 ? (
@@ -403,15 +403,15 @@ export default function DashboardPage() {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-sm text-white/30 text-center py-12">No expense data available</p>
+            <p className="text-sm text-[#ccc] text-center py-12">No expense data available</p>
           )}
         </div>
 
         {/* Balance Sheet Pie Chart */}
-        <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
           <div className="flex items-center gap-2 mb-4">
-            <PieChartIcon className="w-4 h-4 text-indigo-400" />
-            <h3 className="text-sm font-semibold text-white">Balance Sheet</h3>
+            <PieChartIcon className="w-4 h-4 text-emerald-600" />
+            <h3 className="text-sm font-semibold text-[#1a1a1a]">Balance Sheet</h3>
           </div>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
@@ -439,7 +439,7 @@ export default function DashboardPage() {
               <div key={item.name} className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
-                  <span className="text-white/50">{item.name}</span>
+                  <span className="text-[#666]">{item.name}</span>
                 </span>
                 <span className="text-white font-medium">{fmt(item.value)}</span>
               </div>
@@ -450,13 +450,13 @@ export default function DashboardPage() {
 
       {/* Insights Panel */}
       {insights && insights.length > 0 && (
-        <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
           <div className="flex items-center gap-2 mb-5">
             <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-              <Activity className="w-3 h-3 text-white" />
+              <Activity className="w-3 h-3 text-[#1a1a1a]" />
             </div>
-            <h3 className="text-sm font-semibold text-white">AI Insights</h3>
-            <span className="text-xs text-white/30 ml-auto">{insights.length} findings</span>
+            <h3 className="text-sm font-semibold text-[#1a1a1a]">AI Insights</h3>
+            <span className="text-xs text-[#ccc] ml-auto">{insights.length} findings</span>
           </div>
           <div className="space-y-3">
             {insights.map((insight, idx) => {
@@ -470,12 +470,12 @@ export default function DashboardPage() {
                   <Icon className={`w-5 h-5 mt-0.5 flex-shrink-0 ${config.color}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <h4 className="text-sm font-medium text-white">{insight.title}</h4>
-                      <span className="text-xs text-white/30 capitalize">{insight.category}</span>
+                      <h4 className="text-sm font-medium text-[#1a1a1a]">{insight.title}</h4>
+                      <span className="text-xs text-[#ccc] capitalize">{insight.category}</span>
                     </div>
-                    <p className="text-xs text-white/50 leading-relaxed">{insight.detail}</p>
+                    <p className="text-xs text-[#666] leading-relaxed">{insight.detail}</p>
                     {insight.action && (
-                      <button className="mt-2 flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
+                      <button className="mt-2 flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-600 transition-colors">
                         {insight.action} <ChevronRight className="w-3 h-3" />
                       </button>
                     )}
@@ -489,11 +489,11 @@ export default function DashboardPage() {
 
       {/* Ind AS Observations */}
       {indAS && indAS.length > 0 && (
-        <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
           <div className="flex items-center gap-2 mb-5">
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-semibold text-white">Ind AS Observations</h3>
-            <span className="text-xs text-white/30 ml-auto">{indAS.length} observations</span>
+            <h3 className="text-sm font-semibold text-[#1a1a1a]">Ind AS Observations</h3>
+            <span className="text-xs text-[#ccc] ml-auto">{indAS.length} observations</span>
           </div>
           <div className="space-y-3">
             {indAS.map((obs, idx) => {
@@ -511,7 +511,7 @@ export default function DashboardPage() {
                         {obs.standard}
                       </span>
                     </div>
-                    <p className="text-xs text-white/50 leading-relaxed">{obs.observation}</p>
+                    <p className="text-xs text-[#666] leading-relaxed">{obs.observation}</p>
                   </div>
                 </div>
               );
@@ -522,11 +522,11 @@ export default function DashboardPage() {
 
       {/* AI Questions */}
       {aiQuestions && aiQuestions.length > 0 && (
-        <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
           <div className="flex items-center gap-2 mb-5">
             <MessageCircleQuestion className="w-4 h-4 text-amber-400" />
-            <h3 className="text-sm font-semibold text-white">Questions for Management</h3>
-            <span className="text-xs text-white/30 ml-auto">{aiQuestions.length} questions</span>
+            <h3 className="text-sm font-semibold text-[#1a1a1a]">Questions for Management</h3>
+            <span className="text-xs text-[#ccc] ml-auto">{aiQuestions.length} questions</span>
           </div>
           <div className="space-y-3">
             {aiQuestions.map((q, idx) => (
@@ -537,7 +537,7 @@ export default function DashboardPage() {
                 <HelpCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-white font-medium mb-1">{q.question}</p>
-                  <p className="text-xs text-white/40 leading-relaxed">{q.reason}</p>
+                  <p className="text-xs text-[#999] leading-relaxed">{q.reason}</p>
                 </div>
               </div>
             ))}

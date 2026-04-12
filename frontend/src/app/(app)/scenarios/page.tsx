@@ -72,8 +72,8 @@ export default function ScenariosPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Scenario Canvas</h1>
-          <p className="text-sm text-gray-500 mt-1">Model different futures. Decide with confidence.</p>
+          <h1 className="text-2xl font-bold text-[#1a1a1a]">Scenario Canvas</h1>
+          <p className="text-sm text-[#999] mt-1">Model different futures. Decide with confidence.</p>
         </div>
       </div>
 
@@ -85,29 +85,29 @@ export default function ScenariosPage() {
             onClick={() => setActiveScenario(s.key)}
             className={`p-4 rounded-xl border text-left transition-all ${
               activeScenario === s.key
-                ? "bg-white/[0.05] border-indigo-500/30"
-                : "bg-white/[0.02] border-white/5 hover:border-white/10"
+                ? "bg-[#fafafa] border-emerald-200"
+                : "bg-white border-[#e5e5e5] hover:border-[#e5e5e5]"
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-              <span className="text-sm font-semibold text-white">{s.label}</span>
+              <span className="text-sm font-semibold text-[#1a1a1a]">{s.label}</span>
             </div>
-            <p className="text-xs text-gray-500">{s.description}</p>
+            <p className="text-xs text-[#999]">{s.description}</p>
           </button>
         ))}
       </div>
 
       {/* Forecast Chart */}
-      <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+      <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-sm font-semibold text-white">Cash Balance Forecast</h3>
-            <p className="text-xs text-gray-500 mt-0.5">May 2026 — Dec 2026</p>
+            <h3 className="text-sm font-semibold text-[#1a1a1a]">Cash Balance Forecast</h3>
+            <p className="text-xs text-[#999] mt-0.5">May 2026 — Dec 2026</p>
           </div>
           <div className="flex items-center gap-4">
             {scenarios.map((s) => (
-              <label key={s.key} className="flex items-center gap-1.5 text-xs text-gray-400 cursor-pointer">
+              <label key={s.key} className="flex items-center gap-1.5 text-xs text-[#999] cursor-pointer">
                 <div className="w-3 h-0.5 rounded-full" style={{ backgroundColor: s.color }} />
                 {s.label}
               </label>
@@ -141,20 +141,20 @@ export default function ScenariosPage() {
         </ResponsiveContainer>
 
         {/* Runway indicator */}
-        <div className="mt-4 pt-4 border-t border-white/5 flex items-center gap-6">
+        <div className="mt-4 pt-4 border-t border-[#e5e5e5] flex items-center gap-6">
           <div>
-            <p className="text-xs text-gray-500">Projected Runway</p>
+            <p className="text-xs text-[#999]">Projected Runway</p>
             <p className={`text-lg font-bold ${runwayMonths > 12 ? "text-emerald-400" : runwayMonths > 6 ? "text-amber-400" : "text-red-400"}`}>
               {runwayMonths > 100 ? "∞ (cash-flow positive)" : `${runwayMonths} months`}
             </p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">End-of-Year Cash</p>
-            <p className="text-lg font-bold text-white">{formatCurrency(lastMonth.cash)}</p>
+            <p className="text-xs text-[#999]">End-of-Year Cash</p>
+            <p className="text-lg font-bold text-[#1a1a1a]">{formatCurrency(lastMonth.cash)}</p>
           </div>
           <div>
-            <p className="text-xs text-gray-500">Dec 2026 Revenue</p>
-            <p className="text-lg font-bold text-white">{formatCurrency(lastMonth.revenue)}</p>
+            <p className="text-xs text-[#999]">Dec 2026 Revenue</p>
+            <p className="text-lg font-bold text-[#1a1a1a]">{formatCurrency(lastMonth.revenue)}</p>
           </div>
           {activeScenario === "worst" && (
             <div className="ml-auto flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2">
@@ -168,17 +168,17 @@ export default function ScenariosPage() {
       {/* Event Blocks */}
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Event Timeline */}
-        <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
           <div className="flex items-center justify-between mb-5">
-            <h3 className="text-sm font-semibold text-white">Event Blocks</h3>
+            <h3 className="text-sm font-semibold text-[#1a1a1a]">Event Blocks</h3>
             <button
               onClick={() => setShowAddEvent(true)}
-              className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+              className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-600 transition-colors"
             >
               <Plus className="w-3 h-3" /> Add Event
             </button>
           </div>
-          <p className="text-xs text-gray-500 mb-4">Toggle events on/off to see their impact on the forecast</p>
+          <p className="text-xs text-[#999] mb-4">Toggle events on/off to see their impact on the forecast</p>
           <div className="space-y-3">
             {events.map((event) => {
               const config = eventTypeConfig[event.type];
@@ -190,12 +190,12 @@ export default function ScenariosPage() {
                   layout
                   className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
                     isEnabled
-                      ? "bg-white/[0.04] border-white/10"
-                      : "bg-white/[0.01] border-white/5 opacity-50"
+                      ? "bg-[#f5f5f5] border-[#e5e5e5]"
+                      : "bg-white/[0.01] border-[#e5e5e5] opacity-50"
                   }`}
                   onClick={() => toggleEvent(event.id)}
                 >
-                  <GripVertical className="w-4 h-4 text-gray-600 cursor-grab" />
+                  <GripVertical className="w-4 h-4 text-[#666] cursor-grab" />
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ backgroundColor: `${event.color}20` }}
@@ -203,8 +203,8 @@ export default function ScenariosPage() {
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white">{event.title}</p>
-                    <p className="text-xs text-gray-500">{event.month} &middot; {config.label}</p>
+                    <p className="text-sm font-medium text-[#1a1a1a]">{event.title}</p>
+                    <p className="text-xs text-[#999]">{event.month} &middot; {config.label}</p>
                   </div>
                   <div className="text-right">
                     {event.impact.burnRate > 0 && (
@@ -218,7 +218,7 @@ export default function ScenariosPage() {
                     )}
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                    isEnabled ? "border-indigo-500 bg-indigo-500" : "border-gray-600"
+                    isEnabled ? "border-indigo-500 bg-emerald-600" : "border-gray-600"
                   }`}>
                     {isEnabled && <div className="w-2 h-2 rounded-full bg-white" />}
                   </div>
@@ -229,19 +229,19 @@ export default function ScenariosPage() {
         </div>
 
         {/* Scenario Comparison */}
-        <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
           <h3 className="text-sm font-semibold text-white mb-5">Scenario Comparison</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/5">
-                  <th className="text-left text-xs text-gray-500 pb-3 font-medium">Metric</th>
+                <tr className="border-b border-[#e5e5e5]">
+                  <th className="text-left text-xs text-[#999] pb-3 font-medium">Metric</th>
                   <th className="text-right text-xs pb-3 font-medium" style={{ color: "#6366f1" }}>Base</th>
                   <th className="text-right text-xs pb-3 font-medium" style={{ color: "#22c55e" }}>Best</th>
                   <th className="text-right text-xs pb-3 font-medium" style={{ color: "#ef4444" }}>Worst</th>
                 </tr>
               </thead>
-              <tbody className="text-gray-300">
+              <tbody className="text-[#666]">
                 {[
                   { metric: "End-of-Year Cash", base: "$870K", best: "$6.6M", worst: "$403K" },
                   { metric: "Dec Revenue", base: "$156K", best: "$239K", worst: "$99K" },
@@ -251,8 +251,8 @@ export default function ScenariosPage() {
                   { metric: "Breakeven Date", base: "Mar 2027", best: "Oct 2026", worst: "Never" },
                   { metric: "Headcount (Dec)", base: "42", best: "48", worst: "35" },
                 ].map((row) => (
-                  <tr key={row.metric} className="border-b border-white/[0.03]">
-                    <td className="py-3 text-xs text-gray-400">{row.metric}</td>
+                  <tr key={row.metric} className="border-b border-[#f0f0f0]">
+                    <td className="py-3 text-xs text-[#999]">{row.metric}</td>
                     <td className="py-3 text-xs text-right font-medium">{row.base}</td>
                     <td className="py-3 text-xs text-right font-medium text-emerald-400">{row.best}</td>
                     <td className="py-3 text-xs text-right font-medium text-red-400">{row.worst}</td>

@@ -291,14 +291,14 @@ export default function AnalysisPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Financial Analysis Report</h1>
-            <p className="text-sm text-gray-500 mt-1">Ind AS compliant review &middot; AI-powered insights</p>
+            <h1 className="text-2xl font-bold text-[#1a1a1a]">Financial Analysis Report</h1>
+            <p className="text-sm text-[#999] mt-1">Ind AS compliant review &middot; AI-powered insights</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => { setMode("upload"); setResult(null); }} className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-gray-300 hover:bg-white/10 transition-colors">
+            <button onClick={() => { setMode("upload"); setResult(null); }} className="px-4 py-2 bg-white/5 border border-[#e5e5e5] rounded-lg text-xs text-[#666] hover:bg-white/10 transition-colors">
               New Analysis
             </button>
-            <button className="px-4 py-2 bg-indigo-500/20 border border-indigo-500/30 rounded-lg text-xs text-indigo-300 hover:bg-indigo-500/30 transition-colors flex items-center gap-1.5">
+            <button className="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-600 hover:bg-emerald-600/30 transition-colors flex items-center gap-1.5">
               <Download className="w-3 h-3" /> Export PDF
             </button>
           </div>
@@ -311,8 +311,8 @@ export default function AnalysisPage() {
               <div key={i} className={`flex items-start gap-3 p-4 rounded-xl border ${w.severity === "critical" ? "bg-red-500/10 border-red-500/20" : "bg-amber-500/10 border-amber-500/20"}`}>
                 {w.severity === "critical" ? <XCircle className="w-5 h-5 text-red-400 mt-0.5" /> : <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5" />}
                 <div>
-                  <p className="text-sm font-medium text-white">{w.title}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{w.detail}</p>
+                  <p className="text-sm font-medium text-[#1a1a1a]">{w.title}</p>
+                  <p className="text-xs text-[#999] mt-0.5">{w.detail}</p>
                 </div>
               </div>
             ))}
@@ -320,7 +320,7 @@ export default function AnalysisPage() {
         )}
 
         {/* Tab Nav */}
-        <div className="flex gap-1 bg-white/[0.03] rounded-lg border border-white/5 p-1 w-fit">
+        <div className="flex gap-1 bg-white rounded-lg border border-[#e5e5e5] p-1 w-fit">
           {[
             { key: "overview", label: "Overview" },
             { key: "questions", label: "AI Questions" },
@@ -328,7 +328,7 @@ export default function AnalysisPage() {
             { key: "insights", label: "Insights & Actions" },
             { key: "accounts", label: "Classified Accounts" },
           ].map(tab => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white/10 text-white" : "text-gray-500 hover:text-gray-300"}`}>
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white/10 text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"}`}>
               {tab.label}
             </button>
           ))}
@@ -345,11 +345,11 @@ export default function AnalysisPage() {
                 { label: "Net Income", value: fmt(fs.net_income, true), icon: fs.net_income >= 0 ? TrendingUp : TrendingDown, color: fs.net_income >= 0 ? "text-emerald-400" : "text-red-400", bg: fs.net_income >= 0 ? "bg-emerald-400/10" : "bg-red-400/10" },
                 { label: "TB Status", value: summary.is_balanced ? "Balanced ✓" : `Var: ${fmt(summary.variance)}`, icon: summary.is_balanced ? CheckCircle2 : AlertTriangle, color: summary.is_balanced ? "text-emerald-400" : "text-red-400", bg: summary.is_balanced ? "bg-emerald-400/10" : "bg-red-400/10" },
               ].map(card => (
-                <div key={card.label} className="bg-white/[0.03] rounded-xl p-5 border border-white/5">
+                <div key={card.label} className="bg-white rounded-xl p-5 border border-[#e5e5e5]">
                   <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center mb-3`}>
                     <card.icon className={`w-4 h-4 ${card.color}`} />
                   </div>
-                  <p className="text-xs text-gray-500">{card.label}</p>
+                  <p className="text-xs text-[#999]">{card.label}</p>
                   <p className="text-xl font-bold text-white mt-0.5">{card.value}</p>
                 </div>
               ))}
@@ -357,25 +357,25 @@ export default function AnalysisPage() {
 
             {/* Balance Sheet + Ratios */}
             <div className="grid lg:grid-cols-2 gap-6">
-              <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+              <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
                 <h3 className="text-sm font-semibold text-white mb-4">Balance Sheet Summary</h3>
                 <div className="space-y-3">
                   {[
-                    { label: "Total Assets", value: fs.total_assets, color: "bg-indigo-500" },
+                    { label: "Total Assets", value: fs.total_assets, color: "bg-emerald-600" },
                     { label: "Total Liabilities", value: fs.total_liabilities, color: "bg-red-500" },
                     { label: "Total Equity", value: fs.total_equity, color: "bg-emerald-500" },
                   ].map(item => (
                     <div key={item.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                        <span className="text-sm text-gray-400">{item.label}</span>
+                        <span className="text-sm text-[#999]">{item.label}</span>
                       </div>
-                      <span className="text-sm font-medium text-white">{fmt(item.value, true)}</span>
+                      <span className="text-sm font-medium text-[#1a1a1a]">{fmt(item.value, true)}</span>
                     </div>
                   ))}
-                  <div className="border-t border-white/5 pt-3">
+                  <div className="border-t border-[#e5e5e5] pt-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-300 font-medium">Assets = L + E</span>
+                      <span className="text-sm text-[#666] font-medium">Assets = L + E</span>
                       <span className={`text-sm font-bold ${Math.abs(fs.total_assets - fs.total_liabilities - fs.total_equity) < 1 ? "text-emerald-400" : "text-amber-400"}`}>
                         {Math.abs(fs.total_assets - fs.total_liabilities - fs.total_equity) < 1 ? "Balanced ✓" : "Check Required"}
                       </span>
@@ -394,7 +394,7 @@ export default function AnalysisPage() {
                 </div>
               </div>
 
-              <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+              <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
                 <h3 className="text-sm font-semibold text-white mb-4">Key Financial Ratios</h3>
                 <div className="space-y-4">
                   {[
@@ -407,11 +407,11 @@ export default function AnalysisPage() {
                   ].map(r => (
                     <div key={r.label} className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-300">{r.label}</p>
-                        <p className="text-[10px] text-gray-600">{r.benchmark}</p>
+                        <p className="text-sm text-[#666]">{r.label}</p>
+                        <p className="text-[10px] text-[#666]">{r.benchmark}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-white">{r.value}</span>
+                        <span className="text-sm font-bold text-[#1a1a1a]">{r.value}</span>
                         <div className={`w-2 h-2 rounded-full ${r.ok ? "bg-emerald-500" : "bg-amber-500"}`} />
                       </div>
                     </div>
@@ -422,7 +422,7 @@ export default function AnalysisPage() {
 
             {/* Expense Breakdown */}
             {expenseData.length > 0 && (
-              <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+              <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
                 <h3 className="text-sm font-semibold text-white mb-4">Expense Breakdown (Top 8)</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={expenseData} layout="vertical">
@@ -441,30 +441,30 @@ export default function AnalysisPage() {
         {/* AI Questions Tab */}
         {activeTab === "questions" && (
           <div className="space-y-4">
-            <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-xl border border-indigo-500/20 p-6">
+            <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-xl border border-emerald-200 p-6">
               <div className="flex items-center gap-2 mb-3">
-                <HelpCircle className="w-5 h-5 text-indigo-400" />
-                <h3 className="text-sm font-semibold text-white">AI Clarifying Questions</h3>
+                <HelpCircle className="w-5 h-5 text-emerald-600" />
+                <h3 className="text-sm font-semibold text-[#1a1a1a]">AI Clarifying Questions</h3>
               </div>
-              <p className="text-xs text-gray-400 mb-6">The AI identified these areas that need clarification for a more accurate analysis. Answering these will improve the quality of the financial review.</p>
+              <p className="text-xs text-[#999] mb-6">The AI identified these areas that need clarification for a more accurate analysis. Answering these will improve the quality of the financial review.</p>
 
               {ai_questions.map((q, i) => {
                 const isAnswered = !!questionAnswers[q.question];
                 return (
-                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/5 border-emerald-500/20" : "bg-white/[0.03] border-white/5"}`}>
+                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/5 border-emerald-500/20" : "bg-white border-[#e5e5e5]"}`}>
                     <div className="flex items-start gap-3">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAnswered ? "bg-emerald-500/20" : "bg-indigo-500/20"}`}>
-                        {isAnswered ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <span className="text-xs font-bold text-indigo-400">{i + 1}</span>}
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAnswered ? "bg-emerald-500/20" : "bg-emerald-50"}`}>
+                        {isAnswered ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <span className="text-xs font-bold text-emerald-600">{i + 1}</span>}
                       </div>
                       <div className="flex-1">
                         <p className="text-sm text-white leading-relaxed">{q.question}</p>
-                        <p className="text-xs text-gray-500 mt-2 italic">Why this matters: {q.reason}</p>
+                        <p className="text-xs text-[#999] mt-2 italic">Why this matters: {q.reason}</p>
 
                         {/* Answer section */}
                         {isAnswered ? (
                           <div className="mt-3 p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
                             <p className="text-xs text-emerald-400 font-medium mb-1">Your answer:</p>
-                            <p className="text-sm text-white/70">{questionAnswers[q.question]}</p>
+                            <p className="text-sm text-[#333]">{questionAnswers[q.question]}</p>
                           </div>
                         ) : (
                           <div className="mt-3 flex gap-2">
@@ -473,12 +473,12 @@ export default function AnalysisPage() {
                               onChange={(e) => setAnswerInputs(prev => ({ ...prev, [i]: e.target.value }))}
                               onKeyDown={(e) => e.key === "Enter" && handleAnswerQuestion(i, q.question)}
                               placeholder="Type your answer..."
-                              className="flex-1 bg-white/[0.05] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50"
+                              className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50"
                             />
                             <button
                               onClick={() => handleAnswerQuestion(i, q.question)}
                               disabled={!answerInputs[i]?.trim() || chatLoading}
-                              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-xs text-white font-medium disabled:opacity-30 transition-colors flex items-center gap-1"
+                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-xs text-white font-medium disabled:opacity-30 transition-colors flex items-center gap-1"
                             >
                               <Send className="w-3 h-3" /> Submit
                             </button>
@@ -496,18 +496,18 @@ export default function AnalysisPage() {
         {/* Ind AS Review Tab */}
         {activeTab === "indas" && (
           <div className="space-y-4">
-            <div className="bg-white/[0.03] rounded-xl border border-white/5 p-6">
+            <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
               <div className="flex items-center gap-2 mb-5">
                 <Shield className="w-5 h-5 text-emerald-400" />
-                <h3 className="text-sm font-semibold text-white">Indian Accounting Standards (Ind AS) Review</h3>
+                <h3 className="text-sm font-semibold text-[#1a1a1a]">Indian Accounting Standards (Ind AS) Review</h3>
               </div>
               {ind_as_observations.map((obs, i) => (
                 <div key={i} className={`mb-3 p-4 rounded-xl border ${obs.severity === "high" ? "bg-red-500/5 border-red-500/20" : obs.severity === "medium" ? "bg-amber-500/5 border-amber-500/20" : "bg-emerald-500/5 border-emerald-500/20"}`}>
                   <div className="flex items-start gap-3">
                     {obs.severity === "high" ? <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5" /> : obs.severity === "medium" ? <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" /> : <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5" />}
                     <div>
-                      <p className="text-xs font-semibold text-indigo-400 mb-1">{obs.standard}</p>
-                      <p className="text-sm text-gray-300 leading-relaxed">{obs.observation}</p>
+                      <p className="text-xs font-semibold text-emerald-600 mb-1">{obs.standard}</p>
+                      <p className="text-sm text-[#666] leading-relaxed">{obs.observation}</p>
                     </div>
                   </div>
                 </div>
@@ -523,17 +523,17 @@ export default function AnalysisPage() {
               <div key={i} className={`p-5 rounded-xl border ${ins.severity === "critical" ? "bg-red-500/5 border-red-500/20" : ins.severity === "warning" ? "bg-amber-500/5 border-amber-500/20" : "bg-emerald-500/5 border-emerald-500/20"}`}>
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-gray-500">{ins.category}</span>
+                    <span className="text-[10px] uppercase tracking-wider text-[#999]">{ins.category}</span>
                     <h4 className="text-sm font-semibold text-white mt-0.5">{ins.title}</h4>
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full ${ins.severity === "critical" ? "bg-red-500/20 text-red-400" : ins.severity === "warning" ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-emerald-400"}`}>
                     {ins.severity}
                   </span>
                 </div>
-                <p className="text-xs text-gray-400 leading-relaxed mb-3">{ins.detail}</p>
-                <div className="flex items-center gap-2 p-3 bg-white/[0.03] rounded-lg border border-white/5">
-                  <ArrowRight className="w-3 h-3 text-indigo-400" />
-                  <p className="text-xs text-indigo-300 font-medium">{ins.action}</p>
+                <p className="text-xs text-[#999] leading-relaxed mb-3">{ins.detail}</p>
+                <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-[#e5e5e5]">
+                  <ArrowRight className="w-3 h-3 text-emerald-600" />
+                  <p className="text-xs text-emerald-600 font-medium">{ins.action}</p>
                 </div>
               </div>
             ))}
@@ -544,19 +544,19 @@ export default function AnalysisPage() {
         {activeTab === "accounts" && (
           <div className="space-y-4">
             {[
-              { title: "Assets", items: ca.assets, color: "text-indigo-400" },
+              { title: "Assets", items: ca.assets, color: "text-emerald-600" },
               { title: "Liabilities", items: ca.liabilities, color: "text-red-400" },
               { title: "Equity", items: ca.equity, color: "text-emerald-400" },
               { title: "Revenue", items: ca.revenue, color: "text-cyan-400" },
               { title: "Expenses", items: ca.expenses, color: "text-amber-400" },
             ].filter(g => g.items.length > 0).map(group => (
-              <div key={group.title} className="bg-white/[0.03] rounded-xl border border-white/5 overflow-hidden">
-                <div className="px-5 py-4 border-b border-white/5">
+              <div key={group.title} className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
+                <div className="px-5 py-4 border-b border-[#e5e5e5]">
                   <h3 className={`text-sm font-semibold ${group.color}`}>{group.title} ({group.items.length} accounts)</h3>
                 </div>
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-xs text-gray-500 border-b border-white/5">
+                    <tr className="text-xs text-[#999] border-b border-[#e5e5e5]">
                       <th className="text-left px-5 py-2 font-medium">Account</th>
                       <th className="text-right px-5 py-2 font-medium">Debit</th>
                       <th className="text-right px-5 py-2 font-medium">Credit</th>
@@ -565,11 +565,11 @@ export default function AnalysisPage() {
                   </thead>
                   <tbody>
                     {group.items.map((item, i) => (
-                      <tr key={i} className="border-b border-white/[0.02] hover:bg-white/[0.02]">
-                        <td className="px-5 py-2.5 text-gray-300">{item.name}</td>
-                        <td className="px-5 py-2.5 text-right text-gray-400">{item.debit > 0 ? fmt(item.debit) : ""}</td>
-                        <td className="px-5 py-2.5 text-right text-gray-400">{item.credit > 0 ? fmt(item.credit) : ""}</td>
-                        <td className={`px-5 py-2.5 text-right font-medium ${item.net >= 0 ? "text-white" : "text-red-400"}`}>{fmt(Math.abs(item.net))}</td>
+                      <tr key={i} className="border-b border-white/[0.02] hover:bg-white">
+                        <td className="px-5 py-2.5 text-[#666]">{item.name}</td>
+                        <td className="px-5 py-2.5 text-right text-[#999]">{item.debit > 0 ? fmt(item.debit) : ""}</td>
+                        <td className="px-5 py-2.5 text-right text-[#999]">{item.credit > 0 ? fmt(item.credit) : ""}</td>
+                        <td className={`px-5 py-2.5 text-right font-medium ${item.net >= 0 ? "text-[#1a1a1a]" : "text-red-400"}`}>{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -584,20 +584,20 @@ export default function AnalysisPage() {
           onClick={() => setShowChat(!showChat)}
           className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
         >
-          {showChat ? <X className="w-5 h-5 text-white" /> : <MessageCircle className="w-5 h-5 text-white" />}
+          {showChat ? <X className="w-5 h-5 text-[#1a1a1a]" /> : <MessageCircle className="w-5 h-5 text-[#1a1a1a]" />}
         </button>
 
         {/* Ask AI Chat Panel */}
         {showChat && (
-          <div className="fixed bottom-24 right-6 w-[420px] max-h-[520px] bg-[#12121a] rounded-2xl border border-white/10 shadow-2xl shadow-black/50 flex flex-col z-50 overflow-hidden">
+          <div className="fixed bottom-24 right-6 w-[420px] max-h-[520px] bg-white rounded-2xl border border-[#e5e5e5] shadow-2xl shadow-black/50 flex flex-col z-50 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/5">
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-[#e5e5e5]">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+                <Sparkles className="w-4 h-4 text-[#1a1a1a]" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Ask CortexCFO AI</p>
-                <p className="text-[10px] text-white/30">Ask anything about your financial analysis</p>
+                <p className="text-sm font-semibold text-[#1a1a1a]">Ask CortexCFO AI</p>
+                <p className="text-[10px] text-[#ccc]">Ask anything about your financial analysis</p>
               </div>
             </div>
 
@@ -606,13 +606,13 @@ export default function AnalysisPage() {
               {chatMessages.length === 0 && (
                 <div className="text-center py-8">
                   <Sparkles className="w-8 h-8 text-white/10 mx-auto mb-3" />
-                  <p className="text-xs text-white/30 mb-4">Try asking:</p>
+                  <p className="text-xs text-[#ccc] mb-4">Try asking:</p>
                   <div className="space-y-2">
                     {["What are my top expenses?", "Explain the suspense account", "How is my financial health?", "Break down employee costs"].map(q => (
                       <button
                         key={q}
                         onClick={() => { setChatInput(q); }}
-                        className="block w-full text-left text-xs text-white/40 hover:text-white/70 bg-white/[0.03] hover:bg-white/[0.06] rounded-lg px-3 py-2 transition-colors"
+                        className="block w-full text-left text-xs text-[#999] hover:text-[#333] bg-white hover:bg-white/[0.06] rounded-lg px-3 py-2 transition-colors"
                       >
                         {q}
                       </button>
@@ -624,8 +624,8 @@ export default function AnalysisPage() {
                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm whitespace-pre-line ${
                     msg.role === "user"
-                      ? "bg-indigo-500/20 text-white rounded-br-none"
-                      : "bg-white/[0.05] text-white/80 rounded-bl-none"
+                      ? "bg-emerald-50 text-white rounded-br-none"
+                      : "bg-[#fafafa] text-white/80 rounded-bl-none"
                   }`}>
                     {msg.text}
                   </div>
@@ -633,7 +633,7 @@ export default function AnalysisPage() {
               ))}
               {chatLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-white/[0.05] rounded-xl px-4 py-3 rounded-bl-none">
+                  <div className="bg-[#fafafa] rounded-xl px-4 py-3 rounded-bl-none">
                     <div className="flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "0ms" }} />
                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -646,21 +646,21 @@ export default function AnalysisPage() {
             </div>
 
             {/* Input */}
-            <div className="border-t border-white/5 p-3">
+            <div className="border-t border-[#e5e5e5] p-3">
               <div className="flex items-center gap-2">
                 <input
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAskAI()}
                   placeholder="Ask about your financials..."
-                  className="flex-1 bg-white/[0.05] border border-white/10 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/20 outline-none focus:border-indigo-500/50"
+                  className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50"
                 />
                 <button
                   onClick={handleAskAI}
                   disabled={!chatInput.trim() || chatLoading}
-                  className="w-10 h-10 rounded-lg bg-indigo-500 hover:bg-indigo-600 flex items-center justify-center transition-colors disabled:opacity-30"
+                  className="w-10 h-10 rounded-lg bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center transition-colors disabled:opacity-30"
                 >
-                  <Send className="w-4 h-4 text-white" />
+                  <Send className="w-4 h-4 text-[#1a1a1a]" />
                 </button>
               </div>
             </div>
@@ -674,8 +674,8 @@ export default function AnalysisPage() {
   return (
     <div className="p-6 lg:p-8 max-w-[1000px] mx-auto">
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-white">Trial Balance Analysis</h1>
-        <p className="text-sm text-gray-500 mt-2">
+        <h1 className="text-3xl font-bold text-[#1a1a1a]">Trial Balance Analysis</h1>
+        <p className="text-sm text-[#999] mt-2">
           Upload your Trial Balance and get instant Ind AS review, AI-powered questions, and detailed financial analysis
         </p>
       </div>
@@ -692,7 +692,7 @@ export default function AnalysisPage() {
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={onDrop}
-            className="border-2 border-dashed border-white/10 rounded-2xl p-12 text-center hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all cursor-pointer"
+            className="border-2 border-dashed border-[#e5e5e5] rounded-2xl p-12 text-center hover:border-emerald-200 hover:bg-emerald-600/5 transition-all cursor-pointer"
             onClick={() => document.getElementById("file-input")?.click()}
           >
             <input
@@ -706,40 +706,40 @@ export default function AnalysisPage() {
               }}
             />
             {loading ? (
-              <Loader2 className="w-12 h-12 text-indigo-400 mx-auto mb-4 animate-spin" />
+              <Loader2 className="w-12 h-12 text-emerald-600 mx-auto mb-4 animate-spin" />
             ) : (
-              <Upload className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+              <Upload className="w-12 h-12 text-[#666] mx-auto mb-4" />
             )}
             <p className="text-lg font-medium text-white mb-2">
               {loading ? "Analyzing..." : "Drop your Trial Balance here"}
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-[#999]">
               Supports CSV, JSON, and Excel (.xlsx) files. Export from Tally, Zoho, or any accounting software.
             </p>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="flex-1 h-px bg-white/5" />
-            <span className="text-xs text-gray-600">OR</span>
+            <span className="text-xs text-[#666]">OR</span>
             <div className="flex-1 h-px bg-white/5" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => setMode("manual")}
-              className="p-6 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all text-left"
+              className="p-6 rounded-xl border border-[#e5e5e5] bg-white hover:bg-[#f5f5f5] hover:border-[#e5e5e5] transition-all text-left"
             >
-              <FileSpreadsheet className="w-8 h-8 text-indigo-400 mb-3" />
-              <p className="text-sm font-semibold text-white">Enter Manually</p>
-              <p className="text-xs text-gray-500 mt-1">Type your Trial Balance line by line</p>
+              <FileSpreadsheet className="w-8 h-8 text-emerald-600 mb-3" />
+              <p className="text-sm font-semibold text-[#1a1a1a]">Enter Manually</p>
+              <p className="text-xs text-[#999] mt-1">Type your Trial Balance line by line</p>
             </button>
             <button
               onClick={loadSampleData}
-              className="p-6 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/10 transition-all text-left"
+              className="p-6 rounded-xl border border-[#e5e5e5] bg-white hover:bg-[#f5f5f5] hover:border-[#e5e5e5] transition-all text-left"
             >
               <Info className="w-8 h-8 text-purple-400 mb-3" />
-              <p className="text-sm font-semibold text-white">Load Sample Data</p>
-              <p className="text-xs text-gray-500 mt-1">Try with a pre-built Indian company TB</p>
+              <p className="text-sm font-semibold text-[#1a1a1a]">Load Sample Data</p>
+              <p className="text-xs text-[#999] mt-1">Try with a pre-built Indian company TB</p>
             </button>
           </div>
         </div>
@@ -748,19 +748,19 @@ export default function AnalysisPage() {
       {mode === "manual" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Enter Trial Balance</h2>
+            <h2 className="text-lg font-semibold text-[#1a1a1a]">Enter Trial Balance</h2>
             <div className="flex gap-2">
-              <button onClick={() => setMode("upload")} className="text-xs text-gray-500 hover:text-gray-300 px-3 py-1.5">
+              <button onClick={() => setMode("upload")} className="text-xs text-[#999] hover:text-[#666] px-3 py-1.5">
                 Back
               </button>
-              <button onClick={addRow} className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300 px-3 py-1.5 border border-indigo-500/20 rounded-lg">
+              <button onClick={addRow} className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-600 px-3 py-1.5 border border-emerald-200 rounded-lg">
                 <Plus className="w-3 h-3" /> Add Row
               </button>
             </div>
           </div>
 
           {/* Header */}
-          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 text-xs text-gray-500 font-medium px-1">
+          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 text-xs text-[#999] font-medium px-1">
             <span>Account Name</span>
             <span className="text-right">Debit (₹)</span>
             <span className="text-right">Credit (₹)</span>
@@ -775,23 +775,23 @@ export default function AnalysisPage() {
                   value={row.account_name}
                   onChange={(e) => updateRow(i, "account_name", e.target.value)}
                   placeholder="e.g., Sundry Debtors"
-                  className="bg-white/[0.05] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-gray-600 outline-none focus:border-indigo-500/50"
+                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-white placeholder:text-[#666] outline-none focus:border-emerald-500/50"
                 />
                 <input
                   value={row.debit}
                   onChange={(e) => updateRow(i, "debit", e.target.value)}
                   placeholder="0"
                   type="number"
-                  className="bg-white/[0.05] border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-gray-600 outline-none focus:border-indigo-500/50"
+                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-[#666] outline-none focus:border-emerald-500/50"
                 />
                 <input
                   value={row.credit}
                   onChange={(e) => updateRow(i, "credit", e.target.value)}
                   placeholder="0"
                   type="number"
-                  className="bg-white/[0.05] border border-white/10 rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-gray-600 outline-none focus:border-indigo-500/50"
+                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-[#666] outline-none focus:border-emerald-500/50"
                 />
-                <button onClick={() => removeRow(i)} className="flex items-center justify-center text-gray-600 hover:text-red-400 transition-colors">
+                <button onClick={() => removeRow(i)} className="flex items-center justify-center text-[#666] hover:text-red-400 transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -799,8 +799,8 @@ export default function AnalysisPage() {
           </div>
 
           {/* Totals */}
-          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 border-t border-white/5 pt-3 px-1">
-            <span className="text-sm font-semibold text-white">Total</span>
+          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 border-t border-[#e5e5e5] pt-3 px-1">
+            <span className="text-sm font-semibold text-[#1a1a1a]">Total</span>
             <span className="text-sm font-semibold text-white text-right">
               {fmt(rows.reduce((s, r) => s + (parseFloat(r.debit) || 0), 0))}
             </span>
