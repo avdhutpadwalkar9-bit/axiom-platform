@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <rect width="512" height="512" rx="96" fill="url(#grad)"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="512" y2="512">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <!-- Stylized "A" mark for Axiom -->
+  <path d="M256 100 L380 380 L340 380 L310 300 L202 300 L172 380 L132 380 Z M256 180 L218 280 L294 280 Z" fill="white" opacity="0.95"/>
+  <!-- Small data pulse line -->
+  <path d="M170 340 L210 340 L230 310 L250 350 L270 320 L290 340 L340 340" stroke="white" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+</svg>

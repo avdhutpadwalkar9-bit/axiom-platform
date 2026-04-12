@@ -1,0 +1,178 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Activity } from "lucide-react";
+
+export default function PrivacyPage() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const sections = [
+    {
+      title: "1. Data Collection",
+      content: "We collect information you provide directly, such as your name, email address, company name, and financial data uploaded to the platform. We also collect usage data automatically, including browser type, device information, IP address, and interaction patterns within the application. Financial data you upload (Trial Balance, ledger exports) is processed solely for analysis and is never used to train our AI models."
+    },
+    {
+      title: "2. How We Use Your Data",
+      content: "Your data is used to provide and improve the Axiom platform, including financial analysis, scenario modeling, QoE assessments, and AI-generated insights. We use aggregated, anonymized usage data to improve our algorithms and platform performance. We do not sell, rent, or share your personal or financial data with third parties for marketing purposes."
+    },
+    {
+      title: "3. Data Storage & Security",
+      content: "All data is encrypted at rest using AES-256 encryption and in transit using TLS 1.3. Financial data is stored in SOC 2 Type II certified data centers with data residency options in India. We maintain strict access controls, audit logging, and regular penetration testing. Backups are encrypted and stored in geographically separated locations within India."
+    },
+    {
+      title: "4. Data Retention",
+      content: "We retain your account data for as long as your account is active. Financial data uploaded to the platform is retained for the duration of your subscription plus 90 days. You may request deletion of your data at any time through your account settings or by contacting our support team. Upon account deletion, all associated data is permanently removed within 30 days."
+    },
+    {
+      title: "5. Your Rights",
+      content: "Under the India Digital Personal Data Protection Act (DPDP) and GDPR (where applicable), you have the right to access, correct, delete, and port your personal data. You may withdraw consent for data processing at any time. You have the right to lodge a complaint with a supervisory authority. To exercise any of these rights, contact us at privacy@axiom.finance."
+    },
+    {
+      title: "6. Cookies & Tracking",
+      content: "We use essential cookies to maintain your session and preferences. Analytics cookies are used only with your consent to help us understand how the platform is used. We do not use third-party advertising cookies. You can manage cookie preferences through your browser settings or our cookie consent banner."
+    },
+    {
+      title: "7. Third-Party Services",
+      content: "We integrate with accounting platforms (Tally, Zoho), payment processors, and cloud infrastructure providers. These integrations are governed by their respective privacy policies. We share only the minimum data necessary for each integration to function. A full list of sub-processors is available upon request."
+    },
+    {
+      title: "8. Contact Us",
+      content: "For privacy-related inquiries, contact our Data Protection Officer at privacy@axiom.finance or write to: Axiom Financial Intelligence Pvt. Ltd., WeWork Embassy Golf Links, Bangalore, Karnataka 560071, India."
+    },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#faf9f7] text-[#1a1a1a] overflow-hidden">
+      {/* Navigation */}
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
+        scrollY > 50
+          ? "bg-white/90 backdrop-blur-xl shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+          : "bg-transparent"
+      }`}>
+        <div className="max-w-[1400px] mx-auto px-8 h-[72px] flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#1a1a1a] flex items-center justify-center">
+              <Activity className="w-4.5 h-4.5 text-white" />
+            </div>
+            <span className="text-[20px] font-bold tracking-[-0.03em]">axiom</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-10 text-[13.5px] text-[#666] font-medium">
+            <Link href="/#platform" className="hover:text-[#1a1a1a] transition-colors duration-300">Platform</Link>
+            <Link href="/#customers" className="hover:text-[#1a1a1a] transition-colors duration-300">Customers</Link>
+            <Link href="/#pricing" className="hover:text-[#1a1a1a] transition-colors duration-300">Pricing</Link>
+            <Link href="/about" className="hover:text-[#1a1a1a] transition-colors duration-300">About</Link>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="text-[13.5px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium">Log in</Link>
+            <Link href="/signup" className="text-[13.5px] bg-[#1a1a1a] text-white font-semibold px-6 py-2.5 rounded-full hover:bg-[#333] transition-all">
+              Request access
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero */}
+      <section className="relative bg-[#1a1a17] text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+          backgroundSize: "60px 60px"
+        }} />
+        <div className="relative z-10 max-w-[1400px] mx-auto px-8 pt-40 pb-20 w-full">
+          <div className="max-w-[700px] mx-auto text-center">
+            <h1 className="text-[clamp(2.5rem,5.5vw,4rem)] font-light tracking-[-0.04em] leading-[1.1] mb-6">
+              Privacy <span className="italic font-normal">Policy</span>
+            </h1>
+            <p className="text-[15px] text-white/40">Last updated: April 2026</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Content */}
+      <section className="py-20 px-8">
+        <div className="max-w-[760px] mx-auto">
+          <p className="text-[16px] text-[#666] leading-[1.8] mb-12">
+            At Axiom, we take the privacy and security of your financial data seriously.
+            This Privacy Policy explains how we collect, use, store, and protect your information
+            when you use the Axiom platform and related services.
+          </p>
+          <div className="space-y-10">
+            {sections.map(section => (
+              <div key={section.title}>
+                <h2 className="text-[20px] font-semibold tracking-[-0.02em] mb-4">{section.title}</h2>
+                <p className="text-[15px] text-[#666] leading-[1.8]">{section.content}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Related links */}
+      <section className="py-16 px-8 bg-[#f5f4f2] border-t border-[#eee]">
+        <div className="max-w-[760px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-6">
+          <Link href="/terms" className="text-[14px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium underline underline-offset-4">
+            Terms of Service
+          </Link>
+          <span className="text-[#ccc] hidden sm:inline">|</span>
+          <Link href="/about" className="text-[14px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium underline underline-offset-4">
+            About Axiom
+          </Link>
+          <span className="text-[#ccc] hidden sm:inline">|</span>
+          <Link href="/" className="text-[14px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium underline underline-offset-4">
+            Back to Home
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-[#1a1a17] text-white border-t border-white/[0.06] py-16 px-8">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="grid md:grid-cols-5 gap-12 mb-16">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-2.5 mb-5">
+                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
+                  <Activity className="w-4 h-4" />
+                </div>
+                <span className="text-[18px] font-bold tracking-[-0.02em]">axiom</span>
+              </div>
+              <p className="text-[13px] text-white/30 leading-[1.8] max-w-xs">
+                AI-powered financial intelligence platform for Indian businesses.
+                Continuous QoE, scenario modeling, and prescriptive insights.
+              </p>
+            </div>
+            {[
+              { title: "Product", links: [{ label: "Dashboard", href: "/#platform" }, { label: "TB Analysis", href: "/#platform" }, { label: "Scenarios", href: "/#platform" }, { label: "QoE Center", href: "/#platform" }, { label: "Integrations", href: "/#platform" }] },
+              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Careers", href: "#" }, { label: "Blog", href: "#" }, { label: "Press", href: "#" }, { label: "Contact", href: "#" }] },
+              { title: "Legal", links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "Security", href: "#" }, { label: "GDPR", href: "#" }, { label: "DPDP", href: "#" }] },
+            ].map(col => (
+              <div key={col.title}>
+                <p className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-4">{col.title}</p>
+                <ul className="space-y-2.5">
+                  {col.links.map(link => (
+                    <li key={link.label}>
+                      <Link href={link.href} className="text-[13px] text-white/30 hover:text-white/60 transition-colors">{link.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-[11px] text-white/20">&copy; 2026 Axiom Financial Intelligence Pvt. Ltd. All rights reserved.</p>
+            <div className="flex items-center gap-6 text-[12px] text-white/20">
+              <a href="#" className="hover:text-white/40">Twitter</a>
+              <a href="#" className="hover:text-white/40">LinkedIn</a>
+              <a href="#" className="hover:text-white/40">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
