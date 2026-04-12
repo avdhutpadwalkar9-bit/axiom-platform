@@ -39,4 +39,14 @@ app.include_router(chat.router)
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok"}
+    has_key = bool(settings.ANTHROPIC_API_KEY)
+    try:
+        import anthropic
+        has_sdk = True
+    except ImportError:
+        has_sdk = False
+    return {
+        "status": "ok",
+        "claude_api": has_key and has_sdk,
+        "cors_origins": settings.CORS_ORIGINS,
+    }
