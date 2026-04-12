@@ -14,12 +14,14 @@ import {
   User,
   FolderOpen,
   Settings,
+  TrendingUp,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: BarChart3 },
   { label: "TB Analysis", href: "/analysis", icon: FileSpreadsheet },
+  { label: "Industry Expertise", href: "/industries", icon: TrendingUp },
   { label: "Scenarios", href: "/scenarios", icon: GitBranch },
   { label: "QoE Center", href: "/qoe", icon: Shield, comingSoon: true },
   { label: "Integrations", href: "/integrations", icon: Plug },
