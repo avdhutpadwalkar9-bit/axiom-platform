@@ -3,6 +3,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AIChatBubble from "@/components/AIChatBubble";
+import { FadeIn, StaggerChildren } from "@/components/Animate";
 import {
   TrendingUp,
   IndianRupee,
@@ -346,8 +347,9 @@ export default function DashboardPage() {
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {kpiCards.map((kpi) => (
-            <div key={kpi.label} className="bg-white rounded-xl p-5 border border-[#e5e5e5] hover:shadow-sm transition-all">
+          {kpiCards.map((kpi, i) => (
+            <FadeIn key={kpi.label} delay={i * 80} direction="up">
+            <div className="bg-white rounded-xl p-5 border border-[#e5e5e5] hover-lift">
               <div className="flex items-start justify-between mb-3">
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center`}>
                   <kpi.icon className="w-5 h-5 text-white" />
@@ -356,10 +358,12 @@ export default function DashboardPage() {
               <p className="text-xs text-[#666] mb-1">{kpi.label}</p>
               <p className="text-2xl font-bold text-[#1a1a1a]">{kpi.value}</p>
             </div>
+            </FadeIn>
           ))}
         </div>
 
         {/* ── Financial Analysis (formal, clean narrative) ── */}
+        <FadeIn delay={100}>
         <div className="bg-white rounded-xl border border-[#e5e5e5] p-8">
           <div className="flex items-center gap-2 mb-6">
             <Lightbulb className="w-5 h-5 text-[#666]" />
@@ -462,9 +466,11 @@ export default function DashboardPage() {
             </>
           )}
         </div>
+        </FadeIn>
 
         {/* Industry KPIs */}
-        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
+        <FadeIn delay={150}>
+        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6 hover-lift">
           <div className="flex items-center gap-2 mb-4">
             <BarChart3 className="w-4 h-4 text-[#666]" />
             <h3 className="text-sm font-semibold text-[#1a1a1a]">{industryData.label} KPIs</h3>
@@ -478,8 +484,10 @@ export default function DashboardPage() {
             ))}
           </div>
         </div>
+        </FadeIn>
 
         {/* Charts */}
+        <FadeIn delay={200}>
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 bg-white rounded-xl border border-[#e5e5e5] p-6">
             <div className="mb-6">
@@ -531,6 +539,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+        </FadeIn>
 
         {/* Questions for Management WITH answer inputs */}
         {aiQuestions && aiQuestions.length > 0 && (

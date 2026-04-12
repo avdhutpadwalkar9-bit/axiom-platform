@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FadeIn } from "@/components/Animate";
 import {
   Factory,
   Monitor,
@@ -394,6 +395,7 @@ export default function IndustryExpertisePage() {
       </div>
 
       {/* Market overview cards */}
+      <FadeIn>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
           { label: "Industries Covered", value: `${industries.length}`, sub: "Sectors" },
@@ -408,16 +410,18 @@ export default function IndustryExpertisePage() {
           </div>
         ))}
       </div>
+      </FadeIn>
 
       {/* Industry accordion list */}
       <div className="space-y-3">
-        {industries.map((ind) => {
+        {industries.map((ind, idx) => {
           const Icon = ind.icon;
           const isOpen = expandedId === ind.id;
           const section = getSection(ind.id);
 
           return (
-            <div key={ind.id} className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
+            <FadeIn key={ind.id} delay={idx * 50}>
+            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden hover-lift">
               {/* Header */}
               <button
                 onClick={() => toggleIndustry(ind.id)}
@@ -524,6 +528,7 @@ export default function IndustryExpertisePage() {
                 </div>
               )}
             </div>
+            </FadeIn>
           );
         })}
       </div>
