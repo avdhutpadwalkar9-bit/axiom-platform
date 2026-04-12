@@ -101,7 +101,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   comingSoon
                     ? "text-[#ccc] cursor-default"
                     : isActive
-                    ? "bg-emerald-50 text-[#1a1a1a]"
+                    ? "bg-emerald-50 text-emerald-800 font-semibold"
                     : "text-[#666] hover:bg-[#f5f5f5] hover:text-[#1a1a1a]"
                 }`}
               >
@@ -132,7 +132,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   onClick={() => router.push(item.href)}
                   className={`relative flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                    isActive ? "bg-emerald-50 text-[#1a1a1a]" : "text-[#999] hover:bg-[#f5f5f5] hover:text-[#444]"
+                    isActive ? "bg-emerald-50 text-emerald-800 font-semibold" : "text-[#999] hover:bg-[#f5f5f5] hover:text-[#444]"
                   }`}
                 >
                   <Icon className="h-4 w-4" />

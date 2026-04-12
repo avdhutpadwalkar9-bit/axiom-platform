@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
+import ReactMarkdown from "react-markdown";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import {
   Upload,
@@ -582,7 +583,7 @@ export default function AnalysisPage() {
         {/* Floating Ask AI Button */}
         <button
           onClick={() => setShowChat(!showChat)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-emerald-600 shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-emerald-600 shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
         >
           {showChat ? <X className="w-5 h-5 text-[#1a1a1a]" /> : <MessageCircle className="w-5 h-5 text-[#1a1a1a]" />}
         </button>
@@ -622,12 +623,12 @@ export default function AnalysisPage() {
               )}
               {chatMessages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm whitespace-pre-line ${
+                  <div className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm ${
                     msg.role === "user"
-                      ? "bg-emerald-50 text-[#1a1a1a] rounded-br-none"
-                      : "bg-[#fafafa] text-[#444] rounded-bl-none"
+                      ? "bg-emerald-50 text-[#1a1a1a] rounded-br-none whitespace-pre-line"
+                      : "bg-[#f5f5f5] text-[#333] rounded-bl-none prose prose-sm prose-neutral max-w-none [&_p]:mb-2 [&_ul]:mb-2 [&_li]:text-[#333] [&_strong]:text-[#1a1a1a] [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_table]:text-xs [&_table]:w-full [&_th]:bg-[#fafafa] [&_th]:p-2 [&_th]:text-left [&_th]:border [&_th]:border-[#e5e5e5] [&_td]:p-2 [&_td]:border [&_td]:border-[#e5e5e5]"
                   }`}>
-                    {msg.text}
+                    {msg.role === "user" ? msg.text : <ReactMarkdown>{msg.text}</ReactMarkdown>}
                   </div>
                 </div>
               ))}
@@ -737,7 +738,7 @@ export default function AnalysisPage() {
               onClick={loadSampleData}
               className="p-6 rounded-xl border border-[#e5e5e5] bg-white hover:bg-[#f5f5f5] hover:border-[#e5e5e5] transition-all text-left"
             >
-              <Info className="w-8 h-8 text-purple-400 mb-3" />
+              <Info className="w-8 h-8 text-emerald-500 mb-3" />
               <p className="text-sm font-semibold text-[#1a1a1a]">Load Sample Data</p>
               <p className="text-xs text-[#999] mt-1">Try with a pre-built Indian company TB</p>
             </button>
