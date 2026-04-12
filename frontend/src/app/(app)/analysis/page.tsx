@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import ReactMarkdown from "react-markdown";
+import AIChatBubble from "@/components/AIChatBubble";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import {
   Upload,
@@ -859,15 +859,7 @@ export default function AnalysisPage() {
                 </div>
               )}
               {chatMessages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm ${
-                    msg.role === "user"
-                      ? "bg-emerald-50 text-[#1a1a1a] rounded-br-none whitespace-pre-line"
-                      : "bg-[#f5f5f5] text-[#333] rounded-bl-none prose prose-sm prose-neutral max-w-none [&_p]:mb-2 [&_ul]:mb-2 [&_li]:text-[#333] [&_strong]:text-[#1a1a1a] [&_h1]:text-base [&_h2]:text-sm [&_h3]:text-sm [&_table]:text-xs [&_table]:w-full [&_th]:bg-[#fafafa] [&_th]:p-2 [&_th]:text-left [&_th]:border [&_th]:border-[#e5e5e5] [&_td]:p-2 [&_td]:border [&_td]:border-[#e5e5e5]"
-                  }`}>
-                    {msg.role === "user" ? msg.text : <ReactMarkdown>{msg.text}</ReactMarkdown>}
-                  </div>
-                </div>
+                <AIChatBubble key={i} role={msg.role} text={msg.text} />
               ))}
               {chatLoading && (
                 <div className="flex justify-start">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, ReactNode } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
+import AIChatBubble from "@/components/AIChatBubble";
 import {
   ArrowRight,
   Check,
@@ -886,17 +886,7 @@ export default function LandingPage() {
               </div>
             )}
             {chatMessages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                    msg.role === "user"
-                      ? "bg-emerald-50 text-[#1a1a1a] rounded-br-sm"
-                      : "bg-[#f5f5f5] text-[#333] rounded-bl-sm prose prose-sm prose-neutral max-w-none [&_p]:mb-2 [&_ul]:mb-2 [&_li]:text-[#333] [&_strong]:text-[#1a1a1a]"
-                  }`}
-                >
-                  {msg.role === "user" ? msg.text : <ReactMarkdown>{msg.text}</ReactMarkdown>}
-                </div>
-              </div>
+              <AIChatBubble key={i} role={msg.role} text={msg.text} />
             ))}
             {chatLoading && (
               <div className="flex justify-start">
