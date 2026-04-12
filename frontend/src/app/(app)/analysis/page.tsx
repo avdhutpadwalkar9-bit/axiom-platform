@@ -325,9 +325,7 @@ export default function AnalysisPage() {
           {[
             { key: "overview", label: "Overview" },
             { key: "questions", label: "AI Questions" },
-            { key: "indas", label: "Ind AS Review" },
-            { key: "insights", label: "Insights & Actions" },
-            { key: "statements", label: "Financial Statements" },
+            { key: "deepdive", label: "Deep Dive" },
           ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-[#f5f5f5] text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"}`}>
               {tab.label}
@@ -494,55 +492,89 @@ export default function AnalysisPage() {
           </div>
         )}
 
-        {/* Ind AS Review Tab */}
-        {activeTab === "indas" && (
+        {/* Deep Dive Tab — collapsible accordion for all 3 sections */}
+        {activeTab === "deepdive" && (
           <div className="space-y-4">
-            <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-              <div className="flex items-center gap-2 mb-5">
-                <Shield className="w-5 h-5 text-emerald-400" />
-                <h3 className="text-sm font-semibold text-[#1a1a1a]">Indian Accounting Standards (Ind AS) Review</h3>
-              </div>
-              {ind_as_observations.map((obs, i) => (
-                <div key={i} className={`mb-3 p-4 rounded-xl border ${obs.severity === "high" ? "bg-red-500/5 border-red-500/20" : obs.severity === "medium" ? "bg-amber-500/5 border-amber-500/20" : "bg-emerald-500/5 border-emerald-500/20"}`}>
-                  <div className="flex items-start gap-3">
-                    {obs.severity === "high" ? <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5" /> : obs.severity === "medium" ? <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" /> : <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5" />}
-                    <div>
-                      <p className="text-xs font-semibold text-emerald-600 mb-1">{obs.standard}</p>
-                      <p className="text-sm text-[#666] leading-relaxed">{obs.observation}</p>
+            {/* Section 1: Ind AS Review */}
+            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
+              <button
+                onClick={() => toggleSection("indas")}
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-emerald-600" />
+                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Ind AS Compliance Review</h3>
+                  <span className="text-[10px] text-[#bbb] ml-1">{ind_as_observations.length} observations</span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-[#999] transition-transform ${expandedSections.has("indas") ? "rotate-180" : ""}`} />
+              </button>
+              {expandedSections.has("indas") && (
+                <div className="px-6 pb-5 space-y-3">
+                  {ind_as_observations.map((obs, i) => (
+                    <div key={i} className={`p-4 rounded-xl border ${obs.severity === "high" ? "bg-red-50/50 border-red-200" : obs.severity === "medium" ? "bg-amber-50/50 border-amber-200" : "bg-emerald-50/50 border-emerald-200"}`}>
+                      <div className="flex items-start gap-3">
+                        {obs.severity === "high" ? <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" /> : obs.severity === "medium" ? <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />}
+                        <div>
+                          <p className="text-xs font-semibold text-[#1a1a1a] mb-1">{obs.standard}</p>
+                          <p className="text-sm text-[#666] leading-relaxed">{obs.observation}</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        )}
 
-        {/* Insights Tab */}
-        {activeTab === "insights" && (
-          <div className="space-y-4">
-            {insights.map((ins, i) => (
-              <div key={i} className={`p-5 rounded-xl border ${ins.severity === "critical" ? "bg-red-500/5 border-red-500/20" : ins.severity === "warning" ? "bg-amber-500/5 border-amber-500/20" : "bg-emerald-500/5 border-emerald-500/20"}`}>
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <span className="text-[10px] uppercase tracking-wider text-[#999]">{ins.category}</span>
-                    <h4 className="text-sm font-semibold text-[#1a1a1a] mt-0.5">{ins.title}</h4>
-                  </div>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full ${ins.severity === "critical" ? "bg-red-500/20 text-red-400" : ins.severity === "warning" ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-emerald-400"}`}>
-                    {ins.severity}
-                  </span>
+            {/* Section 2: Insights & Actions */}
+            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
+              <button
+                onClick={() => toggleSection("insights")}
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
+                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Insights &amp; Actions</h3>
+                  <span className="text-[10px] text-[#bbb] ml-1">{insights.length} findings</span>
                 </div>
-                <p className="text-xs text-[#999] leading-relaxed mb-3">{ins.detail}</p>
-                <div className="flex items-center gap-2 p-3 bg-white rounded-lg border border-[#e5e5e5]">
-                  <ArrowRight className="w-3 h-3 text-emerald-600" />
-                  <p className="text-xs text-emerald-600 font-medium">{ins.action}</p>
+                <ChevronDown className={`w-4 h-4 text-[#999] transition-transform ${expandedSections.has("insights") ? "rotate-180" : ""}`} />
+              </button>
+              {expandedSections.has("insights") && (
+                <div className="px-6 pb-5 space-y-3">
+                  {insights.map((ins, i) => (
+                    <div key={i} className={`p-4 rounded-xl border ${ins.severity === "critical" || ins.severity === "high" ? "bg-red-50/50 border-red-200" : ins.severity === "warning" || ins.severity === "medium" ? "bg-amber-50/50 border-amber-200" : "bg-emerald-50/50 border-emerald-200"}`}>
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <span className="text-[10px] uppercase tracking-wider text-[#999]">{ins.category}</span>
+                          <h4 className="text-sm font-semibold text-[#1a1a1a] mt-0.5">{ins.title}</h4>
+                        </div>
+                      </div>
+                      <p className="text-xs text-[#666] leading-relaxed mb-3">{ins.detail}</p>
+                      {ins.action && (
+                        <div className="flex items-center gap-2 p-2.5 bg-white rounded-lg border border-[#e5e5e5]">
+                          <ArrowRight className="w-3 h-3 text-emerald-600" />
+                          <p className="text-xs text-emerald-600 font-medium">{ins.action}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              )}
+            </div>
 
-        {/* Financial Statements Tab */}
-        {activeTab === "statements" && (
+            {/* Section 3: Financial Statements */}
+            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
+              <button
+                onClick={() => toggleSection("statements")}
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Financial Statements</h3>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-[#999] transition-transform ${expandedSections.has("statements") ? "rotate-180" : ""}`} />
+              </button>
+              {expandedSections.has("statements") && (
+                <div className="px-6 pb-5">
           <div className="space-y-6">
             {/* Export buttons */}
             <div className="flex items-center gap-3">
@@ -777,6 +809,10 @@ export default function AnalysisPage() {
                   ));
                 })()}
               </div>
+            </div>
+          </div>
+                </div>
+              )}
             </div>
           </div>
         )}

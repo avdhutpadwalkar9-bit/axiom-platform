@@ -8,11 +8,12 @@ import {
   Shield,
   Plug,
   LogOut,
-  ChevronRight,
+  ChevronDown,
   Building2,
   FileSpreadsheet,
   User,
   FolderOpen,
+  Settings,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
@@ -24,16 +25,12 @@ const navItems = [
   { label: "Integrations", href: "/integrations", icon: Plug },
 ];
 
-const bottomNavItems = [
-  { label: "Profile", href: "/profile", icon: User },
-  { label: "Uploads", href: "/uploads", icon: FolderOpen },
-];
-
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const { business } = useOnboardingStore();
+  const [wsOpen, setWsOpen] = useState(false);
+  const { business, personal } = useOnboardingStore();
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -49,15 +46,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     router.replace("/login");
   };
 
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return null;
 
   const workspaceName = business.companyName || "My Workspace";
+  const userName = personal.fullName || "User";
+  const wsActive = pathname === "/profile" || pathname === "/uploads";
 
   return (
     <div className="flex h-screen bg-[#fafafa] text-[#1a1a1a] overflow-hidden">
-      {/* Sidebar */}
       <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-[#e5e5e5] bg-white">
         {/* Logo */}
         <a href="/" className="flex items-center gap-2.5 px-5 py-4 hover:opacity-80 transition-opacity">
@@ -67,16 +63,48 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <span className="text-[15px] font-semibold tracking-tight text-[#1a1a1a]">CortexCFO</span>
         </a>
 
-        {/* Workspace — uses actual company name */}
-        <div className="mx-4 mb-5 flex items-center gap-2.5 rounded-lg border border-[#e5e5e5] bg-[#fafafa] px-3 py-2.5 cursor-pointer hover:bg-[#f5f5f5] transition-colors">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-50">
-            <Building2 className="h-3.5 w-3.5 text-emerald-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{workspaceName}</p>
-            <p className="text-[10px] text-[#999]">Active workspace</p>
-          </div>
-          <ChevronRight className="h-3.5 w-3.5 text-[#ccc]" />
+        {/* Workspace — expandable with Profile & Uploads inside */}
+        <div className="mx-4 mb-5">
+          <button
+            onClick={() => setWsOpen(!wsOpen)}
+            className={`w-full flex items-center gap-2.5 rounded-lg border px-3 py-2.5 transition-colors ${
+              wsOpen || wsActive ? "border-emerald-200 bg-emerald-50/50" : "border-[#e5e5e5] bg-[#fafafa] hover:bg-[#f5f5f5]"
+            }`}
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-50">
+              <Building2 className="h-3.5 w-3.5 text-emerald-600" />
+            </div>
+            <div className="flex-1 min-w-0 text-left">
+              <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{workspaceName}</p>
+              <p className="text-[10px] text-[#999]">{userName}</p>
+            </div>
+            <ChevronDown className={`h-3.5 w-3.5 text-[#ccc] transition-transform ${wsOpen ? "rotate-180" : ""}`} />
+          </button>
+
+          {/* Expanded workspace menu */}
+          {wsOpen && (
+            <div className="mt-1 ml-1 space-y-0.5">
+              {[
+                { label: "Profile & Business", href: "/profile", icon: User },
+                { label: "Uploads", href: "/uploads", icon: FolderOpen },
+              ].map((item) => {
+                const isActive = pathname === item.href;
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.href}
+                    onClick={() => router.push(item.href)}
+                    className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium transition-colors ${
+                      isActive ? "bg-emerald-50 text-emerald-700" : "text-[#999] hover:bg-[#f5f5f5] hover:text-[#555]"
+                    }`}
+                  >
+                    <Icon className="h-3.5 w-3.5" />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Navigation */}
@@ -112,27 +140,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               </button>
             );
           })}
-
-          {/* Account section */}
-          <div className="mt-6 pt-4 border-t border-[#f0f0f0]">
-            <p className="px-3 mb-2 text-[10px] font-medium uppercase tracking-widest text-[#bbb]">Account</p>
-            {bottomNavItems.map((item) => {
-              const isActive = pathname.startsWith(item.href);
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.href}
-                  onClick={() => router.push(item.href)}
-                  className={`relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
-                    isActive ? "bg-emerald-50 text-emerald-800" : "text-[#999] hover:bg-[#f5f5f5] hover:text-[#555]"
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </div>
         </nav>
 
         {/* Logout */}
@@ -147,7 +154,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>

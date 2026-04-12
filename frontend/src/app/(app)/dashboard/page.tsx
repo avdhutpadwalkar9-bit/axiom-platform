@@ -223,11 +223,11 @@ export default function DashboardPage() {
     if (!questionAnswers[idx]?.trim() || !lastResult) return;
     setAnsweredQuestions((prev) => new Set(prev).add(idx));
 
-    // Also send to AI for incorporation
+    // Send to AI for incorporation and get updated analysis commentary
     try {
       const token = localStorage.getItem("access_token");
       const q = lastResult.ai_questions[idx];
-      await fetch(`${API_BASE}/api/chat/answer-question`, {
+      const res = await fetch(`${API_BASE}/api/chat/answer-question`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -236,6 +236,18 @@ export default function DashboardPage() {
           analysis_result: lastResult,
         }),
       });
+      if (res.ok) {
+        const data = await res.json();
+        // Show the AI's response in the analyst sidebar
+        if (data.response) {
+          setShowAnalyst(true);
+          setChatMessages((prev) => [
+            ...prev,
+            { role: "user", text: `Regarding: "${q.question.substring(0, 60)}..."\n\nAnswer: ${questionAnswers[idx]}` },
+            { role: "ai", text: data.response },
+          ]);
+        }
+      }
     } catch {
       // Silently fail - answer is still saved locally
     }
