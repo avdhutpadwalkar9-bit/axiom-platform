@@ -40,7 +40,7 @@ export default function AboutPage() {
             <div className="w-9 h-9 rounded-xl bg-[#1a1a1a] flex items-center justify-center">
               <Activity className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="text-[20px] font-bold tracking-[-0.03em]">axiom</span>
+            <span className="text-[20px] font-bold tracking-[-0.03em]">CortexCFO</span>
           </Link>
           <div className="hidden md:flex items-center gap-10 text-[13.5px] text-[#666] font-medium">
             <Link href="/#platform" className="hover:text-[#1a1a1a] transition-colors duration-300">Platform</Link>
@@ -70,7 +70,7 @@ export default function AboutPage() {
               <span className="text-[12px] font-semibold tracking-[0.15em] uppercase text-white/50">Our Story</span>
             </div>
             <h1 className="text-[clamp(2.5rem,5.5vw,4.5rem)] font-light tracking-[-0.04em] leading-[1.1] mb-8">
-              About <span className="italic font-normal">Axiom</span>
+              About <span className="italic font-normal">CortexCFO</span>
             </h1>
             <p className="text-[18px] text-white/50 max-w-[520px] mx-auto leading-[1.75] font-light">
               We are building the financial intelligence layer for Indian businesses.
@@ -90,7 +90,7 @@ export default function AboutPage() {
           </h2>
           <p className="text-[16px] text-[#666] leading-[1.8] max-w-[600px] mx-auto">
             India has 63 million SMEs and thousands of fast-growing startups, yet most still run on spreadsheets
-            and outdated accounting software. We started Axiom because we believe AI can close that gap --
+            and outdated accounting software. We started CortexCFO because we believe AI can close that gap --
             giving every founder, CFO, and investor the same caliber of financial insight that Fortune 500
             companies take for granted.
           </p>
@@ -159,7 +159,7 @@ export default function AboutPage() {
             <span className="italic font-normal text-white/50">your finances?</span>
           </h2>
           <p className="text-[16px] text-white/40 mb-12 leading-[1.7] max-w-md mx-auto">
-            Join 200+ finance teams across India that trust Axiom for
+            Join 200+ finance teams across India that trust CortexCFO for
             real-time financial intelligence.
           </p>
           <Link href="/signup" className="group inline-flex items-center gap-3 bg-white text-[#1a1a1a] font-semibold pl-8 pr-6 py-4 rounded-full hover:bg-white/90 transition-all text-[15px]">
@@ -178,7 +178,7 @@ export default function AboutPage() {
                 <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
                   <Activity className="w-4 h-4" />
                 </div>
-                <span className="text-[18px] font-bold tracking-[-0.02em]">axiom</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em]">CortexCFO</span>
               </div>
               <p className="text-[13px] text-white/30 leading-[1.8] max-w-xs">
                 AI-powered financial intelligence platform for Indian businesses.
@@ -203,7 +203,7 @@ export default function AboutPage() {
             ))}
           </div>
           <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-white/20">&copy; 2026 Axiom Financial Intelligence Pvt. Ltd. All rights reserved.</p>
+            <p className="text-[11px] text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd. All rights reserved.</p>
             <div className="flex items-center gap-6 text-[12px] text-white/20">
               <a href="#" className="hover:text-white/40">Twitter</a>
               <a href="#" className="hover:text-white/40">LinkedIn</a>

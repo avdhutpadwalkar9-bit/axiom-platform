@@ -46,7 +46,7 @@ export default function LandingPage() {
 
   const testimonials = [
     {
-      quote: "Axiom replaced our entire FP&A team's spreadsheet workflow in a week. The AI questions it asks are exactly what our auditors would ask.",
+      quote: "CortexCFO replaced our entire FP&A team's spreadsheet workflow in a week. The AI questions it asks are exactly what our auditors would ask.",
       author: "Priya Sharma",
       role: "CFO, TechFlow Solutions",
       avatar: "PS",
@@ -78,8 +78,8 @@ export default function LandingPage() {
       }`}>
         <div className="max-w-[1400px] mx-auto px-8 h-[72px] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <img src="/axiom-logo.png" alt="Axiom" className="w-9 h-9 rounded-xl object-cover" />
-            <span className="text-[20px] font-bold tracking-[-0.03em]">axiom</span>
+            <img src="/axiom-logo.png" alt="CortexCFO" className="w-9 h-9 rounded-xl object-cover" />
+            <span className="text-[20px] font-bold tracking-[-0.03em]">CortexCFO</span>
           </Link>
           <div className="hidden md:flex items-center gap-10 text-[13.5px] text-[#666] font-medium">
             <a href="#platform" className="hover:text-[#1a1a1a] transition-colors duration-300" onClick={(e)=>{e.preventDefault();document.getElementById('platform')?.scrollIntoView({behavior:'smooth'})}}>Platform</a>
@@ -133,7 +133,7 @@ export default function LandingPage() {
 
             {/* Subtitle */}
             <p className="text-[18px] text-white/50 max-w-[460px] leading-[1.75] mb-12 font-light">
-              Axiom is the AI-powered command center for your finances.
+              CortexCFO is the AI-powered command center for your finances.
               Upload a Trial Balance. Get instant Ind AS review, scenario
               modeling, and prescriptive insights.
             </p>
@@ -255,7 +255,7 @@ export default function LandingPage() {
                 <span className="italic">Get instant clarity.</span>
               </h3>
               <p className="text-[15px] text-white/50 leading-[1.8] mb-8 max-w-sm">
-                Drop a CSV from Tally or Zoho. Axiom auto-classifies every account,
+                Drop a CSV from Tally or Zoho. CortexCFO auto-classifies every account,
                 checks Ind AS compliance, asks the 5 questions your auditor would ask,
                 and delivers a full financial analysis with actionable insights.
               </p>
@@ -300,7 +300,7 @@ export default function LandingPage() {
               {
                 icon: <Brain className="w-5 h-5" />,
                 title: "AI Insights Engine",
-                desc: "Not just alerts — prescriptive SOPs. When CAC rises, Axiom tells you exactly which channel to cut and projects the impact.",
+                desc: "Not just alerts — prescriptive SOPs. When CAC rises, CortexCFO tells you exactly which channel to cut and projects the impact.",
                 img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1600&q=90",
                 color: "bg-gradient-to-br from-purple-50 to-pink-50",
               },
@@ -519,8 +519,8 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-5 gap-12 mb-16">
             <div className="md:col-span-2">
               <div className="flex items-center gap-2.5 mb-5">
-                <img src="/axiom-logo.png" alt="Axiom" className="w-8 h-8 rounded-xl object-cover" />
-                <span className="text-[18px] font-bold tracking-[-0.02em]">axiom</span>
+                <img src="/axiom-logo.png" alt="CortexCFO" className="w-8 h-8 rounded-xl object-cover" />
+                <span className="text-[18px] font-bold tracking-[-0.02em]">CortexCFO</span>
               </div>
               <p className="text-[13px] text-white/30 leading-[1.8] max-w-xs">
                 AI-powered financial intelligence platform for Indian businesses.
@@ -563,7 +563,7 @@ export default function LandingPage() {
             ))}
           </div>
           <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-white/20">&copy; 2026 Axiom Financial Intelligence Pvt. Ltd. All rights reserved.</p>
+            <p className="text-[11px] text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd. All rights reserved.</p>
             <div className="flex items-center gap-6 text-[12px] text-white/20">
               <a href="https://twitter.com" target="_blank" rel="noopener" className="hover:text-white/40">Twitter</a>
               <a href="https://linkedin.com" target="_blank" rel="noopener" className="hover:text-white/40">LinkedIn</a>

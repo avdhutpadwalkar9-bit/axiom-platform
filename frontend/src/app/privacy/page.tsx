@@ -20,7 +20,7 @@ export default function PrivacyPage() {
     },
     {
       title: "2. How We Use Your Data",
-      content: "Your data is used to provide and improve the Axiom platform, including financial analysis, scenario modeling, QoE assessments, and AI-generated insights. We use aggregated, anonymized usage data to improve our algorithms and platform performance. We do not sell, rent, or share your personal or financial data with third parties for marketing purposes."
+      content: "Your data is used to provide and improve the CortexCFO platform, including financial analysis, scenario modeling, QoE assessments, and AI-generated insights. We use aggregated, anonymized usage data to improve our algorithms and platform performance. We do not sell, rent, or share your personal or financial data with third parties for marketing purposes."
     },
     {
       title: "3. Data Storage & Security",
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
     },
     {
       title: "5. Your Rights",
-      content: "Under the India Digital Personal Data Protection Act (DPDP) and GDPR (where applicable), you have the right to access, correct, delete, and port your personal data. You may withdraw consent for data processing at any time. You have the right to lodge a complaint with a supervisory authority. To exercise any of these rights, contact us at privacy@axiom.finance."
+      content: "Under the India Digital Personal Data Protection Act (DPDP) and GDPR (where applicable), you have the right to access, correct, delete, and port your personal data. You may withdraw consent for data processing at any time. You have the right to lodge a complaint with a supervisory authority. To exercise any of these rights, contact us at privacy@cortexcfo.in."
     },
     {
       title: "6. Cookies & Tracking",
@@ -44,7 +44,7 @@ export default function PrivacyPage() {
     },
     {
       title: "8. Contact Us",
-      content: "For privacy-related inquiries, contact our Data Protection Officer at privacy@axiom.finance or write to: Axiom Financial Intelligence Pvt. Ltd., WeWork Embassy Golf Links, Bangalore, Karnataka 560071, India."
+      content: "For privacy-related inquiries, contact our Data Protection Officer at privacy@cortexcfo.in or write to: CortexCFO Financial Intelligence Pvt. Ltd., WeWork Embassy Golf Links, Bangalore, Karnataka 560071, India."
     },
   ];
 
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
             <div className="w-9 h-9 rounded-xl bg-[#1a1a1a] flex items-center justify-center">
               <Activity className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="text-[20px] font-bold tracking-[-0.03em]">axiom</span>
+            <span className="text-[20px] font-bold tracking-[-0.03em]">CortexCFO</span>
           </Link>
           <div className="hidden md:flex items-center gap-10 text-[13.5px] text-[#666] font-medium">
             <Link href="/#platform" className="hover:text-[#1a1a1a] transition-colors duration-300">Platform</Link>
@@ -98,9 +98,9 @@ export default function PrivacyPage() {
       <section className="py-20 px-8">
         <div className="max-w-[760px] mx-auto">
           <p className="text-[16px] text-[#666] leading-[1.8] mb-12">
-            At Axiom, we take the privacy and security of your financial data seriously.
+            At CortexCFO, we take the privacy and security of your financial data seriously.
             This Privacy Policy explains how we collect, use, store, and protect your information
-            when you use the Axiom platform and related services.
+            when you use the CortexCFO platform and related services.
           </p>
           <div className="space-y-10">
             {sections.map(section => (
@@ -121,7 +121,7 @@ export default function PrivacyPage() {
           </Link>
           <span className="text-[#ccc] hidden sm:inline">|</span>
           <Link href="/about" className="text-[14px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium underline underline-offset-4">
-            About Axiom
+            About CortexCFO
           </Link>
           <span className="text-[#ccc] hidden sm:inline">|</span>
           <Link href="/" className="text-[14px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium underline underline-offset-4">
@@ -139,7 +139,7 @@ export default function PrivacyPage() {
                 <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
                   <Activity className="w-4 h-4" />
                 </div>
-                <span className="text-[18px] font-bold tracking-[-0.02em]">axiom</span>
+                <span className="text-[18px] font-bold tracking-[-0.02em]">CortexCFO</span>
               </div>
               <p className="text-[13px] text-white/30 leading-[1.8] max-w-xs">
                 AI-powered financial intelligence platform for Indian businesses.
@@ -164,7 +164,7 @@ export default function PrivacyPage() {
             ))}
           </div>
           <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-white/20">&copy; 2026 Axiom Financial Intelligence Pvt. Ltd. All rights reserved.</p>
+            <p className="text-[11px] text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd. All rights reserved.</p>
             <div className="flex items-center gap-6 text-[12px] text-white/20">
               <a href="#" className="hover:text-white/40">Twitter</a>
               <a href="#" className="hover:text-white/40">LinkedIn</a>

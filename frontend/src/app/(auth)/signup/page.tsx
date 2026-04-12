@@ -39,7 +39,7 @@ export default function SignupPage() {
             <Activity className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">Create your account</h1>
-          <p className="text-sm text-gray-500 mt-1">Start your free trial of Axiom</p>
+          <p className="text-sm text-gray-500 mt-1">Start your free trial of CortexCFO</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

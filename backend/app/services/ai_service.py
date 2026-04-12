@@ -7,6 +7,7 @@ import json
 from typing import Optional
 
 from app.config import settings
+from app.services.industry_knowledge import get_industry_context, get_industry_profile
 
 # Try importing anthropic
 try:
@@ -107,10 +108,15 @@ def build_financial_context(analysis_result: dict, business_context: dict = None
         ctx += f"- Year Founded: {business_context.get('year_founded', 'Unknown')}\n"
         ctx += f"- Services: {business_context.get('services_description', 'Not provided')}\n"
 
+        # Add industry-specific intelligence
+        industry = business_context.get('industry', '')
+        if industry:
+            ctx += get_industry_context(industry)
+
     return ctx
 
 
-SYSTEM_PROMPT = """You are Axiom AI, an expert Indian financial consultant and Chartered Accountant. You analyze Trial Balances, General Ledgers, and financial statements for Indian MSMEs and startups.
+SYSTEM_PROMPT = """You are CortexCFO AI, an expert Indian financial consultant and Chartered Accountant. You analyze Trial Balances, General Ledgers, and financial statements for Indian MSMEs and startups.
 
 Your personality:
 - You speak like a senior CA partner giving advice to a client — authoritative but approachable

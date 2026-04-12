@@ -100,6 +100,6 @@ export const useOnboardingStore = create<OnboardingState>()(
           upload: { ...defaultUpload },
         }),
     }),
-    { name: "axiom-onboarding" }
+    { name: "cortexcfo-onboarding" }
   )
 );

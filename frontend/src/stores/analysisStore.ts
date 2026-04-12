@@ -110,7 +110,7 @@ export const useAnalysisStore = create<AnalysisState>()(
         }),
     }),
     {
-      name: "axiom-analysis",
+      name: "cortexcfo-analysis",
     }
   )
 );

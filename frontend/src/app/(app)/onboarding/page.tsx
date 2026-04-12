@@ -227,8 +227,8 @@ export default function OnboardingPage() {
       {/* Left Panel — Progress */}
       <div className="hidden lg:flex w-80 flex-col border-r border-white/5 bg-[#0c0c14] p-8">
         <div className="flex items-center gap-2.5 mb-12">
-          <img src="/axiom-logo.png" alt="Axiom" className="w-8 h-8 rounded-lg object-cover" />
-          <span className="text-lg font-bold text-white tracking-[-0.02em]">axiom</span>
+          <img src="/axiom-logo.png" alt="CortexCFO" className="w-8 h-8 rounded-lg object-cover" />
+          <span className="text-lg font-bold text-white tracking-[-0.02em]">CortexCFO</span>
         </div>
 
         <div className="space-y-2 flex-1">

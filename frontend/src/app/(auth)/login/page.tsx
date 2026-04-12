@@ -38,7 +38,7 @@ export default function LoginPage() {
             <Activity className="w-6 h-6 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-          <p className="text-sm text-gray-500 mt-1">Sign in to Axiom</p>
+          <p className="text-sm text-gray-500 mt-1">Sign in to CortexCFO</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -596,7 +596,7 @@ export default function AnalysisPage() {
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Ask Axiom AI</p>
+                <p className="text-sm font-semibold text-white">Ask CortexCFO AI</p>
                 <p className="text-[10px] text-white/30">Ask anything about your financial analysis</p>
               </div>
             </div>

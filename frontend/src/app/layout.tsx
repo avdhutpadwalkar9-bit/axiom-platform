@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Axiom — Financial Intelligence That Thinks Ahead",
+  title: "CortexCFO — Your AI-Powered Virtual CFO",
   description: "AI-powered FP&A platform with continuous Quality of Earnings, scenario modeling, and prescriptive insights.",
 };
 

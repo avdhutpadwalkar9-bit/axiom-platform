@@ -61,8 +61,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 bg-[#0c0c14]">
         {/* Logo — clickable to home */}
         <a href="/" className="flex items-center gap-3 px-6 py-6 hover:opacity-80 transition-opacity">
-          <img src="/axiom-logo.png" alt="Axiom" className="h-9 w-9 rounded-lg object-cover shadow-lg shadow-indigo-500/20" />
-          <span className="text-lg font-semibold tracking-tight">Axiom</span>
+          <img src="/axiom-logo.png" alt="CortexCFO" className="h-9 w-9 rounded-lg object-cover shadow-lg shadow-indigo-500/20" />
+          <span className="text-lg font-semibold tracking-tight">CortexCFO</span>
         </a>
 
         {/* Workspace */}
