@@ -51,6 +51,37 @@ async def ask_ai(
     return {"response": response}
 
 
+class PublicChatRequest(BaseModel):
+    question: str
+    conversation_history: list[ChatMessage] = []
+
+
+@router.post("/public")
+async def public_chat(data: PublicChatRequest):
+    """Public AI chat for the landing page. No auth required. Limited context."""
+    if not data.question.strip():
+        raise HTTPException(status_code=400, detail="Question is required")
+
+    history = [{"role": m.role, "text": m.text} for m in data.conversation_history]
+
+    # Provide empty analysis — AI will answer general finance questions
+    response = await chat_with_ai(
+        question=data.question,
+        analysis_result={
+            "financial_statements": {},
+            "ratios": {},
+            "classified_accounts": {"assets": [], "liabilities": [], "equity": [], "revenue": [], "expenses": []},
+            "ind_as_observations": [],
+            "ai_questions": [],
+            "insights": [],
+            "warnings": [],
+        },
+        conversation_history=history,
+    )
+
+    return {"response": response}
+
+
 @router.post("/answer-question")
 async def answer_question(
     data: AnswerQuestionRequest,

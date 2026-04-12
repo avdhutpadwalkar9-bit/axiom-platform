@@ -156,23 +156,17 @@ export default function LandingPage() {
     setChatLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/chat/ask`, {
+      const res = await fetch(`${API_BASE}/api/chat/public`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           question,
-          analysis_result: {
-            financial_statements: { total_revenue: 0, total_expenses: 0, net_income: 0, total_assets: 0, total_liabilities: 0, total_equity: 0 },
-            ratios: { current_ratio: 0, debt_to_equity: 0, gross_margin: 0, net_margin: 0, return_on_equity: 0, working_capital: 0 },
-            classified_accounts: { assets: [], liabilities: [], equity: [], revenue: [], expenses: [] },
-            ind_as_observations: [], ai_questions: [], insights: [], warnings: [],
-          },
-          conversation_history: chatMessages.slice(-6),
+          conversation_history: chatMessages.slice(-6).map(m => ({ role: m.role, text: m.text })),
         }),
       });
       if (res.ok) {
         const data = await res.json();
-        setChatMessages((prev) => [...prev, { role: "ai", text: data.response || data.answer || "I can help better once you upload your Trial Balance. Sign up to get started!" }]);
+        setChatMessages((prev) => [...prev, { role: "ai", text: data.response || "I can help better once you upload your Trial Balance. Sign up to get started!" }]);
       } else {
         setChatMessages((prev) => [...prev, { role: "ai", text: "I can answer detailed questions once you upload your financials. Sign up free to get started!" }]);
       }
