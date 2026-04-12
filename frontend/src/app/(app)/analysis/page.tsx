@@ -585,7 +585,7 @@ export default function AnalysisPage() {
           onClick={() => setShowChat(!showChat)}
           className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-emerald-600 shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
         >
-          {showChat ? <X className="w-5 h-5 text-[#1a1a1a]" /> : <MessageCircle className="w-5 h-5 text-[#1a1a1a]" />}
+          {showChat ? <X className="w-5 h-5 text-white" /> : <MessageCircle className="w-5 h-5 text-white" />}
         </button>
 
         {/* Ask AI Chat Panel */}
@@ -594,7 +594,7 @@ export default function AnalysisPage() {
             {/* Header */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-[#e5e5e5]">
               <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-[#1a1a1a]" />
+                <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-[#1a1a1a]">Ask CortexCFO AI</p>
@@ -661,7 +661,7 @@ export default function AnalysisPage() {
                   disabled={!chatInput.trim() || chatLoading}
                   className="w-10 h-10 rounded-lg bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center transition-colors disabled:opacity-30"
                 >
-                  <Send className="w-4 h-4 text-[#1a1a1a]" />
+                  <Send className="w-4 h-4 text-white" />
                 </button>
               </div>
             </div>
