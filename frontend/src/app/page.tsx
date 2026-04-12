@@ -280,7 +280,7 @@ export default function LandingPage() {
           <div className="rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-8">
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
-                <Lock className="w-5 h-5 text-emerald-600" />
+                <Shield className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold mb-2">Your data stays yours</h3>
