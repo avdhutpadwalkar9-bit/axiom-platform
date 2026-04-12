@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, ReactNode } from "react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
 import {
   ArrowRight,
   Check,
@@ -17,7 +18,12 @@ import {
   Zap,
   BarChart3,
   Play,
+  Sparkles,
+  Send,
+  X,
 } from "lucide-react";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /* ------------------------------------------------------------------ */
 /*  Scroll-triggered fade-in animation hook                            */
@@ -130,6 +136,52 @@ export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [heroMounted, setHeroMounted] = useState(false);
+
+  // AI Chat state
+  const [showChat, setShowChat] = useState(false);
+  const [chatMessages, setChatMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages, chatLoading]);
+
+  const handleChat = async () => {
+    if (!chatInput.trim()) return;
+    const question = chatInput.trim();
+    setChatInput("");
+    setChatMessages((prev) => [...prev, { role: "user", text: question }]);
+    setChatLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/chat/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question,
+          analysis_result: {
+            financial_statements: { total_revenue: 0, total_expenses: 0, net_income: 0, total_assets: 0, total_liabilities: 0, total_equity: 0 },
+            ratios: { current_ratio: 0, debt_to_equity: 0, gross_margin: 0, net_margin: 0, return_on_equity: 0, working_capital: 0 },
+            classified_accounts: { assets: [], liabilities: [], equity: [], revenue: [], expenses: [] },
+            ind_as_observations: [], ai_questions: [], insights: [], warnings: [],
+          },
+          conversation_history: chatMessages.slice(-6),
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages((prev) => [...prev, { role: "ai", text: data.response || data.answer || "I can help better once you upload your Trial Balance. Sign up to get started!" }]);
+      } else {
+        setChatMessages((prev) => [...prev, { role: "ai", text: "I can answer detailed questions once you upload your financials. Sign up free to get started!" }]);
+      }
+    } catch {
+      setChatMessages((prev) => [...prev, { role: "ai", text: "I can answer detailed questions once you upload your financials. Sign up free to get started!" }]);
+    } finally {
+      setChatLoading(false);
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -789,6 +841,107 @@ export default function LandingPage() {
           </div>
         </FadeIn>
       </section>
+
+      {/* ─── Floating AI Chat ─── */}
+      {!showChat && (
+        <button
+          onClick={() => setShowChat(true)}
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 hover:scale-105 active:scale-95 transition-all text-sm font-medium"
+        >
+          <Sparkles className="w-4 h-4" /> Ask AI
+        </button>
+      )}
+
+      {showChat && (
+        <div className="fixed bottom-6 right-6 w-[400px] max-h-[520px] bg-white rounded-2xl border border-[#e5e5e5] shadow-2xl shadow-black/10 flex flex-col z-50 overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-[#e5e5e5]">
+            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-[#1a1a1a]">CortexCFO AI</p>
+              <p className="text-[10px] text-[#999]">Ask anything about business finance</p>
+            </div>
+            <button onClick={() => setShowChat(false)} className="w-7 h-7 rounded-lg hover:bg-[#f5f5f5] flex items-center justify-center">
+              <X className="w-4 h-4 text-[#999]" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[340px]">
+            {chatMessages.length === 0 && (
+              <div className="py-4">
+                <p className="text-xs text-[#999] mb-3">Try asking:</p>
+                <div className="space-y-1.5">
+                  {[
+                    "What is a good current ratio?",
+                    "How do I read a Trial Balance?",
+                    "What does Ind AS 115 cover?",
+                    "How to improve cash flow?",
+                  ].map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => setChatInput(q)}
+                      className="block w-full text-left text-xs text-[#666] hover:text-[#1a1a1a] bg-[#fafafa] hover:bg-[#f0f0f0] rounded-lg px-3 py-2 transition-colors"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {chatMessages.map((msg, i) => (
+              <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                    msg.role === "user"
+                      ? "bg-emerald-50 text-[#1a1a1a] rounded-br-sm"
+                      : "bg-[#f5f5f5] text-[#333] rounded-bl-sm prose prose-sm prose-neutral max-w-none [&_p]:mb-2 [&_ul]:mb-2 [&_li]:text-[#333] [&_strong]:text-[#1a1a1a]"
+                  }`}
+                >
+                  {msg.role === "user" ? msg.text : <ReactMarkdown>{msg.text}</ReactMarkdown>}
+                </div>
+              </div>
+            ))}
+            {chatLoading && (
+              <div className="flex justify-start">
+                <div className="bg-[#f5f5f5] rounded-2xl rounded-bl-sm px-4 py-3">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
+          {/* Input */}
+          <div className="border-t border-[#e5e5e5] p-3">
+            <div className="flex items-center gap-2">
+              <input
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleChat()}
+                placeholder="Ask about finance, ratios, Ind AS..."
+                className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-xl px-3.5 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-emerald-300"
+              />
+              <button
+                onClick={handleChat}
+                disabled={!chatInput.trim() || chatLoading}
+                className="w-10 h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center transition-colors disabled:opacity-30"
+              >
+                <Send className="w-4 h-4 text-white" />
+              </button>
+            </div>
+            <p className="text-[10px] text-[#ccc] mt-2 text-center">
+              Upload your TB for personalized analysis &middot; <Link href="/signup" className="text-emerald-600 hover:underline">Sign up free</Link>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ─── Footer ─── */}
       <footer className="border-t border-[#f0f0f0] py-12 px-6">
