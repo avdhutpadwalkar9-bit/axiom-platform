@@ -1,0 +1,48 @@
+import uuid
+from datetime import datetime, timezone
+
+from sqlalchemy import Boolean, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.database import Base
+
+
+class BusinessProfile(Base):
+    __tablename__ = "business_profiles"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"), unique=True, nullable=False, index=True)
+
+    # Personal info
+    full_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    role: Mapped[str] = mapped_column(String(50), nullable=False)  # founder/cfo/ca/investor/other
+
+    # Business info
+    company_name: Mapped[str] = mapped_column(String(255), nullable=False)
+    gstin: Mapped[str | None] = mapped_column(String(15), nullable=True)
+    pan: Mapped[str | None] = mapped_column(String(10), nullable=True)
+    cin: Mapped[str | None] = mapped_column(String(21), nullable=True)
+    industry: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    entity_type: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    services_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    website_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    year_founded: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    had_pivot: Mapped[bool] = mapped_column(Boolean, default=False)
+    pivot_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    turnover_range: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    employee_count: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    accounting_software: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
+    # Onboarding state
+    onboarding_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_demo_mode: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # Timestamps
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    updated_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    user = relationship("User", backref="business_profile", uselist=False)
