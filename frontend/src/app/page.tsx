@@ -133,6 +133,95 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Interactive Product Showcase — Runway-style tabs */}
+      <section className="py-20 px-6 bg-[#f8f6f3]">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-semibold mb-3">See CortexCFO in action</h2>
+            <p className="text-[#666]">Click each tab to explore how CortexCFO analyzes your business</p>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {["Upload & Analyze", "AI Chat", "Ind AS Review", "Industry KPIs", "Scenario Planning"].map((tab, i) => (
+              <button
+                key={tab}
+                onClick={() => {
+                  const el = document.getElementById(`tab-content-${i}`);
+                  document.querySelectorAll('[data-tab-content]').forEach(e => (e as HTMLElement).style.display = 'none');
+                  if (el) el.style.display = 'block';
+                  document.querySelectorAll('[data-tab-btn]').forEach(e => { e.classList.remove('bg-[#1a1a1a]', 'text-white'); e.classList.add('bg-white', 'text-[#666]'); });
+                  const btn = document.querySelector(`[data-tab-btn="${i}"]`);
+                  if (btn) { btn.classList.remove('bg-white', 'text-[#666]'); btn.classList.add('bg-[#1a1a1a]', 'text-white'); }
+                }}
+                data-tab-btn={i}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all shadow-sm ${i === 0 ? 'bg-[#1a1a1a] text-white' : 'bg-white text-[#666] hover:bg-[#f0f0f0]'}`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Contents */}
+          <div className="relative">
+            {[
+              {
+                title: "Upload your Trial Balance in seconds",
+                desc: "Drag-and-drop a CSV or Excel file from Tally, Zoho, or any accounting software. CortexCFO auto-detects the format, classifies 100+ account types, and generates your financial report instantly.",
+                img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=85",
+                badge: "Step 1",
+              },
+              {
+                title: "Ask anything about your financials",
+                desc: "Powered by Claude AI with your actual data. Ask 'How do I reduce costs?', 'What would a CA say about this suspense account?', or 'Build me a projection'. Open-ended, no restrictions.",
+                img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&q=85",
+                badge: "AI Chat",
+              },
+              {
+                title: "Automatic Ind AS compliance review",
+                desc: "Every upload is checked against AS 12, 15, 16, 19, 24, 37. The AI flags deferred tax gaps, revenue recognition issues, and missing provisions — with severity levels and specific remediation steps.",
+                img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=900&q=85",
+                badge: "Compliance",
+              },
+              {
+                title: "Industry-specific KPIs and benchmarks",
+                desc: "Manufacturing? We track COGS ratio, inventory turnover, WC cycle. SaaS? MRR, CAC, LTV, churn. Services? Utilization rate, revenue per employee. 9 industries with tailored analysis.",
+                img: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=900&q=85",
+                badge: "9 Industries",
+              },
+              {
+                title: "Pressure-test every decision",
+                desc: "What if you hire 3 people? Raise prices 10%? Delay fundraising by 3 months? Toggle event blocks and watch your cash forecast, runway, and breakeven date recalculate in real-time.",
+                img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=900&q=85",
+                badge: "What-If",
+              },
+            ].map((content, i) => (
+              <div
+                key={i}
+                id={`tab-content-${i}`}
+                data-tab-content
+                style={{ display: i === 0 ? 'block' : 'none' }}
+                className="rounded-2xl overflow-hidden border border-[#e5e5e5] shadow-lg bg-white"
+              >
+                <div className="grid md:grid-cols-2">
+                  <div className="p-8 md:p-10 flex flex-col justify-center">
+                    <span className="inline-flex w-fit items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-medium mb-4">{content.badge}</span>
+                    <h3 className="text-xl font-semibold mb-3 text-[#1a1a1a]">{content.title}</h3>
+                    <p className="text-sm text-[#666] leading-relaxed mb-6">{content.desc}</p>
+                    <Link href="/signup" className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600 hover:text-emerald-700 w-fit">
+                      Try it free <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                  <div className="h-72 md:h-auto overflow-hidden">
+                    <img src={content.img} alt={content.title} className="w-full h-full object-cover" loading="lazy" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features with images */}
       <section id="features" className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
