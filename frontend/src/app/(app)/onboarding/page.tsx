@@ -194,9 +194,9 @@ export default function OnboardingPage() {
       <div className="flex items-center justify-center min-h-screen bg-[#fafafa] px-8">
         <div className="max-w-md w-full text-center">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-8">
-            <Sparkles className="w-8 h-8 text-white animate-pulse" />
+            <Sparkles className="w-8 h-8 text-emerald-600 animate-pulse" />
           </div>
-          <h2 className="text-2xl font-light text-white mb-3 tracking-[-0.02em]">
+          <h2 className="text-2xl font-light text-[#1a1a1a] mb-3 tracking-[-0.02em]">
             Analyzing your financials
           </h2>
           <p className="text-sm text-[#999] mb-10">
@@ -204,7 +204,7 @@ export default function OnboardingPage() {
           </p>
 
           {/* Progress bar */}
-          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-4">
+          <div className="w-full h-1.5 bg-[#fafafa] rounded-full overflow-hidden mb-4">
             <div
               className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
               style={{ width: `${analysisProgress}%` }}
@@ -228,7 +228,7 @@ export default function OnboardingPage() {
       <div className="hidden lg:flex w-80 flex-col border-r border-[#e5e5e5] bg-white p-8">
         <div className="flex items-center gap-2.5 mb-12">
           <img src="/axiom-logo.png" alt="CortexCFO" className="w-8 h-8 rounded-lg object-cover" />
-          <span className="text-lg font-bold text-white tracking-[-0.02em]">CortexCFO</span>
+          <span className="text-lg font-bold text-[#1a1a1a] tracking-[-0.02em]">CortexCFO</span>
         </div>
 
         <div className="space-y-2 flex-1">
@@ -244,7 +244,7 @@ export default function OnboardingPage() {
                 }`}
               >
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  isDone ? "bg-emerald-500/20" : isActive ? "bg-emerald-50" : "bg-white/5"
+                  isDone ? "bg-emerald-500/20" : isActive ? "bg-emerald-50" : "bg-[#fafafa]"
                 }`}>
                   {isDone ? <Check className="w-4 h-4 text-emerald-400" /> : <Icon className={`w-4 h-4 ${isActive ? "text-emerald-600" : "text-[#ccc]"}`} />}
                 </div>
@@ -259,7 +259,7 @@ export default function OnboardingPage() {
           })}
         </div>
 
-        <p className="text-[11px] text-white/15 mt-auto">
+        <p className="text-[11px] text-[#ccc] mt-auto">
           Your data is encrypted and never shared.
         </p>
       </div>
@@ -278,7 +278,7 @@ export default function OnboardingPage() {
             <div className="space-y-8">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-600/70 mb-3">Step 1 of 3</p>
-                <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">Tell us about yourself</h1>
+                <h1 className="text-3xl font-light text-[#1a1a1a] tracking-[-0.02em] mb-2">Tell us about yourself</h1>
                 <p className="text-sm text-[#999]">This helps us personalize your experience.</p>
               </div>
 
@@ -289,7 +289,7 @@ export default function OnboardingPage() {
                     value={personal.fullName}
                     onChange={(e) => setPersonal({ fullName: e.target.value })}
                     placeholder="e.g., Avdhut Padwalkar"
-                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                   />
                 </div>
                 <div>
@@ -298,7 +298,7 @@ export default function OnboardingPage() {
                     value={personal.phone}
                     onChange={(e) => setPersonal({ phone: e.target.value })}
                     placeholder="+91 98765 43210"
-                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                   />
                 </div>
                 <div>
@@ -328,7 +328,7 @@ export default function OnboardingPage() {
             <div className="space-y-8">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-600/70 mb-3">Step 2 of 3</p>
-                <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">About your business</h1>
+                <h1 className="text-3xl font-light text-[#1a1a1a] tracking-[-0.02em] mb-2">About your business</h1>
                 <p className="text-sm text-[#999]">This helps our AI understand your industry context.</p>
               </div>
 
@@ -339,7 +339,7 @@ export default function OnboardingPage() {
                     value={business.companyName}
                     onChange={(e) => setBusiness({ companyName: e.target.value })}
                     placeholder="e.g., TechFlow Solutions Pvt Ltd"
-                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                   />
                 </div>
 
@@ -349,7 +349,7 @@ export default function OnboardingPage() {
                     <select
                       value={business.industry}
                       onChange={(e) => setBusiness({ industry: e.target.value })}
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] outline-none focus:border-emerald-500/50 transition-all"
                     >
                       <option value="" className="bg-white">Select industry</option>
                       {INDUSTRIES.map((ind) => (
@@ -362,7 +362,7 @@ export default function OnboardingPage() {
                     <select
                       value={business.entityType}
                       onChange={(e) => setBusiness({ entityType: e.target.value })}
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] outline-none focus:border-emerald-500/50 transition-all"
                     >
                       <option value="" className="bg-white">Select type</option>
                       {ENTITY_TYPES.map((et) => (
@@ -382,7 +382,7 @@ export default function OnboardingPage() {
                     onChange={(e) => setBusiness({ servicesDescription: e.target.value })}
                     placeholder="e.g., We are a B2B SaaS company providing HR automation tools to mid-market companies in India. Our main products are payroll processing and employee engagement platforms."
                     rows={3}
-                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all resize-none"
+                    className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all resize-none"
                   />
                 </div>
 
@@ -393,7 +393,7 @@ export default function OnboardingPage() {
                       value={business.websiteUrl}
                       onChange={(e) => setBusiness({ websiteUrl: e.target.value })}
                       placeholder="https://example.com"
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                   <div>
@@ -405,7 +405,7 @@ export default function OnboardingPage() {
                       type="number"
                       min="1900"
                       max="2026"
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                 </div>
@@ -427,7 +427,7 @@ export default function OnboardingPage() {
                       value={business.pivotDescription}
                       onChange={(e) => setBusiness({ pivotDescription: e.target.value })}
                       placeholder="Briefly describe the pivot..."
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   )}
                 </div>
@@ -438,7 +438,7 @@ export default function OnboardingPage() {
                     <select
                       value={business.turnoverRange}
                       onChange={(e) => setBusiness({ turnoverRange: e.target.value })}
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] outline-none focus:border-emerald-500/50 transition-all"
                     >
                       <option value="" className="bg-white">Select range</option>
                       {TURNOVER_RANGES.map((tr) => (
@@ -451,7 +451,7 @@ export default function OnboardingPage() {
                     <select
                       value={business.accountingSoftware}
                       onChange={(e) => setBusiness({ accountingSoftware: e.target.value })}
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-4 py-3 text-sm text-[#1a1a1a] outline-none focus:border-emerald-500/50 transition-all"
                     >
                       <option value="" className="bg-white">Select software</option>
                       {ACCOUNTING_SOFTWARE.map((sw) => (
@@ -468,7 +468,7 @@ export default function OnboardingPage() {
                       value={business.gstin}
                       onChange={(e) => setBusiness({ gstin: e.target.value })}
                       placeholder="Optional"
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                   <div>
@@ -477,7 +477,7 @@ export default function OnboardingPage() {
                       value={business.pan}
                       onChange={(e) => setBusiness({ pan: e.target.value })}
                       placeholder="Optional"
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                   <div>
@@ -487,7 +487,7 @@ export default function OnboardingPage() {
                       onChange={(e) => setBusiness({ employeeCount: e.target.value })}
                       placeholder="e.g., 25"
                       type="number"
-                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
+                      className="w-full rounded-xl bg-[#fafafa] border border-[#e5e5e5] px-3 py-3 text-xs text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50 transition-all"
                     />
                   </div>
                 </div>
@@ -500,7 +500,7 @@ export default function OnboardingPage() {
             <div className="space-y-8">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-600/70 mb-3">Step 3 of 3</p>
-                <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">Upload your financials</h1>
+                <h1 className="text-3xl font-light text-[#1a1a1a] tracking-[-0.02em] mb-2">Upload your financials</h1>
                 <p className="text-sm text-[#999]">Upload a Trial Balance or General Ledger to unlock AI-powered analysis.</p>
               </div>
 
@@ -568,9 +568,9 @@ export default function OnboardingPage() {
 
               {/* OR Demo Mode */}
               <div className="flex items-center gap-4">
-                <div className="flex-1 h-px bg-white/5" />
+                <div className="flex-1 h-px bg-[#fafafa]" />
                 <span className="text-xs text-[#ccc]">OR</span>
-                <div className="flex-1 h-px bg-white/5" />
+                <div className="flex-1 h-px bg-[#fafafa]" />
               </div>
 
               <button
@@ -600,7 +600,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleNext}
                 disabled={!canProceed()}
-                className="flex items-center gap-2 bg-white text-[#0a0a0f] font-semibold px-8 py-3 rounded-full hover:bg-white/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm"
+                className="flex items-center gap-2 bg-white text-[#0a0a0f] font-semibold px-8 py-3 rounded-full hover:bg-[#f5f5f5] transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm"
               >
                 {currentStep === 2 ? "Analyze Now" : "Continue"}
                 <ChevronRight className="w-4 h-4" />

@@ -36,7 +36,7 @@ export default function UploadsPage() {
         </div>
         <button
           onClick={() => router.push("/analysis")}
-          className="flex items-center gap-2 bg-white text-[#0a0a0f] font-semibold px-5 py-2.5 rounded-full hover:bg-white/90 transition-all text-sm"
+          className="flex items-center gap-2 bg-white text-[#0a0a0f] font-semibold px-5 py-2.5 rounded-full hover:bg-[#f5f5f5] transition-all text-sm"
         >
           <Upload className="w-4 h-4" /> New Upload
         </button>
@@ -44,12 +44,12 @@ export default function UploadsPage() {
 
       {uploads.length === 0 ? (
         <div className="text-center py-20">
-          <FolderOpen className="w-12 h-12 text-white/10 mx-auto mb-4" />
+          <FolderOpen className="w-12 h-12 text-[#e5e5e5] mx-auto mb-4" />
           <p className="text-lg text-[#999] mb-2">No uploads yet</p>
           <p className="text-sm text-[#ccc] mb-6">Upload a Trial Balance or General Ledger to get started.</p>
           <button
             onClick={() => router.push("/analysis")}
-            className="inline-flex items-center gap-2 bg-white/5 border border-[#e5e5e5] text-[#333] px-5 py-2.5 rounded-full text-sm hover:bg-white/10 transition-all"
+            className="inline-flex items-center gap-2 bg-[#fafafa] border border-[#e5e5e5] text-[#333] px-5 py-2.5 rounded-full text-sm hover:bg-[#f5f5f5] transition-all"
           >
             <Upload className="w-4 h-4" /> Upload Financial Data
           </button>

@@ -237,13 +237,13 @@ export default function DashboardPage() {
         <div className="w-20 h-20 rounded-2xl bg-emerald-600/10 border border-emerald-200 flex items-center justify-center mb-6">
           <FileUp className="w-10 h-10 text-emerald-600" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">No Financial Data Yet</h1>
+        <h1 className="text-2xl font-bold text-[#1a1a1a] mb-2">No Financial Data Yet</h1>
         <p className="text-[#666] max-w-md mb-8">
           Upload your trial balance or financial statements to unlock your personalised executive dashboard with AI-powered insights.
         </p>
         <button
           onClick={() => router.push("/analysis")}
-          className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-emerald-600 text-white font-medium transition-colors flex items-center gap-2"
+          className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-emerald-600 text-[#1a1a1a] font-medium transition-colors flex items-center gap-2"
         >
           <FileUp className="w-4 h-4" /> Upload Financials
         </button>
@@ -306,7 +306,7 @@ export default function DashboardPage() {
               </span>
             )}
             {industry && (
-              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-white/5 text-[#999] border border-[#e5e5e5]">
+              <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-[#fafafa] text-[#999] border border-[#e5e5e5]">
                 {industry}
               </span>
             )}
@@ -441,7 +441,7 @@ export default function DashboardPage() {
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
                   <span className="text-[#666]">{item.name}</span>
                 </span>
-                <span className="text-white font-medium">{fmt(item.value)}</span>
+                <span className="text-[#1a1a1a] font-medium">{fmt(item.value)}</span>
               </div>
             ))}
           </div>
@@ -507,7 +507,7 @@ export default function DashboardPage() {
                   <Icon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${config.color}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold text-white bg-white/10 px-2 py-0.5 rounded">
+                      <span className="text-xs font-semibold text-[#1a1a1a] bg-[#f5f5f5] px-2 py-0.5 rounded">
                         {obs.standard}
                       </span>
                     </div>
@@ -536,7 +536,7 @@ export default function DashboardPage() {
               >
                 <HelpCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white font-medium mb-1">{q.question}</p>
+                  <p className="text-sm text-[#1a1a1a] font-medium mb-1">{q.question}</p>
                   <p className="text-xs text-[#999] leading-relaxed">{q.reason}</p>
                 </div>
               </div>

@@ -90,7 +90,7 @@ export default function QoEPage() {
 
       {/* EBITDA Bridge */}
       <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-        <h3 className="text-sm font-semibold text-white mb-4">Adjusted EBITDA Bridge</h3>
+        <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Adjusted EBITDA Bridge</h3>
         <div className="flex items-center gap-2 overflow-x-auto pb-2">
           {[
             { label: "Reported EBITDA", value: "-₹8.5L", color: "bg-gray-600" },
@@ -126,7 +126,7 @@ export default function QoEPage() {
               onClick={() => setStatusFilter(filter)}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize ${
                 statusFilter === filter
-                  ? "bg-white/10 text-[#1a1a1a]"
+                  ? "bg-[#f5f5f5] text-[#1a1a1a]"
                   : "text-[#999] hover:text-[#666]"
               }`}
             >
@@ -168,7 +168,7 @@ export default function QoEPage() {
                     <ChevronRight className="w-4 h-4 text-[#999]" />
                   )}
                   <h3 className="text-sm font-semibold text-[#1a1a1a]">{category.category}</h3>
-                  <span className="text-xs text-[#999] bg-white/5 rounded-full px-2 py-0.5">
+                  <span className="text-xs text-[#999] bg-[#fafafa] rounded-full px-2 py-0.5">
                     {filteredItems.length} items
                   </span>
                 </div>

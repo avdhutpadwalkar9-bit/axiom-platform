@@ -295,7 +295,7 @@ export default function AnalysisPage() {
             <p className="text-sm text-[#999] mt-1">Ind AS compliant review &middot; AI-powered insights</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => { setMode("upload"); setResult(null); }} className="px-4 py-2 bg-white/5 border border-[#e5e5e5] rounded-lg text-xs text-[#666] hover:bg-white/10 transition-colors">
+            <button onClick={() => { setMode("upload"); setResult(null); }} className="px-4 py-2 bg-[#fafafa] border border-[#e5e5e5] rounded-lg text-xs text-[#666] hover:bg-[#f5f5f5] transition-colors">
               New Analysis
             </button>
             <button className="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-600 hover:bg-emerald-600/30 transition-colors flex items-center gap-1.5">
@@ -328,7 +328,7 @@ export default function AnalysisPage() {
             { key: "insights", label: "Insights & Actions" },
             { key: "accounts", label: "Classified Accounts" },
           ].map(tab => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white/10 text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"}`}>
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-[#f5f5f5] text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"}`}>
               {tab.label}
             </button>
           ))}
@@ -350,7 +350,7 @@ export default function AnalysisPage() {
                     <card.icon className={`w-4 h-4 ${card.color}`} />
                   </div>
                   <p className="text-xs text-[#999]">{card.label}</p>
-                  <p className="text-xl font-bold text-white mt-0.5">{card.value}</p>
+                  <p className="text-xl font-bold text-[#1a1a1a] mt-0.5">{card.value}</p>
                 </div>
               ))}
             </div>
@@ -358,7 +358,7 @@ export default function AnalysisPage() {
             {/* Balance Sheet + Ratios */}
             <div className="grid lg:grid-cols-2 gap-6">
               <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-                <h3 className="text-sm font-semibold text-white mb-4">Balance Sheet Summary</h3>
+                <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Balance Sheet Summary</h3>
                 <div className="space-y-3">
                   {[
                     { label: "Total Assets", value: fs.total_assets, color: "bg-emerald-600" },
@@ -395,7 +395,7 @@ export default function AnalysisPage() {
               </div>
 
               <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-                <h3 className="text-sm font-semibold text-white mb-4">Key Financial Ratios</h3>
+                <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Key Financial Ratios</h3>
                 <div className="space-y-4">
                   {[
                     { label: "Current Ratio", value: `${ratios.current_ratio}x`, benchmark: "Ideal: > 1.5x", ok: ratios.current_ratio >= 1.5 },
@@ -423,7 +423,7 @@ export default function AnalysisPage() {
             {/* Expense Breakdown */}
             {expenseData.length > 0 && (
               <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-                <h3 className="text-sm font-semibold text-white mb-4">Expense Breakdown (Top 8)</h3>
+                <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Expense Breakdown (Top 8)</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={expenseData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
@@ -457,7 +457,7 @@ export default function AnalysisPage() {
                         {isAnswered ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <span className="text-xs font-bold text-emerald-600">{i + 1}</span>}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-white leading-relaxed">{q.question}</p>
+                        <p className="text-sm text-[#1a1a1a] leading-relaxed">{q.question}</p>
                         <p className="text-xs text-[#999] mt-2 italic">Why this matters: {q.reason}</p>
 
                         {/* Answer section */}
@@ -473,12 +473,12 @@ export default function AnalysisPage() {
                               onChange={(e) => setAnswerInputs(prev => ({ ...prev, [i]: e.target.value }))}
                               onKeyDown={(e) => e.key === "Enter" && handleAnswerQuestion(i, q.question)}
                               placeholder="Type your answer..."
-                              className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50"
+                              className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50"
                             />
                             <button
                               onClick={() => handleAnswerQuestion(i, q.question)}
                               disabled={!answerInputs[i]?.trim() || chatLoading}
-                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-xs text-white font-medium disabled:opacity-30 transition-colors flex items-center gap-1"
+                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-xs text-[#1a1a1a] font-medium disabled:opacity-30 transition-colors flex items-center gap-1"
                             >
                               <Send className="w-3 h-3" /> Submit
                             </button>
@@ -524,7 +524,7 @@ export default function AnalysisPage() {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <span className="text-[10px] uppercase tracking-wider text-[#999]">{ins.category}</span>
-                    <h4 className="text-sm font-semibold text-white mt-0.5">{ins.title}</h4>
+                    <h4 className="text-sm font-semibold text-[#1a1a1a] mt-0.5">{ins.title}</h4>
                   </div>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full ${ins.severity === "critical" ? "bg-red-500/20 text-red-400" : ins.severity === "warning" ? "bg-amber-500/20 text-amber-400" : "bg-emerald-500/20 text-emerald-400"}`}>
                     {ins.severity}
@@ -605,7 +605,7 @@ export default function AnalysisPage() {
             <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[200px] max-h-[350px]">
               {chatMessages.length === 0 && (
                 <div className="text-center py-8">
-                  <Sparkles className="w-8 h-8 text-white/10 mx-auto mb-3" />
+                  <Sparkles className="w-8 h-8 text-[#e5e5e5] mx-auto mb-3" />
                   <p className="text-xs text-[#ccc] mb-4">Try asking:</p>
                   <div className="space-y-2">
                     {["What are my top expenses?", "Explain the suspense account", "How is my financial health?", "Break down employee costs"].map(q => (
@@ -624,8 +624,8 @@ export default function AnalysisPage() {
                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[85%] rounded-xl px-4 py-2.5 text-sm whitespace-pre-line ${
                     msg.role === "user"
-                      ? "bg-emerald-50 text-white rounded-br-none"
-                      : "bg-[#fafafa] text-white/80 rounded-bl-none"
+                      ? "bg-emerald-50 text-[#1a1a1a] rounded-br-none"
+                      : "bg-[#fafafa] text-[#444] rounded-bl-none"
                   }`}>
                     {msg.text}
                   </div>
@@ -653,7 +653,7 @@ export default function AnalysisPage() {
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAskAI()}
                   placeholder="Ask about your financials..."
-                  className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-[#ccc] outline-none focus:border-emerald-500/50"
+                  className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50"
                 />
                 <button
                   onClick={handleAskAI}
@@ -710,7 +710,7 @@ export default function AnalysisPage() {
             ) : (
               <Upload className="w-12 h-12 text-[#666] mx-auto mb-4" />
             )}
-            <p className="text-lg font-medium text-white mb-2">
+            <p className="text-lg font-medium text-[#1a1a1a] mb-2">
               {loading ? "Analyzing..." : "Drop your Trial Balance here"}
             </p>
             <p className="text-sm text-[#999]">
@@ -719,9 +719,9 @@ export default function AnalysisPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-white/5" />
+            <div className="flex-1 h-px bg-[#fafafa]" />
             <span className="text-xs text-[#666]">OR</span>
-            <div className="flex-1 h-px bg-white/5" />
+            <div className="flex-1 h-px bg-[#fafafa]" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -775,21 +775,21 @@ export default function AnalysisPage() {
                   value={row.account_name}
                   onChange={(e) => updateRow(i, "account_name", e.target.value)}
                   placeholder="e.g., Sundry Debtors"
-                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-white placeholder:text-[#666] outline-none focus:border-emerald-500/50"
+                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] placeholder:text-[#666] outline-none focus:border-emerald-500/50"
                 />
                 <input
                   value={row.debit}
                   onChange={(e) => updateRow(i, "debit", e.target.value)}
                   placeholder="0"
                   type="number"
-                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-[#666] outline-none focus:border-emerald-500/50"
+                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] text-right placeholder:text-[#666] outline-none focus:border-emerald-500/50"
                 />
                 <input
                   value={row.credit}
                   onChange={(e) => updateRow(i, "credit", e.target.value)}
                   placeholder="0"
                   type="number"
-                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-[#666] outline-none focus:border-emerald-500/50"
+                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] text-right placeholder:text-[#666] outline-none focus:border-emerald-500/50"
                 />
                 <button onClick={() => removeRow(i)} className="flex items-center justify-center text-[#666] hover:text-red-400 transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
@@ -801,10 +801,10 @@ export default function AnalysisPage() {
           {/* Totals */}
           <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 border-t border-[#e5e5e5] pt-3 px-1">
             <span className="text-sm font-semibold text-[#1a1a1a]">Total</span>
-            <span className="text-sm font-semibold text-white text-right">
+            <span className="text-sm font-semibold text-[#1a1a1a] text-right">
               {fmt(rows.reduce((s, r) => s + (parseFloat(r.debit) || 0), 0))}
             </span>
-            <span className="text-sm font-semibold text-white text-right">
+            <span className="text-sm font-semibold text-[#1a1a1a] text-right">
               {fmt(rows.reduce((s, r) => s + (parseFloat(r.credit) || 0), 0))}
             </span>
             <span />

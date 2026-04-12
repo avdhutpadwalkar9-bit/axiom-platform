@@ -191,7 +191,7 @@ export default function ScenariosPage() {
                   className={`flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer ${
                     isEnabled
                       ? "bg-[#f5f5f5] border-[#e5e5e5]"
-                      : "bg-white/[0.01] border-[#e5e5e5] opacity-50"
+                      : "bg-white border-[#e5e5e5] opacity-50"
                   }`}
                   onClick={() => toggleEvent(event.id)}
                 >
@@ -230,7 +230,7 @@ export default function ScenariosPage() {
 
         {/* Scenario Comparison */}
         <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-          <h3 className="text-sm font-semibold text-white mb-5">Scenario Comparison</h3>
+          <h3 className="text-sm font-semibold text-[#1a1a1a] mb-5">Scenario Comparison</h3>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
