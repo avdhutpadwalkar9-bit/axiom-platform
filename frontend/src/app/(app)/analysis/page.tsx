@@ -388,7 +388,7 @@ export default function AnalysisPage() {
                       <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={40} paddingAngle={3}>
                         {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
                       </Pie>
-                      <Tooltip contentStyle={{ backgroundColor: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => fmt(Number(value), true)} />
+                      <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => fmt(Number(value), true)} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -426,10 +426,10 @@ export default function AnalysisPage() {
                 <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Expense Breakdown (Top 8)</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={expenseData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
-                    <XAxis type="number" tick={{ fill: "#6b7280", fontSize: 11 }} tickFormatter={(v) => fmt(v, true)} />
-                    <YAxis type="category" dataKey="name" tick={{ fill: "#9ca3af", fontSize: 11 }} width={160} />
-                    <Tooltip contentStyle={{ backgroundColor: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => fmt(Number(value))} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis type="number" tick={{ fill: "#999", fontSize: 11 }} tickFormatter={(v) => fmt(v, true)} />
+                    <YAxis type="category" dataKey="name" tick={{ fill: "#666", fontSize: 11 }} width={160} />
+                    <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => fmt(Number(value))} />
                     <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} />
                   </BarChart>
                 </ResponsiveContainer>
@@ -441,7 +441,7 @@ export default function AnalysisPage() {
         {/* AI Questions Tab */}
         {activeTab === "questions" && (
           <div className="space-y-4">
-            <div className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-xl border border-emerald-200 p-6">
+            <div className="bg-gradient-to-r from-emerald-50 to-emerald-50 rounded-xl border border-emerald-200 p-6">
               <div className="flex items-center gap-2 mb-3">
                 <HelpCircle className="w-5 h-5 text-emerald-600" />
                 <h3 className="text-sm font-semibold text-[#1a1a1a]">AI Clarifying Questions</h3>
@@ -582,7 +582,7 @@ export default function AnalysisPage() {
         {/* Floating Ask AI Button */}
         <button
           onClick={() => setShowChat(!showChat)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-emerald-600 shadow-lg shadow-indigo-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
         >
           {showChat ? <X className="w-5 h-5 text-[#1a1a1a]" /> : <MessageCircle className="w-5 h-5 text-[#1a1a1a]" />}
         </button>
@@ -592,7 +592,7 @@ export default function AnalysisPage() {
           <div className="fixed bottom-24 right-6 w-[420px] max-h-[520px] bg-white rounded-2xl border border-[#e5e5e5] shadow-2xl shadow-black/50 flex flex-col z-50 overflow-hidden">
             {/* Header */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-[#e5e5e5]">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-[#1a1a1a]" />
               </div>
               <div>

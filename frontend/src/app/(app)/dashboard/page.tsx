@@ -286,7 +286,7 @@ export default function DashboardPage() {
   const kpiCards = [
     { label: "Revenue", value: fmt(fs.total_revenue), icon: IndianRupee, color: "from-emerald-500 to-teal-500" },
     { label: "Expenses", value: fmt(fs.total_expenses), icon: TrendingUp, color: "from-red-500 to-orange-500" },
-    { label: "Net Income", value: fmt(fs.net_income), icon: Activity, color: fs.net_income >= 0 ? "from-indigo-500 to-purple-500" : "from-red-600 to-red-400" },
+    { label: "Net Income", value: fmt(fs.net_income), icon: Activity, color: fs.net_income >= 0 ? "from-emerald-500 to-emerald-600" : "from-red-600 to-red-400" },
     { label: industryData.mainKpi.label, value: industryData.mainKpi.value, icon: Briefcase, color: "from-amber-500 to-yellow-500" },
   ];
 
@@ -317,7 +317,7 @@ export default function DashboardPage() {
       {/* AI Summary */}
       <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center">
             <Lightbulb className="w-4 h-4 text-[#1a1a1a]" />
           </div>
           <h2 className="text-sm font-semibold text-[#1a1a1a]">AI Summary</h2>
@@ -374,10 +374,10 @@ export default function DashboardPage() {
           {expenseChartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={expenseChartData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis
                   type="number"
-                  tick={{ fill: "#6b7280", fontSize: 11 }}
+                  tick={{ fill: "#999", fontSize: 11 }}
                   tickLine={false}
                   axisLine={false}
                   tickFormatter={(v) => fmt(Number(v))}
@@ -385,13 +385,13 @@ export default function DashboardPage() {
                 <YAxis
                   type="category"
                   dataKey="name"
-                  tick={{ fill: "#9ca3af", fontSize: 10 }}
+                  tick={{ fill: "#666", fontSize: 10 }}
                   tickLine={false}
                   axisLine={false}
                   width={160}
                 />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px" }}
+                  contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }}
                   labelStyle={{ color: "#9ca3af" }}
                   formatter={(value) => [fmt(Number(value)), "Amount"]}
                 />
@@ -429,7 +429,7 @@ export default function DashboardPage() {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px" }}
+                contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }}
                 formatter={(value) => [fmt(Number(value)), ""]}
               />
             </PieChart>
@@ -452,7 +452,7 @@ export default function DashboardPage() {
       {insights && insights.length > 0 && (
         <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
           <div className="flex items-center gap-2 mb-5">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-lg bg-emerald-600 flex items-center justify-center">
               <Activity className="w-3 h-3 text-[#1a1a1a]" />
             </div>
             <h3 className="text-sm font-semibold text-[#1a1a1a]">AI Insights</h3>

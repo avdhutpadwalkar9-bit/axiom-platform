@@ -116,22 +116,22 @@ export default function ScenariosPage() {
         </div>
         <ResponsiveContainer width="100%" height={320}>
           <LineChart>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis
               dataKey="month"
-              tick={{ fill: "#6b7280", fontSize: 11 }}
+              tick={{ fill: "#999", fontSize: 11 }}
               tickLine={false}
               axisLine={false}
               allowDuplicatedCategory={false}
             />
             <YAxis
-              tick={{ fill: "#6b7280", fontSize: 11 }}
+              tick={{ fill: "#999", fontSize: 11 }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(v) => formatCurrency(v)}
             />
             <Tooltip
-              contentStyle={{ backgroundColor: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px" }}
+              contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }}
               formatter={(value) => [formatCurrency(Number(value)), ""]}
             />
             <Line data={forecastData.base} type="monotone" dataKey="cash" stroke="#6366f1" strokeWidth={activeScenario === "base" ? 3 : 1.5} dot={false} name="Base" opacity={activeScenario === "base" ? 1 : 0.3} />

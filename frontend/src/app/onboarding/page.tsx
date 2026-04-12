@@ -193,7 +193,7 @@ export default function OnboardingPage() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#fafafa] px-8">
         <div className="max-w-md w-full text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center mx-auto mb-8">
+          <div className="w-16 h-16 rounded-2xl bg-emerald-600 flex items-center justify-center mx-auto mb-8">
             <Sparkles className="w-8 h-8 text-emerald-600 animate-pulse" />
           </div>
           <h2 className="text-2xl font-light text-[#1a1a1a] mb-3 tracking-[-0.02em]">
@@ -206,7 +206,7 @@ export default function OnboardingPage() {
           {/* Progress bar */}
           <div className="w-full h-1.5 bg-[#fafafa] rounded-full overflow-hidden mb-4">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
+              className="h-full bg-emerald-500 rounded-full transition-all duration-500"
               style={{ width: `${analysisProgress}%` }}
             />
           </div>
