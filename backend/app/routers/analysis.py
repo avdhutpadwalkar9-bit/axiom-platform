@@ -38,6 +38,96 @@ async def analyze_tb_json(
     return result
 
 
+@router.post("/tb/multi-upload")
+async def analyze_multi_upload(
+    files: list[UploadFile] = File(...),
+    current_user: User = Depends(get_current_user),
+):
+    """Analyze multiple financial files (TB for different years, GL, etc.)."""
+    if not files:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No files provided")
+
+    results = []
+    for file in files:
+        if not file.filename:
+            continue
+        content = await file.read()
+
+        entries = []
+        text = ""
+        if not (file.filename.endswith(".xlsx") or file.filename.endswith(".xls")):
+            text = content.decode("utf-8-sig")
+
+        # Reuse the same parsing logic (simplified - delegates to single upload internally)
+        if file.filename.endswith(".csv"):
+            reader = csv.DictReader(io.StringIO(text))
+            for row in reader:
+                account_name = (
+                    row.get("account_name") or row.get("Account Name") or
+                    row.get("Particulars") or row.get("Account") or ""
+                )
+                debit = _parse_number(row.get("debit") or row.get("Debit") or row.get("Dr") or "0")
+                credit = _parse_number(row.get("credit") or row.get("Credit") or row.get("Cr") or "0")
+                if account_name:
+                    entries.append({"account_name": account_name.strip(), "debit": debit, "credit": credit})
+
+        elif file.filename.endswith(".xlsx") or file.filename.endswith(".xls"):
+            wb = load_workbook(io.BytesIO(content), data_only=True)
+            ws = wb.active
+            if ws:
+                # Smart header detection
+                header_row = -1
+                name_col = debit_col = credit_col = -1
+                header_names = {"account", "account name", "particulars", "ledger", "name"}
+                debit_names = {"debit", "net debit", "dr"}
+                credit_names = {"credit", "net credit", "cr"}
+                section_names = {"assets", "liabilities", "equities", "equity", "income", "revenue", "expense", "expenses"}
+
+                for row_idx in range(1, min(11, ws.max_row + 1)):
+                    cells = [str(c.value or "").strip().lower() for c in ws[row_idx]]
+                    for i, cell in enumerate(cells):
+                        if cell in header_names and name_col == -1: name_col = i; header_row = row_idx
+                        if cell in debit_names and debit_col == -1: debit_col = i
+                        if cell in credit_names and credit_col == -1: credit_col = i
+                    if name_col != -1 and debit_col != -1: break
+
+                if header_row == -1:
+                    header_row = 1; name_col = 0; debit_col = 2; credit_col = 3
+
+                current_group = ""
+                for row in ws.iter_rows(min_row=header_row + 1, values_only=True):
+                    cells = list(row)
+                    raw_name = str(cells[name_col] or "").strip() if name_col < len(cells) else ""
+                    if not raw_name: continue
+                    clean = raw_name.lower().strip()
+                    if clean in section_names: current_group = raw_name; continue
+                    if clean.startswith("total for") or clean == "total": continue
+                    debit = _parse_number(str(cells[debit_col] if debit_col < len(cells) else 0))
+                    credit = _parse_number(str(cells[credit_col] if credit_col < len(cells) else 0))
+                    if debit == 0 and credit == 0: continue
+                    entries.append({"account_name": raw_name, "debit": debit, "credit": credit, "group": current_group})
+
+        if entries:
+            result = analyze_trial_balance(entries)
+            results.append({
+                "filename": file.filename,
+                "analysis": result,
+                "entry_count": len(entries),
+            })
+
+    if not results:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No valid data found in uploaded files")
+
+    return {
+        "file_count": len(results),
+        "results": results,
+        "combined_summary": {
+            "total_files": len(results),
+            "filenames": [r["filename"] for r in results],
+        }
+    }
+
+
 @router.post("/tb/upload")
 async def analyze_tb_upload(
     file: UploadFile = File(...),
