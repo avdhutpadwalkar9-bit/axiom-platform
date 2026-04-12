@@ -243,7 +243,7 @@ export default function DashboardPage() {
         </p>
         <button
           onClick={() => router.push("/analysis")}
-          className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-emerald-600 text-[#1a1a1a] font-medium transition-colors flex items-center gap-2"
+          className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors flex items-center gap-2"
         >
           <FileUp className="w-4 h-4" /> Upload Financials
         </button>
@@ -318,7 +318,7 @@ export default function DashboardPage() {
       <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
         <div className="flex items-center gap-2 mb-3">
           <div className="w-7 h-7 rounded-lg bg-emerald-600 flex items-center justify-center">
-            <Lightbulb className="w-4 h-4 text-[#1a1a1a]" />
+            <Lightbulb className="w-4 h-4 text-white" />
           </div>
           <h2 className="text-sm font-semibold text-[#1a1a1a]">AI Summary</h2>
         </div>
@@ -334,7 +334,7 @@ export default function DashboardPage() {
           >
             <div className="flex items-start justify-between mb-3">
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center opacity-80`}>
-                <kpi.icon className="w-5 h-5 text-[#1a1a1a]" />
+                <kpi.icon className="w-5 h-5 text-white" />
               </div>
             </div>
             <p className="text-xs text-[#666] mb-1">{kpi.label}</p>
@@ -453,7 +453,7 @@ export default function DashboardPage() {
         <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
           <div className="flex items-center gap-2 mb-5">
             <div className="w-6 h-6 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <Activity className="w-3 h-3 text-[#1a1a1a]" />
+              <Activity className="w-3 h-3 text-white" />
             </div>
             <h3 className="text-sm font-semibold text-[#1a1a1a]">AI Insights</h3>
             <span className="text-xs text-[#ccc] ml-auto">{insights.length} findings</span>
