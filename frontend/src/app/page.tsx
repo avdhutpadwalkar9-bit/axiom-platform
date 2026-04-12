@@ -50,10 +50,10 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero */}
+      {/* Hero — two column with product preview */}
       <section className="pt-28 pb-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="max-w-2xl">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <div>
             <div className="inline-flex items-center gap-2 bg-emerald-50 text-emerald-700 text-xs font-medium px-3 py-1.5 rounded-full mb-6">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Start with a free trial — No credit card needed
@@ -80,42 +80,35 @@ export default function LandingPage() {
               <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> SOC 2 compliant</span>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Product screenshot */}
-      <section className="px-6 pb-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="rounded-xl border border-[#e5e5e5] overflow-hidden shadow-lg">
-            <div className="bg-[#fafafa] border-b border-[#e5e5e5] px-4 py-3 flex items-center gap-2">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-                <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-                <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+          {/* Right side — Product preview */}
+          <div className="hidden md:block">
+            <div className="rounded-xl border border-[#e5e5e5] overflow-hidden shadow-xl">
+              <div className="bg-[#fafafa] border-b border-[#e5e5e5] px-3 py-2 flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
               </div>
-              <div className="flex-1 text-center">
-                <span className="text-xs text-[#999]">app.cortexcfo.in/dashboard</span>
-              </div>
-            </div>
-            <div className="bg-[#f7f7f5] p-6 md:p-8">
-              <div className="grid grid-cols-4 gap-4 mb-6">
-                {[
-                  { label: "Revenue", value: "₹4.78 Cr", change: "+8.3%", positive: true },
-                  { label: "Net Income", value: "₹28.5 L", change: "+12.4%", positive: true },
-                  { label: "Current Ratio", value: "1.17x", change: "-0.2", positive: false },
-                  { label: "Burn Rate", value: "₹6.4L/mo", change: "-5.2%", positive: true },
-                ].map(kpi => (
-                  <div key={kpi.label} className="bg-white rounded-lg p-4 border border-[#e5e5e5]">
-                    <p className="text-xs text-[#999] mb-1">{kpi.label}</p>
-                    <p className="text-xl font-semibold">{kpi.value}</p>
-                    <p className={`text-xs mt-1 ${kpi.positive ? "text-emerald-600" : "text-red-500"}`}>{kpi.change}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="bg-white rounded-lg p-5 border border-[#e5e5e5] h-40 flex items-end gap-1">
-                {[20, 28, 25, 35, 32, 40, 38, 48, 45, 55, 52, 60, 58, 65, 63, 70, 68, 75, 72, 80, 78, 82, 80, 85].map((h, i) => (
-                  <div key={i} className="flex-1 rounded-t bg-emerald-500/70" style={{ height: `${h}%` }} />
-                ))}
+              <div className="bg-white p-5">
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                  {[
+                    { label: "Revenue", value: "₹4.78 Cr", change: "+8.3%", positive: true },
+                    { label: "Net Income", value: "₹28.5 L", change: "+12.4%", positive: true },
+                    { label: "Current Ratio", value: "1.17x", change: "-0.2", positive: false },
+                    { label: "Burn Rate", value: "₹6.4L/mo", change: "-5.2%", positive: true },
+                  ].map(kpi => (
+                    <div key={kpi.label} className="bg-[#fafafa] rounded-lg p-3 border border-[#f0f0f0]">
+                      <p className="text-[10px] text-[#999] mb-0.5">{kpi.label}</p>
+                      <p className="text-base font-semibold text-[#1a1a1a]">{kpi.value}</p>
+                      <p className={`text-[10px] ${kpi.positive ? "text-emerald-600" : "text-red-500"}`}>{kpi.change}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-[#fafafa] rounded-lg p-3 border border-[#f0f0f0] h-28 flex items-end gap-[2px]">
+                  {[20, 28, 25, 35, 32, 40, 38, 48, 45, 55, 52, 60, 58, 65, 63, 70, 68, 75, 72, 80, 78, 82, 80, 85].map((h, i) => (
+                    <div key={i} className="flex-1 rounded-t bg-emerald-500" style={{ height: `${h}%`, opacity: 0.5 + (h/200) }} />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -140,26 +133,46 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* Features with images */}
       <section id="features" className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-semibold mb-4">Everything you need to understand your finances</h2>
             <p className="text-[#666] max-w-lg mx-auto">Upload a Trial Balance from Tally, Zoho, or any accounting software. CortexCFO does the rest.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+
+          {/* Main feature — full width with image */}
+          <div className="grid md:grid-cols-2 gap-0 mb-8 rounded-xl overflow-hidden border border-[#e5e5e5]">
+            <div className="p-8 md:p-10 flex flex-col justify-center bg-white">
+              <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-4"><Upload className="w-5 h-5" /></div>
+              <h3 className="text-xl font-semibold mb-3">Upload your Trial Balance. Get instant clarity.</h3>
+              <p className="text-sm text-[#666] leading-relaxed mb-4">Drop a CSV or Excel file from Tally, Zoho, or any accounting software. CortexCFO auto-classifies every account, checks Ind AS compliance, asks 5 clarifying questions, and delivers a full financial analysis.</p>
+              <Link href="/signup" className="inline-flex items-center gap-1 text-sm text-emerald-600 font-medium hover:text-emerald-700">Try it now <ArrowRight className="w-3 h-3" /></Link>
+            </div>
+            <div className="h-64 md:h-auto overflow-hidden">
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=85" alt="Financial dashboard" className="w-full h-full object-cover" />
+            </div>
+          </div>
+
+          {/* Feature grid with images */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: <Upload className="w-5 h-5" />, title: "Upload & Analyze", desc: "Drop a CSV or Excel file. Our AI classifies every account, checks Ind AS compliance, and generates a full financial report in minutes.", color: "bg-blue-50 text-blue-600" },
-              { icon: <MessageSquare className="w-5 h-5" />, title: "Ask Anything", desc: "Chat with your financial data. Ask 'How do I reduce costs?' or 'What would a CA say?' — powered by Claude AI with your actual numbers.", color: "bg-purple-50 text-purple-600" },
-              { icon: <FileSpreadsheet className="w-5 h-5" />, title: "Ind AS Review", desc: "Automatic compliance checks against Indian Accounting Standards. AS 12, 15, 16, 19, 24, 37 — flagged with severity and explanations.", color: "bg-amber-50 text-amber-600" },
-              { icon: <Brain className="w-5 h-5" />, title: "Industry Intelligence", desc: "KPIs and benchmarks tailored to your industry — Manufacturing, SaaS, Services, Trading, E-commerce, Healthcare, and more.", color: "bg-emerald-50 text-emerald-600" },
-              { icon: <Shield className="w-5 h-5" />, title: "AI Questions", desc: "The AI asks the 5 questions your auditor would ask. Answer them to refine the analysis — like a real consulting engagement.", color: "bg-red-50 text-red-600" },
-              { icon: <LineChart className="w-5 h-5" />, title: "Scenario Modeling", desc: "What if you hire 3 people? Raise prices 10%? Toggle event blocks and watch your forecast recalculate in real-time.", color: "bg-cyan-50 text-cyan-600" },
+              { icon: <MessageSquare className="w-5 h-5" />, title: "Ask Anything", desc: "Chat with your data. 'How do I reduce costs?' — powered by Claude AI.", color: "bg-purple-50 text-purple-600", img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80" },
+              { icon: <FileSpreadsheet className="w-5 h-5" />, title: "Ind AS Review", desc: "Auto compliance checks — AS 12, 15, 16, 19, 24, 37 flagged.", color: "bg-amber-50 text-amber-600", img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=400&q=80" },
+              { icon: <Brain className="w-5 h-5" />, title: "9 Industries", desc: "Manufacturing, SaaS, Services, Trading, E-commerce & more.", color: "bg-emerald-50 text-emerald-600", img: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&q=80" },
+              { icon: <Shield className="w-5 h-5" />, title: "AI Questions", desc: "5 questions your auditor would ask. Answer to refine analysis.", color: "bg-red-50 text-red-600", img: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=400&q=80" },
+              { icon: <LineChart className="w-5 h-5" />, title: "Scenario Modeling", desc: "Toggle events. Watch your forecast recalculate in real-time.", color: "bg-cyan-50 text-cyan-600", img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&q=80" },
+              { icon: <TrendingUp className="w-5 h-5" />, title: "Multi-File Upload", desc: "Upload multiple years at once. Compare FY-over-FY trends.", color: "bg-orange-50 text-orange-600", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=400&q=80" },
             ].map(f => (
-              <div key={f.title} className="p-6 rounded-xl border border-[#f0f0f0] hover:border-[#e0e0e0] hover:shadow-sm transition-all">
-                <div className={`w-10 h-10 rounded-lg ${f.color} flex items-center justify-center mb-4`}>{f.icon}</div>
-                <h3 className="text-base font-semibold mb-2">{f.title}</h3>
-                <p className="text-sm text-[#666] leading-relaxed">{f.desc}</p>
+              <div key={f.title} className="group rounded-xl border border-[#f0f0f0] hover:border-[#e0e0e0] hover:shadow-md transition-all overflow-hidden">
+                <div className="h-32 overflow-hidden">
+                  <img src={f.img} alt={f.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                </div>
+                <div className="p-5">
+                  <div className={`w-8 h-8 rounded-lg ${f.color} flex items-center justify-center mb-3`}>{f.icon}</div>
+                  <h3 className="text-sm font-semibold mb-1.5">{f.title}</h3>
+                  <p className="text-xs text-[#666] leading-relaxed">{f.desc}</p>
+                </div>
               </div>
             ))}
           </div>
