@@ -79,9 +79,17 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <button className="flex items-center gap-2 bg-white text-[#0a0a0f] font-semibold px-6 py-3 rounded-full hover:bg-[#f5f5f5] transition-all text-sm">
+      <button
+        onClick={() => {
+          // Changes auto-persist via Zustand localStorage, show confirmation
+          const el = document.getElementById("save-confirmation");
+          if (el) { el.style.opacity = "1"; setTimeout(() => { el.style.opacity = "0"; }, 2000); }
+        }}
+        className="flex items-center gap-2 bg-[#1a1a1a] text-white font-medium px-6 py-3 rounded-xl hover:bg-[#333] transition-all text-sm"
+      >
         <Save className="w-4 h-4" /> Save Changes
       </button>
+      <p id="save-confirmation" className="text-xs text-emerald-600 mt-2 transition-opacity duration-300" style={{ opacity: 0 }}>Changes saved successfully.</p>
     </div>
   );
 }
