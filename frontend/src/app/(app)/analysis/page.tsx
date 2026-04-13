@@ -292,14 +292,14 @@ export default function AnalysisPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-[#1a1a1a]">Financial Analysis Report</h1>
-            <p className="text-sm text-[#999] mt-1">Ind AS compliant review &middot; AI-powered insights</p>
+            <h1 className="text-2xl font-bold text-white">Financial Analysis Report</h1>
+            <p className="text-sm text-white/30 mt-1">Ind AS compliant review &middot; AI-powered insights</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => { setMode("upload"); setResult(null); }} className="px-4 py-2 bg-[#fafafa] border border-[#e5e5e5] rounded-lg text-xs text-[#666] hover:bg-[#f5f5f5] transition-colors">
+            <button onClick={() => { setMode("upload"); setResult(null); }} className="px-4 py-2 bg-white/3 border border-white/8 rounded-lg text-xs text-white/40 hover:bg-white/5 transition-colors">
               New Analysis
             </button>
-            <button className="px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-600 hover:bg-emerald-600/30 transition-colors flex items-center gap-1.5">
+            <button className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5">
               <Download className="w-3 h-3" /> Export PDF
             </button>
           </div>
@@ -309,11 +309,11 @@ export default function AnalysisPage() {
         {warnings.length > 0 && (
           <div className="space-y-2">
             {warnings.map((w, i) => (
-              <div key={i} className={`flex items-start gap-3 p-4 rounded-xl border ${w.severity === "critical" ? "bg-red-500/10 border-red-500/20" : "bg-amber-500/10 border-amber-500/20"}`}>
+              <div key={i} className={`flex items-start gap-3 p-4 rounded-xl border ${w.severity === "critical" ? "bg-red-500/50/10 border-red-500/20" : "bg-amber-500/50/10 border-amber-500/20"}`}>
                 {w.severity === "critical" ? <XCircle className="w-5 h-5 text-red-400 mt-0.5" /> : <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5" />}
                 <div>
-                  <p className="text-sm font-medium text-[#1a1a1a]">{w.title}</p>
-                  <p className="text-xs text-[#999] mt-0.5">{w.detail}</p>
+                  <p className="text-sm font-medium text-white">{w.title}</p>
+                  <p className="text-xs text-white/30 mt-0.5">{w.detail}</p>
                 </div>
               </div>
             ))}
@@ -321,13 +321,13 @@ export default function AnalysisPage() {
         )}
 
         {/* Tab Nav */}
-        <div className="flex gap-1 bg-white rounded-lg border border-[#e5e5e5] p-1 w-fit">
+        <div className="flex gap-1 bg-[#111] rounded-lg border border-white/8 p-1 w-fit">
           {[
             { key: "overview", label: "Overview" },
             { key: "questions", label: "AI Questions" },
             { key: "deepdive", label: "Deep Dive" },
           ].map(tab => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-[#f5f5f5] text-[#1a1a1a]" : "text-[#999] hover:text-[#666]"}`}>
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white/5 text-white" : "text-white/30 hover:text-white/40"}`}>
               {tab.label}
             </button>
           ))}
@@ -344,37 +344,37 @@ export default function AnalysisPage() {
                 { label: "Net Income", value: fmt(fs.net_income, true), icon: fs.net_income >= 0 ? TrendingUp : TrendingDown, color: fs.net_income >= 0 ? "text-emerald-400" : "text-red-400", bg: fs.net_income >= 0 ? "bg-emerald-400/10" : "bg-red-400/10" },
                 { label: "TB Status", value: summary.is_balanced ? "Balanced ✓" : `Var: ${fmt(summary.variance)}`, icon: summary.is_balanced ? CheckCircle2 : AlertTriangle, color: summary.is_balanced ? "text-emerald-400" : "text-red-400", bg: summary.is_balanced ? "bg-emerald-400/10" : "bg-red-400/10" },
               ].map(card => (
-                <div key={card.label} className="bg-white rounded-xl p-5 border border-[#e5e5e5]">
+                <div key={card.label} className="bg-[#111] rounded-xl p-5 border border-white/8">
                   <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center mb-3`}>
                     <card.icon className={`w-4 h-4 ${card.color}`} />
                   </div>
-                  <p className="text-xs text-[#999]">{card.label}</p>
-                  <p className="text-xl font-bold text-[#1a1a1a] mt-0.5">{card.value}</p>
+                  <p className="text-xs text-white/30">{card.label}</p>
+                  <p className="text-xl font-bold text-white mt-0.5">{card.value}</p>
                 </div>
               ))}
             </div>
 
             {/* Balance Sheet + Ratios */}
             <div className="grid lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-                <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Balance Sheet Summary</h3>
+              <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+                <h3 className="text-sm font-semibold text-white mb-4">Balance Sheet Summary</h3>
                 <div className="space-y-3">
                   {[
-                    { label: "Total Assets", value: fs.total_assets, color: "bg-emerald-600" },
-                    { label: "Total Liabilities", value: fs.total_liabilities, color: "bg-red-500" },
-                    { label: "Total Equity", value: fs.total_equity, color: "bg-emerald-500" },
+                    { label: "Total Assets", value: fs.total_assets, color: "bg-emerald-500" },
+                    { label: "Total Liabilities", value: fs.total_liabilities, color: "bg-red-500/50" },
+                    { label: "Total Equity", value: fs.total_equity, color: "bg-emerald-500/100" },
                   ].map(item => (
                     <div key={item.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                        <span className="text-sm text-[#999]">{item.label}</span>
+                        <span className="text-sm text-white/30">{item.label}</span>
                       </div>
-                      <span className="text-sm font-medium text-[#1a1a1a]">{fmt(item.value, true)}</span>
+                      <span className="text-sm font-medium text-white">{fmt(item.value, true)}</span>
                     </div>
                   ))}
-                  <div className="border-t border-[#e5e5e5] pt-3">
+                  <div className="border-t border-white/8 pt-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-[#666] font-medium">Assets = L + E</span>
+                      <span className="text-sm text-white/40 font-medium">Assets = L + E</span>
                       <span className={`text-sm font-bold ${Math.abs(fs.total_assets - fs.total_liabilities - fs.total_equity) < 1 ? "text-emerald-400" : "text-amber-400"}`}>
                         {Math.abs(fs.total_assets - fs.total_liabilities - fs.total_equity) < 1 ? "Balanced ✓" : "Check Required"}
                       </span>
@@ -393,8 +393,8 @@ export default function AnalysisPage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-                <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Key Financial Ratios</h3>
+              <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+                <h3 className="text-sm font-semibold text-white mb-4">Key Financial Ratios</h3>
                 <div className="space-y-4">
                   {[
                     { label: "Current Ratio", value: `${ratios.current_ratio}x`, benchmark: "Ideal: > 1.5x", ok: ratios.current_ratio >= 1.5 },
@@ -406,12 +406,12 @@ export default function AnalysisPage() {
                   ].map(r => (
                     <div key={r.label} className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-[#666]">{r.label}</p>
-                        <p className="text-[10px] text-[#666]">{r.benchmark}</p>
+                        <p className="text-sm text-white/40">{r.label}</p>
+                        <p className="text-[10px] text-white/40">{r.benchmark}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-[#1a1a1a]">{r.value}</span>
-                        <div className={`w-2 h-2 rounded-full ${r.ok ? "bg-emerald-500" : "bg-amber-500"}`} />
+                        <span className="text-sm font-bold text-white">{r.value}</span>
+                        <div className={`w-2 h-2 rounded-full ${r.ok ? "bg-emerald-500/100" : "bg-amber-500/50"}`} />
                       </div>
                     </div>
                   ))}
@@ -421,11 +421,11 @@ export default function AnalysisPage() {
 
             {/* Expense Breakdown */}
             {expenseData.length > 0 && (
-              <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-                <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Expense Breakdown (Top 8)</h3>
+              <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+                <h3 className="text-sm font-semibold text-white mb-4">Expense Breakdown (Top 8)</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={expenseData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                     <XAxis type="number" tick={{ fill: "#999", fontSize: 11 }} tickFormatter={(v) => fmt(v, true)} />
                     <YAxis type="category" dataKey="name" tick={{ fill: "#666", fontSize: 11 }} width={160} />
                     <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => fmt(Number(value))} />
@@ -440,30 +440,30 @@ export default function AnalysisPage() {
         {/* AI Questions Tab */}
         {activeTab === "questions" && (
           <div className="space-y-4">
-            <div className="bg-gradient-to-r from-emerald-50 to-emerald-50 rounded-xl border border-emerald-200 p-6">
+            <div className="bg-gradient-to-r from-emerald-50 to-emerald-50 rounded-xl border border-emerald-500/20 p-6">
               <div className="flex items-center gap-2 mb-3">
-                <HelpCircle className="w-5 h-5 text-emerald-600" />
-                <h3 className="text-sm font-semibold text-[#1a1a1a]">AI Clarifying Questions</h3>
+                <HelpCircle className="w-5 h-5 text-emerald-400" />
+                <h3 className="text-sm font-semibold text-white">AI Clarifying Questions</h3>
               </div>
-              <p className="text-xs text-[#999] mb-6">The AI identified these areas that need clarification for a more accurate analysis. Answering these will improve the quality of the financial review.</p>
+              <p className="text-xs text-white/30 mb-6">The AI identified these areas that need clarification for a more accurate analysis. Answering these will improve the quality of the financial review.</p>
 
               {ai_questions.map((q, i) => {
                 const isAnswered = !!questionAnswers[q.question];
                 return (
-                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/5 border-emerald-500/20" : "bg-white border-[#e5e5e5]"}`}>
+                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/100/5 border-emerald-500/20" : "bg-white border-white/8"}`}>
                     <div className="flex items-start gap-3">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAnswered ? "bg-emerald-500/20" : "bg-emerald-50"}`}>
-                        {isAnswered ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <span className="text-xs font-bold text-emerald-600">{i + 1}</span>}
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAnswered ? "bg-emerald-500/100/20" : "bg-emerald-500/10"}`}>
+                        {isAnswered ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <span className="text-xs font-bold text-emerald-400">{i + 1}</span>}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-[#1a1a1a] leading-relaxed">{q.question}</p>
-                        <p className="text-xs text-[#999] mt-2 italic">Why this matters: {q.reason}</p>
+                        <p className="text-sm text-white leading-relaxed">{q.question}</p>
+                        <p className="text-xs text-white/30 mt-2 italic">Why this matters: {q.reason}</p>
 
                         {/* Answer section */}
                         {isAnswered ? (
-                          <div className="mt-3 p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
+                          <div className="mt-3 p-3 bg-emerald-500/100/5 rounded-lg border border-emerald-500/10">
                             <p className="text-xs text-emerald-400 font-medium mb-1">Your answer:</p>
-                            <p className="text-sm text-[#333]">{questionAnswers[q.question]}</p>
+                            <p className="text-sm text-white/70">{questionAnswers[q.question]}</p>
                           </div>
                         ) : (
                           <div className="mt-3 flex gap-2">
@@ -472,12 +472,12 @@ export default function AnalysisPage() {
                               onChange={(e) => setAnswerInputs(prev => ({ ...prev, [i]: e.target.value }))}
                               onKeyDown={(e) => e.key === "Enter" && handleAnswerQuestion(i, q.question)}
                               placeholder="Type your answer..."
-                              className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50"
+                              className="flex-1 bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/50"
                             />
                             <button
                               onClick={() => handleAnswerQuestion(i, q.question)}
                               disabled={!answerInputs[i]?.trim() || chatLoading}
-                              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 rounded-lg text-xs text-white font-medium disabled:opacity-30 transition-colors flex items-center gap-1"
+                              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 rounded-lg text-xs text-white font-medium disabled:opacity-30 transition-colors flex items-center gap-1"
                             >
                               <Send className="w-3 h-3" /> Submit
                             </button>
@@ -496,27 +496,27 @@ export default function AnalysisPage() {
         {activeTab === "deepdive" && (
           <div className="space-y-4">
             {/* Section 1: Ind AS Review */}
-            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
               <button
                 onClick={() => toggleSection("indas")}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/3 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-emerald-600" />
-                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Ind AS Compliance Review</h3>
-                  <span className="text-[10px] text-[#bbb] ml-1">{ind_as_observations.length} observations</span>
+                  <Shield className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-semibold text-white">Ind AS Compliance Review</h3>
+                  <span className="text-[10px] text-white/20 ml-1">{ind_as_observations.length} observations</span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-[#999] transition-transform ${expandedSections.has("indas") ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${expandedSections.has("indas") ? "rotate-180" : ""}`} />
               </button>
               {expandedSections.has("indas") && (
                 <div className="px-6 pb-5 space-y-3">
                   {ind_as_observations.map((obs, i) => (
-                    <div key={i} className={`p-4 rounded-xl border ${obs.severity === "high" ? "bg-red-50/50 border-red-200" : obs.severity === "medium" ? "bg-amber-50/50 border-amber-200" : "bg-emerald-50/50 border-emerald-200"}`}>
+                    <div key={i} className={`p-4 rounded-xl border ${obs.severity === "high" ? "bg-red-500/5/50 border-red-500/20" : obs.severity === "medium" ? "bg-amber-500/5/50 border-amber-500/20" : "bg-emerald-500/10/50 border-emerald-500/20"}`}>
                       <div className="flex items-start gap-3">
-                        {obs.severity === "high" ? <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" /> : obs.severity === "medium" ? <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />}
+                        {obs.severity === "high" ? <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" /> : obs.severity === "medium" ? <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />}
                         <div>
-                          <p className="text-xs font-semibold text-[#1a1a1a] mb-1">{obs.standard}</p>
-                          <p className="text-sm text-[#666] leading-relaxed">{obs.observation}</p>
+                          <p className="text-xs font-semibold text-white mb-1">{obs.standard}</p>
+                          <p className="text-sm text-white/40 leading-relaxed">{obs.observation}</p>
                         </div>
                       </div>
                     </div>
@@ -526,33 +526,33 @@ export default function AnalysisPage() {
             </div>
 
             {/* Section 2: Insights & Actions */}
-            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
               <button
                 onClick={() => toggleSection("insights")}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/3 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-600" />
-                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Insights &amp; Actions</h3>
-                  <span className="text-[10px] text-[#bbb] ml-1">{insights.length} findings</span>
+                  <TrendingUp className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-semibold text-white">Insights &amp; Actions</h3>
+                  <span className="text-[10px] text-white/20 ml-1">{insights.length} findings</span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-[#999] transition-transform ${expandedSections.has("insights") ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${expandedSections.has("insights") ? "rotate-180" : ""}`} />
               </button>
               {expandedSections.has("insights") && (
                 <div className="px-6 pb-5 space-y-3">
                   {insights.map((ins, i) => (
-                    <div key={i} className={`p-4 rounded-xl border ${ins.severity === "critical" || ins.severity === "high" ? "bg-red-50/50 border-red-200" : ins.severity === "warning" || ins.severity === "medium" ? "bg-amber-50/50 border-amber-200" : "bg-emerald-50/50 border-emerald-200"}`}>
+                    <div key={i} className={`p-4 rounded-xl border ${ins.severity === "critical" || ins.severity === "high" ? "bg-red-500/5/50 border-red-500/20" : ins.severity === "warning" || ins.severity === "medium" ? "bg-amber-500/5/50 border-amber-500/20" : "bg-emerald-500/10/50 border-emerald-500/20"}`}>
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <span className="text-[10px] uppercase tracking-wider text-[#999]">{ins.category}</span>
-                          <h4 className="text-sm font-semibold text-[#1a1a1a] mt-0.5">{ins.title}</h4>
+                          <span className="text-[10px] uppercase tracking-wider text-white/30">{ins.category}</span>
+                          <h4 className="text-sm font-semibold text-white mt-0.5">{ins.title}</h4>
                         </div>
                       </div>
-                      <p className="text-xs text-[#666] leading-relaxed mb-3">{ins.detail}</p>
+                      <p className="text-xs text-white/40 leading-relaxed mb-3">{ins.detail}</p>
                       {ins.action && (
-                        <div className="flex items-center gap-2 p-2.5 bg-white rounded-lg border border-[#e5e5e5]">
-                          <ArrowRight className="w-3 h-3 text-emerald-600" />
-                          <p className="text-xs text-emerald-600 font-medium">{ins.action}</p>
+                        <div className="flex items-center gap-2 p-2.5 bg-[#111] rounded-lg border border-white/8">
+                          <ArrowRight className="w-3 h-3 text-emerald-400" />
+                          <p className="text-xs text-emerald-400 font-medium">{ins.action}</p>
                         </div>
                       )}
                     </div>
@@ -562,16 +562,16 @@ export default function AnalysisPage() {
             </div>
 
             {/* Section 3: Financial Statements */}
-            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
               <button
                 onClick={() => toggleSection("statements")}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-[#fafafa] transition-colors"
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/3 transition-colors"
               >
                 <div className="flex items-center gap-2">
-                  <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
-                  <h3 className="text-sm font-semibold text-[#1a1a1a]">Financial Statements</h3>
+                  <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-semibold text-white">Financial Statements</h3>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-[#999] transition-transform ${expandedSections.has("statements") ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${expandedSections.has("statements") ? "rotate-180" : ""}`} />
               </button>
               {expandedSections.has("statements") && (
                 <div className="px-6 pb-5">
@@ -600,53 +600,53 @@ export default function AnalysisPage() {
                   link.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#e5e5e5] text-xs font-medium text-[#666] hover:bg-[#f5f5f5] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/8 text-xs font-medium text-white/40 hover:bg-white/5 transition-colors"
               >
                 <Download className="w-3.5 h-3.5" /> Export Classified Accounts (CSV)
               </button>
             </div>
 
             {/* Profit & Loss Statement */}
-            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#e5e5e5] bg-[#fafafa]">
-                <h3 className="text-sm font-semibold text-[#1a1a1a]">Profit &amp; Loss Statement</h3>
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+              <div className="px-6 py-4 border-b border-white/8 bg-white/3">
+                <h3 className="text-sm font-semibold text-white">Profit &amp; Loss Statement</h3>
               </div>
               <div className="p-6">
                 <table className="w-full text-sm">
                   <tbody>
-                    <tr className="border-b border-[#f0f0f0]">
-                      <td className="py-3 text-[11px] text-[#999] uppercase tracking-wider font-medium" colSpan={2}>Revenue</td>
+                    <tr className="border-b border-white/5">
+                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Revenue</td>
                     </tr>
                     {ca.revenue.map((item, i) => (
-                      <tr key={`rev-${i}`} className="border-b border-[#f5f5f5]">
-                        <td className="py-2.5 pl-4 text-[#666]">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-[#1a1a1a]">{fmt(Math.abs(item.net))}</td>
+                      <tr key={`rev-${i}`} className="border-b border-white/3">
+                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
+                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
-                    <tr className="border-b border-[#e5e5e5] bg-[#fafafa]">
-                      <td className="py-3 font-semibold text-[#1a1a1a]">Total Revenue</td>
-                      <td className="py-3 text-right font-bold text-[#1a1a1a]">{fmt(fs.total_revenue)}</td>
+                    <tr className="border-b border-white/8 bg-white/3">
+                      <td className="py-3 font-semibold text-white">Total Revenue</td>
+                      <td className="py-3 text-right font-bold text-white">{fmt(fs.total_revenue)}</td>
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="border-b border-[#f0f0f0]">
-                      <td className="py-3 text-[11px] text-[#999] uppercase tracking-wider font-medium" colSpan={2}>Expenses</td>
+                    <tr className="border-b border-white/5">
+                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Expenses</td>
                     </tr>
                     {ca.expenses.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
-                      <tr key={`exp-${i}`} className="border-b border-[#f5f5f5]">
-                        <td className="py-2.5 pl-4 text-[#666]">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-[#1a1a1a]">{fmt(Math.abs(item.net))}</td>
+                      <tr key={`exp-${i}`} className="border-b border-white/3">
+                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
+                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
-                    <tr className="border-b border-[#e5e5e5] bg-[#fafafa]">
-                      <td className="py-3 font-semibold text-[#1a1a1a]">Total Expenses</td>
-                      <td className="py-3 text-right font-bold text-[#1a1a1a]">{fmt(fs.total_expenses)}</td>
+                    <tr className="border-b border-white/8 bg-white/3">
+                      <td className="py-3 font-semibold text-white">Total Expenses</td>
+                      <td className="py-3 text-right font-bold text-white">{fmt(fs.total_expenses)}</td>
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="bg-emerald-50/50 border-t-2 border-emerald-200">
-                      <td className="py-4 font-bold text-[#1a1a1a] text-base">Net Income</td>
-                      <td className={`py-4 text-right font-bold text-base ${fs.net_income >= 0 ? "text-emerald-600" : "text-red-500"}`}>{fmt(fs.net_income)}</td>
+                    <tr className="bg-emerald-500/10/50 border-t-2 border-emerald-500/20">
+                      <td className="py-4 font-bold text-white text-base">Net Income</td>
+                      <td className={`py-4 text-right font-bold text-base ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-500"}`}>{fmt(fs.net_income)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -654,61 +654,61 @@ export default function AnalysisPage() {
             </div>
 
             {/* Balance Sheet */}
-            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#e5e5e5] bg-[#fafafa]">
-                <h3 className="text-sm font-semibold text-[#1a1a1a]">Balance Sheet</h3>
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+              <div className="px-6 py-4 border-b border-white/8 bg-white/3">
+                <h3 className="text-sm font-semibold text-white">Balance Sheet</h3>
               </div>
               <div className="p-6">
                 <table className="w-full text-sm">
                   <tbody>
-                    <tr className="border-b border-[#f0f0f0]">
-                      <td className="py-3 text-[11px] text-[#999] uppercase tracking-wider font-medium" colSpan={2}>Assets</td>
+                    <tr className="border-b border-white/5">
+                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Assets</td>
                     </tr>
                     {ca.assets.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
-                      <tr key={`ast-${i}`} className="border-b border-[#f5f5f5]">
-                        <td className="py-2.5 pl-4 text-[#666]">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-[#1a1a1a]">{fmt(Math.abs(item.net))}</td>
+                      <tr key={`ast-${i}`} className="border-b border-white/3">
+                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
+                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
-                    <tr className="border-b border-[#e5e5e5] bg-[#fafafa]">
-                      <td className="py-3 font-semibold text-[#1a1a1a]">Total Assets</td>
-                      <td className="py-3 text-right font-bold text-[#1a1a1a]">{fmt(Math.abs(fs.total_assets))}</td>
+                    <tr className="border-b border-white/8 bg-white/3">
+                      <td className="py-3 font-semibold text-white">Total Assets</td>
+                      <td className="py-3 text-right font-bold text-white">{fmt(Math.abs(fs.total_assets))}</td>
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="border-b border-[#f0f0f0]">
-                      <td className="py-3 text-[11px] text-[#999] uppercase tracking-wider font-medium" colSpan={2}>Liabilities</td>
+                    <tr className="border-b border-white/5">
+                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Liabilities</td>
                     </tr>
                     {ca.liabilities.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
-                      <tr key={`lib-${i}`} className="border-b border-[#f5f5f5]">
-                        <td className="py-2.5 pl-4 text-[#666]">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-[#1a1a1a]">{fmt(Math.abs(item.net))}</td>
+                      <tr key={`lib-${i}`} className="border-b border-white/3">
+                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
+                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
-                    <tr className="border-b border-[#e5e5e5] bg-[#fafafa]">
-                      <td className="py-3 font-semibold text-[#1a1a1a]">Total Liabilities</td>
-                      <td className="py-3 text-right font-bold text-[#1a1a1a]">{fmt(Math.abs(fs.total_liabilities))}</td>
+                    <tr className="border-b border-white/8 bg-white/3">
+                      <td className="py-3 font-semibold text-white">Total Liabilities</td>
+                      <td className="py-3 text-right font-bold text-white">{fmt(Math.abs(fs.total_liabilities))}</td>
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="border-b border-[#f0f0f0]">
-                      <td className="py-3 text-[11px] text-[#999] uppercase tracking-wider font-medium" colSpan={2}>Equity</td>
+                    <tr className="border-b border-white/5">
+                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Equity</td>
                     </tr>
                     {ca.equity.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
-                      <tr key={`eq-${i}`} className="border-b border-[#f5f5f5]">
-                        <td className="py-2.5 pl-4 text-[#666]">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-[#1a1a1a]">{fmt(Math.abs(item.net))}</td>
+                      <tr key={`eq-${i}`} className="border-b border-white/3">
+                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
+                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
-                    <tr className="border-b border-[#e5e5e5] bg-[#fafafa]">
-                      <td className="py-3 font-semibold text-[#1a1a1a]">Total Equity</td>
-                      <td className="py-3 text-right font-bold text-[#1a1a1a]">{fmt(Math.abs(fs.total_equity))}</td>
+                    <tr className="border-b border-white/8 bg-white/3">
+                      <td className="py-3 font-semibold text-white">Total Equity</td>
+                      <td className="py-3 text-right font-bold text-white">{fmt(Math.abs(fs.total_equity))}</td>
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
                     <tr className="bg-blue-50/50 border-t-2 border-blue-200">
-                      <td className="py-4 font-bold text-[#1a1a1a] text-base">Liabilities + Equity</td>
-                      <td className="py-4 text-right font-bold text-base text-[#1a1a1a]">{fmt(Math.abs(fs.total_liabilities) + Math.abs(fs.total_equity))}</td>
+                      <td className="py-4 font-bold text-white text-base">Liabilities + Equity</td>
+                      <td className="py-4 text-right font-bold text-base text-white">{fmt(Math.abs(fs.total_liabilities) + Math.abs(fs.total_equity))}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -716,37 +716,37 @@ export default function AnalysisPage() {
             </div>
 
             {/* Cash Flow Indicators */}
-            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#e5e5e5] bg-[#fafafa]">
-                <h3 className="text-sm font-semibold text-[#1a1a1a]">Cash Flow Indicators</h3>
-                <p className="text-[10px] text-[#999] mt-0.5">Estimated from Trial Balance data</p>
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+              <div className="px-6 py-4 border-b border-white/8 bg-white/3">
+                <h3 className="text-sm font-semibold text-white">Cash Flow Indicators</h3>
+                <p className="text-[10px] text-white/30 mt-0.5">Estimated from Trial Balance data</p>
               </div>
               <div className="p-6">
                 <table className="w-full text-sm">
                   <tbody>
-                    <tr className="border-b border-[#f5f5f5]">
-                      <td className="py-3 text-[#666]">Net Income</td>
-                      <td className={`py-3 text-right font-medium ${fs.net_income >= 0 ? "text-emerald-600" : "text-red-500"}`}>{fmt(fs.net_income)}</td>
+                    <tr className="border-b border-white/3">
+                      <td className="py-3 text-white/40">Net Income</td>
+                      <td className={`py-3 text-right font-medium ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-500"}`}>{fmt(fs.net_income)}</td>
                     </tr>
-                    <tr className="border-b border-[#f5f5f5]">
-                      <td className="py-3 text-[#666]">Add: Depreciation (non-cash)</td>
-                      <td className="py-3 text-right font-medium text-[#1a1a1a]">
+                    <tr className="border-b border-white/3">
+                      <td className="py-3 text-white/40">Add: Depreciation (non-cash)</td>
+                      <td className="py-3 text-right font-medium text-white">
                         {fmt(ca.expenses.filter(e => e.name.toLowerCase().includes("depreciation") || e.name.toLowerCase().includes("amortisation") || e.name.toLowerCase().includes("amortization")).reduce((s, e) => s + Math.abs(e.net), 0))}
                       </td>
                     </tr>
-                    <tr className="border-b border-[#f5f5f5]">
-                      <td className="py-3 text-[#666]">Working Capital</td>
-                      <td className={`py-3 text-right font-medium ${ratios.working_capital >= 0 ? "text-[#1a1a1a]" : "text-red-500"}`}>{fmt(ratios.working_capital)}</td>
+                    <tr className="border-b border-white/3">
+                      <td className="py-3 text-white/40">Working Capital</td>
+                      <td className={`py-3 text-right font-medium ${ratios.working_capital >= 0 ? "text-white" : "text-red-500"}`}>{fmt(ratios.working_capital)}</td>
                     </tr>
-                    <tr className="border-b border-[#f5f5f5]">
-                      <td className="py-3 text-[#666]">Cash &amp; Bank Balance</td>
-                      <td className="py-3 text-right font-medium text-[#1a1a1a]">
+                    <tr className="border-b border-white/3">
+                      <td className="py-3 text-white/40">Cash &amp; Bank Balance</td>
+                      <td className="py-3 text-right font-medium text-white">
                         {fmt(ca.assets.filter(e => e.name.toLowerCase().includes("cash") || e.name.toLowerCase().includes("bank")).reduce((s, e) => s + Math.abs(e.net), 0))}
                       </td>
                     </tr>
-                    <tr className="bg-[#fafafa] border-t border-[#e5e5e5]">
-                      <td className="py-4 font-semibold text-[#1a1a1a]">Estimated Operating Cash Flow</td>
-                      <td className={`py-4 text-right font-bold ${fs.net_income + ca.expenses.filter(e => e.name.toLowerCase().includes("depreciation")).reduce((s, e) => s + Math.abs(e.net), 0) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                    <tr className="bg-white/3 border-t border-white/8">
+                      <td className="py-4 font-semibold text-white">Estimated Operating Cash Flow</td>
+                      <td className={`py-4 text-right font-bold ${fs.net_income + ca.expenses.filter(e => e.name.toLowerCase().includes("depreciation")).reduce((s, e) => s + Math.abs(e.net), 0) >= 0 ? "text-emerald-400" : "text-red-500"}`}>
                         {fmt(fs.net_income + ca.expenses.filter(e => e.name.toLowerCase().includes("depreciation") || e.name.toLowerCase().includes("amortisation")).reduce((s, e) => s + Math.abs(e.net), 0))}
                       </td>
                     </tr>
@@ -756,8 +756,8 @@ export default function AnalysisPage() {
             </div>
 
             {/* 5 Key Takeaways */}
-            <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-              <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">5 Key Takeaways</h3>
+            <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+              <h3 className="text-sm font-semibold text-white mb-4">5 Key Takeaways</h3>
               <div className="space-y-3">
                 {(() => {
                   const takeaways: string[] = [];
@@ -802,9 +802,9 @@ export default function AnalysisPage() {
                   }
 
                   return takeaways.map((t, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-[#fafafa] border border-[#f0f0f0]">
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white/3 border border-white/5">
                       <span className="w-6 h-6 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                      <p className="text-sm text-[#333] leading-relaxed">{t}</p>
+                      <p className="text-sm text-white/70 leading-relaxed">{t}</p>
                     </div>
                   ));
                 })()}
@@ -820,22 +820,22 @@ export default function AnalysisPage() {
         {/* Floating Ask AI Button */}
         <button
           onClick={() => setShowChat(!showChat)}
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-emerald-600 shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
+          className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
         >
           {showChat ? <X className="w-5 h-5 text-white" /> : <MessageCircle className="w-5 h-5 text-white" />}
         </button>
 
         {/* Ask AI Chat Panel */}
         {showChat && (
-          <div className="fixed bottom-24 right-6 w-[420px] max-h-[520px] bg-white rounded-2xl border border-[#e5e5e5] shadow-2xl shadow-black/50 flex flex-col z-50 overflow-hidden">
+          <div className="fixed bottom-24 right-6 w-[420px] max-h-[520px] bg-[#111] rounded-2xl border border-white/8 shadow-2xl shadow-black/50 flex flex-col z-50 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-[#e5e5e5]">
-              <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-[#1a1a1a]">Ask CortexCFO AI</p>
-                <p className="text-[10px] text-[#ccc]">Ask anything about your financial analysis</p>
+                <p className="text-sm font-semibold text-white">Ask CortexCFO AI</p>
+                <p className="text-[10px] text-white/15">Ask anything about your financial analysis</p>
               </div>
             </div>
 
@@ -844,13 +844,13 @@ export default function AnalysisPage() {
               {chatMessages.length === 0 && (
                 <div className="text-center py-8">
                   <Sparkles className="w-8 h-8 text-[#e5e5e5] mx-auto mb-3" />
-                  <p className="text-xs text-[#ccc] mb-4">Try asking:</p>
+                  <p className="text-xs text-white/15 mb-4">Try asking:</p>
                   <div className="space-y-2">
                     {["What are my top expenses?", "Explain the suspense account", "How is my financial health?", "Break down employee costs"].map(q => (
                       <button
                         key={q}
                         onClick={() => { setChatInput(q); }}
-                        className="block w-full text-left text-xs text-[#999] hover:text-[#333] bg-white hover:bg-white/[0.06] rounded-lg px-3 py-2 transition-colors"
+                        className="block w-full text-left text-xs text-white/30 hover:text-white/70 bg-[#111] hover:bg-white/[0.06] rounded-lg px-3 py-2 transition-colors"
                       >
                         {q}
                       </button>
@@ -859,11 +859,11 @@ export default function AnalysisPage() {
                 </div>
               )}
               {chatMessages.map((msg, i) => (
-                <AIChatBubble key={i} role={msg.role} text={msg.text} />
+                <AIChatBubble key={i} role={msg.role} text={msg.text} dark />
               ))}
               {chatLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-[#fafafa] rounded-xl px-4 py-3 rounded-bl-none">
+                  <div className="bg-white/3 rounded-xl px-4 py-3 rounded-bl-none">
                     <div className="flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "0ms" }} />
                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -876,19 +876,19 @@ export default function AnalysisPage() {
             </div>
 
             {/* Input */}
-            <div className="border-t border-[#e5e5e5] p-3">
+            <div className="border-t border-white/8 p-3">
               <div className="flex items-center gap-2">
                 <input
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAskAI()}
                   placeholder="Ask about your financials..."
-                  className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-emerald-500/50"
+                  className="flex-1 bg-white/3 border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/50"
                 />
                 <button
                   onClick={handleAskAI}
                   disabled={!chatInput.trim() || chatLoading}
-                  className="w-10 h-10 rounded-lg bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center transition-colors disabled:opacity-30"
+                  className="w-10 h-10 rounded-lg bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors disabled:opacity-30"
                 >
                   <Send className="w-4 h-4 text-white" />
                 </button>
@@ -904,14 +904,14 @@ export default function AnalysisPage() {
   return (
     <div className="p-6 lg:p-8 max-w-[1000px] mx-auto">
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-[#1a1a1a]">Trial Balance Analysis</h1>
-        <p className="text-sm text-[#999] mt-2">
+        <h1 className="text-3xl font-bold text-white">Trial Balance Analysis</h1>
+        <p className="text-sm text-white/30 mt-2">
           Upload your Trial Balance and get instant Ind AS review, AI-powered questions, and detailed financial analysis
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400 flex items-center gap-2">
+        <div className="mb-6 rounded-xl bg-red-500/50/10 border border-red-500/20 p-4 text-sm text-red-400 flex items-center gap-2">
           <XCircle className="w-4 h-4" /> {error}
         </div>
       )}
@@ -922,7 +922,7 @@ export default function AnalysisPage() {
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={onDrop}
-            className="border-2 border-dashed border-[#e5e5e5] rounded-2xl p-12 text-center hover:border-emerald-200 hover:bg-emerald-600/5 transition-all cursor-pointer"
+            className="border-2 border-dashed border-white/8 rounded-2xl p-12 text-center hover:border-emerald-500/20 hover:bg-emerald-500/5 transition-all cursor-pointer"
             onClick={() => document.getElementById("file-input")?.click()}
           >
             <input
@@ -940,41 +940,41 @@ export default function AnalysisPage() {
               }}
             />
             {loading ? (
-              <Loader2 className="w-12 h-12 text-emerald-600 mx-auto mb-4 animate-spin" />
+              <Loader2 className="w-12 h-12 text-emerald-400 mx-auto mb-4 animate-spin" />
             ) : (
-              <Upload className="w-12 h-12 text-[#666] mx-auto mb-4" />
+              <Upload className="w-12 h-12 text-white/40 mx-auto mb-4" />
             )}
-            <p className="text-lg font-medium text-[#1a1a1a] mb-2">
+            <p className="text-lg font-medium text-white mb-2">
               {loading ? "Analyzing..." : "Drop your Trial Balance here"}
             </p>
-            <p className="text-sm text-[#999]">
+            <p className="text-sm text-white/30">
               Supports CSV, JSON, and Excel (.xlsx) files from Tally, Zoho, or any accounting software.
             </p>
-            <p className="text-xs text-[#bbb] mt-2">You can select multiple files for comparison (coming soon)</p>
+            <p className="text-xs text-white/20 mt-2">You can select multiple files for comparison (coming soon)</p>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-[#fafafa]" />
-            <span className="text-xs text-[#666]">OR</span>
-            <div className="flex-1 h-px bg-[#fafafa]" />
+            <div className="flex-1 h-px bg-white/3" />
+            <span className="text-xs text-white/40">OR</span>
+            <div className="flex-1 h-px bg-white/3" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => setMode("manual")}
-              className="p-6 rounded-xl border border-[#e5e5e5] bg-white hover:bg-[#f5f5f5] hover:border-[#e5e5e5] transition-all text-left"
+              className="p-6 rounded-xl border border-white/8 bg-[#111] hover:bg-white/5 hover:border-white/8 transition-all text-left"
             >
-              <FileSpreadsheet className="w-8 h-8 text-emerald-600 mb-3" />
-              <p className="text-sm font-semibold text-[#1a1a1a]">Enter Manually</p>
-              <p className="text-xs text-[#999] mt-1">Type your Trial Balance line by line</p>
+              <FileSpreadsheet className="w-8 h-8 text-emerald-400 mb-3" />
+              <p className="text-sm font-semibold text-white">Enter Manually</p>
+              <p className="text-xs text-white/30 mt-1">Type your Trial Balance line by line</p>
             </button>
             <button
               onClick={loadSampleData}
-              className="p-6 rounded-xl border border-[#e5e5e5] bg-white hover:bg-[#f5f5f5] hover:border-[#e5e5e5] transition-all text-left"
+              className="p-6 rounded-xl border border-white/8 bg-[#111] hover:bg-white/5 hover:border-white/8 transition-all text-left"
             >
               <Info className="w-8 h-8 text-emerald-500 mb-3" />
-              <p className="text-sm font-semibold text-[#1a1a1a]">Load Sample Data</p>
-              <p className="text-xs text-[#999] mt-1">Try with a pre-built Indian company TB</p>
+              <p className="text-sm font-semibold text-white">Load Sample Data</p>
+              <p className="text-xs text-white/30 mt-1">Try with a pre-built Indian company TB</p>
             </button>
           </div>
         </div>
@@ -983,19 +983,19 @@ export default function AnalysisPage() {
       {mode === "manual" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-[#1a1a1a]">Enter Trial Balance</h2>
+            <h2 className="text-lg font-semibold text-white">Enter Trial Balance</h2>
             <div className="flex gap-2">
-              <button onClick={() => setMode("upload")} className="text-xs text-[#999] hover:text-[#666] px-3 py-1.5">
+              <button onClick={() => setMode("upload")} className="text-xs text-white/30 hover:text-white/40 px-3 py-1.5">
                 Back
               </button>
-              <button onClick={addRow} className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-600 px-3 py-1.5 border border-emerald-200 rounded-lg">
+              <button onClick={addRow} className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-400 px-3 py-1.5 border border-emerald-500/20 rounded-lg">
                 <Plus className="w-3 h-3" /> Add Row
               </button>
             </div>
           </div>
 
           {/* Header */}
-          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 text-xs text-[#999] font-medium px-1">
+          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 text-xs text-white/30 font-medium px-1">
             <span>Account Name</span>
             <span className="text-right">Debit (₹)</span>
             <span className="text-right">Credit (₹)</span>
@@ -1010,23 +1010,23 @@ export default function AnalysisPage() {
                   value={row.account_name}
                   onChange={(e) => updateRow(i, "account_name", e.target.value)}
                   placeholder="e.g., Sundry Debtors"
-                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] placeholder:text-[#666] outline-none focus:border-emerald-500/50"
+                  className="bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-emerald-500/50"
                 />
                 <input
                   value={row.debit}
                   onChange={(e) => updateRow(i, "debit", e.target.value)}
                   placeholder="0"
                   type="number"
-                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] text-right placeholder:text-[#666] outline-none focus:border-emerald-500/50"
+                  className="bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-white/40 outline-none focus:border-emerald-500/50"
                 />
                 <input
                   value={row.credit}
                   onChange={(e) => updateRow(i, "credit", e.target.value)}
                   placeholder="0"
                   type="number"
-                  className="bg-[#fafafa] border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] text-right placeholder:text-[#666] outline-none focus:border-emerald-500/50"
+                  className="bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-white/40 outline-none focus:border-emerald-500/50"
                 />
-                <button onClick={() => removeRow(i)} className="flex items-center justify-center text-[#666] hover:text-red-400 transition-colors">
+                <button onClick={() => removeRow(i)} className="flex items-center justify-center text-white/40 hover:text-red-400 transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -1034,12 +1034,12 @@ export default function AnalysisPage() {
           </div>
 
           {/* Totals */}
-          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 border-t border-[#e5e5e5] pt-3 px-1">
-            <span className="text-sm font-semibold text-[#1a1a1a]">Total</span>
-            <span className="text-sm font-semibold text-[#1a1a1a] text-right">
+          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 border-t border-white/8 pt-3 px-1">
+            <span className="text-sm font-semibold text-white">Total</span>
+            <span className="text-sm font-semibold text-white text-right">
               {fmt(rows.reduce((s, r) => s + (parseFloat(r.debit) || 0), 0))}
             </span>
-            <span className="text-sm font-semibold text-[#1a1a1a] text-right">
+            <span className="text-sm font-semibold text-white text-right">
               {fmt(rows.reduce((s, r) => s + (parseFloat(r.credit) || 0), 0))}
             </span>
             <span />

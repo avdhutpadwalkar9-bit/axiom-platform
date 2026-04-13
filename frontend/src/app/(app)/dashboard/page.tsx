@@ -258,16 +258,16 @@ export default function DashboardPage() {
   if (!hasData || !lastResult) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 text-center">
-        <div className="w-20 h-20 rounded-2xl bg-emerald-600/10 border border-emerald-200 flex items-center justify-center mb-6">
-          <FileUp className="w-10 h-10 text-emerald-600" />
+        <div className="w-20 h-20 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6">
+          <FileUp className="w-10 h-10 text-emerald-400" />
         </div>
-        <h1 className="text-2xl font-bold text-[#1a1a1a] mb-2">No Financial Data Yet</h1>
-        <p className="text-[#666] max-w-md mb-8">
+        <h1 className="text-2xl font-bold text-white mb-2">No Financial Data Yet</h1>
+        <p className="text-white/40 max-w-md mb-8">
           Upload your trial balance or financial statements to unlock your personalised executive dashboard with AI-powered insights.
         </p>
         <button
           onClick={() => router.push("/analysis")}
-          className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors flex items-center gap-2"
+          className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-medium transition-colors flex items-center gap-2"
         >
           <FileUp className="w-4 h-4" /> Upload Financials
         </button>
@@ -328,16 +328,16 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-[#1a1a1a]">Executive Dashboard</h1>
-            <p className="text-sm text-[#666] mt-1">
+            <h1 className="text-2xl font-bold text-white">Executive Dashboard</h1>
+            <p className="text-sm text-white/40 mt-1">
               {displayName} &middot; {formattedDate}
               {stage.label !== "Unknown" && (
-                <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-emerald-50 text-emerald-600 border border-emerald-200">
+                <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   {stage.label}{stage.years > 0 ? ` (${stage.years}y)` : ""}
                 </span>
               )}
               {industry && (
-                <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-[#fafafa] text-[#999] border border-[#e5e5e5]">
+                <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-white/3 text-white/30 border border-white/8">
                   {industry}
                 </span>
               )}
@@ -349,14 +349,14 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {kpiCards.map((kpi, i) => (
             <FadeIn key={kpi.label} delay={i * 80} direction="up">
-            <div className="bg-white rounded-xl p-5 border border-[#e5e5e5] hover-lift">
+            <div className="bg-[#111] rounded-xl p-5 border border-white/8 hover:border-white/12">
               <div className="flex items-start justify-between mb-3">
                 <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${kpi.color} flex items-center justify-center`}>
                   <kpi.icon className="w-5 h-5 text-white" />
                 </div>
               </div>
-              <p className="text-xs text-[#666] mb-1">{kpi.label}</p>
-              <p className="text-2xl font-bold text-[#1a1a1a]">{kpi.value}</p>
+              <p className="text-xs text-white/40 mb-1">{kpi.label}</p>
+              <p className="text-2xl font-bold text-white">{kpi.value}</p>
             </div>
             </FadeIn>
           ))}
@@ -364,17 +364,17 @@ export default function DashboardPage() {
 
         {/* ── Financial Analysis (formal, clean narrative) ── */}
         <FadeIn delay={100}>
-        <div className="bg-white rounded-xl border border-[#e5e5e5] p-8">
+        <div className="bg-[#111] rounded-xl border border-white/8 p-8">
           <div className="flex items-center gap-2 mb-6">
-            <Lightbulb className="w-5 h-5 text-[#666]" />
-            <h2 className="text-base font-semibold text-[#1a1a1a]">Financial Analysis</h2>
-            <span className="text-xs text-[#bbb] ml-auto">{formattedDate}</span>
+            <Lightbulb className="w-5 h-5 text-white/40" />
+            <h2 className="text-base font-semibold text-white">Financial Analysis</h2>
+            <span className="text-xs text-white/20 ml-auto">{formattedDate}</span>
           </div>
 
-          <p className="text-[11px] text-[#999] uppercase tracking-widest font-medium mb-3">
+          <p className="text-[11px] text-white/30 uppercase tracking-widest font-medium mb-3">
             Overview
           </p>
-          <p className="text-[15px] text-[#333] leading-[1.85] mb-6">
+          <p className="text-[15px] text-white/70 leading-[1.85] mb-6">
             Revenue came in at <strong>{fmt(fs.total_revenue)}</strong> with total expenses of <strong>{fmt(fs.total_expenses)}</strong>, resulting in a{" "}
             {fs.net_income >= 0
               ? <>net income of <strong>{fmt(fs.net_income)}</strong></>
@@ -388,10 +388,10 @@ export default function DashboardPage() {
               : ", which warrants attention."}
           </p>
 
-          <p className="text-[11px] text-[#999] uppercase tracking-widest font-medium mb-3 mt-8">
+          <p className="text-[11px] text-white/30 uppercase tracking-widest font-medium mb-3 mt-8">
             Liquidity &amp; Capital Structure
           </p>
-          <p className="text-[15px] text-[#333] leading-[1.85] mb-6">
+          <p className="text-[15px] text-white/70 leading-[1.85] mb-6">
             The current ratio is <strong>{ratios.current_ratio.toFixed(2)}x</strong>
             {ratios.current_ratio < 1
               ? ", which is below 1.0. This signals potential short-term liquidity stress and may require attention on working capital management"
@@ -410,10 +410,10 @@ export default function DashboardPage() {
 
           {topExpenses.length > 0 && (
             <>
-              <p className="text-[11px] text-[#999] uppercase tracking-widest font-medium mb-3 mt-8">
+              <p className="text-[11px] text-white/30 uppercase tracking-widest font-medium mb-3 mt-8">
                 Cost Highlights
               </p>
-              <p className="text-[15px] text-[#333] leading-[1.85] mb-6">
+              <p className="text-[15px] text-white/70 leading-[1.85] mb-6">
                 The largest expense head is <strong>{topExpenses[0].name}</strong> at {fmt(Math.abs(topExpenses[0].net))}
                 {topExpenses.length > 1 && (
                   <>, followed by <strong>{topExpenses[1].name}</strong> at {fmt(Math.abs(topExpenses[1].net))}</>
@@ -437,14 +437,14 @@ export default function DashboardPage() {
 
           {insights && insights.length > 0 && (
             <>
-              <p className="text-[11px] text-[#999] uppercase tracking-widest font-medium mb-3 mt-8">
+              <p className="text-[11px] text-white/30 uppercase tracking-widest font-medium mb-3 mt-8">
                 Key Findings
               </p>
               {insights.map((insight, idx) => (
-                <p key={idx} className="text-[15px] text-[#333] leading-[1.85] mb-4">
+                <p key={idx} className="text-[15px] text-white/70 leading-[1.85] mb-4">
                   <strong>{insight.title}</strong> &mdash; {insight.detail}
                   {insight.action && (
-                    <span className="text-[#666] ml-1 cursor-pointer hover:underline">
+                    <span className="text-white/40 ml-1 cursor-pointer hover:underline">
                       {insight.action} &rarr;
                     </span>
                   )}
@@ -455,11 +455,11 @@ export default function DashboardPage() {
 
           {indAS && indAS.length > 0 && (
             <>
-              <p className="text-[11px] text-[#999] uppercase tracking-widest font-medium mb-3 mt-8">
+              <p className="text-[11px] text-white/30 uppercase tracking-widest font-medium mb-3 mt-8">
                 Ind AS Compliance
               </p>
               {indAS.map((obs, idx) => (
-                <p key={idx} className="text-[15px] text-[#333] leading-[1.85] mb-4">
+                <p key={idx} className="text-[15px] text-white/70 leading-[1.85] mb-4">
                   <strong>{obs.standard}</strong> &mdash; {obs.observation}
                 </p>
               ))}
@@ -470,16 +470,16 @@ export default function DashboardPage() {
 
         {/* Industry KPIs */}
         <FadeIn delay={150}>
-        <div className="bg-white rounded-xl border border-[#e5e5e5] p-6 hover-lift">
+        <div className="bg-[#111] rounded-xl border border-white/8 p-6 hover:border-white/12">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="w-4 h-4 text-[#666]" />
-            <h3 className="text-sm font-semibold text-[#1a1a1a]">{industryData.label} KPIs</h3>
+            <BarChart3 className="w-4 h-4 text-white/40" />
+            <h3 className="text-sm font-semibold text-white">{industryData.label} KPIs</h3>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {industryData.kpis.map((kpi) => (
-              <div key={kpi.label} className="bg-[#fafafa] rounded-lg p-4 border border-[#f0f0f0]">
-                <p className="text-xs text-[#666] mb-1">{kpi.label}</p>
-                <p className="text-lg font-bold text-[#1a1a1a]">{kpi.value}</p>
+              <div key={kpi.label} className="bg-white/3 rounded-lg p-4 border border-white/5">
+                <p className="text-xs text-white/40 mb-1">{kpi.label}</p>
+                <p className="text-lg font-bold text-white">{kpi.value}</p>
               </div>
             ))}
           </div>
@@ -489,15 +489,15 @@ export default function DashboardPage() {
         {/* Charts */}
         <FadeIn delay={200}>
         <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 bg-white rounded-xl border border-[#e5e5e5] p-6">
+          <div className="lg:col-span-2 bg-[#111] rounded-xl border border-white/8 p-6">
             <div className="mb-6">
-              <h3 className="text-sm font-semibold text-[#1a1a1a]">Expense Breakdown</h3>
-              <p className="text-xs text-[#666] mt-0.5">Top 10 expense heads &middot; Total: {fmt(totalExpenses)}</p>
+              <h3 className="text-sm font-semibold text-white">Expense Breakdown</h3>
+              <p className="text-xs text-white/40 mt-0.5">Top 10 expense heads &middot; Total: {fmt(totalExpenses)}</p>
             </div>
             {expenseChartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={expenseChartData} layout="vertical" margin={{ left: 10, right: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                   <XAxis type="number" tick={{ fill: "#999", fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => fmt(Number(v))} />
                   <YAxis type="category" dataKey="name" tick={{ fill: "#666", fontSize: 10 }} tickLine={false} axisLine={false} width={160} />
                   <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => [fmt(Number(value)), "Amount"]} />
@@ -509,14 +509,14 @@ export default function DashboardPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-[#ccc] text-center py-12">No expense data available</p>
+              <p className="text-sm text-white/15 text-center py-12">No expense data available</p>
             )}
           </div>
 
-          <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
+          <div className="bg-[#111] rounded-xl border border-white/8 p-6">
             <div className="flex items-center gap-2 mb-4">
-              <PieChartIcon className="w-4 h-4 text-[#666]" />
-              <h3 className="text-sm font-semibold text-[#1a1a1a]">Balance Sheet</h3>
+              <PieChartIcon className="w-4 h-4 text-white/40" />
+              <h3 className="text-sm font-semibold text-white">Balance Sheet</h3>
             </div>
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
@@ -531,9 +531,9 @@ export default function DashboardPage() {
                 <div key={item.name} className="flex items-center justify-between text-xs">
                   <span className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
-                    <span className="text-[#666]">{item.name}</span>
+                    <span className="text-white/40">{item.name}</span>
                   </span>
-                  <span className="text-[#1a1a1a] font-medium">{fmt(item.value)}</span>
+                  <span className="text-white font-medium">{fmt(item.value)}</span>
                 </div>
               ))}
             </div>
@@ -543,31 +543,31 @@ export default function DashboardPage() {
 
         {/* Questions for Management WITH answer inputs */}
         {aiQuestions && aiQuestions.length > 0 && (
-          <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
+          <div className="bg-[#111] rounded-xl border border-white/8 p-6">
             <div className="flex items-center gap-2 mb-5">
-              <MessageCircleQuestion className="w-4 h-4 text-amber-500" />
-              <h3 className="text-sm font-semibold text-[#1a1a1a]">Questions for Management</h3>
-              <span className="text-xs text-[#bbb] ml-auto">{aiQuestions.length} questions</span>
+              <MessageCircleQuestion className="w-4 h-4 text-amber-400" />
+              <h3 className="text-sm font-semibold text-white">Questions for Management</h3>
+              <span className="text-xs text-white/20 ml-auto">{aiQuestions.length} questions</span>
             </div>
             <div className="space-y-4">
               {aiQuestions.map((q, idx) => {
                 const isAnswered = answeredQuestions.has(idx);
                 return (
-                  <div key={idx} className={`rounded-xl border ${isAnswered ? "border-emerald-200 bg-emerald-50/30" : "border-amber-200 bg-amber-50/30"} p-5`}>
+                  <div key={idx} className={`rounded-xl border ${isAnswered ? "border-emerald-500/20 bg-emerald-500/10/30" : "border-amber-500/20 bg-amber-50/30"} p-5`}>
                     <div className="flex items-start gap-3">
                       {isAnswered ? (
                         <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-500" />
                       ) : (
-                        <HelpCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-500" />
+                        <HelpCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-400" />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-[#1a1a1a] font-medium mb-1">{q.question}</p>
-                        <p className="text-xs text-[#999] leading-relaxed mb-3">{q.reason}</p>
+                        <p className="text-sm text-white font-medium mb-1">{q.question}</p>
+                        <p className="text-xs text-white/30 leading-relaxed mb-3">{q.reason}</p>
 
                         {isAnswered ? (
-                          <div className="bg-white rounded-lg border border-emerald-200 p-3">
-                            <p className="text-[10px] text-emerald-600 font-medium uppercase tracking-wider mb-1">Your answer</p>
-                            <p className="text-sm text-[#333]">{questionAnswers[idx]}</p>
+                          <div className="bg-[#111] rounded-lg border border-emerald-500/20 p-3">
+                            <p className="text-[10px] text-emerald-400 font-medium uppercase tracking-wider mb-1">Your answer</p>
+                            <p className="text-sm text-white/70">{questionAnswers[idx]}</p>
                           </div>
                         ) : (
                           <div className="flex gap-2">
@@ -576,7 +576,7 @@ export default function DashboardPage() {
                               onChange={(e) => setQuestionAnswers((prev) => ({ ...prev, [idx]: e.target.value }))}
                               onKeyDown={(e) => e.key === "Enter" && handleSubmitAnswer(idx)}
                               placeholder="Type your answer..."
-                              className="flex-1 bg-white border border-[#e5e5e5] rounded-lg px-3 py-2 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none focus:border-amber-300"
+                              className="flex-1 bg-white border border-white/8 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/15 outline-none focus:border-amber-300"
                             />
                             <button
                               onClick={() => handleSubmitAnswer(idx)}
@@ -601,7 +601,7 @@ export default function DashboardPage() {
       {!showAnalyst && (
         <button
           onClick={() => setShowAnalyst(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-600 text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 text-sm font-medium"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 text-sm font-medium"
         >
           <Sparkles className="w-4 h-4" /> AI Analyst
         </button>
@@ -609,34 +609,34 @@ export default function DashboardPage() {
 
       {/* ── AI Analyst Sidebar ── */}
       <div
-        className={`fixed top-0 right-0 h-full w-[400px] bg-white border-l border-[#e5e5e5] shadow-2xl shadow-black/5 z-40 flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 h-full w-[400px] bg-[#111] border-l border-white/8 shadow-2xl shadow-black/30 z-40 flex flex-col transition-transform duration-300 ease-out ${
           showAnalyst ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Header */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-[#e5e5e5]">
-          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
+        <div className="flex items-center gap-3 px-6 py-5 border-b border-white/8">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-[#1a1a1a]">AI Analyst</p>
-            <p className="text-[10px] text-[#999]">Ask anything about your financials</p>
+            <p className="text-sm font-semibold text-white">AI Analyst</p>
+            <p className="text-[10px] text-white/30">Ask anything about your financials</p>
           </div>
           <button
             onClick={() => setShowAnalyst(false)}
-            className="w-7 h-7 rounded-lg hover:bg-[#f5f5f5] flex items-center justify-center transition-colors"
+            className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center transition-colors"
           >
-            <X className="w-4 h-4 text-[#999]" />
+            <X className="w-4 h-4 text-white/30" />
           </button>
         </div>
 
         {/* Context */}
-        <div className="px-6 py-3 border-b border-[#f0f0f0] bg-[#fafafa]">
-          <p className="text-[10px] text-[#999] uppercase tracking-wider font-medium mb-2">Analyzing</p>
+        <div className="px-6 py-3 border-b border-white/5 bg-white/3">
+          <p className="text-[10px] text-white/30 uppercase tracking-wider font-medium mb-2">Analyzing</p>
           <div className="flex flex-wrap gap-1.5">
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-[#e5e5e5] text-[#666]">{displayName}</span>
-            {industry && <span className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-[#e5e5e5] text-[#666]">{industry}</span>}
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600">{formattedDate}</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-white/8 text-white/40">{displayName}</span>
+            {industry && <span className="text-[10px] px-2 py-0.5 rounded-full bg-white border border-white/8 text-white/40">{industry}</span>}
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/10 text-emerald-400">{formattedDate}</span>
           </div>
         </div>
 
@@ -644,7 +644,7 @@ export default function DashboardPage() {
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {chatMessages.length === 0 && (
             <div className="py-6">
-              <p className="text-xs text-[#999] mb-4">Try asking:</p>
+              <p className="text-xs text-white/30 mb-4">Try asking:</p>
               <div className="space-y-2">
                 {[
                   "Summarize my financial health",
@@ -653,8 +653,8 @@ export default function DashboardPage() {
                   "Explain the Ind AS issues",
                   "Build me a 12-month projection",
                 ].map((q) => (
-                  <button key={q} onClick={() => setChatInput(q)} className="flex w-full items-center gap-2 text-left text-sm text-[#666] hover:text-[#1a1a1a] bg-[#fafafa] hover:bg-[#f0f0f0] rounded-lg px-3.5 py-2.5 transition-colors border border-transparent hover:border-[#e5e5e5]">
-                    <ArrowUpRight className="w-3 h-3 flex-shrink-0 text-[#ccc]" />
+                  <button key={q} onClick={() => setChatInput(q)} className="flex w-full items-center gap-2 text-left text-sm text-white/40 hover:text-white bg-white/3 hover:bg-white/5 rounded-lg px-3.5 py-2.5 transition-colors border border-transparent hover:border-white/8">
+                    <ArrowUpRight className="w-3 h-3 flex-shrink-0 text-white/15" />
                     {q}
                   </button>
                 ))}
@@ -662,11 +662,11 @@ export default function DashboardPage() {
             </div>
           )}
           {chatMessages.map((msg, i) => (
-            <AIChatBubble key={i} role={msg.role} text={msg.text} />
+            <AIChatBubble key={i} role={msg.role} text={msg.text} dark />
           ))}
           {chatLoading && (
             <div className="flex justify-start">
-              <div className="bg-[#f5f5f5] rounded-2xl rounded-bl-sm px-4 py-3">
+              <div className="bg-white/5 rounded-2xl rounded-bl-sm px-4 py-3">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "0ms" }} />
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -679,16 +679,16 @@ export default function DashboardPage() {
         </div>
 
         {/* Input */}
-        <div className="border-t border-[#e5e5e5] p-4">
+        <div className="border-t border-white/8 p-4">
           <div className="flex items-center gap-2">
             <input
               value={chatInput}
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAskAI()}
               placeholder="Ask about your financials..."
-              className="flex-1 bg-[#fafafa] border border-[#e5e5e5] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] placeholder:text-[#bbb] outline-none focus:border-emerald-300 focus:ring-1 focus:ring-emerald-100 transition-all"
+              className="flex-1 bg-white/3 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-emerald-500/30 focus:ring-1 focus:ring-emerald-100 transition-all"
             />
-            <button onClick={handleAskAI} disabled={!chatInput.trim() || chatLoading} className="w-11 h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 flex items-center justify-center transition-colors disabled:opacity-30">
+            <button onClick={handleAskAI} disabled={!chatInput.trim() || chatLoading} className="w-11 h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors disabled:opacity-30">
               <Send className="w-4 h-4 text-white" />
             </button>
           </div>

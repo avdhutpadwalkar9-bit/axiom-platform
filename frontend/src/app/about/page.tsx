@@ -14,10 +14,8 @@ export default function AboutPage() {
   }, []);
 
   const team = [
-    { name: "Arjun Mehta", title: "Chief Executive Officer", initials: "AM", gradient: "from-emerald-500 to-teal-600" },
-    { name: "Kavya Iyer", title: "Chief Technology Officer", initials: "KI", gradient: "from-blue-500 to-indigo-600" },
-    { name: "Rohan Kapoor", title: "Chief Product Officer", initials: "RK", gradient: "from-amber-500 to-orange-600" },
-    { name: "Neha Sundaram", title: "Head of AI", initials: "NS", gradient: "from-purple-500 to-pink-600" },
+    { name: "Avdhut Padwalkar", title: "Founder & CEO", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face" },
+    { name: "AI Engineering Team", title: "Building the future of FP&A", img: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=300&fit=crop" },
   ];
 
   const values = [
@@ -49,7 +47,8 @@ export default function AboutPage() {
             <Link href="/#capabilities" className="hover:text-white transition-colors">Product</Link>
             <Link href="/#pricing" className="hover:text-white transition-colors">Pricing</Link>
             <Link href="/about" className="text-white transition-colors">About</Link>
-            <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
+            <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-[13px] text-white/50 hover:text-white">Log in</Link>
@@ -130,15 +129,13 @@ export default function AboutPage() {
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Leadership</p>
             <h2 className="text-3xl font-bold">Meet the team</h2>
           </FadeIn>
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
             {team.map((member, i) => (
               <FadeIn key={member.name} delay={i * 80}>
-                <div className="bg-[#111] rounded-2xl p-6 text-center border border-white/5 hover:border-white/10 transition-all">
-                  <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white text-lg font-bold mx-auto mb-4`}>
-                    {member.initials}
-                  </div>
-                  <h3 className="text-sm font-semibold mb-0.5">{member.name}</h3>
-                  <p className="text-xs text-white/30">{member.title}</p>
+                <div className="bg-[#111] rounded-2xl p-8 text-center border border-white/5 hover:border-white/10 transition-all">
+                  <img src={member.img} alt={member.name} className="w-24 h-24 rounded-full object-cover mx-auto mb-5 border-2 border-white/10" />
+                  <h3 className="text-base font-semibold mb-1">{member.name}</h3>
+                  <p className="text-sm text-white/30">{member.title}</p>
                 </div>
               </FadeIn>
             ))}

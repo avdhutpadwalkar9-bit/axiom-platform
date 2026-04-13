@@ -93,7 +93,7 @@ const industries = [
     id: "services",
     name: "Professional Services",
     icon: Briefcase,
-    color: "bg-emerald-50 text-emerald-600",
+    color: "bg-emerald-500/10 text-emerald-400",
     marketSize: "₹12 Lakh Cr",
     growth: "14.3%",
     msmePct: "35.27%",
@@ -124,7 +124,7 @@ const industries = [
     id: "trading",
     name: "Trading & Distribution",
     icon: ShoppingCart,
-    color: "bg-amber-50 text-amber-600",
+    color: "bg-amber-500/5 text-amber-600",
     marketSize: "₹18 Lakh Cr",
     growth: "9.8%",
     msmePct: "43.79%",
@@ -186,7 +186,7 @@ const industries = [
     id: "healthcare",
     name: "Healthcare & Pharma",
     icon: HeartPulse,
-    color: "bg-red-50 text-red-600",
+    color: "bg-red-500/5 text-red-600",
     marketSize: "₹8.5 Lakh Cr",
     growth: "16.8%",
     msmePct: "Growing",
@@ -387,8 +387,8 @@ export default function IndustryExpertisePage() {
     <div className="p-6 lg:p-8 max-w-[1200px]">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#1a1a1a] mb-1">Industry Expertise</h1>
-        <p className="text-sm text-[#666]">
+        <h1 className="text-2xl font-bold text-white mb-1">Industry Expertise</h1>
+        <p className="text-sm text-white/40">
           Financial benchmarks, KPIs, and strategic insights across {industries.length} Indian industry sectors.
           Use these to benchmark your business performance.
         </p>
@@ -403,10 +403,10 @@ export default function IndustryExpertisePage() {
           { label: "Registered MSMEs", value: "4.7 Cr+", sub: "Udyam portal" },
           { label: "MSME Manufacturing Output", value: "35.4%", sub: "Of total mfg" },
         ].map((card) => (
-          <div key={card.label} className="bg-white rounded-xl border border-[#e5e5e5] p-4">
-            <p className="text-2xl font-bold text-[#1a1a1a]">{card.value}</p>
-            <p className="text-xs text-[#666] mt-0.5">{card.label}</p>
-            <p className="text-[10px] text-[#bbb]">{card.sub}</p>
+          <div key={card.label} className="bg-[#111] rounded-xl border border-white/8 p-4">
+            <p className="text-2xl font-bold text-white">{card.value}</p>
+            <p className="text-xs text-white/40 mt-0.5">{card.label}</p>
+            <p className="text-[10px] text-white/20">{card.sub}</p>
           </div>
         ))}
       </div>
@@ -421,36 +421,36 @@ export default function IndustryExpertisePage() {
 
           return (
             <FadeIn key={ind.id} delay={idx * 50}>
-            <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden hover-lift">
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden hover:border-white/12">
               {/* Header */}
               <button
                 onClick={() => toggleIndustry(ind.id)}
-                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-[#fafafa] transition-colors"
+                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-white/3 transition-colors"
               >
                 <div className={`w-10 h-10 rounded-xl ${ind.color} flex items-center justify-center`}>
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="flex-1 text-left">
-                  <h3 className="text-sm font-semibold text-[#1a1a1a]">{ind.name}</h3>
+                  <h3 className="text-sm font-semibold text-white">{ind.name}</h3>
                   <div className="flex items-center gap-4 mt-0.5">
-                    <span className="text-[11px] text-[#999]">Market: {ind.marketSize}</span>
-                    <span className="text-[11px] text-emerald-600">Growth: {ind.growth}</span>
-                    <span className="text-[11px] text-[#bbb]">MSMEs: {ind.msmePct}</span>
+                    <span className="text-[11px] text-white/30">Market: {ind.marketSize}</span>
+                    <span className="text-[11px] text-emerald-400">Growth: {ind.growth}</span>
+                    <span className="text-[11px] text-white/20">MSMEs: {ind.msmePct}</span>
                   </div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-[#ccc] transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-white/15 transition-transform ${isOpen ? "rotate-180" : ""}`} />
               </button>
 
               {/* Expanded content */}
               {isOpen && (
-                <div className="border-t border-[#f0f0f0]">
+                <div className="border-t border-white/5">
                   {/* Overview */}
-                  <div className="px-6 py-4 bg-[#fafafa]">
-                    <p className="text-sm text-[#444] leading-relaxed">{ind.overview}</p>
+                  <div className="px-6 py-4 bg-white/3">
+                    <p className="text-sm text-white/60 leading-relaxed">{ind.overview}</p>
                   </div>
 
                   {/* Sub-tabs */}
-                  <div className="flex gap-1 px-6 py-3 border-b border-[#f0f0f0]">
+                  <div className="flex gap-1 px-6 py-3 border-b border-white/5">
                     {[
                       { key: "benchmarks", label: "Benchmarks", icon: BarChart3 },
                       { key: "redflags", label: "Red Flags", icon: AlertTriangle },
@@ -462,7 +462,7 @@ export default function IndustryExpertisePage() {
                           key={tab.key}
                           onClick={() => setActiveSection((prev) => ({ ...prev, [ind.id]: tab.key }))}
                           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                            section === tab.key ? "bg-[#1a1a1a] text-white" : "text-[#999] hover:bg-[#f0f0f0]"
+                            section === tab.key ? "bg-[#1a1a1a] text-white" : "text-white/30 hover:bg-white/5"
                           }`}
                         >
                           <TabIcon className="w-3 h-3" />
@@ -477,22 +477,22 @@ export default function IndustryExpertisePage() {
                     <div className="px-6 py-4">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="text-[11px] text-[#999] uppercase tracking-wider border-b border-[#f0f0f0]">
+                          <tr className="text-[11px] text-white/30 uppercase tracking-wider border-b border-white/5">
                             <th className="text-left py-2 font-medium">KPI</th>
                             <th className="text-center py-2 font-medium text-red-400">Needs Work</th>
-                            <th className="text-center py-2 font-medium text-amber-500">Average</th>
+                            <th className="text-center py-2 font-medium text-amber-400">Average</th>
                             <th className="text-center py-2 font-medium text-emerald-500">Good</th>
                             <th className="text-left py-2 font-medium pl-4">Note</th>
                           </tr>
                         </thead>
                         <tbody>
                           {ind.kpis.map((kpi) => (
-                            <tr key={kpi.label} className="border-b border-[#f5f5f5]">
-                              <td className="py-3 font-medium text-[#1a1a1a]">{kpi.label}</td>
+                            <tr key={kpi.label} className="border-b border-white/3">
+                              <td className="py-3 font-medium text-white">{kpi.label}</td>
                               <td className="py-3 text-center text-red-500 font-mono text-xs">{kpi.low}</td>
                               <td className="py-3 text-center text-amber-600 font-mono text-xs">{kpi.avg}</td>
-                              <td className="py-3 text-center text-emerald-600 font-mono text-xs">{kpi.good}</td>
-                              <td className="py-3 text-[#999] text-xs pl-4">{kpi.note}</td>
+                              <td className="py-3 text-center text-emerald-400 font-mono text-xs">{kpi.good}</td>
+                              <td className="py-3 text-white/30 text-xs pl-4">{kpi.note}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -504,9 +504,9 @@ export default function IndustryExpertisePage() {
                   {section === "redflags" && (
                     <div className="px-6 py-4 space-y-2">
                       {ind.redFlags.map((flag, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-red-50/50 border border-red-100">
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-red-500/5/50 border border-red-500/10">
                           <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-                          <p className="text-sm text-[#444] leading-relaxed">{flag}</p>
+                          <p className="text-sm text-white/60 leading-relaxed">{flag}</p>
                         </div>
                       ))}
                     </div>
@@ -516,11 +516,11 @@ export default function IndustryExpertisePage() {
                   {section === "insights" && (
                     <div className="px-6 py-4 space-y-2">
                       {ind.insights.map((insight, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-emerald-50/50 border border-emerald-100">
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/10/50 border border-emerald-500/10">
                           <div className="w-5 h-5 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
                             {i + 1}
                           </div>
-                          <p className="text-sm text-[#444] leading-relaxed">{insight}</p>
+                          <p className="text-sm text-white/60 leading-relaxed">{insight}</p>
                         </div>
                       ))}
                     </div>
