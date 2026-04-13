@@ -21,7 +21,7 @@ export default function SignupPage() {
     try {
       await api.signup(email, password, name);
       await api.login(email, password);
-      router.push("/onboarding");
+      router.push("/verify-email");
     } catch {
       setError("Failed to create account. Email may already be in use.");
     } finally {

@@ -6,6 +6,7 @@ from app.models.variable import Variable
 from app.models.scenario import Scenario
 from app.models.cell_value import CellValue
 from app.models.business_profile import BusinessProfile
+from app.models.email_verification import EmailVerification
 
 __all__ = [
     "User",
@@ -17,4 +18,5 @@ __all__ = [
     "Scenario",
     "CellValue",
     "BusinessProfile",
+    "EmailVerification",
 ]

@@ -19,6 +19,7 @@ class UserResponse(BaseModel):
     id: uuid.UUID
     email: str
     name: str | None
+    is_email_verified: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}
@@ -32,3 +33,11 @@ class TokenResponse(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str
+
+
+class VerifyEmailRequest(BaseModel):
+    code: str
+
+
+class MessageResponse(BaseModel):
+    message: str

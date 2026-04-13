@@ -93,9 +93,22 @@ class ApiClient {
   }
 
   async getMe() {
-    return this.request<{ id: string; email: string; name: string | null }>(
+    return this.request<{ id: string; email: string; name: string | null; is_email_verified: boolean }>(
       "/api/auth/me"
     );
+  }
+
+  async verifyEmail(code: string) {
+    return this.request<{ message: string }>("/api/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ code }),
+    });
+  }
+
+  async resendVerification() {
+    return this.request<{ message: string }>("/api/auth/resend-verification", {
+      method: "POST",
+    });
   }
 
   // Models

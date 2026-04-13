@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { api } from "@/lib/api";
 import {
   BarChart3,
   GitBranch,
@@ -40,7 +41,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       router.replace("/login");
       return;
     }
-    setMounted(true);
+    // Check email verification status
+    api.getMe().then((user) => {
+      if (!user.is_email_verified) {
+        router.replace("/verify-email");
+        return;
+      }
+      setMounted(true);
+    }).catch(() => {
+      router.replace("/login");
+    });
   }, [router]);
 
   const handleLogout = () => {
