@@ -139,7 +139,7 @@ export default function LandingPage() {
             <span className="text-[15px] font-semibold tracking-tight">CortexCFO</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-[13px] text-white/50">
-            <a href="#capabilities" className="hover:text-white transition-colors">Product</a>
+            <Link href="/product" className="hover:text-white transition-colors">Product</Link>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
             <Link href="/about" className="hover:text-white transition-colors">About</Link>
             <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
