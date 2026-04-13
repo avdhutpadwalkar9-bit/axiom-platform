@@ -130,7 +130,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       {/* ─── Nav ─── */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5" : "bg-transparent"}`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? "glass border-b border-white/5" : "bg-transparent"}`}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
@@ -147,7 +147,7 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-[13px] text-white/50 hover:text-white transition-colors">Log in</Link>
-            <Link href="/signup" className="text-[13px] bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-400 transition-all font-medium">
+            <Link href="/signup" className="text-[13px] bg-emerald-500 text-white px-4 py-2 rounded-lg btn-magnetic font-medium">
               Get started free
             </Link>
           </div>
@@ -157,8 +157,9 @@ export default function LandingPage() {
       {/* ─── Hero ─── */}
       <section className="relative pt-32 pb-24 px-6 overflow-hidden">
         {/* Background gradient orbs */}
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-40 right-1/4 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none orb-pulse" />
+        <div className="absolute top-40 right-1/4 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] pointer-events-none orb-pulse" style={{ animationDelay: "2s" }} />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-emerald-500/3 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <div className={`transition-all duration-1000 ${heroMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
@@ -170,7 +171,7 @@ export default function LandingPage() {
             <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] tracking-tight mb-6">
               Financial intelligence
               <br />
-              <span className="bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">
+              <span className="gradient-text-animated">
                 that moves at your speed
               </span>
             </h1>
@@ -182,26 +183,28 @@ export default function LandingPage() {
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mb-12">
-              <Link href="/signup" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-7 py-3.5 rounded-xl hover:bg-emerald-400 transition-all text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-400/30 active:scale-[0.97]">
+              <Link href="/signup" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-7 py-3.5 rounded-xl btn-magnetic text-sm font-semibold shadow-lg shadow-emerald-500/20">
                 Start free trial <ArrowRight className="w-4 h-4" />
               </Link>
-              <a href="#capabilities" className="inline-flex items-center gap-2 text-white/60 hover:text-white px-7 py-3.5 rounded-xl border border-white/10 hover:border-white/20 transition-all text-sm font-medium hover:bg-white/5 active:scale-[0.97]">
+              <a href="#capabilities" className="inline-flex items-center gap-2 text-white/60 hover:text-white px-7 py-3.5 rounded-xl glass glass-hover text-sm font-medium active:scale-[0.97]">
                 See capabilities
               </a>
             </div>
 
-            <div className="flex justify-center gap-8 text-xs text-white/30">
+            {/* Trust signals — placed near CTA per fintech best practice */}
+            <div className="flex justify-center gap-6 text-xs text-white/30">
               <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> No credit card</span>
-              <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> Setup in 5 minutes</span>
-              <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> India-first platform</span>
+              <span className="flex items-center gap-1.5"><Check className="w-3.5 h-3.5 text-emerald-500" /> 5 min setup</span>
+              <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-emerald-500" /> 256-bit encrypted</span>
+              <span className="flex items-center gap-1.5"><Shield className="w-3.5 h-3.5 text-emerald-500" /> India data residency</span>
             </div>
           </div>
         </div>
 
         {/* Hero product preview */}
         <div className={`max-w-5xl mx-auto mt-16 transition-all duration-1000 delay-500 ${heroMounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"}`}>
-          <div className="rounded-2xl border border-white/10 overflow-hidden shadow-2xl shadow-black/50 bg-[#111]">
-            <div className="bg-[#161616] border-b border-white/5 px-4 py-2.5 flex items-center gap-2">
+          <div className="rounded-2xl overflow-hidden shadow-2xl shadow-black/50 glass glow-border">
+            <div className="bg-white/[0.02] border-b border-white/5 px-4 py-2.5 flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
               <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
@@ -324,7 +327,7 @@ export default function LandingPage() {
               { icon: Zap, title: "5 Critical Questions", desc: "The AI asks the questions your auditor would ask. Answer them to unlock deeper, more accurate analysis." },
             ].map((f, i) => (
               <FadeIn key={f.title} delay={i * 80}>
-                <div className="group bg-[#111] rounded-2xl p-6 border border-white/5 hover:border-emerald-500/20 hover:bg-[#141414] transition-all h-full">
+                <div className="group glass card-shine rounded-2xl p-6 hover:border-emerald-500/20 transition-all h-full">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 transition-colors">
                     <f.icon className="w-5 h-5" />
                   </div>
@@ -431,7 +434,7 @@ export default function LandingPage() {
               { name: "Enterprise", price: "Custom", period: "", desc: "For CA firms & PE funds", features: ["Portfolio dashboards", "Custom AI models", "White-label reports", "API access", "Dedicated CSM", "On-premise option"], highlighted: false },
             ].map((plan, i) => (
               <FadeIn key={plan.name} delay={i * 80}>
-                <div className={`p-6 rounded-2xl border h-full ${plan.highlighted ? "border-emerald-500/30 bg-emerald-500/5 ring-1 ring-emerald-500/20" : "border-white/8 bg-[#111]"}`}>
+                <div className={`p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/30 bg-emerald-500/5 glow-border" : "border-white/8 bg-[#111]"}`}>
                   {plan.highlighted && <p className="text-xs font-semibold text-emerald-400 mb-3">Most popular</p>}
                   <p className="text-sm text-white/50 mb-1">{plan.name}</p>
                   <div className="mb-1"><span className="text-3xl font-bold">{plan.price}</span><span className="text-sm text-white/30 ml-1">{plan.period}</span></div>
@@ -481,7 +484,7 @@ export default function LandingPage() {
           <div className="max-w-2xl mx-auto text-center relative z-10">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
               Stop guessing.<br />
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Start knowing.</span>
+              <span className="gradient-text-animated">Start knowing.</span>
             </h2>
             <p className="text-white/40 mb-10 text-lg">
               Join the finance leaders who replaced spreadsheets and gut feel with AI-powered financial intelligence.
