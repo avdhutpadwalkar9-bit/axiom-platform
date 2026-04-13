@@ -45,8 +45,13 @@ async def health():
         has_sdk = True
     except ImportError:
         has_sdk = False
+
+    from app.services.email_service import check_resend_configured
+    resend_status = check_resend_configured()
+
     return {
         "status": "ok",
         "claude_api": has_key and has_sdk,
+        "resend": resend_status,
         "cors_origins": settings.CORS_ORIGINS,
     }
