@@ -19,12 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await api.login(email, password);
-      const user = await api.getMe();
-      if (!user.is_email_verified) {
-        router.push("/verify-email");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push("/dashboard");
     } catch {
       setError("Invalid email or password");
     } finally {
