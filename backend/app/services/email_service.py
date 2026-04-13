@@ -4,8 +4,200 @@ import traceback
 from app.config import settings
 
 
+def _build_verification_html(code: str) -> str:
+    """Build a branded HTML email matching CortexCFO's theme."""
+    digits = "".join(
+        f'<td style="width:44px;height:52px;background:#f8f6f3;border:1px solid #e5e5e5;border-radius:8px;text-align:center;font-size:24px;font-weight:700;color:#1a1a1a;font-family:\'SF Mono\',Monaco,Consolas,monospace;letter-spacing:1px;">{d}</td>'
+        for d in code
+    )
+
+    return f"""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+
+<!-- Outer wrapper -->
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:40px 20px;">
+<tr><td align="center">
+
+<!-- Main card -->
+<table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+
+  <!-- Header with brand bar -->
+  <tr>
+    <td style="background:#059669;padding:28px 40px;">
+      <table cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td>
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:8px;text-align:center;vertical-align:middle;">
+                  <span style="color:#ffffff;font-size:16px;font-weight:700;">&#x2197;</span>
+                </td>
+                <td style="padding-left:10px;">
+                  <span style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:-0.3px;">CortexCFO</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td align="right">
+            <span style="color:rgba(255,255,255,0.7);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Verification</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Body -->
+  <tr>
+    <td style="padding:36px 40px 20px;">
+      <h1 style="margin:0 0 8px;font-size:22px;font-weight:600;color:#1a1a1a;line-height:1.3;">Verify your email</h1>
+      <p style="margin:0;font-size:14px;color:#666;line-height:1.6;">
+        Enter this code to complete your registration and start analyzing your financials with AI-powered insights.
+      </p>
+    </td>
+  </tr>
+
+  <!-- Code box -->
+  <tr>
+    <td style="padding:8px 40px 28px;">
+      <table cellpadding="0" cellspacing="0" style="margin:0 auto;background:#fafafa;border:1px solid #e5e5e5;border-radius:12px;padding:20px 24px;">
+        <tr>
+          <td align="center">
+            <p style="margin:0 0 12px;font-size:11px;color:#999;text-transform:uppercase;letter-spacing:1.5px;font-weight:500;">Your verification code</p>
+            <table cellpadding="0" cellspacing="6">
+              <tr>{digits}</tr>
+            </table>
+            <p style="margin:12px 0 0;font-size:12px;color:#bbb;">Expires in {settings.VERIFICATION_CODE_EXPIRE_MINUTES} minutes</p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Divider -->
+  <tr>
+    <td style="padding:0 40px;">
+      <div style="border-top:1px solid #f0f0f0;"></div>
+    </td>
+  </tr>
+
+  <!-- What you get section -->
+  <tr>
+    <td style="padding:24px 40px 8px;">
+      <p style="margin:0 0 16px;font-size:13px;font-weight:600;color:#1a1a1a;">What you unlock with CortexCFO:</p>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0 40px 28px;">
+      <table cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:28px;">
+            <div style="width:20px;height:20px;background:#ecfdf5;border-radius:6px;text-align:center;line-height:20px;">
+              <span style="color:#059669;font-size:12px;">&#x2713;</span>
+            </div>
+          </td>
+          <td style="padding:8px 0 8px 8px;">
+            <span style="font-size:13px;color:#333;font-weight:500;">AI-Powered Financial Analysis</span>
+            <span style="display:block;font-size:12px;color:#999;margin-top:2px;">Upload your Trial Balance, get instant insights</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:28px;">
+            <div style="width:20px;height:20px;background:#ecfdf5;border-radius:6px;text-align:center;line-height:20px;">
+              <span style="color:#059669;font-size:12px;">&#x2713;</span>
+            </div>
+          </td>
+          <td style="padding:8px 0 8px 8px;">
+            <span style="font-size:13px;color:#333;font-weight:500;">Ind AS Compliance Review</span>
+            <span style="display:block;font-size:12px;color:#999;margin-top:2px;">Automatic checks against AS 12, 15, 16, 19, 24, 37</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:28px;">
+            <div style="width:20px;height:20px;background:#ecfdf5;border-radius:6px;text-align:center;line-height:20px;">
+              <span style="color:#059669;font-size:12px;">&#x2713;</span>
+            </div>
+          </td>
+          <td style="padding:8px 0 8px 8px;">
+            <span style="font-size:13px;color:#333;font-weight:500;">Industry Benchmarks for 11 Sectors</span>
+            <span style="display:block;font-size:12px;color:#999;margin-top:2px;">Compare your KPIs against industry standards</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;vertical-align:top;width:28px;">
+            <div style="width:20px;height:20px;background:#ecfdf5;border-radius:6px;text-align:center;line-height:20px;">
+              <span style="color:#059669;font-size:12px;">&#x2713;</span>
+            </div>
+          </td>
+          <td style="padding:8px 0 8px 8px;">
+            <span style="font-size:13px;color:#333;font-weight:500;">Ask AI Anything</span>
+            <span style="display:block;font-size:12px;color:#999;margin-top:2px;">Chat with Claude about your financials, get actionable advice</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Security note -->
+  <tr>
+    <td style="padding:0 40px 28px;">
+      <table cellpadding="0" cellspacing="0" width="100%" style="background:#fafafa;border-radius:8px;padding:14px 16px;">
+        <tr>
+          <td style="vertical-align:top;width:20px;">
+            <span style="font-size:13px;">&#x1f512;</span>
+          </td>
+          <td style="padding-left:8px;">
+            <span style="font-size:12px;color:#999;line-height:1.5;">Your financial data is encrypted and never used for AI training. We take security seriously.</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="background:#fafafa;padding:20px 40px;border-top:1px solid #f0f0f0;">
+      <table cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td>
+            <span style="font-size:12px;color:#bbb;">CortexCFO Financial Intelligence</span>
+          </td>
+          <td align="right">
+            <span style="font-size:11px;color:#ccc;">If you didn't sign up, ignore this email.</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+</table>
+<!-- /Main card -->
+
+<!-- Bottom text -->
+<table width="520" cellpadding="0" cellspacing="0">
+  <tr>
+    <td style="padding:20px 0;text-align:center;">
+      <span style="font-size:11px;color:#bbb;">AI-powered financial intelligence for Indian businesses</span>
+    </td>
+  </tr>
+</table>
+
+</td></tr>
+</table>
+<!-- /Outer wrapper -->
+
+</body>
+</html>
+"""
+
+
 def send_verification_email(to_email: str, code: str) -> bool:
-    """Send a verification code email via Resend. Returns True if sent successfully."""
+    """Send a branded verification code email via Resend."""
     if not settings.RESEND_API_KEY:
         print(f"[DEV] No RESEND_API_KEY set. Verification code for {to_email}: {code}")
         return False
@@ -14,18 +206,18 @@ def send_verification_email(to_email: str, code: str) -> bool:
         import resend
         resend.api_key = settings.RESEND_API_KEY
 
+        html = _build_verification_html(code)
+
         result = resend.Emails.send({
             "from": settings.FROM_EMAIL,
             "to": [to_email],
             "subject": f"Your CortexCFO verification code: {code}",
+            "html": html,
             "text": (
-                f"Hi,\n\n"
-                f"Your verification code is: {code}\n\n"
-                f"Enter this code to verify your email and access CortexCFO.\n"
+                f"Your CortexCFO verification code is: {code}\n\n"
+                f"Enter this code to verify your email.\n"
                 f"This code expires in {settings.VERIFICATION_CODE_EXPIRE_MINUTES} minutes.\n\n"
-                f"If you did not sign up for CortexCFO, please ignore this email.\n\n"
-                f"Thanks,\n"
-                f"CortexCFO Team"
+                f"If you did not sign up, please ignore this email."
             ),
         })
         print(f"[EMAIL] Sent verification to {to_email}. Resend response: {result}")
