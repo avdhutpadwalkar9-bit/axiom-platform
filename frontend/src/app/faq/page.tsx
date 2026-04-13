@@ -1,0 +1,252 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  TrendingUp,
+  ChevronDown,
+  ArrowRight,
+  HelpCircle,
+  Shield,
+  CreditCard,
+  Code,
+} from "lucide-react";
+import { FadeIn } from "@/components/Animate";
+
+type Category = "General" | "Pricing" | "Security" | "Technical";
+
+const categories: { label: Category; icon: React.ElementType }[] = [
+  { label: "General", icon: HelpCircle },
+  { label: "Pricing", icon: CreditCard },
+  { label: "Security", icon: Shield },
+  { label: "Technical", icon: Code },
+];
+
+const faqData: { category: Category; q: string; a: string }[] = [
+  {
+    category: "General",
+    q: "What is CortexCFO?",
+    a: "CortexCFO is an AI-powered financial intelligence platform built for Indian businesses. It transforms raw financial data like Trial Balances into boardroom-ready analysis, Ind AS compliance reviews, ratio analysis, and strategic insights in under 60 seconds.",
+  },
+  {
+    category: "General",
+    q: "How does CortexCFO work?",
+    a: "Upload your Trial Balance in Excel or CSV format from any accounting software such as Tally, Zoho Books, or QuickBooks. CortexCFO automatically classifies your accounts, calculates financial ratios, checks Ind AS compliance, and generates a detailed analysis report. You can then ask our AI consultant follow-up questions about your data.",
+  },
+  {
+    category: "General",
+    q: "What file formats does CortexCFO accept?",
+    a: "CortexCFO accepts Trial Balance data in .xlsx, .xls, and .csv formats. The system is designed to work with exports from popular Indian accounting software including Tally Prime, Tally ERP 9, Zoho Books, QuickBooks, Busy, and Marg. You can also use our standard template for manual uploads.",
+  },
+  {
+    category: "General",
+    q: "What industries does CortexCFO support?",
+    a: "CortexCFO supports a wide range of industries including Manufacturing, IT Services, Retail and E-commerce, Healthcare, Real Estate, NBFC and Financial Services, Education, and Hospitality. Each analysis is benchmarked against industry-specific standards and ratios relevant to Indian markets.",
+  },
+  {
+    category: "General",
+    q: "Which Ind AS standards does CortexCFO cover?",
+    a: "CortexCFO currently reviews compliance against six key Indian Accounting Standards: Ind AS 12 (Income Taxes / Deferred Tax), Ind AS 15 (Employee Benefits), Ind AS 16 (Property, Plant and Equipment), Ind AS 19 (Provisions and Contingencies), Ind AS 24 (Related Party Disclosures), and Ind AS 37 (Revenue Recognition). Each review includes severity levels and specific remediation steps.",
+  },
+  {
+    category: "Pricing",
+    q: "Is there a free trial available?",
+    a: "Yes. CortexCFO is currently in beta and is free for all early users. You can sign up, upload your Trial Balance, and get a full analysis at no cost. Once we exit beta, early users will receive preferential pricing and a generous free tier.",
+  },
+  {
+    category: "Pricing",
+    q: "What are the pricing plans?",
+    a: "During beta, CortexCFO is completely free. Post-launch, we will offer a Free tier with limited analyses per month, a Pro tier for growing businesses with unlimited analyses and advanced features, and an Enterprise tier with custom integrations, priority support, and dedicated account management. Pricing will be announced before beta ends.",
+  },
+  {
+    category: "Security",
+    q: "Is my financial data secure?",
+    a: "Absolutely. All data is encrypted in transit using TLS 1.3 and at rest using AES-256 encryption. We follow SOC 2 Type II controls. Your data is never shared with third parties, never used for model training, and is stored on servers in India. Access is restricted with role-based controls and audit logging.",
+  },
+  {
+    category: "Security",
+    q: "Can I delete my data from CortexCFO?",
+    a: "Yes. You can delete any uploaded document or your entire account at any time from your dashboard settings. When you delete data, it is permanently removed from our servers within 30 days, including all backups. We provide a data export option before deletion.",
+  },
+  {
+    category: "Technical",
+    q: "How accurate is the AI analysis?",
+    a: "CortexCFO uses Claude AI combined with deterministic financial models for analysis. Account classification accuracy exceeds 95% across standard Indian chart-of-account formats. All ratio calculations and compliance checks use established formulae. The AI consultant draws insights from your actual data, not generic responses, and cites specific numbers from your financials.",
+  },
+  {
+    category: "Technical",
+    q: "Does CortexCFO integrate with Tally and Zoho?",
+    a: "Currently, CortexCFO works with exported Trial Balance files from Tally and Zoho. Direct API integrations with Tally Prime, Zoho Books, and other popular accounting software are on our roadmap and expected within the next quarter. This will enable automatic syncing and real-time analysis.",
+  },
+  {
+    category: "Technical",
+    q: "Can I analyze multiple years of data?",
+    a: "Yes. CortexCFO supports multi-year analysis. Upload Trial Balances from different financial years and the platform will generate year-over-year comparisons, trend analysis, growth trajectories, and multi-period ratio analysis. This is especially useful for identifying patterns in revenue, expenses, and working capital cycles.",
+  },
+];
+
+export default function FaqPage() {
+  const [scrolled, setScrolled] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<Category>("General");
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const filtered = faqData.filter((f) => f.category === activeCategory);
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* ─── Nav ─── */}
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5" : "bg-transparent"}`}>
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-white" />
+            </div>
+            <span className="text-[15px] font-semibold tracking-tight">CortexCFO</span>
+          </Link>
+          <div className="hidden md:flex items-center gap-8 text-[13px] text-white/50">
+            <Link href="/#capabilities" className="hover:text-white transition-colors">Capabilities</Link>
+            <Link href="/#how-it-works" className="hover:text-white transition-colors">How it works</Link>
+            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
+            <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="text-[13px] text-white/50 hover:text-white transition-colors">Log in</Link>
+            <Link href="/signup" className="text-[13px] bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-400 transition-all font-medium">
+              Get started free
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      {/* ─── Hero ─── */}
+      <section className="relative pt-32 pb-16 px-6 overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none" />
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <FadeIn>
+            <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-emerald-400 text-xs font-medium px-4 py-1.5 rounded-full mb-8">
+              <HelpCircle className="w-3.5 h-3.5" />
+              Help center
+            </div>
+            <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-6">
+              Frequently asked questions
+            </h1>
+            <p className="text-lg text-white/50 max-w-xl mx-auto">
+              Everything you need to know about CortexCFO. Can not find what you are looking for? Reach out to our team.
+            </p>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ─── Category tabs ─── */}
+      <section className="px-6 pb-4">
+        <div className="max-w-3xl mx-auto">
+          <FadeIn delay={100}>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {categories.map((cat) => {
+                const Icon = cat.icon;
+                const isActive = activeCategory === cat.label;
+                return (
+                  <button
+                    key={cat.label}
+                    onClick={() => { setActiveCategory(cat.label); setOpenIndex(null); }}
+                    className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                      isActive
+                        ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                        : "bg-white/5 text-white/40 border border-white/8 hover:text-white/70 hover:border-white/15"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {cat.label}
+                  </button>
+                );
+              })}
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ─── FAQ accordion ─── */}
+      <section className="px-6 pb-24">
+        <div className="max-w-3xl mx-auto space-y-3">
+          {filtered.map((faq, i) => (
+            <FadeIn key={`${activeCategory}-${i}`} delay={i * 60}>
+              <div className="bg-white/[0.02] border border-white/8 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                  className="w-full flex items-center justify-between px-6 py-4 text-left group"
+                >
+                  <span className="text-sm font-medium text-white/80 group-hover:text-white transition-colors pr-4">{faq.q}</span>
+                  <ChevronDown className={`w-4 h-4 text-white/30 shrink-0 transition-transform duration-300 ${openIndex === i ? "rotate-180 text-emerald-400" : ""}`} />
+                </button>
+                <div
+                  className="overflow-hidden transition-all duration-300"
+                  style={{ maxHeight: openIndex === i ? "500px" : "0px", opacity: openIndex === i ? 1 : 0 }}
+                >
+                  <div className="px-6 pb-5">
+                    <p className="text-sm text-white/40 leading-relaxed">{faq.a}</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── CTA ─── */}
+      <section className="px-6 pb-24">
+        <FadeIn>
+          <div className="max-w-3xl mx-auto text-center bg-white/[0.02] border border-white/8 rounded-2xl p-12">
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">Still have questions?</h2>
+            <p className="text-white/40 mb-8 max-w-md mx-auto text-sm">
+              Our team is happy to help. Reach out and we will get back to you within 24 hours.
+            </p>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 bg-emerald-500 text-white px-7 py-3.5 rounded-xl hover:bg-emerald-400 transition-all text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-400/30"
+            >
+              Contact us <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* ─── Footer ─── */}
+      <footer className="border-t border-white/5 py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center"><TrendingUp className="w-3 h-3 text-white" /></div>
+                <span className="text-sm font-semibold">CortexCFO</span>
+              </div>
+              <p className="text-xs text-white/25 leading-relaxed">AI-powered financial intelligence for Indian businesses.</p>
+            </div>
+            {[
+              { title: "Product", links: [{ label: "Dashboard", href: "/dashboard" }, { label: "TB Analysis", href: "/analysis" }, { label: "Industries", href: "/industries" }] },
+              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }] },
+              { title: "Support", links: [{ label: "FAQ", href: "/faq" }, { label: "Contact", href: "/contact" }, { label: "Blog", href: "/blog" }] },
+            ].map((col) => (
+              <div key={col.title}>
+                <p className="text-xs font-semibold text-white/25 uppercase tracking-wider mb-3">{col.title}</p>
+                <ul className="space-y-2">{col.links.map((l) => <li key={l.label}><Link href={l.href} className="text-sm text-white/30 hover:text-white/60 transition-colors">{l.label}</Link></li>)}</ul>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-white/5 pt-6 flex items-center justify-between">
+            <p className="text-xs text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd.</p>
+            <div className="flex gap-4 text-xs text-white/20">
+              <a href="https://twitter.com" target="_blank" rel="noopener" className="hover:text-white/40">Twitter</a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener" className="hover:text-white/40">LinkedIn</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}

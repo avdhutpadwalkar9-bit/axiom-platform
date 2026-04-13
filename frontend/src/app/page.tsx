@@ -139,10 +139,11 @@ export default function LandingPage() {
             <span className="text-[15px] font-semibold tracking-tight">CortexCFO</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-[13px] text-white/50">
-            <a href="#capabilities" className="hover:text-white transition-colors">Capabilities</a>
-            <a href="#how-it-works" className="hover:text-white transition-colors">How it works</a>
-            <a href="#industries" className="hover:text-white transition-colors">Industries</a>
+            <a href="#capabilities" className="hover:text-white transition-colors">Product</a>
             <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+            <Link href="/about" className="hover:text-white transition-colors">About</Link>
+            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
+            <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login" className="text-[13px] text-white/50 hover:text-white transition-colors">Log in</Link>
@@ -549,8 +550,8 @@ export default function LandingPage() {
             </div>
             {[
               { title: "Product", links: [{ label: "Dashboard", href: "/dashboard" }, { label: "TB Analysis", href: "/analysis" }, { label: "Industries", href: "/industries" }] },
-              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }] },
-              { title: "Support", links: [{ label: "Documentation", href: "/about" }, { label: "Contact", href: "/about" }] },
+              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Contact", href: "/contact" }] },
+              { title: "Legal", links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "FAQ", href: "/faq" }] },
             ].map((col) => (
               <div key={col.title}>
                 <p className="text-xs font-semibold text-white/25 uppercase tracking-wider mb-3">{col.title}</p>

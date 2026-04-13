@@ -1,213 +1,238 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Activity, ArrowRight, ArrowUpRight, Users, Brain, Shield, Globe } from "lucide-react";
+import { useState, useEffect } from "react";
+import { TrendingUp, ArrowRight, Users, Brain, Shield, Globe, Target, Zap } from "lucide-react";
+import { FadeIn } from "@/components/Animate";
 
 export default function AboutPage() {
-  const [scrollY, setScrollY] = useState(0);
-
+  const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const team = [
-    { name: "Arjun Mehta", title: "Chief Executive Officer", initials: "AM", gradient: "from-indigo-500 to-purple-600" },
-    { name: "Kavya Iyer", title: "Chief Technology Officer", initials: "KI", gradient: "from-emerald-500 to-teal-600" },
+    { name: "Arjun Mehta", title: "Chief Executive Officer", initials: "AM", gradient: "from-emerald-500 to-teal-600" },
+    { name: "Kavya Iyer", title: "Chief Technology Officer", initials: "KI", gradient: "from-blue-500 to-indigo-600" },
     { name: "Rohan Kapoor", title: "Chief Product Officer", initials: "RK", gradient: "from-amber-500 to-orange-600" },
-    { name: "Neha Sundaram", title: "Head of AI", initials: "NS", gradient: "from-rose-500 to-pink-600" },
+    { name: "Neha Sundaram", title: "Head of AI", initials: "NS", gradient: "from-purple-500 to-pink-600" },
   ];
 
   const values = [
-    { icon: Globe, title: "India-first", desc: "Built for Indian accounting standards, Indian tax codes, and Indian business realities. Ind AS, GST, TDS -- native from day one." },
-    { icon: Brain, title: "AI-native", desc: "Not AI bolted on. Every workflow, every insight, every recommendation is powered by models trained on Indian financial data." },
-    { icon: Shield, title: "Privacy by design", desc: "Your financial data never trains our models. SOC 2 Type II certified, 256-bit encryption, and full data residency in India." },
-    { icon: Users, title: "Open by default", desc: "Open APIs, open integrations, open export. Your data is yours. We make it easy to connect, easy to leave, easy to trust." },
+    { icon: Globe, title: "India-first", desc: "Built for Indian accounting standards, Indian tax codes, and Indian business realities. Ind AS, GST, TDS native from day one." },
+    { icon: Brain, title: "AI-native", desc: "Every workflow, every insight, every recommendation is powered by AI trained on Indian financial data patterns." },
+    { icon: Shield, title: "Privacy by design", desc: "Your financial data never trains our models. 256-bit encryption, and full data residency in India." },
+    { icon: Users, title: "Open by default", desc: "Open APIs, open integrations, open export. Your data is yours. Easy to connect, easy to leave, easy to trust." },
+  ];
+
+  const milestones = [
+    { year: "2024", title: "The idea", desc: "Founded with a vision to democratize financial intelligence for Indian MSMEs." },
+    { year: "2025", title: "First product", desc: "Launched Trial Balance analyzer with AI-powered insights and Ind AS compliance." },
+    { year: "2026", title: "Scaling up", desc: "11 industry verticals, Claude AI integration, and 200+ businesses onboarded." },
+    { year: "Next", title: "The future", desc: "Real-time accounting integrations, predictive analytics, and white-label for CA firms." },
   ];
 
   return (
-    <div className="min-h-screen bg-[#faf9f7] text-[#1a1a1a] overflow-hidden">
-      {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrollY > 50
-          ? "bg-white/90 backdrop-blur-xl shadow-[0_1px_0_rgba(0,0,0,0.04)]"
-          : "bg-transparent"
-      }`}>
-        <div className="max-w-[1400px] mx-auto px-8 h-[72px] flex items-center justify-between">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Nav */}
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5" : "bg-transparent"}`}>
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#1a1a1a] flex items-center justify-center">
-              <Activity className="w-4.5 h-4.5 text-white" />
+            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-white" />
             </div>
-            <span className="text-[20px] font-bold tracking-[-0.03em]">CortexCFO</span>
+            <span className="text-[15px] font-semibold tracking-tight">CortexCFO</span>
           </Link>
-          <div className="hidden md:flex items-center gap-10 text-[13.5px] text-[#666] font-medium">
-            <Link href="/#platform" className="hover:text-[#1a1a1a] transition-colors duration-300">Platform</Link>
-            <Link href="/#customers" className="hover:text-[#1a1a1a] transition-colors duration-300">Customers</Link>
-            <Link href="/#pricing" className="hover:text-[#1a1a1a] transition-colors duration-300">Pricing</Link>
-            <Link href="/about" className="text-[#1a1a1a] transition-colors duration-300">About</Link>
+          <div className="hidden md:flex items-center gap-8 text-[13px] text-white/50">
+            <Link href="/#capabilities" className="hover:text-white transition-colors">Product</Link>
+            <Link href="/#pricing" className="hover:text-white transition-colors">Pricing</Link>
+            <Link href="/about" className="text-white transition-colors">About</Link>
+            <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-[13.5px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium">Log in</Link>
-            <Link href="/signup" className="text-[13.5px] bg-[#1a1a1a] text-white font-semibold px-6 py-2.5 rounded-full hover:bg-[#333] transition-all">
-              Request access
-            </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/login" className="text-[13px] text-white/50 hover:text-white">Log in</Link>
+            <Link href="/signup" className="text-[13px] bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-400 font-medium">Get started free</Link>
           </div>
         </div>
       </nav>
 
       {/* Hero */}
-      <section className="relative min-h-[60vh] bg-[#1a1a17] text-white flex items-center overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
-        }} />
-        <div className="relative z-10 max-w-[1400px] mx-auto px-8 py-40 w-full">
-          <div className="max-w-[700px] mx-auto text-center">
-            <div className="flex items-center justify-center gap-3 mb-10">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[12px] font-semibold tracking-[0.15em] uppercase text-white/50">Our Story</span>
-            </div>
-            <h1 className="text-[clamp(2.5rem,5.5vw,4.5rem)] font-light tracking-[-0.04em] leading-[1.1] mb-8">
-              About <span className="italic font-normal">CortexCFO</span>
+      <section className="relative pt-32 pb-20 px-6 overflow-hidden">
+        <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="max-w-3xl mx-auto text-center relative z-10">
+          <FadeIn>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-4">About CortexCFO</p>
+            <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-6">
+              Building the financial<br />
+              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">intelligence layer</span>
+              <br />for Indian businesses
             </h1>
-            <p className="text-[18px] text-white/50 max-w-[520px] mx-auto leading-[1.75] font-light">
-              We are building the financial intelligence layer for Indian businesses.
+            <p className="text-lg text-white/40 leading-relaxed max-w-xl mx-auto">
+              India has 63 million SMEs. Most still rely on spreadsheets and manual accounting.
+              We started CortexCFO to change that.
             </p>
-          </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* Mission */}
-      <section className="py-28 px-8 bg-white">
-        <div className="max-w-[900px] mx-auto text-center">
-          <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-indigo-600 mb-4">Our Mission</p>
-          <h2 className="text-[clamp(1.8rem,3.5vw,2.8rem)] font-light tracking-[-0.03em] leading-[1.3] mb-8">
-            Every Indian business deserves
-            <br />
-            <span className="italic font-normal text-[#999]">world-class financial intelligence.</span>
-          </h2>
-          <p className="text-[16px] text-[#666] leading-[1.8] max-w-[600px] mx-auto">
-            India has 63 million SMEs and thousands of fast-growing startups, yet most still run on spreadsheets
-            and outdated accounting software. We started CortexCFO because we believe AI can close that gap --
-            giving every founder, CFO, and investor the same caliber of financial insight that Fortune 500
-            companies take for granted.
-          </p>
+      <FadeIn>
+        <section className="py-20 px-6">
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-[#111] rounded-2xl border border-white/8 p-10 md:p-14">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-4">Our Mission</p>
+              <h2 className="text-2xl md:text-3xl font-bold leading-snug mb-6">
+                Every Indian business deserves world-class financial intelligence.
+              </h2>
+              <p className="text-white/40 leading-relaxed text-[15px]">
+                CortexCFO exists because we believe AI can close the gap between what Fortune 500 companies
+                have access to and what Indian MSMEs and startups can afford. We are building the tools that
+                give every founder, CFO, and investor the caliber of financial insight that was previously
+                reserved for those who could afford top-tier consulting firms.
+              </p>
+            </div>
+          </div>
+        </section>
+      </FadeIn>
+
+      {/* Timeline */}
+      <section className="py-20 px-6 bg-[#080808]">
+        <div className="max-w-4xl mx-auto">
+          <FadeIn className="text-center mb-14">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Our Journey</p>
+            <h2 className="text-3xl font-bold">From idea to impact</h2>
+          </FadeIn>
+          <div className="space-y-0">
+            {milestones.map((m, i) => (
+              <FadeIn key={m.year} delay={i * 100}>
+                <div className="flex gap-6 items-start py-8 border-b border-white/5 last:border-0">
+                  <div className="w-16 text-right flex-shrink-0">
+                    <span className="text-emerald-400 font-bold text-lg">{m.year}</span>
+                  </div>
+                  <div className="w-3 h-3 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1">{m.title}</h3>
+                    <p className="text-white/40 text-[15px]">{m.desc}</p>
+                  </div>
+                </div>
+              </FadeIn>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Team */}
-      <section className="py-28 px-8 bg-[#f5f4f2]">
-        <div className="max-w-[1000px] mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-indigo-600 mb-4">Leadership</p>
-            <h2 className="text-[clamp(1.8rem,3.5vw,2.5rem)] font-light tracking-[-0.03em]">
-              Meet the <span className="italic font-normal text-[#999]">team</span>
-            </h2>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {team.map(member => (
-              <div key={member.name} className="bg-white rounded-2xl p-8 text-center border border-[#eee] hover:shadow-lg transition-all duration-500">
-                <div className={`w-20 h-20 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white text-[22px] font-bold mx-auto mb-6`}>
-                  {member.initials}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <FadeIn className="text-center mb-14">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Leadership</p>
+            <h2 className="text-3xl font-bold">Meet the team</h2>
+          </FadeIn>
+          <div className="grid md:grid-cols-4 gap-6">
+            {team.map((member, i) => (
+              <FadeIn key={member.name} delay={i * 80}>
+                <div className="bg-[#111] rounded-2xl p-6 text-center border border-white/5 hover:border-white/10 transition-all">
+                  <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-white text-lg font-bold mx-auto mb-4`}>
+                    {member.initials}
+                  </div>
+                  <h3 className="text-sm font-semibold mb-0.5">{member.name}</h3>
+                  <p className="text-xs text-white/30">{member.title}</p>
                 </div>
-                <h3 className="text-[16px] font-semibold tracking-[-0.01em] mb-1">{member.name}</h3>
-                <p className="text-[13px] text-[#999]">{member.title}</p>
-              </div>
+              </FadeIn>
             ))}
           </div>
         </div>
       </section>
 
       {/* Values */}
-      <section className="py-28 px-8 bg-white">
-        <div className="max-w-[1100px] mx-auto">
-          <div className="text-center mb-16">
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-indigo-600 mb-4">Our Values</p>
-            <h2 className="text-[clamp(1.8rem,3.5vw,2.5rem)] font-light tracking-[-0.03em]">
-              What we <span className="italic font-normal text-[#999]">stand for</span>
-            </h2>
-          </div>
+      <section className="py-20 px-6 bg-[#080808]">
+        <div className="max-w-5xl mx-auto">
+          <FadeIn className="text-center mb-14">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Our Values</p>
+            <h2 className="text-3xl font-bold">What we stand for</h2>
+          </FadeIn>
           <div className="grid md:grid-cols-2 gap-6">
-            {values.map(value => (
-              <div key={value.title} className="p-8 rounded-2xl border border-[#eee] hover:shadow-lg hover:border-[#ddd] transition-all duration-500 bg-[#faf9f7]">
-                <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] flex items-center justify-center mb-5">
-                  <value.icon className="w-4 h-4 text-white" />
+            {values.map((v, i) => (
+              <FadeIn key={v.title} delay={i * 80}>
+                <div className="bg-[#111] rounded-2xl p-8 border border-white/5 hover:border-emerald-500/20 transition-all h-full">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-5">
+                    <v.icon className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">{v.title}</h3>
+                  <p className="text-sm text-white/35 leading-relaxed">{v.desc}</p>
                 </div>
-                <h3 className="text-[18px] font-semibold tracking-[-0.01em] mb-3">{value.title}</h3>
-                <p className="text-[14px] text-[#888] leading-[1.7]">{value.desc}</p>
-              </div>
+              </FadeIn>
             ))}
           </div>
         </div>
       </section>
 
+      {/* Numbers */}
+      <FadeIn>
+        <section className="py-16 px-6 border-y border-white/5">
+          <div className="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { value: "200+", label: "Businesses analyzed" },
+              { value: "11", label: "Industries covered" },
+              { value: "6", label: "Ind AS standards" },
+              { value: "60s", label: "Time to insight" },
+            ].map((s) => (
+              <div key={s.label}>
+                <p className="text-3xl font-bold text-white">{s.value}</p>
+                <p className="text-xs text-white/30 mt-1">{s.label}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </FadeIn>
+
       {/* CTA */}
-      <section className="relative py-32 px-8 bg-[#1a1a17] text-white overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1920&q=80"
-            alt=""
-            className="w-full h-full object-cover opacity-[0.08]"
-          />
-        </div>
-        <div className="relative z-10 max-w-[700px] mx-auto text-center">
-          <h2 className="text-[clamp(2.2rem,5vw,3.5rem)] font-light tracking-[-0.03em] leading-[1.15] mb-6">
-            Ready to transform
-            <br />
-            <span className="italic font-normal text-white/50">your finances?</span>
-          </h2>
-          <p className="text-[16px] text-white/40 mb-12 leading-[1.7] max-w-md mx-auto">
-            Join 200+ finance teams across India that trust CortexCFO for
-            real-time financial intelligence.
-          </p>
-          <Link href="/signup" className="group inline-flex items-center gap-3 bg-white text-[#1a1a1a] font-semibold pl-8 pr-6 py-4 rounded-full hover:bg-white/90 transition-all text-[15px]">
-            Get started free
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-        </div>
+      <section className="py-24 px-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
+        <FadeIn>
+          <div className="max-w-2xl mx-auto text-center relative z-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              Ready to get started?
+            </h2>
+            <p className="text-white/40 mb-10">
+              Join the growing community of Indian businesses using AI-powered financial intelligence.
+            </p>
+            <Link href="/signup" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-xl hover:bg-emerald-400 transition-all text-sm font-semibold shadow-lg shadow-emerald-500/20">
+              Start free trial <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </FadeIn>
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#1a1a17] text-white border-t border-white/[0.06] py-16 px-8">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="grid md:grid-cols-5 gap-12 mb-16">
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
-                  <Activity className="w-4 h-4" />
-                </div>
-                <span className="text-[18px] font-bold tracking-[-0.02em]">CortexCFO</span>
+      <footer className="border-t border-white/5 py-12 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center"><TrendingUp className="w-3 h-3 text-white" /></div>
+                <span className="text-sm font-semibold">CortexCFO</span>
               </div>
-              <p className="text-[13px] text-white/30 leading-[1.8] max-w-xs">
-                AI-powered financial intelligence platform for Indian businesses.
-                Continuous QoE, scenario modeling, and prescriptive insights.
-              </p>
+              <p className="text-xs text-white/25 leading-relaxed">AI-powered financial intelligence for Indian businesses.</p>
             </div>
             {[
-              { title: "Product", links: [{ label: "Dashboard", href: "/#platform" }, { label: "TB Analysis", href: "/#platform" }, { label: "Scenarios", href: "/#platform" }, { label: "QoE Center", href: "/#platform" }, { label: "Integrations", href: "/#platform" }] },
-              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Careers", href: "#" }, { label: "Blog", href: "#" }, { label: "Press", href: "#" }, { label: "Contact", href: "#" }] },
-              { title: "Legal", links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "Security", href: "#" }, { label: "GDPR", href: "#" }, { label: "DPDP", href: "#" }] },
-            ].map(col => (
+              { title: "Product", links: [{ label: "Dashboard", href: "/dashboard" }, { label: "TB Analysis", href: "/analysis" }, { label: "Industries", href: "/industries" }] },
+              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Contact", href: "/contact" }] },
+              { title: "Legal", links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "FAQ", href: "/faq" }] },
+            ].map((col) => (
               <div key={col.title}>
-                <p className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-4">{col.title}</p>
-                <ul className="space-y-2.5">
-                  {col.links.map(link => (
-                    <li key={link.label}>
-                      <Link href={link.href} className="text-[13px] text-white/30 hover:text-white/60 transition-colors">{link.label}</Link>
-                    </li>
-                  ))}
-                </ul>
+                <p className="text-xs font-semibold text-white/25 uppercase tracking-wider mb-3">{col.title}</p>
+                <ul className="space-y-2">{col.links.map((l) => <li key={l.label}><Link href={l.href} className="text-sm text-white/30 hover:text-white/60 transition-colors">{l.label}</Link></li>)}</ul>
               </div>
             ))}
           </div>
-          <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd. All rights reserved.</p>
-            <div className="flex items-center gap-6 text-[12px] text-white/20">
-              <a href="#" className="hover:text-white/40">Twitter</a>
-              <a href="#" className="hover:text-white/40">LinkedIn</a>
-              <a href="#" className="hover:text-white/40">GitHub</a>
+          <div className="border-t border-white/5 pt-6 flex items-center justify-between">
+            <p className="text-xs text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd.</p>
+            <div className="flex gap-4 text-xs text-white/20">
+              <a href="https://twitter.com" target="_blank" rel="noopener" className="hover:text-white/40">Twitter</a>
+              <a href="https://linkedin.com" target="_blank" rel="noopener" className="hover:text-white/40">LinkedIn</a>
             </div>
           </div>
         </div>

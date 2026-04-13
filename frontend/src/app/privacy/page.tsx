@@ -49,29 +49,29 @@ export default function PrivacyPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#faf9f7] text-[#1a1a1a] overflow-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
       {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
         scrollY > 50
-          ? "bg-white/90 backdrop-blur-xl shadow-[0_1px_0_rgba(0,0,0,0.04)]"
+          ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5"
           : "bg-transparent"
       }`}>
         <div className="max-w-[1400px] mx-auto px-8 h-[72px] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#1a1a1a] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
               <Activity className="w-4.5 h-4.5 text-white" />
             </div>
             <span className="text-[20px] font-bold tracking-[-0.03em]">CortexCFO</span>
           </Link>
-          <div className="hidden md:flex items-center gap-10 text-[13.5px] text-[#666] font-medium">
-            <Link href="/#platform" className="hover:text-[#1a1a1a] transition-colors duration-300">Platform</Link>
-            <Link href="/#customers" className="hover:text-[#1a1a1a] transition-colors duration-300">Customers</Link>
-            <Link href="/#pricing" className="hover:text-[#1a1a1a] transition-colors duration-300">Pricing</Link>
-            <Link href="/about" className="hover:text-[#1a1a1a] transition-colors duration-300">About</Link>
+          <div className="hidden md:flex items-center gap-10 text-[13.5px] text-white/50 font-medium">
+            <Link href="/#platform" className="hover:text-white transition-colors duration-300">Platform</Link>
+            <Link href="/#customers" className="hover:text-white transition-colors duration-300">Customers</Link>
+            <Link href="/#pricing" className="hover:text-white transition-colors duration-300">Pricing</Link>
+            <Link href="/about" className="hover:text-white transition-colors duration-300">About</Link>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/login" className="text-[13.5px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium">Log in</Link>
-            <Link href="/signup" className="text-[13.5px] bg-[#1a1a1a] text-white font-semibold px-6 py-2.5 rounded-full hover:bg-[#333] transition-all">
+            <Link href="/login" className="text-[13.5px] text-[#666] hover:text-white transition-colors font-medium">Log in</Link>
+            <Link href="/signup" className="text-[13.5px] bg-emerald-500 text-white font-medium px-4 py-2 rounded-lg hover:bg-emerald-400 transition-all">
               Request access
             </Link>
           </div>
@@ -97,7 +97,7 @@ export default function PrivacyPage() {
       {/* Content */}
       <section className="py-20 px-8">
         <div className="max-w-[760px] mx-auto">
-          <p className="text-[16px] text-[#666] leading-[1.8] mb-12">
+          <p className="text-[16px] text-white/40 leading-[1.8] mb-12">
             At CortexCFO, we take the privacy and security of your financial data seriously.
             This Privacy Policy explains how we collect, use, store, and protect your information
             when you use the CortexCFO platform and related services.
@@ -106,7 +106,7 @@ export default function PrivacyPage() {
             {sections.map(section => (
               <div key={section.title}>
                 <h2 className="text-[20px] font-semibold tracking-[-0.02em] mb-4">{section.title}</h2>
-                <p className="text-[15px] text-[#666] leading-[1.8]">{section.content}</p>
+                <p className="text-[15px] text-white/40 leading-[1.8]">{section.content}</p>
               </div>
             ))}
           </div>
@@ -114,17 +114,17 @@ export default function PrivacyPage() {
       </section>
 
       {/* Related links */}
-      <section className="py-16 px-8 bg-[#f5f4f2] border-t border-[#eee]">
+      <section className="py-16 px-8 bg-[#080808] border-t border-white/5">
         <div className="max-w-[760px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-6">
-          <Link href="/terms" className="text-[14px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium underline underline-offset-4">
+          <Link href="/terms" className="text-[14px] text-[#666] hover:text-white transition-colors font-medium underline underline-offset-4">
             Terms of Service
           </Link>
-          <span className="text-[#ccc] hidden sm:inline">|</span>
-          <Link href="/about" className="text-[14px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium underline underline-offset-4">
+          <span className="text-white/10 hidden sm:inline">|</span>
+          <Link href="/about" className="text-[14px] text-[#666] hover:text-white transition-colors font-medium underline underline-offset-4">
             About CortexCFO
           </Link>
-          <span className="text-[#ccc] hidden sm:inline">|</span>
-          <Link href="/" className="text-[14px] text-[#666] hover:text-[#1a1a1a] transition-colors font-medium underline underline-offset-4">
+          <span className="text-white/10 hidden sm:inline">|</span>
+          <Link href="/" className="text-[14px] text-[#666] hover:text-white transition-colors font-medium underline underline-offset-4">
             Back to Home
           </Link>
         </div>
