@@ -344,6 +344,56 @@ export default function LandingPage() {
       </section>
 
 
+      {/* ─── AI Conviction Section ─── */}
+      <section className="py-24 px-6 bg-[#080808] border-y border-white/5">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            {/* Left — headline */}
+            <FadeIn>
+              <div>
+                <h2 className="text-4xl md:text-5xl font-bold leading-[1.1] tracking-tight mb-6">
+                  Turn complexity<br />into conviction
+                </h2>
+                <p className="text-white/40 leading-relaxed mb-4 text-[15px] italic">
+                  &ldquo;An incredibly flexible and intelligent finance copilot.&rdquo;
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">CortexCFO AI</p>
+                    <p className="text-xs text-white/30">Powered by Claude</p>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+
+            {/* Right — AI feature card */}
+            <FadeIn delay={200}>
+              <div className="glass rounded-2xl p-8 glow-border">
+                <div className="flex items-center gap-3 mb-5">
+                  <Sparkles className="w-6 h-6 text-emerald-400" />
+                  <h3 className="text-lg font-semibold">Analyze with AI</h3>
+                  <span className="text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">New</span>
+                </div>
+                <p className="text-white/40 text-[15px] leading-relaxed mb-6">
+                  Accelerate workflows, drill into variance, and deeply understand your business.
+                  Ask anything about your financials and get specific, data-backed answers.
+                </p>
+                <button
+                  onClick={() => setShowChat(true)}
+                  className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1.5 group"
+                >
+                  Get a personalized sneak peek
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Testimonials ─── */}
       <section className="py-24 px-6">
         <div className="max-w-6xl mx-auto">
