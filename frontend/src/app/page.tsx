@@ -330,18 +330,6 @@ export default function LandingPage() {
                 : "opacity-0 translate-y-8"
             }`}
           >
-            {/* G2 badge */}
-            <div className="mb-8">
-              <div className="inline-flex items-center gap-2 bg-[#111] border border-white/8 px-3.5 py-1.5 rounded-full">
-                <div className="w-5 h-5 rounded-full bg-[#ff492c] flex items-center justify-center">
-                  <span className="text-white text-[10px] font-bold">G2</span>
-                </div>
-                <span className="text-[13px] font-medium text-white">
-                  G2.com 4.8/5 stars
-                </span>
-              </div>
-            </div>
-
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               {/* Left: text content */}
               <div className="pt-4">
@@ -916,7 +904,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  CROSS-FUNCTIONAL SECTION                                      */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-[#eae8e3]">
+      <section className="py-24 px-6 bg-[#0d0d0d] border-t border-white/5">
         <div className="max-w-[1200px] mx-auto">
           <FadeIn className="mb-16">
             <h2 className="text-[42px] md:text-[56px] font-serif-heading font-bold leading-[1.1] tracking-tight text-white mb-6">
@@ -1162,7 +1150,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  REVIEWS SECTION                                               */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section id="reviews" className="py-24 px-6 bg-[#0a0a0a]/5 overflow-hidden">
+      <section id="reviews" className="py-24 px-6 bg-[#0d0d0d] border-t border-white/5 overflow-hidden">
         <div className="max-w-[1200px] mx-auto mb-12">
           <FadeIn>
             <h2 className="text-[32px] md:text-[40px] font-serif-heading font-bold text-white mb-2">
@@ -1269,10 +1257,10 @@ export default function LandingPage() {
                     <button
                       key={i}
                       onClick={() => setActiveEssential(i)}
-                      className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+                      className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border ${
                         i === activeEssential
-                          ? "bg-[#0a0a0a] text-white"
-                          : "text-white/35 hover:text-white/60 hover:bg-white/5"
+                          ? "bg-emerald-500/10 border-emerald-500/30 text-white"
+                          : "border-transparent text-white/35 hover:text-white/60 hover:bg-white/5"
                       }`}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0" />
@@ -1298,16 +1286,16 @@ export default function LandingPage() {
                     {(() => {
                       const Icon = essentialsTabs[activeEssential].icon;
                       return (
-                        <div className="w-10 h-10 rounded-xl bg-[#f2a60c]/10 flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-[#f2a60c]" />
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                          <Icon className="w-5 h-5 text-emerald-400" />
                         </div>
                       );
                     })()}
-                    <h3 className="text-[20px] font-semibold">
+                    <h3 className="text-[20px] font-semibold text-white">
                       {essentialsTabs[activeEssential].title}
                       {"isNew" in essentialsTabs[activeEssential] &&
                         essentialsTabs[activeEssential].isNew && (
-                          <span className="ml-2 text-[10px] font-bold text-[#f2a60c] bg-[#f2a60c]/10 px-2 py-0.5 rounded-full uppercase">
+                          <span className="ml-2 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase">
                             New
                           </span>
                         )}
@@ -1357,7 +1345,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  ONBOARDING TIMELINE                                           */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-[#0a0a0a]/5">
+      <section className="py-24 px-6 bg-[#0d0d0d] border-t border-white/5">
         <div className="max-w-[900px] mx-auto">
           <FadeIn className="text-center mb-16">
             <p className="text-[13px] font-semibold text-emerald-400 uppercase tracking-wider mb-3">

@@ -332,24 +332,24 @@
 
 /* Runway-style product showcase card */
 .product-card {
-  background: #ffffff;
+  background: #111111;
   border-radius: 20px;
-  box-shadow: 0 2px 40px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 40px rgba(0, 0, 0, 0.4);
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Dashboard mockup styles */
 .dashboard-mockup {
-  background: #fafaf8;
+  background: #111111;
   border-radius: 16px;
-  border: 1px solid #eae7e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 
 .dashboard-mockup-header {
-  background: #ffffff;
-  border-bottom: 1px solid #eae7e1;
+  background: #161616;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   padding: 8px 16px;
   display: flex;
   align-items: center;
