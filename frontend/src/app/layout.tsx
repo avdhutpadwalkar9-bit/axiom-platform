@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CortexCFO — Your AI-Powered Virtual CFO",
-  description: "AI-powered FP&A platform with continuous Quality of Earnings, scenario modeling, and prescriptive insights.",
+  title: "CortexCFO — The FP&A Platform for High-Growth Teams",
+  description: "CortexCFO is the FP&A platform for high-growth teams. Build flexible financial models, collaborate across departments, and turn data into confident decisions.",
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

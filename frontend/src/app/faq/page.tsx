@@ -1,17 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import {
-  TrendingUp,
-  ChevronDown,
-  ArrowRight,
-  HelpCircle,
-  Shield,
-  CreditCard,
-  Code,
-} from "lucide-react";
+import { ChevronDown, ArrowRight, HelpCircle, Shield, CreditCard, Code } from "lucide-react";
 import { FadeIn } from "@/components/Animate";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 type Category = "General" | "Pricing" | "Security" | "Technical";
 
@@ -86,43 +80,14 @@ const faqData: { category: Category; q: string; a: string }[] = [
 ];
 
 export default function FaqPage() {
-  const [scrolled, setScrolled] = useState(false);
   const [activeCategory, setActiveCategory] = useState<Category>("General");
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const filtered = faqData.filter((f) => f.category === activeCategory);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* ─── Nav ─── */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5" : "bg-transparent"}`}>
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[15px] font-semibold tracking-tight">CortexCFO</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-8 text-[13px] text-white/50">
-            <Link href="/#capabilities" className="hover:text-white transition-colors">Capabilities</Link>
-            <Link href="/#how-it-works" className="hover:text-white transition-colors">How it works</Link>
-            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
-            <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-[13px] text-white/50 hover:text-white transition-colors">Log in</Link>
-            <Link href="/signup" className="text-[13px] bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-400 transition-all font-medium">
-              Get started free
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* ─── Hero ─── */}
       <section className="relative pt-32 pb-16 px-6 overflow-hidden">
@@ -216,37 +181,7 @@ export default function FaqPage() {
         </FadeIn>
       </section>
 
-      {/* ─── Footer ─── */}
-      <footer className="border-t border-white/5 py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center"><TrendingUp className="w-3 h-3 text-white" /></div>
-                <span className="text-sm font-semibold">CortexCFO</span>
-              </div>
-              <p className="text-xs text-white/25 leading-relaxed">AI-powered financial intelligence for Indian businesses.</p>
-            </div>
-            {[
-              { title: "Product", links: [{ label: "Dashboard", href: "/dashboard" }, { label: "TB Analysis", href: "/analysis" }, { label: "Industries", href: "/industries" }] },
-              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }] },
-              { title: "Support", links: [{ label: "FAQ", href: "/faq" }, { label: "Contact", href: "/contact" }, { label: "Blog", href: "/blog" }] },
-            ].map((col) => (
-              <div key={col.title}>
-                <p className="text-xs font-semibold text-white/25 uppercase tracking-wider mb-3">{col.title}</p>
-                <ul className="space-y-2">{col.links.map((l) => <li key={l.label}><Link href={l.href} className="text-sm text-white/30 hover:text-white/60 transition-colors">{l.label}</Link></li>)}</ul>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-white/5 pt-6 flex items-center justify-between">
-            <p className="text-xs text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd.</p>
-            <div className="flex gap-4 text-xs text-white/20">
-              <a href="https://twitter.com" target="_blank" rel="noopener" className="hover:text-white/40">Twitter</a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener" className="hover:text-white/40">LinkedIn</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

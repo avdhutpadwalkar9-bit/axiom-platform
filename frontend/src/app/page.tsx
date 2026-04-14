@@ -3,6 +3,8 @@
 import { useEffect, useState, useRef, ReactNode } from "react";
 import Link from "next/link";
 import AIChatBubble from "@/components/AIChatBubble";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 import {
   ArrowRight,
   Check,
@@ -83,7 +85,6 @@ const capabilities = [
 
 /* ================================================================== */
 export default function LandingPage() {
-  const [scrolled, setScrolled] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [heroMounted, setHeroMounted] = useState(false);
 
@@ -97,10 +98,7 @@ export default function LandingPage() {
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMessages, chatLoading]);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll);
     setHeroMounted(true);
-    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -129,30 +127,7 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
-      {/* ─── Nav ─── */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${scrolled ? "glass border-b border-white/5" : "bg-transparent"}`}>
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-[15px] font-semibold tracking-tight">CortexCFO</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-8 text-[13px] text-white/50">
-            <Link href="/product" className="hover:text-white transition-colors">Product</Link>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <Link href="/about" className="hover:text-white transition-colors">About</Link>
-            <Link href="/blog" className="hover:text-white transition-colors">Resources</Link>
-            <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="text-[13px] text-white/50 hover:text-white transition-colors">Log in</Link>
-            <Link href="/signup" className="text-[13px] bg-emerald-500 text-white px-4 py-2 rounded-lg btn-magnetic font-medium">
-              Get started free
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* ─── Hero ─── */}
       <section className="relative pt-32 pb-24 px-6 overflow-hidden">
@@ -368,26 +343,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Industries ─── */}
-      <section id="industries" className="py-24 px-6 bg-[#080808]">
-        <div className="max-w-6xl mx-auto">
-          <FadeIn className="text-center mb-14">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Industries</p>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Built for every sector of<br />the Indian economy</h2>
-            <p className="text-white/40 max-w-lg mx-auto">Industry-specific KPIs, benchmarks, and red flags. Not one-size-fits-all analysis.</p>
-          </FadeIn>
-
-          <FadeIn delay={100}>
-            <div className="flex flex-wrap justify-center gap-3">
-              {["Manufacturing", "SaaS & Tech", "Professional Services", "Trading & Retail", "E-commerce & D2C", "Healthcare", "Education", "Real Estate", "Agriculture", "FMCG", "Logistics"].map((ind) => (
-                <span key={ind} className="px-5 py-2.5 rounded-full bg-white/5 border border-white/8 text-sm text-white/50 hover:text-white hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all cursor-default">
-                  {ind}
-                </span>
-              ))}
-            </div>
-          </FadeIn>
-        </div>
-      </section>
 
       {/* ─── Testimonials ─── */}
       <section className="py-24 px-6">
@@ -418,40 +373,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* ─── Pricing ─── */}
-      <section id="pricing" className="py-24 px-6 bg-[#080808]">
-        <div className="max-w-4xl mx-auto">
-          <FadeIn className="text-center mb-14">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Pricing</p>
-            <h2 className="text-3xl font-bold mb-4">Start free. Scale when ready.</h2>
-            <p className="text-white/40">No surprises. No hidden fees.</p>
-          </FadeIn>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              { name: "Starter", price: "Free", period: "forever", desc: "For exploring the platform", features: ["1 file upload", "Basic dashboard", "5 AI questions", "Email support"], highlighted: false },
-              { name: "Growth", price: "\u20B99,999", period: "/month", desc: "For funded startups", features: ["Unlimited uploads", "Multi-year analysis", "Unlimited AI chat", "Industry benchmarks", "Ind AS compliance", "Priority support"], highlighted: true },
-              { name: "Enterprise", price: "Custom", period: "", desc: "For CA firms & PE funds", features: ["Portfolio dashboards", "Custom AI models", "White-label reports", "API access", "Dedicated CSM", "On-premise option"], highlighted: false },
-            ].map((plan, i) => (
-              <FadeIn key={plan.name} delay={i * 80}>
-                <div className={`p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/30 bg-emerald-500/5 glow-border" : "border-white/8 bg-[#111]"}`}>
-                  {plan.highlighted && <p className="text-xs font-semibold text-emerald-400 mb-3">Most popular</p>}
-                  <p className="text-sm text-white/50 mb-1">{plan.name}</p>
-                  <div className="mb-1"><span className="text-3xl font-bold">{plan.price}</span><span className="text-sm text-white/30 ml-1">{plan.period}</span></div>
-                  <p className="text-xs text-white/30 mb-6">{plan.desc}</p>
-                  <Link href="/signup" className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${plan.highlighted ? "bg-emerald-500 text-white hover:bg-emerald-400" : "bg-white/5 text-white/70 hover:bg-white/10"}`}>
-                    {plan.name === "Enterprise" ? "Contact sales" : "Get started"}
-                  </Link>
-                  <ul className="space-y-2.5">
-                    {plan.features.map((f) => <li key={f} className="flex items-center gap-2 text-sm text-white/40"><Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />{f}</li>)}
-                  </ul>
-                </div>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── Security ─── */}
       <FadeIn>
         <section className="py-16 px-6">
@@ -540,37 +461,7 @@ export default function LandingPage() {
         </div>
       )}
 
-      {/* ─── Footer ─── */}
-      <footer className="border-t border-white/5 py-12 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded bg-emerald-500 flex items-center justify-center"><TrendingUp className="w-3 h-3 text-white" /></div>
-                <span className="text-sm font-semibold">CortexCFO</span>
-              </div>
-              <p className="text-xs text-white/25 leading-relaxed">AI-powered financial intelligence for Indian businesses.</p>
-            </div>
-            {[
-              { title: "Product", links: [{ label: "Dashboard", href: "/dashboard" }, { label: "TB Analysis", href: "/analysis" }, { label: "Industries", href: "/industries" }] },
-              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Blog", href: "/blog" }, { label: "Contact", href: "/contact" }] },
-              { title: "Legal", links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "FAQ", href: "/faq" }] },
-            ].map((col) => (
-              <div key={col.title}>
-                <p className="text-xs font-semibold text-white/25 uppercase tracking-wider mb-3">{col.title}</p>
-                <ul className="space-y-2">{col.links.map((l) => <li key={l.label}><Link href={l.href} className="text-sm text-white/30 hover:text-white/60 transition-colors">{l.label}</Link></li>)}</ul>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-white/5 pt-6 flex items-center justify-between">
-            <p className="text-xs text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd.</p>
-            <div className="flex gap-4 text-xs text-white/20">
-              <a href="https://twitter.com" target="_blank" rel="noopener" className="hover:text-white/40">Twitter</a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener" className="hover:text-white/40">LinkedIn</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }

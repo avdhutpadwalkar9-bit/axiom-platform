@@ -1,17 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Activity } from "lucide-react";
+import SiteNav from "@/components/SiteNav";
+import SiteFooter from "@/components/SiteFooter";
 
 export default function PrivacyPage() {
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   const sections = [
     {
@@ -50,33 +43,7 @@ export default function PrivacyPage() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white overflow-hidden">
-      {/* Navigation */}
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrollY > 50
-          ? "bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5"
-          : "bg-transparent"
-      }`}>
-        <div className="max-w-[1400px] mx-auto px-8 h-[72px] flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-              <Activity className="w-4.5 h-4.5 text-white" />
-            </div>
-            <span className="text-[20px] font-bold tracking-[-0.03em]">CortexCFO</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-10 text-[13.5px] text-white/50 font-medium">
-            <Link href="/#platform" className="hover:text-white transition-colors duration-300">Platform</Link>
-            <Link href="/#customers" className="hover:text-white transition-colors duration-300">Customers</Link>
-            <Link href="/#pricing" className="hover:text-white transition-colors duration-300">Pricing</Link>
-            <Link href="/about" className="hover:text-white transition-colors duration-300">About</Link>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-[13.5px] text-[#666] hover:text-white transition-colors font-medium">Log in</Link>
-            <Link href="/signup" className="text-[13.5px] bg-emerald-500 text-white font-medium px-4 py-2 rounded-lg hover:bg-emerald-400 transition-all">
-              Request access
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SiteNav />
 
       {/* Hero */}
       <section className="relative bg-[#1a1a17] text-white overflow-hidden">
@@ -130,49 +97,7 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#1a1a17] text-white border-t border-white/[0.06] py-16 px-8">
-        <div className="max-w-[1200px] mx-auto">
-          <div className="grid md:grid-cols-5 gap-12 mb-16">
-            <div className="md:col-span-2">
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center">
-                  <Activity className="w-4 h-4" />
-                </div>
-                <span className="text-[18px] font-bold tracking-[-0.02em]">CortexCFO</span>
-              </div>
-              <p className="text-[13px] text-white/30 leading-[1.8] max-w-xs">
-                AI-powered financial intelligence platform for Indian businesses.
-                Continuous QoE, scenario modeling, and prescriptive insights.
-              </p>
-            </div>
-            {[
-              { title: "Product", links: [{ label: "Dashboard", href: "/#platform" }, { label: "TB Analysis", href: "/#platform" }, { label: "Scenarios", href: "/#platform" }, { label: "QoE Center", href: "/#platform" }, { label: "Integrations", href: "/#platform" }] },
-              { title: "Company", links: [{ label: "About", href: "/about" }, { label: "Careers", href: "#" }, { label: "Blog", href: "#" }, { label: "Press", href: "#" }, { label: "Contact", href: "#" }] },
-              { title: "Legal", links: [{ label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }, { label: "Security", href: "#" }, { label: "GDPR", href: "#" }, { label: "DPDP", href: "#" }] },
-            ].map(col => (
-              <div key={col.title}>
-                <p className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-4">{col.title}</p>
-                <ul className="space-y-2.5">
-                  {col.links.map(link => (
-                    <li key={link.label}>
-                      <Link href={link.href} className="text-[13px] text-white/30 hover:text-white/60 transition-colors">{link.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-          <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-white/20">&copy; 2026 CortexCFO Financial Intelligence Pvt. Ltd. All rights reserved.</p>
-            <div className="flex items-center gap-6 text-[12px] text-white/20">
-              <a href="#" className="hover:text-white/40">Twitter</a>
-              <a href="#" className="hover:text-white/40">LinkedIn</a>
-              <a href="#" className="hover:text-white/40">GitHub</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
