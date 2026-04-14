@@ -810,6 +810,174 @@ export default function AnalysisPage() {
                 })()}
               </div>
             </div>
+
+            {/* Common Size Analysis */}
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+              <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
+                <h3 className="text-sm font-semibold text-white">Common Size Analysis</h3>
+                <p className="text-[10px] text-white/30 mt-0.5">Each line item as a percentage of revenue</p>
+              </div>
+              <div className="p-6">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-[11px] text-white/30 uppercase tracking-wider border-b border-white/5">
+                      <th className="text-left py-2 font-medium">Item</th>
+                      <th className="text-right py-2 font-medium">Amount</th>
+                      <th className="text-right py-2 font-medium">% of Revenue</th>
+                      <th className="text-right py-2 font-medium">Bar</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { name: "Revenue", value: fs.total_revenue, pct: 100 },
+                      ...ca.expenses.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).slice(0, 8).map(e => ({
+                        name: e.name,
+                        value: Math.abs(e.net),
+                        pct: fs.total_revenue > 0 ? (Math.abs(e.net) / fs.total_revenue) * 100 : 0,
+                      })),
+                      { name: "Net Income", value: fs.net_income, pct: fs.total_revenue > 0 ? (fs.net_income / fs.total_revenue) * 100 : 0 },
+                    ].map((row) => (
+                      <tr key={row.name} className="border-b border-white/3">
+                        <td className="py-2.5 text-white/50">{row.name}</td>
+                        <td className="py-2.5 text-right text-white font-medium tabular-nums">{fmt(row.value, true)}</td>
+                        <td className="py-2.5 text-right text-white/40 tabular-nums">{row.pct.toFixed(1)}%</td>
+                        <td className="py-2.5 text-right w-32">
+                          <div className="h-2 bg-white/5 rounded-full overflow-hidden ml-auto" style={{ width: "100px" }}>
+                            <div
+                              className={`h-full rounded-full ${row.name === "Net Income" ? (row.pct >= 0 ? "bg-emerald-500" : "bg-red-500") : "bg-emerald-500/40"}`}
+                              style={{ width: `${Math.min(Math.abs(row.pct), 100)}%` }}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Ratio Analysis with Industry Benchmarks */}
+            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+              <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
+                <h3 className="text-sm font-semibold text-white">Ratio Analysis vs Industry Benchmarks</h3>
+                <p className="text-[10px] text-white/30 mt-0.5">Your metrics compared to industry averages</p>
+              </div>
+              <div className="p-6">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-[11px] text-white/30 uppercase tracking-wider border-b border-white/5">
+                      <th className="text-left py-2 font-medium">Ratio</th>
+                      <th className="text-right py-2 font-medium">Your Value</th>
+                      <th className="text-right py-2 font-medium">Industry Avg</th>
+                      <th className="text-right py-2 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { name: "Current Ratio", yours: `${ratios.current_ratio}x`, benchmark: "1.5x", ok: ratios.current_ratio >= 1.5 },
+                      { name: "Debt-to-Equity", yours: `${ratios.debt_to_equity}x`, benchmark: "<2.0x", ok: ratios.debt_to_equity <= 2 },
+                      { name: "Gross Margin", yours: `${ratios.gross_margin}%`, benchmark: "30-40%", ok: ratios.gross_margin >= 30 },
+                      { name: "Net Margin", yours: `${ratios.net_margin}%`, benchmark: ">10%", ok: ratios.net_margin >= 10 },
+                      { name: "ROE", yours: `${ratios.return_on_equity}%`, benchmark: ">15%", ok: ratios.return_on_equity >= 15 },
+                      { name: "Working Capital", yours: fmt(ratios.working_capital, true), benchmark: "Positive", ok: ratios.working_capital > 0 },
+                    ].map((row) => (
+                      <tr key={row.name} className="border-b border-white/3">
+                        <td className="py-3 text-white/50">{row.name}</td>
+                        <td className="py-3 text-right text-white font-semibold tabular-nums">{row.yours}</td>
+                        <td className="py-3 text-right text-white/30 tabular-nums">{row.benchmark}</td>
+                        <td className="py-3 text-right">
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${row.ok ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
+                            {row.ok ? "Healthy" : "Review"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Download buttons */}
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => {
+                  const rows = [
+                    ["Profit & Loss Statement"],
+                    [""],
+                    ["Revenue"],
+                    ...ca.revenue.map(a => [a.name, "", fmt(Math.abs(a.net))]),
+                    ["Total Revenue", "", fmt(fs.total_revenue)],
+                    [""],
+                    ["Expenses"],
+                    ...ca.expenses.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map(a => [a.name, "", fmt(Math.abs(a.net))]),
+                    ["Total Expenses", "", fmt(fs.total_expenses)],
+                    [""],
+                    ["Net Income", "", fmt(fs.net_income)],
+                  ];
+                  const csv = rows.map(r => r.join(",")).join("\n");
+                  const blob = new Blob([csv], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url; link.download = "profit_and_loss.csv"; link.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/8 text-xs font-medium text-white/40 hover:bg-white/5 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" /> Download P&L (CSV)
+              </button>
+              <button
+                onClick={() => {
+                  const rows = [
+                    ["Balance Sheet"],
+                    [""],
+                    ["Assets"],
+                    ...ca.assets.map(a => [a.name, "", fmt(Math.abs(a.net))]),
+                    ["Total Assets", "", fmt(Math.abs(fs.total_assets))],
+                    [""],
+                    ["Liabilities"],
+                    ...ca.liabilities.map(a => [a.name, "", fmt(Math.abs(a.net))]),
+                    ["Total Liabilities", "", fmt(Math.abs(fs.total_liabilities))],
+                    [""],
+                    ["Equity"],
+                    ...ca.equity.map(a => [a.name, "", fmt(Math.abs(a.net))]),
+                    ["Total Equity", "", fmt(Math.abs(fs.total_equity))],
+                  ];
+                  const csv = rows.map(r => r.join(",")).join("\n");
+                  const blob = new Blob([csv], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url; link.download = "balance_sheet.csv"; link.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/8 text-xs font-medium text-white/40 hover:bg-white/5 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" /> Download Balance Sheet (CSV)
+              </button>
+              <button
+                onClick={() => {
+                  const allAccounts = [
+                    ...ca.assets.map(a => ({ ...a, category: "Assets" })),
+                    ...ca.liabilities.map(a => ({ ...a, category: "Liabilities" })),
+                    ...ca.equity.map(a => ({ ...a, category: "Equity" })),
+                    ...ca.revenue.map(a => ({ ...a, category: "Revenue" })),
+                    ...ca.expenses.map(a => ({ ...a, category: "Expenses" })),
+                  ];
+                  const csvHeader = "Category,Account Name,Sub Group,Debit,Credit,Net\n";
+                  const csvRows = allAccounts.map(a =>
+                    `${a.category},"${a.name}","${a.sub_group || ""}",${a.debit},${a.credit},${a.net}`
+                  ).join("\n");
+                  const blob = new Blob([csvHeader + csvRows], { type: "text/csv" });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url; link.download = "classified_accounts.csv"; link.click();
+                  URL.revokeObjectURL(url);
+                }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/8 text-xs font-medium text-white/40 hover:bg-white/5 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" /> Download Classified Ledger (CSV)
+              </button>
+            </div>
+
           </div>
                 </div>
               )}

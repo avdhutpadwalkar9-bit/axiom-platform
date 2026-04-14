@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { FadeIn } from "@/components/Animate";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 import {
   Factory,
   Monitor,
@@ -374,14 +375,35 @@ const industries = [
 /*  COMPONENT                                                          */
 /* ================================================================== */
 export default function IndustryExpertisePage() {
-  const [expandedId, setExpandedId] = useState<string | null>("manufacturing");
+  const { business } = useOnboardingStore();
+  const userIndustry = business.industry?.toLowerCase() || "";
+
+  // Find user's industry and put it first
+  const sortedIndustries = useMemo(() => {
+    const matchIdx = industries.findIndex((ind) => {
+      const name = ind.name.toLowerCase();
+      return userIndustry && (name.includes(userIndustry) || userIndustry.includes(name.split(" ")[0]));
+    });
+    if (matchIdx > 0) {
+      const matched = industries[matchIdx];
+      return [matched, ...industries.filter((_, i) => i !== matchIdx)];
+    }
+    return industries;
+  }, [userIndustry]);
+
+  const defaultExpanded = sortedIndustries[0]?.id || "manufacturing";
+  const [expandedId, setExpandedId] = useState<string | null>(defaultExpanded);
   const [activeSection, setActiveSection] = useState<Record<string, string>>({});
+  const [showAll, setShowAll] = useState(false);
 
   const toggleIndustry = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
   const getSection = (id: string) => activeSection[id] || "benchmarks";
+
+  // Show user's industry + 2 related, or all if "Show all" clicked
+  const displayedIndustries = showAll ? sortedIndustries : sortedIndustries.slice(0, 3);
 
   return (
     <div className="p-6 lg:p-8 max-w-[1200px]">
@@ -413,8 +435,11 @@ export default function IndustryExpertisePage() {
       </FadeIn>
 
       {/* Industry accordion list */}
+      {userIndustry && !showAll && (
+        <p className="text-xs text-emerald-400 mb-3">Showing your industry first. <button onClick={() => setShowAll(true)} className="underline hover:text-emerald-300">Show all {industries.length} industries</button></p>
+      )}
       <div className="space-y-3">
-        {industries.map((ind, idx) => {
+        {displayedIndustries.map((ind, idx) => {
           const Icon = ind.icon;
           const isOpen = expandedId === ind.id;
           const section = getSection(ind.id);
@@ -531,6 +556,11 @@ export default function IndustryExpertisePage() {
             </FadeIn>
           );
         })}
+        {!showAll && displayedIndustries.length < sortedIndustries.length && (
+          <button onClick={() => setShowAll(true)} className="w-full py-3 rounded-xl border border-white/8 text-sm text-white/40 hover:text-white/60 hover:bg-white/5 transition-colors">
+            Show all {sortedIndustries.length} industries
+          </button>
+        )}
       </div>
     </div>
   );
