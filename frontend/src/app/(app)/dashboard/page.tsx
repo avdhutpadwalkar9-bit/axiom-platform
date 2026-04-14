@@ -553,7 +553,7 @@ export default function DashboardPage() {
               {aiQuestions.map((q, idx) => {
                 const isAnswered = answeredQuestions.has(idx);
                 return (
-                  <div key={idx} className={`rounded-xl border ${isAnswered ? "border-emerald-500/20 bg-emerald-500/10/30" : "border-amber-500/20 bg-amber-50/30"} p-5`}>
+                  <div key={idx} className={`rounded-xl border ${isAnswered ? "border-emerald-500/20 bg-emerald-500/10" : "border-amber-500/20 bg-amber-500/5"} p-5`}>
                     <div className="flex items-start gap-3">
                       {isAnswered ? (
                         <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-emerald-500" />

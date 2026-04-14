@@ -309,7 +309,7 @@ export default function AnalysisPage() {
         {warnings.length > 0 && (
           <div className="space-y-2">
             {warnings.map((w, i) => (
-              <div key={i} className={`flex items-start gap-3 p-4 rounded-xl border ${w.severity === "critical" ? "bg-red-500/50/10 border-red-500/20" : "bg-amber-500/50/10 border-amber-500/20"}`}>
+              <div key={i} className={`flex items-start gap-3 p-4 rounded-xl border ${w.severity === "critical" ? "bg-red-500/50/10 border-red-500/20" : "bg-amber-500/10 border-amber-500/20"}`}>
                 {w.severity === "critical" ? <XCircle className="w-5 h-5 text-red-400 mt-0.5" /> : <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5" />}
                 <div>
                   <p className="text-sm font-medium text-white">{w.title}</p>
@@ -362,7 +362,7 @@ export default function AnalysisPage() {
                   {[
                     { label: "Total Assets", value: fs.total_assets, color: "bg-emerald-500" },
                     { label: "Total Liabilities", value: fs.total_liabilities, color: "bg-red-500/50" },
-                    { label: "Total Equity", value: fs.total_equity, color: "bg-emerald-500/100" },
+                    { label: "Total Equity", value: fs.total_equity, color: "bg-emerald-500" },
                   ].map(item => (
                     <div key={item.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -411,7 +411,7 @@ export default function AnalysisPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-white">{r.value}</span>
-                        <div className={`w-2 h-2 rounded-full ${r.ok ? "bg-emerald-500/100" : "bg-amber-500/50"}`} />
+                        <div className={`w-2 h-2 rounded-full ${r.ok ? "bg-emerald-500" : "bg-amber-500"}`} />
                       </div>
                     </div>
                   ))}
@@ -440,7 +440,7 @@ export default function AnalysisPage() {
         {/* AI Questions Tab */}
         {activeTab === "questions" && (
           <div className="space-y-4">
-            <div className="bg-gradient-to-r from-emerald-50 to-emerald-50 rounded-xl border border-emerald-500/20 p-6">
+            <div className="bg-emerald-500/5 rounded-xl border border-emerald-500/10 p-6">
               <div className="flex items-center gap-2 mb-3">
                 <HelpCircle className="w-5 h-5 text-emerald-400" />
                 <h3 className="text-sm font-semibold text-white">AI Clarifying Questions</h3>
@@ -450,9 +450,9 @@ export default function AnalysisPage() {
               {ai_questions.map((q, i) => {
                 const isAnswered = !!questionAnswers[q.question];
                 return (
-                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/100/5 border-emerald-500/20" : "bg-white border-white/8"}`}>
+                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/5 border-emerald-500/20" : "bg-white border-white/8"}`}>
                     <div className="flex items-start gap-3">
-                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAnswered ? "bg-emerald-500/100/20" : "bg-emerald-500/10"}`}>
+                      <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAnswered ? "bg-emerald-500/20" : "bg-emerald-500/10"}`}>
                         {isAnswered ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <span className="text-xs font-bold text-emerald-400">{i + 1}</span>}
                       </div>
                       <div className="flex-1">
@@ -461,7 +461,7 @@ export default function AnalysisPage() {
 
                         {/* Answer section */}
                         {isAnswered ? (
-                          <div className="mt-3 p-3 bg-emerald-500/100/5 rounded-lg border border-emerald-500/10">
+                          <div className="mt-3 p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
                             <p className="text-xs text-emerald-400 font-medium mb-1">Your answer:</p>
                             <p className="text-sm text-white/70">{questionAnswers[q.question]}</p>
                           </div>
@@ -511,7 +511,7 @@ export default function AnalysisPage() {
               {expandedSections.has("indas") && (
                 <div className="px-6 pb-5 space-y-3">
                   {ind_as_observations.map((obs, i) => (
-                    <div key={i} className={`p-4 rounded-xl border ${obs.severity === "high" ? "bg-red-500/5/50 border-red-500/20" : obs.severity === "medium" ? "bg-amber-500/5/50 border-amber-500/20" : "bg-emerald-500/10/50 border-emerald-500/20"}`}>
+                    <div key={i} className={`p-4 rounded-xl border ${obs.severity === "high" ? "bg-red-500/5 border-red-500/20" : obs.severity === "medium" ? "bg-amber-500/5 border-amber-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}>
                       <div className="flex items-start gap-3">
                         {obs.severity === "high" ? <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" /> : obs.severity === "medium" ? <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />}
                         <div>
@@ -541,7 +541,7 @@ export default function AnalysisPage() {
               {expandedSections.has("insights") && (
                 <div className="px-6 pb-5 space-y-3">
                   {insights.map((ins, i) => (
-                    <div key={i} className={`p-4 rounded-xl border ${ins.severity === "critical" || ins.severity === "high" ? "bg-red-500/5/50 border-red-500/20" : ins.severity === "warning" || ins.severity === "medium" ? "bg-amber-500/5/50 border-amber-500/20" : "bg-emerald-500/10/50 border-emerald-500/20"}`}>
+                    <div key={i} className={`p-4 rounded-xl border ${ins.severity === "critical" || ins.severity === "high" ? "bg-red-500/5 border-red-500/20" : ins.severity === "warning" || ins.severity === "medium" ? "bg-amber-500/5 border-amber-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}>
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <span className="text-[10px] uppercase tracking-wider text-white/30">{ins.category}</span>
@@ -644,7 +644,7 @@ export default function AnalysisPage() {
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="bg-emerald-500/10/50 border-t-2 border-emerald-500/20">
+                    <tr className="bg-emerald-500/10 border-t-2 border-emerald-500/20">
                       <td className="py-4 font-bold text-white text-base">Net Income</td>
                       <td className={`py-4 text-right font-bold text-base ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-500"}`}>{fmt(fs.net_income)}</td>
                     </tr>
