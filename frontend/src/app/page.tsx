@@ -107,30 +107,30 @@ const sidebarItems = [
 /* ------------------------------------------------------------------ */
 const showcaseFeatures = [
   {
-    tag: "New",
-    title: "Analyze with AI",
-    desc: "Accelerate workflows, drill into variance, and deeply understand your business.",
-    cta: "Get a personalized sneak peek",
+    tag: "Reviewing Brain",
+    title: "Hunt margin leaks automatically",
+    desc: "Our AI reads every voucher, isolates one-time expenses, and surfaces add-back opportunities the way a Big-4 due diligence team would\u2014every single month.",
+    cta: "See a sample QoE report",
     ctaHref: "/contact",
   },
   {
     tag: null,
-    title: "Shape data to your business logic",
-    desc: "Create flexible, structured models built to scale. Define custom inputs, tie in dimensions, and reuse inputs across plans.",
+    title: "Audit-ready Ind AS models in minutes",
+    desc: "Connect Tally or Zoho once. Get a fully normalised P&L, balance sheet, and cash-flow statement aligned to Ind AS 12, 15, 16, 19, 24, 37, 115\u2014without a CA in the loop.",
     cta: null,
     ctaHref: null,
   },
   {
     tag: null,
-    title: "Pressure test every plan",
-    desc: "Create dimension-rich plans, drag and drop to explore outcomes, and make instant decisions.",
+    title: "Pressure-test every business decision",
+    desc: "Model the new plant, the dealer credit tightening, the e-commerce pivot. See the impact on cash, EBITDA, and working capital before you commit a single rupee.",
     cta: null,
     ctaHref: null,
   },
   {
     tag: null,
-    title: "Answer every \"what-if?\"",
-    desc: "Build and compare multiple scenarios, tweak assumptions, and see the impact—without ever duplicating a model.",
+    title: "Get growth SOPs, not just dashboards",
+    desc: "Each month, your AI CFO ships a board-ready strategy memo: which dealer to drop, which SKU to push, which expense to renegotiate. Actionable. Ranked. Done.",
     cta: null,
     ctaHref: null,
   },
@@ -142,21 +142,21 @@ const showcaseFeatures = [
 const crossFuncTabs = [
   {
     icon: DollarSign,
-    title: "Sales forecasts",
-    desc: "Track CRM deals, ARR, win rates, and contract value—all tied to revenue goals.",
-    pills: ["CRM deals", "ARR", "Churn", "Closed/Won"],
+    title: "Sales pipeline & receivables",
+    desc: "Track dealer orders, GST-inclusive billing, and receivables aging tied to revenue and working capital.",
+    pills: ["Dealer orders", "GST cycle", "Receivables aging", "Closed/Won"],
   },
   {
     icon: Target,
-    title: "Marketing spend and performance",
-    desc: "Track spend by channel and campaign, align on ROI, and adjust plans as performance evolves.",
-    pills: ["Budget vs. Actuals", "CAC", "ROI by channel"],
+    title: "Marketing spend & ROI",
+    desc: "Track spend by channel, align on ROAS, and adjust plans as performance evolves\u2014synced to your books.",
+    pills: ["Budget vs. Actuals", "CAC", "ROAS by channel"],
   },
   {
     icon: Users,
-    title: "Headcount plans",
-    desc: "Plan roles, start dates, and salaries across teams while staying within budget and business constraints.",
-    pills: ["Team headcount", "Start dates", "Total comp", "Variance vs. Plans"],
+    title: "Headcount & promoter comp",
+    desc: "Plan roles, salaries, and promoter compensation with auto-flagged add-backs for due diligence readiness.",
+    pills: ["Team headcount", "Promoter comp", "Add-back flags", "Variance"],
   },
 ];
 
@@ -165,63 +165,63 @@ const crossFuncTabs = [
 /* ------------------------------------------------------------------ */
 const reviews = [
   {
-    quote: "CortexCFO is what Excel should have always been",
-    source: "LinkedIn",
+    quote: "Found ₹17 L of margin leakage in our first month. Paid for itself 14x over.",
+    source: "Founder, ₹38 Cr auto-component manufacturer",
     positive: true,
   },
   {
-    quote: "CortexCFO has allowed me to immediately reference any part of our model with ease, and to segment in any way I can imagine.",
-    source: "G2 Review",
+    quote: "We had three CAs reviewing our books quarterly. CortexCFO replaced two of them and made the third 3x sharper.",
+    source: "CFO, Pune-based SaaS firm",
     positive: true,
   },
   {
-    quote: "Even quicker setup than Excel/Sheets with AI prompting",
-    source: "LinkedIn",
+    quote: "Lender asked for an Adjusted EBITDA schedule on a Friday. We sent it Monday morning. The QoE engine had already built it.",
+    source: "Promoter, FMCG distribution",
     positive: true,
   },
   {
-    quote: "CortexCFO makes complex modeling a lot easier. It's just better than an Excel spreadsheet.",
-    source: "YouTube",
+    quote: "Tally connection was actually 5 minutes. I was waiting for the catch.",
+    source: "Director, electrical contractor",
     positive: true,
   },
   {
-    quote: "CortexCFO works like magic",
-    source: "LinkedIn",
+    quote: "The strategic add-back schedule is what saved us in our PE diligence. Worth ₹2 Cr in valuation alone.",
+    source: "Founder, healthcare services chain",
     positive: true,
   },
   {
-    quote: "The system is incredibly powerful, easy to use, easy to implement and learn, and they have a very responsive team.",
-    source: "G2 Review",
+    quote: "Our working capital cycle dropped from 78 days to 54. The receivables alerts are ruthless.",
+    source: "MD, building materials trading",
     positive: true,
   },
   {
-    quote: "There's somewhat of a learning curve but not as steep as other FP&A software.",
-    source: "G2 Review",
+    quote: "Took us a few weeks to trust the AI's add-back recommendations. Now we run them past our CA as a sanity check, not the other way around.",
+    source: "Founder, D2C food brand",
     positive: false,
   },
   {
-    quote: "The options are limitless on the dimensions that you can create and link within your various models.",
-    source: "G2 Review",
+    quote: "The monthly growth SOP is the most useful thing my inbox receives. Better than my old retainer CA's quarterly deck.",
+    source: "Promoter, textile mill",
     positive: true,
   },
   {
-    quote: "Some bugs here and there, but support is so fast it barely matters.",
-    source: "G2 Review",
+    quote: "Honest gripe: the dashboard sometimes feels too dense for non-finance people. They're working on it.",
+    source: "Co-founder, logistics startup",
     positive: false,
   },
   {
-    quote: "The onboarding specialist listens to feedback and actually implements improvements.",
-    source: "G2 Review",
+    quote: "Support team responds in Hindi-Marathi-English on WhatsApp. That alone is worth more than any other software we use.",
+    source: "Founder, 2nd-gen pharma manufacturer",
     positive: true,
   },
   {
-    quote: "Many up front hours required for implementation. But this is easier than competitors like Anaplan.",
-    source: "G2 Review",
+    quote: "Initial setup needed help mapping our Tally cost centres correctly. Once done, it just works.",
+    source: "CFO, ed-tech firm",
     positive: false,
   },
   {
-    quote: "CortexCFO helps me plan for any \"what if\" scenario, compare simultaneously, and easily update as decisions are made.",
-    source: "G2 Review",
+    quote: "Replaced ₹5.5 Lakh/year of advisory spend. The board sees better numbers, faster.",
+    source: "Director, specialty chemicals",
     positive: true,
   },
 ];
@@ -231,64 +231,64 @@ const reviews = [
 /* ------------------------------------------------------------------ */
 const essentialsTabs = [
   {
-    icon: GitBranch,
-    title: "Scenario planning",
-    desc: "Create drafts and quickly simulate changes—like a new marketing campaign, funding delay, or new hiring strategy.",
+    icon: Brain,
+    title: "Continuous QoE engine",
+    desc: "Every voucher, every month: hunt for margin leaks, isolate one-time expenses, and ship a defensible add-back schedule\u2014the way a Big-4 due diligence team would.",
     active: true,
-  },
-  {
-    icon: Users,
-    title: "Collaborative budgeting",
-    desc: "Align teams on budget goals and hold them accountable—without chasing updates or merging spreadsheets.",
-    active: false,
-  },
-  {
-    icon: Sparkles,
-    title: "AI hover mode",
-    desc: "Get instant AI-powered insights as you hover over any cell, metric, or variance in your model.",
-    active: false,
     isNew: true,
   },
   {
+    icon: FileText,
+    title: "Audit-ready Ind AS books",
+    desc: "Auto-normalised P&L, balance sheet, and cash-flow statement aligned to Ind AS 12, 15, 16, 19, 24, 37, 115. Ready for your CA, lender, or investor on day one.",
+    active: false,
+  },
+  {
+    icon: GitBranch,
+    title: "Strategic scenario planning",
+    desc: "Model the new plant, the dealer credit tightening, the e-commerce pivot. See impact on cash, EBITDA, and working capital before you commit.",
+    active: false,
+  },
+  {
     icon: BarChart3,
-    title: "Interactive reporting",
-    desc: "Build and share interactive dashboards that tell the story behind the numbers.",
+    title: "Common-size & ratio benchmarking",
+    desc: "Auto-compare your margins, working capital cycle, and capital efficiency against industry peers in your sector. Spot exactly where you bleed.",
     active: false,
   },
   {
     icon: DollarSign,
-    title: "Revenue planning",
-    desc: "Create pipeline-based revenue models tied to CRM data. Model upsell, churn, new bookings, and show the full financial impact.",
+    title: "Working capital intelligence",
+    desc: "Receivables aging, payables stretching, inventory turns, GST credit cycle\u2014all watched continuously, with action-ready alerts.",
     active: false,
   },
   {
     icon: LineChart,
-    title: "Forecasting",
-    desc: "Build forecasts that update automatically with real-time actuals. Easily adjust assumptions and compare outcomes.",
+    title: "Cash-flow forecasting",
+    desc: "13-week rolling cash forecast tied to actual books. Flags shortfalls 8 weeks ahead so you negotiate with bankers, not beg.",
     active: false,
   },
   {
     icon: Search,
     title: "Variance analysis",
-    desc: "Easily spot vendor-level budget gaps with auto-synced actuals from every source.",
+    desc: "Auto-flag vendor over-billings, SKU margin erosion, and budget vs actual gaps\u2014with the underlying voucher one click away.",
     active: false,
   },
   {
     icon: CalendarCheck,
-    title: "One-click financial close",
-    desc: "Accelerate your monthly close with automated reconciliation and one-click report generation.",
+    title: "Monthly close in one click",
+    desc: "Bank reconciliation, vendor matching, GST validation, and management report\u2014done overnight, ready for your morning standup.",
     active: false,
   },
   {
-    icon: Play,
-    title: "How it works",
-    desc: "See a 2-minute walkthrough of how CortexCFO transforms your financial planning workflow.",
+    icon: Sparkles,
+    title: "Growth SOPs, not dashboards",
+    desc: "Each month, a board-ready strategy memo: which dealer to drop, which SKU to push, which expense to renegotiate. Ranked. Defendable. Done.",
     active: false,
   },
   {
     icon: Plug,
-    title: "750 integrations",
-    desc: "Connect with your existing tools—ERP, HRIS, CRM, bank feeds, and more. Data flows in automatically.",
+    title: "Native Tally + Zoho integrations",
+    desc: "Two-way OAuth sync with Tally, Zoho Books, ICICI/HDFC bank feeds, GSTN, and Razorpay. No CSV exports, no IT ticket, no break-glass.",
     active: false,
   },
 ];
@@ -346,18 +346,22 @@ export default function LandingPage() {
               {/* Left: text content */}
               <div className="pt-4">
                 <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-serif-heading font-bold leading-[1.05] tracking-tight text-white mb-8">
-                  Turn complexity
+                  Your Automated
                   <br />
-                  into conviction
+                  CFO &amp; Strategy Partner
                 </h1>
 
                 <p className="text-[18px] text-white/50 leading-relaxed max-w-lg mb-8">
-                  Collaborative planning, reporting, and forecasting powered by an
-                  agent that knows your model as well as you do.
+                  We turn messy bookkeeping into audit-ready financial models,
+                  continuous QoE, and actionable growth SOPs&mdash;in minutes, not
+                  months. Built for Indian MSMEs.
                 </p>
 
                 <div className="flex flex-wrap gap-3 mb-8">
-                  <Link href="/contact" className="btn-accent">
+                  <Link href="/signup" className="btn-accent">
+                    Connect Tally in 5 minutes
+                  </Link>
+                  <Link href="/contact" className="inline-flex items-center gap-2 text-white/70 hover:text-white px-5 py-3 rounded-xl border border-white/10 hover:border-white/20 text-sm font-medium transition-all">
                     Talk to a human
                   </Link>
                 </div>
@@ -366,13 +370,14 @@ export default function LandingPage() {
                 <div className="flex items-start gap-3 mt-10">
                   <div className="flex-1">
                     <p className="text-[15px] text-white/50 italic leading-relaxed">
-                      &ldquo;Incredibly flexible and fun finance copilot&rdquo;
+                      &ldquo;Replaced our &#8377;6 Lakh/year CA retainer with a
+                      &#8377;10K/month AI advisor that never sleeps.&rdquo;
                     </p>
                     <a
                       href="#reviews"
                       className="inline-flex items-center gap-1 text-[13px] text-[#f2a60c] font-medium mt-2 hover:underline"
                     >
-                      Get a personalized sneak peek
+                      See how MSMEs are switching
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </a>
                   </div>
@@ -393,7 +398,7 @@ export default function LandingPage() {
                     <span>🏠 Overview</span>
                     <ChevronRight className="w-3 h-3" />
                     <span className="text-white/60 font-medium">
-                      Exec Dashboard
+                      Adjusted EBITDA &mdash; Q3 FY26
                     </span>
                   </div>
 
@@ -401,10 +406,10 @@ export default function LandingPage() {
                     {/* Top Line Header */}
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-[16px] font-semibold text-white">
-                        Top Line
+                        Reviewing Brain &mdash; QoE Snapshot
                       </h3>
                       <button className="text-[11px] text-white/30 bg-white/5 px-2 py-1 rounded">
-                        %
+                        ₹ / %
                       </button>
                     </div>
 
@@ -417,83 +422,83 @@ export default function LandingPage() {
                               Driver
                             </th>
                             <th className="text-right py-2.5 px-3 font-medium text-white/40">
-                              ✱ Base
+                              ✱ Reported
                             </th>
                             <th className="text-right py-2.5 px-3 font-medium text-white/40">
-                              ✱ Dec Close
+                              ✱ Adjusted
                             </th>
                             <th className="text-right py-2.5 px-3 font-medium text-white/40">
-                              Variance
+                              Add-back
                             </th>
                           </tr>
                         </thead>
                         <tbody>
                           <tr className="border-b border-white/5">
                             <td className="py-2.5 px-3 text-white/60">
-                              Months of Runway
+                              Revenue (TTM)
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              20
+                              ₹4.2 Cr
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              24
+                              ₹4.2 Cr
                             </td>
-                            <td className="py-2.5 px-3 text-right text-red-500 tabular-nums">
-                              -4
+                            <td className="py-2.5 px-3 text-right text-white/30 tabular-nums">
+                              &mdash;
                             </td>
                           </tr>
                           <tr className="border-b border-white/5">
-                            <td className="py-2.5 px-3 text-white/60">Burn</td>
+                            <td className="py-2.5 px-3 text-white/60">EBITDA</td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              $1.4M
-                            </td>
-                            <td className="py-2.5 px-3 text-right tabular-nums">
-                              $1.2M
-                            </td>
-                            <td className="py-2.5 px-3 text-right text-emerald-600 tabular-nums font-medium">
-                              $200K
-                            </td>
-                          </tr>
-                          <tr className="border-b border-white/5">
-                            <td className="py-2.5 px-3 text-white/60">
-                              Cash Balance
+                              ₹62 L
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              —
+                              ₹81 L
                             </td>
-                            <td className="py-2.5 px-3 text-right tabular-nums">
-                              —
-                            </td>
-                            <td className="py-2.5 px-3 text-right tabular-nums text-emerald-600">
-                              $2M
+                            <td className="py-2.5 px-3 text-right text-emerald-500 tabular-nums font-medium">
+                              +₹19 L
                             </td>
                           </tr>
                           <tr className="border-b border-white/5">
                             <td className="py-2.5 px-3 text-white/60">
-                              Gross Margin
+                              One-time legal
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              —
+                              ₹8 L
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              —
+                              &mdash;
+                            </td>
+                            <td className="py-2.5 px-3 text-right tabular-nums text-emerald-500">
+                              +₹8 L
+                            </td>
+                          </tr>
+                          <tr className="border-b border-white/5">
+                            <td className="py-2.5 px-3 text-white/60">
+                              Promoter salary excess
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              —
+                              ₹14 L
+                            </td>
+                            <td className="py-2.5 px-3 text-right tabular-nums">
+                              ₹3 L
+                            </td>
+                            <td className="py-2.5 px-3 text-right tabular-nums text-emerald-500">
+                              +₹11 L
                             </td>
                           </tr>
                           <tr>
                             <td className="py-2.5 px-3 text-white/60">
-                              Operating Margin
+                              Working capital cycle
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              —
+                              68 days
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              —
+                              52 days
                             </td>
-                            <td className="py-2.5 px-3 text-right tabular-nums">
-                              —
+                            <td className="py-2.5 px-3 text-right text-emerald-500 tabular-nums">
+                              -16d
                             </td>
                           </tr>
                         </tbody>
@@ -511,14 +516,15 @@ export default function LandingPage() {
                         </div>
                         <div className="flex-1">
                           <p className="text-[12px] text-white/60 leading-relaxed">
-                            Forecasted 📈 <strong>Burn</strong> for January is up
-                            $20k because Revenue is expected to drop $30k.
+                            Detected ₹19 L of <strong>add-back opportunities</strong> in
+                            this quarter&apos;s ledger&mdash;Adjusted EBITDA jumps from
+                            14.8% to 19.3% margin.
                           </p>
                         </div>
                       </div>
                       <div className="ml-10">
                         <div className="inline-block bg-white/5 rounded-xl px-3 py-2 text-[12px] text-white/50 mb-3">
-                          Why is revenue expected to decrease?
+                          Show me the strategic add-backs for due diligence
                         </div>
                       </div>
                       <div className="ml-10 flex items-center gap-2 text-[11px] text-white/30">
@@ -547,6 +553,108 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/*  CONTINUOUS QoE ENGINE / REVIEWING BRAIN                       */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/5">
+        <div className="max-w-[1200px] mx-auto">
+          <FadeIn className="mb-14 text-center max-w-3xl mx-auto">
+            <p className="text-[13px] font-semibold text-emerald-400 uppercase tracking-wider mb-3 inline-flex items-center gap-2">
+              <Brain className="w-3.5 h-3.5" />
+              The Reviewing Brain
+            </p>
+            <h2 className="text-[36px] md:text-[48px] font-serif-heading font-bold leading-[1.1] tracking-tight text-white mb-6">
+              Continuous QoE Engine
+            </h2>
+            <p className="text-[17px] text-white/55 leading-relaxed">
+              What a Big-4 advisory firm does once during due diligence, our AI does
+              <span className="text-white"> every single month</span>. We hunt margin
+              leaks, isolate one-time expenses, and build the strategic add-back
+              schedule that makes your business audit-ready and fundable&mdash;always.
+            </p>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-3 gap-5 mb-10">
+            {[
+              {
+                icon: Search,
+                tag: "Hunt",
+                title: "Find the leaks",
+                desc: "Scans every voucher, ledger entry, and bank statement to flag duplicate payments, idle inventory, vendor over-billings, and SKU-level margin erosion.",
+                stat: "Avg ₹14&nbsp;L of leakage surfaced in month one",
+              },
+              {
+                icon: Layers,
+                tag: "Isolate",
+                title: "Strip the noise",
+                desc: "Auto-classifies one-time legal fees, COVID write-downs, promoter perks, and non-recurring CapEx so your true operating EBITDA stops hiding in the noise.",
+                stat: "Adjusted EBITDA delta: +3&ndash;8% on average",
+              },
+              {
+                icon: Lightbulb,
+                tag: "Defend",
+                title: "Build the add-back schedule",
+                desc: "Ships a board-ready add-back schedule with footnotes the way a Big-4 QoE report would&mdash;ready for any investor, lender, or acquirer.",
+                stat: "Replaces ₹6&nbsp;L+ of one-time advisory work",
+              },
+            ].map((card, i) => {
+              const Icon = card.icon;
+              return (
+                <FadeIn key={card.title} delay={i * 120}>
+                  <div className="bg-[#111] rounded-2xl border border-white/8 p-7 h-full hover:border-emerald-500/30 hover:bg-[#131313] transition-all group">
+                    <div className="flex items-center gap-2 mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/15 transition-colors">
+                        <Icon className="w-5 h-5 text-emerald-400" />
+                      </div>
+                      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+                        {card.tag}
+                      </span>
+                    </div>
+                    <h3 className="text-[18px] font-semibold text-white mb-2">
+                      {card.title}
+                    </h3>
+                    <p className="text-[13.5px] text-white/50 leading-relaxed mb-5">
+                      {card.desc}
+                    </p>
+                    <p
+                      className="text-[12px] text-emerald-400/90 font-medium pt-4 border-t border-white/5"
+                      dangerouslySetInnerHTML={{ __html: card.stat }}
+                    />
+                  </div>
+                </FadeIn>
+              );
+            })}
+          </div>
+
+          {/* Comparison strip */}
+          <FadeIn delay={300}>
+            <div className="bg-[#0d0d0d] rounded-2xl border border-white/8 p-8 grid md:grid-cols-3 gap-6 items-center">
+              <div className="md:col-span-1">
+                <p className="text-[12px] font-semibold text-white/40 uppercase tracking-wider mb-2">
+                  The old way
+                </p>
+                <p className="text-[14px] text-white/50 leading-relaxed">
+                  Hire a Big-4 firm for &#8377;6&nbsp;Lakh+. Wait 6&ndash;8 weeks.
+                  Get a static QoE deck. Repeat next year.
+                </p>
+              </div>
+              <div className="md:col-span-1 flex justify-center">
+                <ArrowRight className="w-8 h-8 text-emerald-500" />
+              </div>
+              <div className="md:col-span-1">
+                <p className="text-[12px] font-semibold text-emerald-400 uppercase tracking-wider mb-2">
+                  CortexCFO
+                </p>
+                <p className="text-[14px] text-white leading-relaxed">
+                  &#8377;10K/month. Live dashboard, refreshed every night, with a
+                  growth SOP delivered to your inbox.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
@@ -623,19 +731,20 @@ export default function LandingPage() {
                           </div>
                           <div className="space-y-2">
                             <div className="bg-white/5 rounded-lg p-3 text-[12px] text-white/60">
-                              Revenue decreased 12% MoM primarily due to 3 enterprise
-                              contracts moving to Q2. Pipeline coverage remains strong at 3.2x.
+                              Revenue dipped 12% MoM&mdash;3 dealer orders slipped to next
+                              quarter. GST input credit cycle is healthy at 28 days.
                             </div>
                             <div className="bg-white/5 rounded-lg p-3 text-[12px] text-white/60">
-                              Recommendation: Accelerate mid-market deals to offset enterprise timing risk.
+                              Action: Tighten credit terms with North-zone distributors;
+                              receivables aging &gt; 90 days is up ₹14 L.
                             </div>
                           </div>
                         </div>
                         <div className="grid grid-cols-3 gap-3">
                           {[
-                            { label: "Revenue", value: "$4.2M", change: "-12%" },
-                            { label: "Pipeline", value: "3.2x", change: "+0.4x" },
-                            { label: "Win Rate", value: "34%", change: "+2%" },
+                            { label: "Revenue", value: "₹4.2 Cr", change: "-12%" },
+                            { label: "GP Margin", value: "32%", change: "+1.4%" },
+                            { label: "Adj EBITDA", value: "19.3%", change: "+4.5%" },
                           ].map((m) => (
                             <div
                               key={m.label}
@@ -675,11 +784,11 @@ export default function LandingPage() {
                           </div>
                           <div className="p-4 space-y-2">
                             {[
-                              { name: "MRR", formula: "= Customers × ARPU", value: "$420K" },
-                              { name: "Customers", formula: "= New + Existing - Churned", value: "1,240" },
-                              { name: "ARPU", formula: "= Revenue / Customers", value: "$339" },
-                              { name: "Churn Rate", formula: "= Churned / Previous", value: "2.1%" },
-                              { name: "Net Revenue Retention", formula: "= (Expansion + Contraction) / Start", value: "118%" },
+                              { name: "Monthly Revenue", formula: "= Volume × Realisation", value: "₹35 L" },
+                              { name: "Active Dealers", formula: "= New + Existing - Churned", value: "126" },
+                              { name: "Avg Order Value", formula: "= Revenue / Orders", value: "₹2.8 L" },
+                              { name: "Receivable Days", formula: "= AR / (Revenue/Day)", value: "52 days" },
+                              { name: "Working Capital", formula: "= AR + Inv - AP", value: "₹1.2 Cr" },
                             ].map((row) => (
                               <div
                                 key={row.name}
@@ -712,9 +821,9 @@ export default function LandingPage() {
                           </div>
                           <div className="space-y-3">
                             {[
-                              { plan: "Conservative", revenue: "$3.8M", headcount: 42, runway: "28 mo" },
-                              { plan: "Base Case", revenue: "$4.2M", headcount: 48, runway: "22 mo" },
-                              { plan: "Aggressive", revenue: "$5.1M", headcount: 56, runway: "16 mo" },
+                              { plan: "Conservative", revenue: "₹3.8 Cr", headcount: 28, runway: "28 mo" },
+                              { plan: "Base Case", revenue: "₹4.2 Cr", headcount: 32, runway: "22 mo" },
+                              { plan: "Aggressive", revenue: "₹5.1 Cr", headcount: 38, runway: "16 mo" },
                             ].map((p) => (
                               <div
                                 key={p.plan}
@@ -761,22 +870,22 @@ export default function LandingPage() {
                             <span className="text-[13px] font-semibold">Scenario Builder</span>
                           </div>
                           <div className="space-y-3">
-                            <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-50 border border-purple-100">
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
                               <div className="w-3 h-3 rounded-full bg-purple-500" />
                               <div className="flex-1">
-                                <p className="text-[12px] font-medium">What if we delay Series B by 6 months?</p>
+                                <p className="text-[12px] font-medium text-white/80">What if we delay the &#8377;2 Cr machinery CapEx by 2 quarters?</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-50 border border-blue-100">
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
                               <div className="w-3 h-3 rounded-full bg-blue-500" />
                               <div className="flex-1">
-                                <p className="text-[12px] font-medium">What if we hire 10 more engineers in Q2?</p>
+                                <p className="text-[12px] font-medium text-white/80">What if we tighten dealer credit from 60 to 45 days?</p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-100">
+                            <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
                               <div className="w-3 h-3 rounded-full bg-emerald-500" />
                               <div className="flex-1">
-                                <p className="text-[12px] font-medium">What if churn drops to 1.5%?</p>
+                                <p className="text-[12px] font-medium text-white/80">What if we shift 30% of revenue to e-commerce?</p>
                               </div>
                             </div>
                           </div>
@@ -784,12 +893,12 @@ export default function LandingPage() {
                             <p className="text-[11px] text-white/40 mb-2">Impact Preview</p>
                             <div className="grid grid-cols-2 gap-2 text-[12px]">
                               <div className="flex justify-between">
-                                <span className="text-white/40">Cash runway</span>
-                                <span className="font-semibold text-emerald-600">+8 months</span>
+                                <span className="text-white/40">Free cash flow</span>
+                                <span className="font-semibold text-emerald-500">+&#8377;42 L/qtr</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-white/40">Burn rate</span>
-                                <span className="font-semibold text-emerald-600">-$180K/mo</span>
+                                <span className="text-white/40">Working capital</span>
+                                <span className="font-semibold text-emerald-500">-16 days</span>
                               </div>
                             </div>
                           </div>
@@ -811,13 +920,14 @@ export default function LandingPage() {
         <div className="max-w-[1200px] mx-auto">
           <FadeIn className="mb-16">
             <h2 className="text-[42px] md:text-[56px] font-serif-heading font-bold leading-[1.1] tracking-tight text-white mb-6">
-              Act on shared
+              One brain across
               <br />
-              intuition
+              every function
             </h2>
             <p className="text-[16px] text-white/45 max-w-xl leading-relaxed">
-              Drive aligned, data-informed decisions with unified inputs from
-              other teams, like sales, marketing, and ops.
+              Sales pipeline, marketing spend, headcount, and inventory&mdash;all
+              normalised against your books. The strategy memo your CA never had
+              the bandwidth to write.
             </p>
           </FadeIn>
 
@@ -883,38 +993,38 @@ export default function LandingPage() {
               <div className="sticky top-24">
                 <div className="product-card">
                   <div className="bg-[#161616] border-b border-white/5 px-4 py-2.5 flex items-center gap-3 text-[12px]">
-                    <span className="text-white/30">🔲 Base Scenario ▾</span>
+                    <span className="text-white/30">🔲 FY26 Base ▾</span>
                   </div>
                   <div className="bg-[#161616] border-b border-white/5 px-4 py-2 flex items-center gap-2 text-[12px] text-white/40">
-                    <span>🏠 Marketing</span>
+                    <span>🏠 GTM</span>
                     <ChevronRight className="w-3 h-3" />
-                    <span>✱ Marketing Dashboard</span>
+                    <span>✱ Cross-functional</span>
                     <span className="text-white/20">|</span>
-                    <span>🟠 Hubspot ⟳</span>
+                    <span>🟢 Tally ⟳</span>
                   </div>
                   <div className="p-5 bg-[#111]">
                     {activeCrossFunc === 0 && (
                       <div className="animate-scale-in space-y-3">
                         <div className="grid grid-cols-2 gap-3">
                           <div className="bg-[#111] rounded-xl border border-white/8 p-3">
-                            <p className="text-[10px] text-white/30 mb-1">MQLs</p>
-                            <p className="text-[20px] font-bold tabular-nums">648</p>
+                            <p className="text-[10px] text-white/30 mb-1">Open Orders</p>
+                            <p className="text-[20px] font-bold tabular-nums">₹1.8 Cr</p>
                           </div>
                           <div className="bg-[#111] rounded-xl border border-white/8 p-3">
-                            <p className="text-[10px] text-white/30 mb-1">SQLs</p>
-                            <p className="text-[20px] font-bold tabular-nums">182</p>
+                            <p className="text-[10px] text-white/30 mb-1">Receivables &gt; 90d</p>
+                            <p className="text-[20px] font-bold tabular-nums text-amber-400">₹14 L</p>
                           </div>
                         </div>
                         {/* Mini bar chart */}
                         <div className="bg-[#111] rounded-xl border border-white/8 p-4">
-                          <p className="text-[11px] text-white/30 mb-3">Pipeline by Stage</p>
+                          <p className="text-[11px] text-white/30 mb-3">Order pipeline by stage</p>
                           <div className="space-y-2">
                             {[
-                              { label: "Discovery", width: "90%", color: "bg-blue-400" },
-                              { label: "Demo", width: "70%", color: "bg-blue-500" },
-                              { label: "Proposal", width: "45%", color: "bg-blue-600" },
-                              { label: "Negotiation", width: "30%", color: "bg-blue-700" },
-                              { label: "Closed Won", width: "20%", color: "bg-emerald-500" },
+                              { label: "Quoted", width: "90%", color: "bg-blue-400" },
+                              { label: "PO Issued", width: "70%", color: "bg-blue-500" },
+                              { label: "Dispatched", width: "45%", color: "bg-blue-600" },
+                              { label: "Invoiced", width: "30%", color: "bg-blue-700" },
+                              { label: "Collected", width: "20%", color: "bg-emerald-500" },
                             ].map((bar) => (
                               <div key={bar.label} className="flex items-center gap-3">
                                 <span className="text-[10px] text-white/35 w-20 text-right">{bar.label}</span>
@@ -934,8 +1044,8 @@ export default function LandingPage() {
                       <div className="animate-scale-in space-y-3">
                         <div className="grid grid-cols-3 gap-3">
                           {[
-                            { label: "Total Spend", value: "$128K" },
-                            { label: "CAC", value: "$342" },
+                            { label: "Total Spend", value: "₹12.8 L" },
+                            { label: "CAC", value: "₹2,800" },
                             { label: "ROAS", value: "4.2x" },
                           ].map((m) => (
                             <div key={m.label} className="bg-[#111] rounded-xl border border-white/8 p-3">
@@ -945,13 +1055,13 @@ export default function LandingPage() {
                           ))}
                         </div>
                         <div className="bg-[#111] rounded-xl border border-white/8 p-4">
-                          <p className="text-[11px] text-white/30 mb-3">Spend by Channel</p>
+                          <p className="text-[11px] text-white/30 mb-3">Spend by channel</p>
                           <div className="space-y-2">
                             {[
-                              { channel: "Google Ads", actual: "$42K", budget: "$45K" },
-                              { channel: "Meta", actual: "$38K", budget: "$35K" },
-                              { channel: "LinkedIn", actual: "$28K", budget: "$30K" },
-                              { channel: "Content", actual: "$20K", budget: "$18K" },
+                              { channel: "Google Ads", actual: "₹4.2 L", budget: "₹4.5 L" },
+                              { channel: "Meta", actual: "₹3.8 L", budget: "₹3.5 L" },
+                              { channel: "LinkedIn", actual: "₹2.8 L", budget: "₹3.0 L" },
+                              { channel: "Trade shows", actual: "₹2.0 L", budget: "₹1.8 L" },
                             ].map((c) => (
                               <div key={c.channel} className="flex items-center justify-between py-1.5 border-b border-white/5 text-[12px]">
                                 <span className="text-white/50">{c.channel}</span>
@@ -970,22 +1080,22 @@ export default function LandingPage() {
                         <div className="grid grid-cols-2 gap-3">
                           <div className="bg-[#111] rounded-xl border border-white/8 p-3">
                             <p className="text-[10px] text-white/30 mb-1">Total Headcount</p>
-                            <p className="text-[20px] font-bold tabular-nums">48</p>
+                            <p className="text-[20px] font-bold tabular-nums">32</p>
                           </div>
                           <div className="bg-[#111] rounded-xl border border-white/8 p-3">
-                            <p className="text-[10px] text-white/30 mb-1">Open Roles</p>
-                            <p className="text-[20px] font-bold tabular-nums">12</p>
+                            <p className="text-[10px] text-white/30 mb-1">Promoter add-back</p>
+                            <p className="text-[20px] font-bold tabular-nums text-emerald-400">₹11 L</p>
                           </div>
                         </div>
                         <div className="bg-[#111] rounded-xl border border-white/8 p-4">
-                          <p className="text-[11px] text-white/30 mb-3">Team Breakdown</p>
+                          <p className="text-[11px] text-white/30 mb-3">Team breakdown</p>
                           <div className="space-y-2">
                             {[
-                              { team: "Engineering", count: 18, planned: 22 },
-                              { team: "Sales", count: 12, planned: 14 },
-                              { team: "Marketing", count: 6, planned: 8 },
-                              { team: "Operations", count: 8, planned: 8 },
-                              { team: "Finance", count: 4, planned: 4 },
+                              { team: "Production", count: 14, planned: 16 },
+                              { team: "Sales", count: 8, planned: 10 },
+                              { team: "Procurement", count: 4, planned: 5 },
+                              { team: "Operations", count: 4, planned: 4 },
+                              { team: "Finance", count: 2, planned: 3 },
                             ].map((t) => (
                               <div key={t.team} className="flex items-center justify-between py-1.5 border-b border-white/5 text-[12px]">
                                 <span className="text-white/50">{t.team}</span>
@@ -1017,18 +1127,18 @@ export default function LandingPage() {
             {[
               {
                 icon: Lightbulb,
-                title: "Create clarity",
-                desc: "Build a structured, living model with human-readable formulas your entire team can understand.",
+                title: "Replace ₹6 L of consulting",
+                desc: "Get the QoE rigour of a Big-4 advisory firm at a fraction of the cost\u2014every month, not once a year.",
               },
               {
-                icon: Users,
-                title: "Align every team",
-                desc: "Provide cross-functional visibility without sacrificing control.",
+                icon: Shield,
+                title: "Stay investor-ready",
+                desc: "Audit-ready Ind AS books, ranked add-backs, and a defensible adjusted EBITDA story\u2014for any lender, PE, or strategic acquirer.",
               },
               {
                 icon: Star,
                 title: "Win your next board meeting",
-                desc: "Easily send and present clean, interactive forecasts and dashboards.",
+                desc: "Walk in with a board-ready memo and live dashboard. Answer every \u201cwhy\u201d in real time, with the underlying ledger one click away.",
               },
             ].map((item, i) => (
               <FadeIn key={i} delay={i * 120}>
@@ -1056,8 +1166,12 @@ export default function LandingPage() {
         <div className="max-w-[1200px] mx-auto mb-12">
           <FadeIn>
             <h2 className="text-[32px] md:text-[40px] font-serif-heading font-bold text-white mb-2">
-              Honest reviews—The good and the bad
+              Honest reviews from Indian MSME founders
             </h2>
+            <p className="text-[14px] text-white/40 max-w-xl">
+              The good, the constructive, and the things we&apos;re still
+              fixing&mdash;straight from the promoters and CFOs running the businesses.
+            </p>
           </FadeIn>
         </div>
 
@@ -1136,8 +1250,13 @@ export default function LandingPage() {
         <div className="max-w-[1200px] mx-auto">
           <FadeIn className="mb-14">
             <h2 className="text-[32px] md:text-[42px] font-serif-heading font-bold text-white">
-              All the FP&A essentials
+              Everything your CFO + CA + advisor would do
             </h2>
+            <p className="text-[15px] text-white/45 mt-3 max-w-2xl">
+              Built for Indian MSMEs scaling past &#8377;5 Cr revenue&mdash;where
+              hiring a full-time CFO is too early but spreadsheets and quarterly CA
+              reviews are too late.
+            </p>
           </FadeIn>
 
           <div className="grid lg:grid-cols-[1fr_1.5fr] gap-8">
@@ -1223,11 +1342,12 @@ export default function LandingPage() {
           <FadeIn delay={200}>
             <div className="text-center mt-12">
               <p className="text-[16px] text-white/45 mb-6">
-                Start building a unified model you can trust as the source of
-                truth for planning and forecasting.
+                Replace your &#8377;6 Lakh annual advisory retainer with a
+                &#8377;10K/month AI CFO that never sleeps&mdash;and ships actionable
+                growth SOPs every month.
               </p>
-              <Link href="/contact" className="btn-accent">
-                Talk to a human
+              <Link href="/signup" className="btn-accent">
+                Start free with Tally
               </Link>
             </div>
           </FadeIn>
@@ -1240,11 +1360,13 @@ export default function LandingPage() {
       <section className="py-24 px-6 bg-[#0a0a0a]/5">
         <div className="max-w-[900px] mx-auto">
           <FadeIn className="text-center mb-16">
-            <p className="text-[13px] font-semibold text-[#f2a60c] uppercase tracking-wider mb-3">
-              Implementation
+            <p className="text-[13px] font-semibold text-emerald-400 uppercase tracking-wider mb-3">
+              Near-zero time to value
             </p>
             <h2 className="text-[32px] md:text-[42px] font-serif-heading font-bold text-white">
-              From signup to strategy in weeks, not months
+              From signup to your first Adjusted EBITDA report
+              <br />
+              <span className="text-emerald-400">in minutes, not weeks</span>
             </h2>
           </FadeIn>
 
@@ -1252,25 +1374,25 @@ export default function LandingPage() {
             {[
               {
                 step: "01",
-                phase: "Kickoff",
-                title: "Integrate all your sources",
-                desc: "Connect data from our 750+ integrations. Including your HRIS, ERP, CRM, and more.",
-                timeline: "1-week average",
+                phase: "Connect",
+                title: "Plug in Tally or Zoho Books",
+                desc: "Secure OAuth connection to your existing books. We auto-pull 3 years of vouchers, ledgers, and bank statements\u2014no CSV exports, no IT ticket.",
+                timeline: "5 minutes",
                 icon: Plug,
               },
               {
                 step: "02",
-                phase: "Model",
-                title: "Build your model",
-                desc: "Create your P&L, cashflow, headcount model, and more. Build out your projections, scenarios, and plans.",
-                timeline: "4-week average",
-                icon: Layers,
+                phase: "Normalise",
+                title: "Reviewing Brain reads everything",
+                desc: "Our agent classifies vouchers, isolates one-time expenses, and ships your first audit-ready P&L, balance sheet, and Adjusted EBITDA report\u2014done before your chai gets cold.",
+                timeline: "Instant",
+                icon: Brain,
               },
               {
                 step: "03",
-                phase: "Strategize",
-                title: "Get continuous support",
-                desc: "Stay aligned with our team through strategic check-ins and real-time support in a dedicated Slack channel.",
+                phase: "Strategise",
+                title: "Receive monthly growth SOPs",
+                desc: "Every month, your AI CFO ships a board-ready memo: ranked add-backs, working capital actions, and the next strategic move\u2014plus chat-anytime answers.",
                 timeline: "Ongoing",
                 icon: MessageSquare,
               },
@@ -1318,11 +1440,11 @@ export default function LandingPage() {
       {/*  FLOATING "TALK TO A HUMAN" BUTTON                             */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <Link
-        href="/contact"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#f2a60c] text-white shadow-lg shadow-[#f2a60c]/20 hover:scale-105 active:scale-95 transition-all text-[13px] font-semibold"
+        href="/signup"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:scale-105 hover:bg-emerald-400 active:scale-95 transition-all text-[13px] font-semibold"
       >
-        <MessageSquare className="w-4 h-4" />
-        Talk to a Human
+        <Plug className="w-4 h-4" />
+        Connect Tally Free
       </Link>
 
       <SiteFooter />
