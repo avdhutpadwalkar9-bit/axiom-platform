@@ -1,17 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Users, Brain, Shield, Globe } from "lucide-react";
+import { ArrowRight, Users, Brain, Shield, Globe, Mail } from "lucide-react";
 import { FadeIn } from "@/components/Animate";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 
-export default function AboutPage() {
+function LinkedinIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.62 0 4.29 2.38 4.29 5.48v6.26zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z" />
+    </svg>
+  );
+}
 
-  const team = [
-    { name: "Avdhut Padwalkar", title: "Founder & CEO", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face" },
-    { name: "AI Engineering Team", title: "Building the future of FP&A", img: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=300&fit=crop" },
-  ];
+export default function AboutPage() {
 
   const values = [
     { icon: Globe, title: "India-first", desc: "Built for Indian accounting standards, Indian tax codes, and Indian business realities. Ind AS, GST, TDS native from day one." },
@@ -96,24 +104,88 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Founder */}
       <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <FadeIn className="text-center mb-14">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Leadership</p>
-            <h2 className="text-3xl font-bold">Meet the team</h2>
+        <div className="max-w-4xl mx-auto">
+          <FadeIn className="text-center mb-12">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Founder</p>
+            <h2 className="text-3xl font-bold">The person behind the product</h2>
           </FadeIn>
-          <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-            {team.map((member, i) => (
-              <FadeIn key={member.name} delay={i * 80}>
-                <div className="bg-[#111] rounded-2xl p-8 text-center border border-white/5 hover:border-white/10 transition-all">
-                  <img src={member.img} alt={member.name} className="w-24 h-24 rounded-full object-cover mx-auto mb-5 border-2 border-white/10" />
-                  <h3 className="text-base font-semibold mb-1">{member.name}</h3>
-                  <p className="text-sm text-white/30">{member.title}</p>
+
+          <FadeIn>
+            <div className="bg-[#111] rounded-2xl p-8 md:p-10 border border-white/5 hover:border-white/10 transition-all">
+              <div className="grid md:grid-cols-[auto_1fr] gap-8 items-start">
+                <div className="flex flex-col items-center md:items-start">
+                  <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
+                    <span className="text-5xl font-bold bg-gradient-to-br from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                      AP
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <a
+                      href="https://www.linkedin.com/in/avdhutpadwalkar/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="LinkedIn"
+                      className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
+                    >
+                      <LinkedinIcon className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
+                    </a>
+                    <a
+                      href="mailto:avdhut@cortexcfo.ai"
+                      aria-label="Email"
+                      className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
+                    >
+                      <Mail className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
+                    </a>
+                  </div>
                 </div>
-              </FadeIn>
-            ))}
-          </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold mb-1">Avdhut Padwalkar</h3>
+                  <p className="text-sm text-emerald-400 font-medium mb-5">Founder &amp; CEO</p>
+                  <div className="space-y-3 text-[15px] text-white/55 leading-relaxed">
+                    <p>
+                      Avdhut has spent the last decade working with Indian MSMEs on
+                      financial planning, quality of earnings, and M&amp;A readiness.
+                      Across auto-component, FMCG, and specialty-chemical businesses,
+                      the same gap kept showing up: great operators running on messy
+                      books, discovering margin leaks only when a Big-4 firm walked
+                      in for due diligence.
+                    </p>
+                    <p>
+                      CortexCFO is the tool he wished existed&mdash;a continuous,
+                      AI-native review engine that surfaces what advisors find, every
+                      month, at 1/60th the cost.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-6">
+                    {["Ex-Deloitte", "118kpm Capital", "IIM alumnus", "CA-qualified"].map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={150}>
+            <div className="mt-6 bg-white/[0.02] rounded-2xl p-6 border border-white/5">
+              <p className="text-[13px] text-white/50 leading-relaxed">
+                <span className="text-emerald-400 font-semibold">Building the team.</span>{" "}
+                We&apos;re hiring founding engineers (Python, TypeScript, LLM evals)
+                and a founding GTM lead.{" "}
+                <Link href="/contact" className="text-emerald-400 hover:underline font-medium">
+                  Get in touch &rarr;
+                </Link>
+              </p>
+            </div>
+          </FadeIn>
         </div>
       </section>
 

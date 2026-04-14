@@ -333,39 +333,42 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               {/* Left: text content */}
               <div className="pt-4">
-                <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-serif-heading font-bold leading-[1.05] tracking-tight text-white mb-8">
-                  Your Automated
+                <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-serif-heading font-bold leading-[1.05] tracking-tight text-white mb-6">
+                  Audit-ready financials
                   <br />
-                  CFO &amp; Strategy Partner
+                  in 60 seconds.
                 </h1>
 
-                <p className="text-[18px] text-white/50 leading-relaxed max-w-lg mb-8">
-                  We turn messy bookkeeping into audit-ready financial models,
-                  continuous QoE, and actionable growth SOPs&mdash;in minutes, not
-                  months. Built for Indian MSMEs.
+                <p className="text-[18px] text-white/55 leading-relaxed max-w-lg mb-8">
+                  Connect Tally. Get investor-grade P&amp;Ls, QoE reports, and
+                  board memos&mdash;before your chai gets cold.
                 </p>
 
-                <div className="flex flex-wrap gap-3 mb-8">
+                <div className="flex flex-wrap gap-3 mb-6">
                   <Link href="/signup" className="btn-accent">
-                    Connect Tally in 5 minutes
+                    Start free with Tally
                   </Link>
                   <Link href="/contact" className="inline-flex items-center gap-2 text-white/70 hover:text-white px-5 py-3 rounded-xl border border-white/10 hover:border-white/20 text-sm font-medium transition-all">
-                    Talk to a human
+                    See a 90-second demo
                   </Link>
                 </div>
 
+                <p className="text-[13px] text-white/35 mb-8">
+                  Free forever for businesses under &#8377;2 Cr revenue. No card required.
+                </p>
+
                 {/* Quote */}
-                <div className="flex items-start gap-3 mt-10">
+                <div className="flex items-start gap-3">
                   <div className="flex-1">
-                    <p className="text-[15px] text-white/50 italic leading-relaxed">
-                      &ldquo;Replaced our &#8377;6 Lakh/year CA retainer with a
-                      &#8377;10K/month AI advisor that never sleeps.&rdquo;
+                    <p className="text-[15px] text-white/55 italic leading-relaxed">
+                      &ldquo;Found &#8377;17 L of margin leakage in month one. Paid for
+                      itself 14&times; over.&rdquo;
                     </p>
                     <a
                       href="#reviews"
-                      className="inline-flex items-center gap-1 text-[13px] text-[#f2a60c] font-medium mt-2 hover:underline"
+                      className="inline-flex items-center gap-1 text-[13px] text-emerald-400 font-medium mt-2 hover:underline"
                     >
-                      See how MSMEs are switching
+                      Read the full story
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </a>
                   </div>
@@ -545,6 +548,113 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════ */}
+      {/*  TRUST SIGNALS STRIP                                           */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-10 px-6 border-y border-white/5 bg-[#0a0a0a]">
+        <div className="max-w-[1200px] mx-auto">
+          <p className="text-center text-[11px] font-semibold text-white/35 uppercase tracking-[0.2em] mb-6">
+            Built on trust. Backed by standards.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            {[
+              { label: "SOC 2 Type II in progress", icon: Shield },
+              { label: "India data residency", icon: Lock },
+              { label: "AES-256 + TLS 1.3", icon: Shield },
+              { label: "Certified Tally partner", icon: Plug },
+              { label: "Powered by Claude", icon: Sparkles },
+            ].map((badge) => {
+              const Icon = badge.icon;
+              return (
+                <div
+                  key={badge.label}
+                  className="inline-flex items-center gap-2 text-[12px] text-white/45 font-medium"
+                >
+                  <Icon className="w-3.5 h-3.5 text-emerald-400" />
+                  {badge.label}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/*  3-STEP: CONNECT -> ANALYSE -> EXPORT                          */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 px-6 bg-[#0a0a0a]">
+        <div className="max-w-[1100px] mx-auto">
+          <FadeIn className="text-center mb-14">
+            <p className="text-[12px] font-semibold text-emerald-400 uppercase tracking-[0.2em] mb-3">
+              How it works
+            </p>
+            <h2 className="text-[30px] md:text-[38px] font-serif-heading font-bold text-white leading-[1.15]">
+              Three steps. One cup of chai.
+            </h2>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-3 gap-5 relative">
+            {/* Dotted connector on md+ */}
+            <div className="hidden md:block absolute top-10 left-[16%] right-[16%] h-px border-t border-dashed border-white/10 z-0" />
+            {[
+              {
+                step: "01",
+                tag: "Connect",
+                title: "Plug in Tally or Zoho",
+                desc: "Secure OAuth. Auto-sync 3 years of vouchers, ledgers, and bank statements. No CSV, no IT ticket.",
+                time: "5 min",
+                icon: Plug,
+              },
+              {
+                step: "02",
+                tag: "Analyse",
+                title: "AI reads every voucher",
+                desc: "Our agent classifies entries, flags one-time items, and builds your first Adjusted EBITDA schedule.",
+                time: "60 sec",
+                icon: Brain,
+              },
+              {
+                step: "03",
+                tag: "Export",
+                title: "Ship to investors",
+                desc: "Board-ready P&amp;L, balance sheet, QoE report, and strategy memo. Download or share in one click.",
+                time: "Instant",
+                icon: FileText,
+              },
+            ].map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <FadeIn key={s.step} delay={i * 120}>
+                  <div className="relative bg-[#111] border border-white/8 rounded-2xl p-6 hover:border-emerald-500/30 transition-all h-full z-10">
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                        <Icon className="w-5 h-5 text-emerald-400" />
+                      </div>
+                      <span className="text-[10px] font-bold text-white/30 tabular-nums">
+                        {s.step}
+                      </span>
+                    </div>
+                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.15em] mb-2">
+                      {s.tag}
+                    </p>
+                    <h3 className="text-[17px] font-semibold text-white mb-2">
+                      {s.title}
+                    </h3>
+                    <p className="text-[13px] text-white/50 leading-relaxed mb-4">
+                      {s.desc}
+                    </p>
+                    <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                      <CalendarCheck className="w-3 h-3" />
+                      {s.time}
+                    </span>
+                  </div>
+                </FadeIn>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  CONTINUOUS QoE ENGINE / REVIEWING BRAIN                       */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <section className="py-24 px-6 bg-[#0a0a0a] border-t border-white/5">
@@ -554,14 +664,18 @@ export default function LandingPage() {
               <Brain className="w-3.5 h-3.5" />
               The Reviewing Brain
             </p>
-            <h2 className="text-[36px] md:text-[48px] font-serif-heading font-bold leading-[1.1] tracking-tight text-white mb-6">
-              Continuous QoE Engine
+            <h2 className="text-[36px] md:text-[48px] font-serif-heading font-bold leading-[1.1] tracking-tight text-white mb-4">
+              A monthly Quality of Earnings report
             </h2>
+            <p className="text-[14px] text-white/40 mb-6 italic">
+              Quality of Earnings (QoE) = your real operating profit, with one-time
+              items stripped out. It&apos;s the number every investor, lender, and
+              acquirer asks for.
+            </p>
             <p className="text-[17px] text-white/55 leading-relaxed">
-              What a Big-4 advisory firm does once during due diligence, our AI does
-              <span className="text-white"> every single month</span>. We hunt margin
-              leaks, isolate one-time expenses, and build the strategic add-back
-              schedule that makes your business audit-ready and fundable&mdash;always.
+              Big-4 firms charge &#8377;6 Lakh to build this once a year. We build it
+              <span className="text-white"> every month, automatically</span>,
+              so your business stays audit-ready and fundable at all times.
             </p>
           </FadeIn>
 

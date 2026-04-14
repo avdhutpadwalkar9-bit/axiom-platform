@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Minus } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import { FadeIn } from "@/components/Animate";
@@ -11,7 +11,7 @@ const plans = [
     name: "Starter",
     price: "Free",
     period: "forever",
-    desc: "For exploring the platform",
+    desc: "For businesses under \u20B92 Cr revenue",
     features: ["1 file upload", "Basic dashboard", "5 AI questions", "Email support"],
     highlighted: false,
   },
@@ -19,14 +19,15 @@ const plans = [
     name: "Growth",
     price: "\u20B99,999",
     period: "/month",
-    desc: "For funded startups",
+    desc: "For MSMEs at \u20B92\u201350 Cr revenue",
     features: [
-      "Unlimited uploads",
-      "Multi-year analysis",
+      "Unlimited Tally/Zoho syncs",
+      "Continuous QoE engine",
+      "Multi-year Ind AS reports",
       "Unlimited AI chat",
       "Industry benchmarks",
-      "Ind AS compliance",
-      "Priority support",
+      "Monthly growth SOPs",
+      "Priority WhatsApp support",
     ],
     highlighted: true,
   },
@@ -34,12 +35,12 @@ const plans = [
     name: "Enterprise",
     price: "Custom",
     period: "",
-    desc: "For CA firms & PE funds",
+    desc: "For CA firms, PE funds, holdcos",
     features: [
-      "Portfolio dashboards",
+      "Portfolio-level dashboards",
       "Custom AI models",
       "White-label reports",
-      "API access",
+      "API + webhook access",
       "Dedicated CSM",
       "On-premise option",
     ],
@@ -56,32 +57,38 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto">
           <FadeIn className="text-center mb-14">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Pricing</p>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Start free. Scale when ready.</h1>
-            <p className="text-white/40 text-lg">No surprises. No hidden fees. Cancel anytime.</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Replace your &#8377;6 Lakh CA retainer.</h1>
+            <p className="text-white/45 text-lg max-w-xl mx-auto">
+              Flat pricing. No per-seat surprises. Cancel anytime.
+            </p>
           </FadeIn>
 
           <div className="grid md:grid-cols-3 gap-6">
             {plans.map((plan, i) => (
               <FadeIn key={plan.name} delay={i * 80}>
-                <div className={`p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/30 bg-emerald-500/5 glow-border" : "border-white/8 bg-[#111]"}`}>
-                  {plan.highlighted && <p className="text-xs font-semibold text-emerald-400 mb-3">Most popular</p>}
-                  <p className="text-sm text-white/50 mb-1">{plan.name}</p>
+                <div className={`relative p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/40 bg-emerald-500/5 glow-border shadow-xl shadow-emerald-500/10" : "border-white/8 bg-[#111]"}`}>
+                  {plan.highlighted && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg shadow-emerald-500/30">
+                      &#9733; Most popular
+                    </div>
+                  )}
+                  <p className="text-sm text-white/50 mb-1 mt-1">{plan.name}</p>
                   <div className="mb-1">
                     <span className="text-3xl font-bold">{plan.price}</span>
                     <span className="text-sm text-white/30 ml-1">{plan.period}</span>
                   </div>
-                  <p className="text-xs text-white/30 mb-6">{plan.desc}</p>
+                  <p className="text-xs text-white/40 mb-6 min-h-[32px]">{plan.desc}</p>
                   <Link
                     href="/signup"
-                    className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${plan.highlighted ? "bg-emerald-500 text-white hover:bg-emerald-400 btn-magnetic" : "bg-white/5 text-white/70 hover:bg-white/10"}`}
+                    className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${plan.highlighted ? "bg-emerald-500 text-white hover:bg-emerald-400 btn-magnetic" : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10"}`}
                   >
-                    {plan.name === "Enterprise" ? "Contact sales" : "Get started"}
+                    {plan.name === "Enterprise" ? "Contact sales" : plan.name === "Starter" ? "Start free" : "Start 14-day trial"}
                   </Link>
                   <ul className="space-y-2.5">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm text-white/40">
-                        <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                        {f}
+                      <li key={f} className="flex items-start gap-2 text-sm text-white/55">
+                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                        <span>{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -108,21 +115,42 @@ export default function PricingPage() {
                     {[
                       { feature: "File uploads", starter: "1", growth: "Unlimited", enterprise: "Unlimited" },
                       { feature: "AI chat questions", starter: "5", growth: "Unlimited", enterprise: "Unlimited" },
-                      { feature: "Industry benchmarks", starter: "-", growth: "\u2713", enterprise: "\u2713" },
-                      { feature: "Ind AS compliance", starter: "-", growth: "\u2713", enterprise: "\u2713" },
-                      { feature: "Multi-year analysis", starter: "-", growth: "\u2713", enterprise: "\u2713" },
+                      { feature: "Tally / Zoho sync", starter: false, growth: true, enterprise: true },
+                      { feature: "Industry benchmarks", starter: false, growth: true, enterprise: true },
+                      { feature: "Ind AS compliance", starter: false, growth: true, enterprise: true },
+                      { feature: "Multi-year analysis", starter: false, growth: true, enterprise: true },
+                      { feature: "Continuous QoE engine", starter: false, growth: true, enterprise: true },
                       { feature: "Export reports", starter: "CSV", growth: "CSV + PDF", enterprise: "All formats" },
-                      { feature: "API access", starter: "-", growth: "-", enterprise: "\u2713" },
-                      { feature: "White-label", starter: "-", growth: "-", enterprise: "\u2713" },
-                      { feature: "Support", starter: "Email", growth: "Priority", enterprise: "Dedicated CSM" },
-                    ].map((row) => (
-                      <tr key={row.feature} className="border-b border-white/3">
-                        <td className="px-6 py-3 text-white/50">{row.feature}</td>
-                        <td className="text-center px-4 py-3 text-white/30">{row.starter}</td>
-                        <td className="text-center px-4 py-3 text-white/60">{row.growth}</td>
-                        <td className="text-center px-4 py-3 text-white/30">{row.enterprise}</td>
-                      </tr>
-                    ))}
+                      { feature: "API access", starter: false, growth: false, enterprise: true },
+                      { feature: "White-label", starter: false, growth: false, enterprise: true },
+                      { feature: "Support", starter: "Email", growth: "Priority WhatsApp", enterprise: "Dedicated CSM" },
+                    ].map((row) => {
+                      const renderCell = (val: string | boolean, highlight = false) => {
+                        if (val === true) {
+                          return (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                              <Check className={`w-3.5 h-3.5 ${highlight ? "text-emerald-400" : "text-emerald-500"}`} />
+                            </span>
+                          );
+                        }
+                        if (val === false) {
+                          return (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/5 border border-white/10">
+                              <Minus className="w-3.5 h-3.5 text-white/30" />
+                            </span>
+                          );
+                        }
+                        return <span className={highlight ? "text-white font-medium" : "text-white/60"}>{val}</span>;
+                      };
+                      return (
+                        <tr key={row.feature} className="border-b border-white/3">
+                          <td className="px-6 py-3.5 text-white/55">{row.feature}</td>
+                          <td className="text-center px-4 py-3.5">{renderCell(row.starter)}</td>
+                          <td className="text-center px-4 py-3.5 bg-emerald-500/[0.03]">{renderCell(row.growth, true)}</td>
+                          <td className="text-center px-4 py-3.5">{renderCell(row.enterprise)}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

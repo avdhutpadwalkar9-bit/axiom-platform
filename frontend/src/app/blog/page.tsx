@@ -74,40 +74,53 @@ export default function BlogPage() {
           <FadeIn>
             <div className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-emerald-400 text-xs font-medium px-4 py-1.5 rounded-full mb-8">
               <BookOpen className="w-3.5 h-3.5" />
-              From the CortexCFO team
+              Coming soon &mdash; First articles drop April 22
             </div>
             <h1 className="text-4xl md:text-6xl font-bold leading-[1.1] tracking-tight mb-6">
-              Resources & Insights
+              Resources &amp; Insights
             </h1>
-            <p className="text-lg text-white/50 max-w-xl mx-auto">
-              Deep dives into financial analysis, Ind AS compliance, AI in finance, and strategies for growing Indian businesses.
+            <p className="text-lg text-white/50 max-w-xl mx-auto mb-8">
+              Deep dives into financial analysis, Ind AS compliance, AI in finance,
+              and strategies for growing Indian businesses.
             </p>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 bg-emerald-500 text-white px-6 py-3 rounded-xl hover:bg-emerald-400 transition-all text-sm font-semibold shadow-lg shadow-emerald-500/20"
+            >
+              Get notified when we publish
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </FadeIn>
         </div>
       </section>
 
-      {/* ─── Article grid ─── */}
+      {/* ─── Article grid (non-clickable previews) ─── */}
       <section className="px-6 pb-24">
+        <div className="max-w-5xl mx-auto mb-8 text-center">
+          <p className="text-xs font-semibold text-white/40 uppercase tracking-[0.2em]">
+            Upcoming titles
+          </p>
+        </div>
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {articles.map((article, i) => (
             <FadeIn key={i} delay={i * 80}>
-              <Link
-                href="#"
-                className="group block bg-white/[0.02] border border-white/8 rounded-2xl p-6 hover:border-white/15 hover:bg-white/[0.04] transition-all h-full"
-              >
-                <div className="flex items-center justify-between mb-4">
+              <div className="group block bg-white/[0.02] border border-white/8 rounded-2xl p-6 h-full relative overflow-hidden">
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-[#0a0a0a]/50" />
+                <div className="relative flex items-center justify-between mb-4">
                   <span className={`text-xs font-medium px-3 py-1 rounded-full ${article.color}`}>
                     {article.category}
                   </span>
-                  <ArrowRight className="w-4 h-4 text-white/15 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+                  <span className="text-[10px] font-semibold text-white/40 bg-white/5 border border-white/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Coming soon
+                  </span>
                 </div>
-                <h3 className="text-base font-semibold mb-2 group-hover:text-emerald-400 transition-colors leading-snug">
+                <h3 className="relative text-base font-semibold mb-2 leading-snug text-white/80">
                   {article.title}
                 </h3>
-                <p className="text-sm text-white/35 leading-relaxed mb-6">
+                <p className="relative text-sm text-white/35 leading-relaxed mb-6">
                   {article.description}
                 </p>
-                <div className="flex items-center gap-4 text-xs text-white/25 mt-auto">
+                <div className="relative flex items-center gap-4 text-xs text-white/25 mt-auto">
                   <span className="flex items-center gap-1.5">
                     <Clock className="w-3 h-3" />
                     {article.readTime}
@@ -117,7 +130,7 @@ export default function BlogPage() {
                     {article.date}
                   </span>
                 </div>
-              </Link>
+              </div>
             </FadeIn>
           ))}
         </div>

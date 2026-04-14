@@ -87,9 +87,9 @@ export default function SiteFooter() {
             <p className="text-[12px] font-semibold text-white/50 uppercase tracking-wider mb-4">Social</p>
             <ul className="space-y-2.5">
               {[
-                { label: "LinkedIn", href: "https://linkedin.com" },
-                { label: "Twitter / X", href: "https://x.com" },
-                { label: "YouTube", href: "https://youtube.com" },
+                { label: "LinkedIn", href: "https://www.linkedin.com/in/avdhutpadwalkar/" },
+                { label: "Twitter / X", href: "https://x.com/cortexcfo" },
+                { label: "YouTube", href: "https://youtube.com/@cortexcfo" },
               ].map((l) => (
                 <li key={l.label}><a href={l.href} target="_blank" rel="noopener noreferrer" className="text-[13px] text-white/25 hover:text-white/50 transition-colors">{l.label}</a></li>
               ))}
