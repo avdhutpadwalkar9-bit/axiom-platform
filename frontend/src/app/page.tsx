@@ -315,7 +315,7 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f5f3ef] text-[#1a1a1a]">
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
       <SiteNav />
 
       {/* ═══════════════════════════════════════════════════════════════ */}
@@ -332,11 +332,11 @@ export default function LandingPage() {
           >
             {/* G2 badge */}
             <div className="mb-8">
-              <div className="inline-flex items-center gap-2 bg-white border border-black/[0.06] px-3.5 py-1.5 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-[#111] border border-white/8 px-3.5 py-1.5 rounded-full">
                 <div className="w-5 h-5 rounded-full bg-[#ff492c] flex items-center justify-center">
                   <span className="text-white text-[10px] font-bold">G2</span>
                 </div>
-                <span className="text-[13px] font-medium text-[#1a1a1a]">
+                <span className="text-[13px] font-medium text-white">
                   G2.com 4.8/5 stars
                 </span>
               </div>
@@ -345,13 +345,13 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               {/* Left: text content */}
               <div className="pt-4">
-                <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-serif-heading font-bold leading-[1.05] tracking-tight text-[#1a1a1a] mb-8">
+                <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-serif-heading font-bold leading-[1.05] tracking-tight text-white mb-8">
                   Turn complexity
                   <br />
                   into conviction
                 </h1>
 
-                <p className="text-[18px] text-black/50 leading-relaxed max-w-lg mb-8">
+                <p className="text-[18px] text-white/50 leading-relaxed max-w-lg mb-8">
                   Collaborative planning, reporting, and forecasting powered by an
                   agent that knows your model as well as you do.
                 </p>
@@ -365,7 +365,7 @@ export default function LandingPage() {
                 {/* Quote */}
                 <div className="flex items-start gap-3 mt-10">
                   <div className="flex-1">
-                    <p className="text-[15px] text-black/50 italic leading-relaxed">
+                    <p className="text-[15px] text-white/50 italic leading-relaxed">
                       &ldquo;Incredibly flexible and fun finance copilot&rdquo;
                     </p>
                     <a
@@ -389,47 +389,47 @@ export default function LandingPage() {
               >
                 <div className="product-card">
                   {/* Breadcrumb bar */}
-                  <div className="bg-white border-b border-black/[0.04] px-4 py-2.5 flex items-center gap-2 text-[12px] text-black/40">
+                  <div className="bg-[#161616] border-b border-white/5 px-4 py-2.5 flex items-center gap-2 text-[12px] text-white/40">
                     <span>🏠 Overview</span>
                     <ChevronRight className="w-3 h-3" />
-                    <span className="text-black/60 font-medium">
+                    <span className="text-white/60 font-medium">
                       Exec Dashboard
                     </span>
                   </div>
 
-                  <div className="p-5 bg-[#fafaf8]">
+                  <div className="p-5 bg-[#111]">
                     {/* Top Line Header */}
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-[16px] font-semibold text-[#1a1a1a]">
+                      <h3 className="text-[16px] font-semibold text-white">
                         Top Line
                       </h3>
-                      <button className="text-[11px] text-black/30 bg-black/[0.03] px-2 py-1 rounded">
+                      <button className="text-[11px] text-white/30 bg-white/5 px-2 py-1 rounded">
                         %
                       </button>
                     </div>
 
                     {/* Data table */}
-                    <div className="bg-white rounded-xl border border-black/[0.06] overflow-hidden mb-4">
+                    <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden mb-4">
                       <table className="w-full text-[12px]">
                         <thead>
-                          <tr className="border-b border-black/[0.04]">
-                            <th className="text-left py-2.5 px-3 font-medium text-black/40">
+                          <tr className="border-b border-white/5">
+                            <th className="text-left py-2.5 px-3 font-medium text-white/40">
                               Driver
                             </th>
-                            <th className="text-right py-2.5 px-3 font-medium text-black/40">
+                            <th className="text-right py-2.5 px-3 font-medium text-white/40">
                               ✱ Base
                             </th>
-                            <th className="text-right py-2.5 px-3 font-medium text-black/40">
+                            <th className="text-right py-2.5 px-3 font-medium text-white/40">
                               ✱ Dec Close
                             </th>
-                            <th className="text-right py-2.5 px-3 font-medium text-black/40">
+                            <th className="text-right py-2.5 px-3 font-medium text-white/40">
                               Variance
                             </th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="border-b border-black/[0.03]">
-                            <td className="py-2.5 px-3 text-black/60">
+                          <tr className="border-b border-white/5">
+                            <td className="py-2.5 px-3 text-white/60">
                               Months of Runway
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
@@ -442,8 +442,8 @@ export default function LandingPage() {
                               -4
                             </td>
                           </tr>
-                          <tr className="border-b border-black/[0.03]">
-                            <td className="py-2.5 px-3 text-black/60">Burn</td>
+                          <tr className="border-b border-white/5">
+                            <td className="py-2.5 px-3 text-white/60">Burn</td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
                               $1.4M
                             </td>
@@ -454,8 +454,8 @@ export default function LandingPage() {
                               $200K
                             </td>
                           </tr>
-                          <tr className="border-b border-black/[0.03]">
-                            <td className="py-2.5 px-3 text-black/60">
+                          <tr className="border-b border-white/5">
+                            <td className="py-2.5 px-3 text-white/60">
                               Cash Balance
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
@@ -468,8 +468,8 @@ export default function LandingPage() {
                               $2M
                             </td>
                           </tr>
-                          <tr className="border-b border-black/[0.03]">
-                            <td className="py-2.5 px-3 text-black/60">
+                          <tr className="border-b border-white/5">
+                            <td className="py-2.5 px-3 text-white/60">
                               Gross Margin
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
@@ -483,7 +483,7 @@ export default function LandingPage() {
                             </td>
                           </tr>
                           <tr>
-                            <td className="py-2.5 px-3 text-black/60">
+                            <td className="py-2.5 px-3 text-white/60">
                               Operating Margin
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
@@ -498,45 +498,45 @@ export default function LandingPage() {
                           </tr>
                         </tbody>
                       </table>
-                      <div className="px-3 py-2 text-[11px] text-black/25 border-t border-black/[0.03]">
+                      <div className="px-3 py-2 text-[11px] text-white/25 border-t border-white/5">
                         + Add driver
                       </div>
                     </div>
 
                     {/* AI Chat popup */}
-                    <div className="bg-white rounded-xl border border-black/[0.06] p-4 shadow-lg">
+                    <div className="bg-[#111] rounded-xl border border-white/8 p-4 shadow-lg">
                       <div className="flex items-start gap-3 mb-3">
                         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-blue-500 flex items-center justify-center flex-shrink-0">
                           <Sparkles className="w-3.5 h-3.5 text-white" />
                         </div>
                         <div className="flex-1">
-                          <p className="text-[12px] text-black/60 leading-relaxed">
+                          <p className="text-[12px] text-white/60 leading-relaxed">
                             Forecasted 📈 <strong>Burn</strong> for January is up
                             $20k because Revenue is expected to drop $30k.
                           </p>
                         </div>
                       </div>
                       <div className="ml-10">
-                        <div className="inline-block bg-[#f5f3ef] rounded-xl px-3 py-2 text-[12px] text-black/50 mb-3">
+                        <div className="inline-block bg-white/5 rounded-xl px-3 py-2 text-[12px] text-white/50 mb-3">
                           Why is revenue expected to decrease?
                         </div>
                       </div>
-                      <div className="ml-10 flex items-center gap-2 text-[11px] text-black/30">
+                      <div className="ml-10 flex items-center gap-2 text-[11px] text-white/30">
                         <RefreshCw className="w-3 h-3 animate-spin" />
                         <span>Thinking</span>
                       </div>
-                      <div className="mt-3 flex items-center gap-2 border-t border-black/[0.04] pt-3">
+                      <div className="mt-3 flex items-center gap-2 border-t border-white/5 pt-3">
                         <input
                           type="text"
                           placeholder="Ask anything"
-                          className="flex-1 text-[12px] text-black/40 bg-transparent outline-none placeholder:text-black/25"
+                          className="flex-1 text-[12px] text-white/40 bg-transparent outline-none placeholder:text-white/25"
                           readOnly
                         />
                         <div className="flex items-center gap-1.5">
-                          <button className="w-6 h-6 rounded-md bg-black/[0.03] flex items-center justify-center">
-                            <Settings className="w-3 h-3 text-black/30" />
+                          <button className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center">
+                            <Settings className="w-3 h-3 text-white/30" />
                           </button>
-                          <button className="w-6 h-6 rounded-md bg-black flex items-center justify-center">
+                          <button className="w-6 h-6 rounded-md bg-white flex items-center justify-center">
                             <ArrowRight className="w-3 h-3 text-white" />
                           </button>
                         </div>
@@ -553,7 +553,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  FEATURE SHOWCASE (Sticky-style tabs)                          */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-24 px-6 bg-[#0a0a0a]">
         <div className="max-w-[1200px] mx-auto">
           <div className="grid lg:grid-cols-2 gap-16">
             {/* Left: tabs */}
@@ -565,16 +565,16 @@ export default function LandingPage() {
                     onClick={() => setActiveShowcase(i)}
                     className={`w-full text-left p-5 rounded-2xl transition-all duration-300 ${
                       i === activeShowcase
-                        ? "bg-[#f5f3ef]"
-                        : "hover:bg-[#faf9f7]"
+                        ? "bg-white/5"
+                        : "hover:bg-white/5"
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <h3
                         className={`text-[18px] font-semibold transition-colors ${
                           i === activeShowcase
-                            ? "text-[#1a1a1a]"
-                            : "text-black/30"
+                            ? "text-white"
+                            : "text-white/30"
                         }`}
                       >
                         {feature.title}
@@ -587,7 +587,7 @@ export default function LandingPage() {
                     </div>
                     {i === activeShowcase && (
                       <div className="animate-slide-up">
-                        <p className="text-[14px] text-black/50 leading-relaxed mt-2">
+                        <p className="text-[14px] text-white/50 leading-relaxed mt-2">
                           {feature.desc}
                         </p>
                         {feature.cta && (
@@ -610,11 +610,11 @@ export default function LandingPage() {
             <div className="relative">
               <div className="sticky top-24">
                 <div className="product-card">
-                  <div className="bg-[#fafaf8] p-6">
+                  <div className="bg-[#111] p-6">
                     {activeShowcase === 0 && (
                       <div className="animate-scale-in">
                         {/* AI analysis mockup */}
-                        <div className="bg-white rounded-xl border border-black/[0.06] p-4 mb-4">
+                        <div className="bg-[#111] rounded-xl border border-white/8 p-4 mb-4">
                           <div className="flex items-center gap-2 mb-3">
                             <Sparkles className="w-4 h-4 text-violet-500" />
                             <span className="text-[13px] font-semibold">
@@ -622,11 +622,11 @@ export default function LandingPage() {
                             </span>
                           </div>
                           <div className="space-y-2">
-                            <div className="bg-[#f5f3ef] rounded-lg p-3 text-[12px] text-black/60">
+                            <div className="bg-white/5 rounded-lg p-3 text-[12px] text-white/60">
                               Revenue decreased 12% MoM primarily due to 3 enterprise
                               contracts moving to Q2. Pipeline coverage remains strong at 3.2x.
                             </div>
-                            <div className="bg-[#f5f3ef] rounded-lg p-3 text-[12px] text-black/60">
+                            <div className="bg-white/5 rounded-lg p-3 text-[12px] text-white/60">
                               Recommendation: Accelerate mid-market deals to offset enterprise timing risk.
                             </div>
                           </div>
@@ -639,9 +639,9 @@ export default function LandingPage() {
                           ].map((m) => (
                             <div
                               key={m.label}
-                              className="bg-white rounded-xl border border-black/[0.06] p-3"
+                              className="bg-[#111] rounded-xl border border-white/8 p-3"
                             >
-                              <p className="text-[10px] text-black/35 mb-1">
+                              <p className="text-[10px] text-white/35 mb-1">
                                 {m.label}
                               </p>
                               <p className="text-[16px] font-semibold tabular-nums">
@@ -664,12 +664,12 @@ export default function LandingPage() {
                     {activeShowcase === 1 && (
                       <div className="animate-scale-in">
                         {/* Data modeling mockup */}
-                        <div className="bg-white rounded-xl border border-black/[0.06] overflow-hidden">
-                          <div className="px-4 py-3 border-b border-black/[0.04] flex items-center justify-between">
+                        <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+                          <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
                             <span className="text-[13px] font-semibold">
                               Revenue Model
                             </span>
-                            <span className="text-[11px] text-black/30">
+                            <span className="text-[11px] text-white/30">
                               3 dimensions
                             </span>
                           </div>
@@ -683,13 +683,13 @@ export default function LandingPage() {
                             ].map((row) => (
                               <div
                                 key={row.name}
-                                className="flex items-center justify-between py-2 border-b border-black/[0.03]"
+                                className="flex items-center justify-between py-2 border-b border-white/5"
                               >
                                 <div>
                                   <p className="text-[13px] font-medium">
                                     {row.name}
                                   </p>
-                                  <p className="text-[11px] text-black/30 font-mono">
+                                  <p className="text-[11px] text-white/30 font-mono">
                                     {row.formula}
                                   </p>
                                 </div>
@@ -705,7 +705,7 @@ export default function LandingPage() {
                     {activeShowcase === 2 && (
                       <div className="animate-scale-in">
                         {/* Plan testing mockup */}
-                        <div className="bg-white rounded-xl border border-black/[0.06] p-4">
+                        <div className="bg-[#111] rounded-xl border border-white/8 p-4">
                           <div className="flex items-center gap-2 mb-4">
                             <Layers className="w-4 h-4 text-blue-500" />
                             <span className="text-[13px] font-semibold">Plan Comparison</span>
@@ -721,7 +721,7 @@ export default function LandingPage() {
                                 className={`rounded-xl p-3 border ${
                                   p.plan === "Base Case"
                                     ? "border-[#f2a60c]/30 bg-[#f2a60c]/5"
-                                    : "border-black/[0.06]"
+                                    : "border-white/8"
                                 }`}
                               >
                                 <div className="flex items-center justify-between mb-2">
@@ -734,15 +734,15 @@ export default function LandingPage() {
                                 </div>
                                 <div className="grid grid-cols-3 gap-2 text-[11px]">
                                   <div>
-                                    <p className="text-black/30">Revenue</p>
+                                    <p className="text-white/30">Revenue</p>
                                     <p className="font-semibold tabular-nums">{p.revenue}</p>
                                   </div>
                                   <div>
-                                    <p className="text-black/30">Headcount</p>
+                                    <p className="text-white/30">Headcount</p>
                                     <p className="font-semibold tabular-nums">{p.headcount}</p>
                                   </div>
                                   <div>
-                                    <p className="text-black/30">Runway</p>
+                                    <p className="text-white/30">Runway</p>
                                     <p className="font-semibold tabular-nums">{p.runway}</p>
                                   </div>
                                 </div>
@@ -755,7 +755,7 @@ export default function LandingPage() {
                     {activeShowcase === 3 && (
                       <div className="animate-scale-in">
                         {/* Scenarios mockup */}
-                        <div className="bg-white rounded-xl border border-black/[0.06] p-4">
+                        <div className="bg-[#111] rounded-xl border border-white/8 p-4">
                           <div className="flex items-center gap-2 mb-4">
                             <GitBranch className="w-4 h-4 text-purple-500" />
                             <span className="text-[13px] font-semibold">Scenario Builder</span>
@@ -780,15 +780,15 @@ export default function LandingPage() {
                               </div>
                             </div>
                           </div>
-                          <div className="mt-4 p-3 bg-[#faf9f7] rounded-xl">
-                            <p className="text-[11px] text-black/40 mb-2">Impact Preview</p>
+                          <div className="mt-4 p-3 bg-white/5 rounded-xl">
+                            <p className="text-[11px] text-white/40 mb-2">Impact Preview</p>
                             <div className="grid grid-cols-2 gap-2 text-[12px]">
                               <div className="flex justify-between">
-                                <span className="text-black/40">Cash runway</span>
+                                <span className="text-white/40">Cash runway</span>
                                 <span className="font-semibold text-emerald-600">+8 months</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-black/40">Burn rate</span>
+                                <span className="text-white/40">Burn rate</span>
                                 <span className="font-semibold text-emerald-600">-$180K/mo</span>
                               </div>
                             </div>
@@ -810,12 +810,12 @@ export default function LandingPage() {
       <section className="py-24 px-6 bg-[#eae8e3]">
         <div className="max-w-[1200px] mx-auto">
           <FadeIn className="mb-16">
-            <h2 className="text-[42px] md:text-[56px] font-serif-heading font-bold leading-[1.1] tracking-tight text-[#1a1a1a] mb-6">
+            <h2 className="text-[42px] md:text-[56px] font-serif-heading font-bold leading-[1.1] tracking-tight text-white mb-6">
               Act on shared
               <br />
               intuition
             </h2>
-            <p className="text-[16px] text-black/45 max-w-xl leading-relaxed">
+            <p className="text-[16px] text-white/45 max-w-xl leading-relaxed">
               Drive aligned, data-informed decisions with unified inputs from
               other teams, like sales, marketing, and ops.
             </p>
@@ -833,8 +833,8 @@ export default function LandingPage() {
                       onClick={() => setActiveCrossFunc(i)}
                       className={`w-full text-left p-6 rounded-2xl transition-all duration-300 ${
                         i === activeCrossFunc
-                          ? "bg-white shadow-lg"
-                          : "hover:bg-white/50"
+                          ? "bg-white/10 shadow-lg"
+                          : "hover:bg-white/10"
                       }`}
                     >
                       <div className="flex items-center gap-3 mb-2">
@@ -842,14 +842,14 @@ export default function LandingPage() {
                           className={`w-5 h-5 ${
                             i === activeCrossFunc
                               ? "text-[#f2a60c]"
-                              : "text-black/25"
+                              : "text-white/25"
                           }`}
                         />
                         <h3
                           className={`text-[16px] font-semibold ${
                             i === activeCrossFunc
-                              ? "text-[#1a1a1a]"
-                              : "text-black/30"
+                              ? "text-white"
+                              : "text-white/30"
                           }`}
                         >
                           {tab.title}
@@ -857,14 +857,14 @@ export default function LandingPage() {
                       </div>
                       {i === activeCrossFunc && (
                         <div className="animate-slide-up ml-8">
-                          <p className="text-[13px] text-black/45 leading-relaxed mb-3">
+                          <p className="text-[13px] text-white/45 leading-relaxed mb-3">
                             {tab.desc}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {tab.pills.map((pill) => (
                               <span
                                 key={pill}
-                                className="text-[11px] font-medium text-black/40 bg-black/[0.04] px-2.5 py-1 rounded-full"
+                                className="text-[11px] font-medium text-white/40 bg-white/5 px-2.5 py-1 rounded-full"
                               >
                                 {pill}
                               </span>
@@ -882,32 +882,32 @@ export default function LandingPage() {
             <FadeIn delay={200}>
               <div className="sticky top-24">
                 <div className="product-card">
-                  <div className="bg-white border-b border-black/[0.04] px-4 py-2.5 flex items-center gap-3 text-[12px]">
-                    <span className="text-black/30">🔲 Base Scenario ▾</span>
+                  <div className="bg-[#161616] border-b border-white/5 px-4 py-2.5 flex items-center gap-3 text-[12px]">
+                    <span className="text-white/30">🔲 Base Scenario ▾</span>
                   </div>
-                  <div className="bg-white border-b border-black/[0.04] px-4 py-2 flex items-center gap-2 text-[12px] text-black/40">
+                  <div className="bg-[#161616] border-b border-white/5 px-4 py-2 flex items-center gap-2 text-[12px] text-white/40">
                     <span>🏠 Marketing</span>
                     <ChevronRight className="w-3 h-3" />
                     <span>✱ Marketing Dashboard</span>
-                    <span className="text-black/20">|</span>
+                    <span className="text-white/20">|</span>
                     <span>🟠 Hubspot ⟳</span>
                   </div>
-                  <div className="p-5 bg-[#fafaf8]">
+                  <div className="p-5 bg-[#111]">
                     {activeCrossFunc === 0 && (
                       <div className="animate-scale-in space-y-3">
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-white rounded-xl border border-black/[0.06] p-3">
-                            <p className="text-[10px] text-black/30 mb-1">MQLs</p>
+                          <div className="bg-[#111] rounded-xl border border-white/8 p-3">
+                            <p className="text-[10px] text-white/30 mb-1">MQLs</p>
                             <p className="text-[20px] font-bold tabular-nums">648</p>
                           </div>
-                          <div className="bg-white rounded-xl border border-black/[0.06] p-3">
-                            <p className="text-[10px] text-black/30 mb-1">SQLs</p>
+                          <div className="bg-[#111] rounded-xl border border-white/8 p-3">
+                            <p className="text-[10px] text-white/30 mb-1">SQLs</p>
                             <p className="text-[20px] font-bold tabular-nums">182</p>
                           </div>
                         </div>
                         {/* Mini bar chart */}
-                        <div className="bg-white rounded-xl border border-black/[0.06] p-4">
-                          <p className="text-[11px] text-black/30 mb-3">Pipeline by Stage</p>
+                        <div className="bg-[#111] rounded-xl border border-white/8 p-4">
+                          <p className="text-[11px] text-white/30 mb-3">Pipeline by Stage</p>
                           <div className="space-y-2">
                             {[
                               { label: "Discovery", width: "90%", color: "bg-blue-400" },
@@ -917,8 +917,8 @@ export default function LandingPage() {
                               { label: "Closed Won", width: "20%", color: "bg-emerald-500" },
                             ].map((bar) => (
                               <div key={bar.label} className="flex items-center gap-3">
-                                <span className="text-[10px] text-black/35 w-20 text-right">{bar.label}</span>
-                                <div className="flex-1 h-4 bg-black/[0.03] rounded-full overflow-hidden">
+                                <span className="text-[10px] text-white/35 w-20 text-right">{bar.label}</span>
+                                <div className="flex-1 h-4 bg-white/5 rounded-full overflow-hidden">
                                   <div
                                     className={`h-full rounded-full ${bar.color}`}
                                     style={{ width: bar.width }}
@@ -938,14 +938,14 @@ export default function LandingPage() {
                             { label: "CAC", value: "$342" },
                             { label: "ROAS", value: "4.2x" },
                           ].map((m) => (
-                            <div key={m.label} className="bg-white rounded-xl border border-black/[0.06] p-3">
-                              <p className="text-[10px] text-black/30 mb-1">{m.label}</p>
+                            <div key={m.label} className="bg-[#111] rounded-xl border border-white/8 p-3">
+                              <p className="text-[10px] text-white/30 mb-1">{m.label}</p>
                               <p className="text-[18px] font-bold tabular-nums">{m.value}</p>
                             </div>
                           ))}
                         </div>
-                        <div className="bg-white rounded-xl border border-black/[0.06] p-4">
-                          <p className="text-[11px] text-black/30 mb-3">Spend by Channel</p>
+                        <div className="bg-[#111] rounded-xl border border-white/8 p-4">
+                          <p className="text-[11px] text-white/30 mb-3">Spend by Channel</p>
                           <div className="space-y-2">
                             {[
                               { channel: "Google Ads", actual: "$42K", budget: "$45K" },
@@ -953,11 +953,11 @@ export default function LandingPage() {
                               { channel: "LinkedIn", actual: "$28K", budget: "$30K" },
                               { channel: "Content", actual: "$20K", budget: "$18K" },
                             ].map((c) => (
-                              <div key={c.channel} className="flex items-center justify-between py-1.5 border-b border-black/[0.03] text-[12px]">
-                                <span className="text-black/50">{c.channel}</span>
+                              <div key={c.channel} className="flex items-center justify-between py-1.5 border-b border-white/5 text-[12px]">
+                                <span className="text-white/50">{c.channel}</span>
                                 <div className="flex gap-4">
                                   <span className="tabular-nums">{c.actual}</span>
-                                  <span className="text-black/25 tabular-nums">{c.budget}</span>
+                                  <span className="text-white/25 tabular-nums">{c.budget}</span>
                                 </div>
                               </div>
                             ))}
@@ -968,17 +968,17 @@ export default function LandingPage() {
                     {activeCrossFunc === 2 && (
                       <div className="animate-scale-in space-y-3">
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-white rounded-xl border border-black/[0.06] p-3">
-                            <p className="text-[10px] text-black/30 mb-1">Total Headcount</p>
+                          <div className="bg-[#111] rounded-xl border border-white/8 p-3">
+                            <p className="text-[10px] text-white/30 mb-1">Total Headcount</p>
                             <p className="text-[20px] font-bold tabular-nums">48</p>
                           </div>
-                          <div className="bg-white rounded-xl border border-black/[0.06] p-3">
-                            <p className="text-[10px] text-black/30 mb-1">Open Roles</p>
+                          <div className="bg-[#111] rounded-xl border border-white/8 p-3">
+                            <p className="text-[10px] text-white/30 mb-1">Open Roles</p>
                             <p className="text-[20px] font-bold tabular-nums">12</p>
                           </div>
                         </div>
-                        <div className="bg-white rounded-xl border border-black/[0.06] p-4">
-                          <p className="text-[11px] text-black/30 mb-3">Team Breakdown</p>
+                        <div className="bg-[#111] rounded-xl border border-white/8 p-4">
+                          <p className="text-[11px] text-white/30 mb-3">Team Breakdown</p>
                           <div className="space-y-2">
                             {[
                               { team: "Engineering", count: 18, planned: 22 },
@@ -987,12 +987,12 @@ export default function LandingPage() {
                               { team: "Operations", count: 8, planned: 8 },
                               { team: "Finance", count: 4, planned: 4 },
                             ].map((t) => (
-                              <div key={t.team} className="flex items-center justify-between py-1.5 border-b border-black/[0.03] text-[12px]">
-                                <span className="text-black/50">{t.team}</span>
+                              <div key={t.team} className="flex items-center justify-between py-1.5 border-b border-white/5 text-[12px]">
+                                <span className="text-white/50">{t.team}</span>
                                 <div className="flex items-center gap-2">
                                   <span className="tabular-nums font-medium">{t.count}</span>
-                                  <span className="text-black/20">/</span>
-                                  <span className="tabular-nums text-black/30">{t.planned}</span>
+                                  <span className="text-white/20">/</span>
+                                  <span className="tabular-nums text-white/30">{t.planned}</span>
                                 </div>
                               </div>
                             ))}
@@ -1011,7 +1011,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  CLARITY / ALIGNMENT / BOARD MEETING                           */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-24 px-6 bg-[#0a0a0a]">
         <div className="max-w-[1200px] mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -1032,14 +1032,14 @@ export default function LandingPage() {
               },
             ].map((item, i) => (
               <FadeIn key={i} delay={i * 120}>
-                <div className="p-8 rounded-2xl bg-[#faf9f7] border border-black/[0.04] hover:shadow-lg transition-all duration-300 h-full group">
+                <div className="p-8 rounded-2xl bg-white/5 border border-white/5 hover:shadow-lg transition-all duration-300 h-full group">
                   <div className="w-12 h-12 rounded-2xl bg-[#f2a60c]/10 flex items-center justify-center mb-5 group-hover:bg-[#f2a60c]/20 transition-colors">
                     <item.icon className="w-6 h-6 text-[#f2a60c]" />
                   </div>
                   <h3 className="text-[18px] font-semibold mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-[14px] text-black/45 leading-relaxed">
+                  <p className="text-[14px] text-white/45 leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -1052,10 +1052,10 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  REVIEWS SECTION                                               */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section id="reviews" className="py-24 px-6 bg-[#f5f3ef] overflow-hidden">
+      <section id="reviews" className="py-24 px-6 bg-[#0a0a0a]/5 overflow-hidden">
         <div className="max-w-[1200px] mx-auto mb-12">
           <FadeIn>
-            <h2 className="text-[32px] md:text-[40px] font-serif-heading font-bold text-[#1a1a1a] mb-2">
+            <h2 className="text-[32px] md:text-[40px] font-serif-heading font-bold text-white mb-2">
               Honest reviews—The good and the bad
             </h2>
           </FadeIn>
@@ -1068,7 +1068,7 @@ export default function LandingPage() {
               {[...reviews, ...reviews].map((review, i) => (
                 <div
                   key={i}
-                  className="w-[360px] flex-shrink-0 bg-white rounded-2xl p-6 border border-black/[0.04] shadow-sm hover:shadow-md transition-shadow"
+                  className="w-[360px] flex-shrink-0 bg-[#111] rounded-2xl p-6 border border-white/5 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-1.5 mb-3">
                     <Quote className="w-4 h-4 text-[#f2a60c]" />
@@ -1080,10 +1080,10 @@ export default function LandingPage() {
                       {review.positive ? "Positive" : "Constructive"}
                     </span>
                   </div>
-                  <p className="text-[14px] text-black/60 leading-relaxed mb-3">
+                  <p className="text-[14px] text-white/60 leading-relaxed mb-3">
                     &ldquo;{review.quote}&rdquo;
                   </p>
-                  <p className="text-[11px] text-black/30 font-medium">
+                  <p className="text-[11px] text-white/30 font-medium">
                     — {review.source}
                   </p>
                 </div>
@@ -1103,7 +1103,7 @@ export default function LandingPage() {
                 (review, i) => (
                   <div
                     key={i}
-                    className="w-[360px] flex-shrink-0 bg-white rounded-2xl p-6 border border-black/[0.04] shadow-sm hover:shadow-md transition-shadow"
+                    className="w-[360px] flex-shrink-0 bg-[#111] rounded-2xl p-6 border border-white/5 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center gap-1.5 mb-3">
                       <Quote className="w-4 h-4 text-[#f2a60c]" />
@@ -1115,10 +1115,10 @@ export default function LandingPage() {
                         {review.positive ? "Positive" : "Constructive"}
                       </span>
                     </div>
-                    <p className="text-[14px] text-black/60 leading-relaxed mb-3">
+                    <p className="text-[14px] text-white/60 leading-relaxed mb-3">
                       &ldquo;{review.quote}&rdquo;
                     </p>
-                    <p className="text-[11px] text-black/30 font-medium">
+                    <p className="text-[11px] text-white/30 font-medium">
                       — {review.source}
                     </p>
                   </div>
@@ -1132,10 +1132,10 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  FP&A ESSENTIALS GRID                                          */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-white">
+      <section className="py-24 px-6 bg-[#0a0a0a]">
         <div className="max-w-[1200px] mx-auto">
           <FadeIn className="mb-14">
-            <h2 className="text-[32px] md:text-[42px] font-serif-heading font-bold text-[#1a1a1a]">
+            <h2 className="text-[32px] md:text-[42px] font-serif-heading font-bold text-white">
               All the FP&A essentials
             </h2>
           </FadeIn>
@@ -1152,8 +1152,8 @@ export default function LandingPage() {
                       onClick={() => setActiveEssential(i)}
                       className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                         i === activeEssential
-                          ? "bg-[#f5f3ef] text-[#1a1a1a]"
-                          : "text-black/35 hover:text-black/60 hover:bg-black/[0.02]"
+                          ? "bg-[#0a0a0a] text-white"
+                          : "text-white/35 hover:text-white/60 hover:bg-white/5"
                       }`}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0" />
@@ -1194,21 +1194,21 @@ export default function LandingPage() {
                         )}
                     </h3>
                   </div>
-                  <p className="text-[15px] text-black/50 leading-relaxed mb-6">
+                  <p className="text-[15px] text-white/50 leading-relaxed mb-6">
                     {essentialsTabs[activeEssential].desc}
                   </p>
                   {/* Placeholder visual */}
-                  <div className="bg-[#faf9f7] rounded-xl p-6 border border-black/[0.04]">
+                  <div className="bg-white/5 rounded-xl p-6 border border-white/5">
                     <div className="grid grid-cols-3 gap-4 mb-4">
                       {[1, 2, 3].map((j) => (
-                        <div key={j} className="h-12 bg-black/[0.03] rounded-lg animate-pulse" />
+                        <div key={j} className="h-12 bg-white/5 rounded-lg animate-pulse" />
                       ))}
                     </div>
                     <div className="space-y-2">
                       {[1, 2, 3, 4].map((j) => (
                         <div
                           key={j}
-                          className="h-8 bg-black/[0.03] rounded-lg"
+                          className="h-8 bg-white/5 rounded-lg"
                           style={{ width: `${100 - j * 10}%` }}
                         />
                       ))}
@@ -1222,7 +1222,7 @@ export default function LandingPage() {
           {/* CTA */}
           <FadeIn delay={200}>
             <div className="text-center mt-12">
-              <p className="text-[16px] text-black/45 mb-6">
+              <p className="text-[16px] text-white/45 mb-6">
                 Start building a unified model you can trust as the source of
                 truth for planning and forecasting.
               </p>
@@ -1237,13 +1237,13 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  ONBOARDING TIMELINE                                           */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="py-24 px-6 bg-[#f5f3ef]">
+      <section className="py-24 px-6 bg-[#0a0a0a]/5">
         <div className="max-w-[900px] mx-auto">
           <FadeIn className="text-center mb-16">
             <p className="text-[13px] font-semibold text-[#f2a60c] uppercase tracking-wider mb-3">
               Implementation
             </p>
-            <h2 className="text-[32px] md:text-[42px] font-serif-heading font-bold text-[#1a1a1a]">
+            <h2 className="text-[32px] md:text-[42px] font-serif-heading font-bold text-white">
               From signup to strategy in weeks, not months
             </h2>
           </FadeIn>
@@ -1279,12 +1279,12 @@ export default function LandingPage() {
                 <div className="flex gap-8 items-start py-10 relative">
                   {/* Timeline line */}
                   {i < 2 && (
-                    <div className="absolute left-[27px] top-[80px] bottom-0 w-[2px] bg-black/[0.06]" />
+                    <div className="absolute left-[27px] top-[80px] bottom-0 w-[2px] bg-white/8" />
                   )}
 
                   {/* Step number */}
                   <div className="flex-shrink-0">
-                    <div className="w-[56px] h-[56px] rounded-2xl bg-white border border-black/[0.06] flex items-center justify-center shadow-sm relative z-10">
+                    <div className="w-[56px] h-[56px] rounded-2xl bg-[#111] border border-white/8 flex items-center justify-center shadow-sm relative z-10">
                       <span className="text-[14px] font-bold text-[#f2a60c]">
                         {item.step}
                       </span>
@@ -1296,13 +1296,13 @@ export default function LandingPage() {
                     <p className="text-[12px] font-semibold text-[#f2a60c] uppercase tracking-wider mb-1">
                       {item.phase}
                     </p>
-                    <h3 className="text-[20px] font-semibold text-[#1a1a1a] mb-2">
+                    <h3 className="text-[20px] font-semibold text-white mb-2">
                       {item.title}
                     </h3>
-                    <p className="text-[14px] text-black/45 leading-relaxed mb-3">
+                    <p className="text-[14px] text-white/45 leading-relaxed mb-3">
                       {item.desc}
                     </p>
-                    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-black/30 bg-white border border-black/[0.06] px-3 py-1.5 rounded-full">
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-white/30 bg-[#111] border border-white/8 px-3 py-1.5 rounded-full">
                       <CalendarCheck className="w-3 h-3" />
                       {item.timeline}
                     </span>
@@ -1319,7 +1319,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       <Link
         href="/contact"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#f2a60c] text-[#1a1a1a] shadow-lg shadow-[#f2a60c]/20 hover:scale-105 active:scale-95 transition-all text-[13px] font-semibold"
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-[#f2a60c] text-white shadow-lg shadow-[#f2a60c]/20 hover:scale-105 active:scale-95 transition-all text-[13px] font-semibold"
       >
         <MessageSquare className="w-4 h-4" />
         Talk to a Human

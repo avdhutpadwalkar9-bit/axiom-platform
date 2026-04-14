@@ -450,7 +450,7 @@ export default function AnalysisPage() {
               {ai_questions.map((q, i) => {
                 const isAnswered = !!questionAnswers[q.question];
                 return (
-                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/5 border-emerald-500/20" : "bg-white border-white/8"}`}>
+                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/5 border-emerald-500/20" : "bg-[#111] border-white/8"}`}>
                     <div className="flex items-start gap-3">
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAnswered ? "bg-emerald-500/20" : "bg-emerald-500/10"}`}>
                         {isAnswered ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <span className="text-xs font-bold text-emerald-400">{i + 1}</span>}
@@ -606,51 +606,60 @@ export default function AnalysisPage() {
               </button>
             </div>
 
-            {/* Profit & Loss Statement */}
+            {/* Profit & Loss Statement — Runway-style clean table */}
             <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-              <div className="px-6 py-4 border-b border-white/8 bg-white/3">
+              <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-white">Profit &amp; Loss Statement</h3>
+                <span className="text-[10px] text-white/20">Current Period</span>
               </div>
-              <div className="p-6">
-                <table className="w-full text-sm">
-                  <tbody>
-                    <tr className="border-b border-white/5">
-                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Revenue</td>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/5">
+                    <th className="text-left px-6 py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium">Driver</th>
+                    <th className="text-right px-6 py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium">Amount</th>
+                    <th className="text-right px-6 py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium w-32">% of Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white/[0.02]">
+                    <td className="px-6 py-2 text-[10px] text-white/30 uppercase tracking-wider font-semibold" colSpan={3}>Revenue</td>
+                  </tr>
+                  {ca.revenue.map((item, i) => (
+                    <tr key={`rev-${i}`} className="border-b border-white/3 hover:bg-white/[0.02] transition-colors">
+                      <td className="px-6 py-2.5 text-white/60">{item.name}</td>
+                      <td className="px-6 py-2.5 text-right font-medium text-white tabular-nums">{fmt(Math.abs(item.net))}</td>
+                      <td className="px-6 py-2.5 text-right text-white/30 tabular-nums text-xs">{fs.total_revenue > 0 ? ((Math.abs(item.net) / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
                     </tr>
-                    {ca.revenue.map((item, i) => (
-                      <tr key={`rev-${i}`} className="border-b border-white/3">
-                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
-                      </tr>
-                    ))}
-                    <tr className="border-b border-white/8 bg-white/3">
-                      <td className="py-3 font-semibold text-white">Total Revenue</td>
-                      <td className="py-3 text-right font-bold text-white">{fmt(fs.total_revenue)}</td>
-                    </tr>
+                  ))}
+                  <tr className="border-t border-white/10 bg-white/[0.03]">
+                    <td className="px-6 py-3 font-semibold text-white">Total Revenue</td>
+                    <td className="px-6 py-3 text-right font-bold text-white tabular-nums">{fmt(fs.total_revenue)}</td>
+                    <td className="px-6 py-3 text-right text-emerald-400 tabular-nums text-xs">100.0%</td>
+                  </tr>
 
-                    <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="border-b border-white/5">
-                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Expenses</td>
+                  <tr className="bg-white/[0.02]">
+                    <td className="px-6 py-2 text-[10px] text-white/30 uppercase tracking-wider font-semibold" colSpan={3}>Expenses</td>
+                  </tr>
+                  {ca.expenses.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
+                    <tr key={`exp-${i}`} className="border-b border-white/3 hover:bg-white/[0.02] transition-colors">
+                      <td className="px-6 py-2.5 text-white/60">{item.name}</td>
+                      <td className="px-6 py-2.5 text-right font-medium text-white tabular-nums">{fmt(Math.abs(item.net))}</td>
+                      <td className="px-6 py-2.5 text-right text-white/30 tabular-nums text-xs">{fs.total_revenue > 0 ? ((Math.abs(item.net) / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
                     </tr>
-                    {ca.expenses.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
-                      <tr key={`exp-${i}`} className="border-b border-white/3">
-                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
-                      </tr>
-                    ))}
-                    <tr className="border-b border-white/8 bg-white/3">
-                      <td className="py-3 font-semibold text-white">Total Expenses</td>
-                      <td className="py-3 text-right font-bold text-white">{fmt(fs.total_expenses)}</td>
-                    </tr>
+                  ))}
+                  <tr className="border-t border-white/10 bg-white/[0.03]">
+                    <td className="px-6 py-3 font-semibold text-white">Total Expenses</td>
+                    <td className="px-6 py-3 text-right font-bold text-white tabular-nums">{fmt(fs.total_expenses)}</td>
+                    <td className="px-6 py-3 text-right text-red-400 tabular-nums text-xs">{fs.total_revenue > 0 ? ((fs.total_expenses / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
+                  </tr>
 
-                    <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="bg-emerald-500/10 border-t-2 border-emerald-500/20">
-                      <td className="py-4 font-bold text-white text-base">Net Income</td>
-                      <td className={`py-4 text-right font-bold text-base ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-500"}`}>{fmt(fs.net_income)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                  <tr className="border-t-2 border-emerald-500/20 bg-emerald-500/5">
+                    <td className="px-6 py-4 font-bold text-white text-base">Net Income</td>
+                    <td className={`px-6 py-4 text-right font-bold text-base tabular-nums ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fmt(fs.net_income)}</td>
+                    <td className={`px-6 py-4 text-right font-semibold tabular-nums ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fs.total_revenue > 0 ? ((fs.net_income / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
             {/* Balance Sheet */}
