@@ -1,15 +1,38 @@
 """
-AI Service — Connects to Claude API for financial analysis chat.
-Falls back to smart local responses when no API key is configured.
+AI Service — Multi-provider chat for the QoE / financial-analysis advisor.
+
+Provider chain (cost- and latency-aware):
+    claude   — Anthropic Claude Sonnet 4 (primary; highest quality)
+    gemini   — Google Gemini 2.0 Flash (free tier: 15 RPM / 1M TPM / 1500 RPD)
+    groq     — Groq Llama 3.3 70B (free tier: 30 RPM; ~1000 tok/sec)
+
+Dispatch rules:
+    1. If `provider` is specified, try it first.
+    2. Otherwise start with `claude` (or the first provider with a key).
+    3. On any provider error, fall through to the next provider that has
+       a key configured. Each failure is logged with the actual error — we
+       do NOT silently degrade to the local template (that was the bug
+       behind "the AI isn't working" — 400 errors were being swallowed).
+    4. If every remote provider fails, return the local rule-based response.
+
+Why direct httpx calls instead of SDKs: each provider's SDK pins its own
+versions of pydantic, typing-extensions, etc. The REST surface for all
+three is trivial. One dep (httpx, already present) beats three.
 """
 
-import json
-from typing import Optional
+import logging
+from typing import Callable, Optional
+
+import httpx
 
 from app.config import settings
-from app.services.industry_knowledge import get_industry_context, get_industry_profile
+from app.services.industry_knowledge import get_industry_context
 
-# Try importing anthropic
+logger = logging.getLogger(__name__)
+
+# Anthropic SDK is kept for the Claude call because it handles retries,
+# streaming edge cases, and auth header construction. Gemini and Groq go
+# direct over httpx.
 try:
     import anthropic
     HAS_ANTHROPIC = True
@@ -17,12 +40,29 @@ except ImportError:
     HAS_ANTHROPIC = False
 
 
-def get_client():
-    """Get Anthropic client if API key is configured."""
-    api_key = settings.ANTHROPIC_API_KEY
-    if not api_key or not HAS_ANTHROPIC:
+CLAUDE_MODEL = "claude-sonnet-4-20250514"
+GEMINI_MODEL = "gemini-2.0-flash"
+GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# Map the frontend's role vocabulary ("user" | "ai") onto each provider's
+# expected vocabulary. Anthropic and Groq want "assistant"; Gemini wants
+# "model". Passing "ai" through to any of them raises 400 — which is what
+# the old code did, silently.
+_ROLE_FOR_ANTHROPIC = {"user": "user", "ai": "assistant", "assistant": "assistant"}
+_ROLE_FOR_GEMINI = {"user": "user", "ai": "model", "assistant": "model"}
+_ROLE_FOR_GROQ = {"user": "user", "ai": "assistant", "assistant": "assistant"}
+
+
+def _claude_client():
+    """Return a configured Anthropic client, or None if unavailable."""
+    if not settings.ANTHROPIC_API_KEY or not HAS_ANTHROPIC:
         return None
-    return anthropic.Anthropic(api_key=api_key)
+    return anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+
+# Kept for backward compatibility with the old import surface.
+def get_client():
+    return _claude_client()
 
 
 def build_financial_context(analysis_result: dict, business_context: dict = None) -> str:
@@ -140,60 +180,233 @@ WRITING STYLE:
 - Never make up numbers. Only use what is in the data."""
 
 
+# ---------------------------------------------------------------------------
+# Provider adapters. Each returns the assistant's text response, or raises.
+# ---------------------------------------------------------------------------
+
+
+def _normalize_history(
+    history: Optional[list[dict]], role_map: dict[str, str]
+) -> list[dict]:
+    """Translate the frontend's {role, text} messages into the provider's
+    expected {role, content} shape, mapping role names via `role_map`.
+    Unknown roles are skipped rather than passed through (which was the
+    exact bug: role='ai' reached Anthropic and earned a 400)."""
+    out: list[dict] = []
+    if not history:
+        return out
+    for msg in history[-10:]:  # keep last 10 turns, same as before
+        src_role = msg.get("role")
+        mapped = role_map.get(src_role)
+        if not mapped:
+            continue
+        text = msg.get("text") or msg.get("content") or ""
+        if not text:
+            continue
+        out.append({"role": mapped, "content": text})
+    return out
+
+
+def _call_claude(
+    question: str, history: Optional[list[dict]], system_prompt: str
+) -> str:
+    client = _claude_client()
+    if client is None:
+        raise RuntimeError("ANTHROPIC_API_KEY not configured")
+
+    messages = _normalize_history(history, _ROLE_FOR_ANTHROPIC)
+    messages.append({"role": "user", "content": question})
+
+    response = client.messages.create(
+        model=CLAUDE_MODEL,
+        max_tokens=1024,
+        system=system_prompt,
+        messages=messages,
+    )
+    return response.content[0].text
+
+
+async def _call_gemini(
+    question: str, history: Optional[list[dict]], system_prompt: str
+) -> str:
+    api_key = settings.GEMINI_API_KEY
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY not configured")
+
+    # Gemini uses {role: "user"|"model", parts: [{text}]}
+    contents = [
+        {"role": m["role"], "parts": [{"text": m["content"]}]}
+        for m in _normalize_history(history, _ROLE_FOR_GEMINI)
+    ]
+    contents.append({"role": "user", "parts": [{"text": question}]})
+
+    url = (
+        f"https://generativelanguage.googleapis.com/v1beta/models/"
+        f"{GEMINI_MODEL}:generateContent"
+    )
+    payload = {
+        "system_instruction": {"parts": [{"text": system_prompt}]},
+        "contents": contents,
+        "generationConfig": {
+            "maxOutputTokens": 1024,
+            "temperature": 0.3,
+        },
+    }
+
+    async with httpx.AsyncClient(timeout=60.0) as http:
+        r = await http.post(url, params={"key": api_key}, json=payload)
+        r.raise_for_status()
+        data = r.json()
+
+    # Gemini can return an empty candidates array if safety filters trip.
+    candidates = data.get("candidates") or []
+    if not candidates:
+        raise RuntimeError(f"Gemini returned no candidates: {data}")
+    parts = candidates[0].get("content", {}).get("parts") or []
+    if not parts:
+        raise RuntimeError(f"Gemini candidate has no parts: {candidates[0]}")
+    return parts[0].get("text", "")
+
+
+async def _call_groq(
+    question: str, history: Optional[list[dict]], system_prompt: str
+) -> str:
+    api_key = settings.GROQ_API_KEY
+    if not api_key:
+        raise RuntimeError("GROQ_API_KEY not configured")
+
+    # Groq is OpenAI-compatible: {role, content}, with a "system" message first.
+    messages: list[dict] = [{"role": "system", "content": system_prompt}]
+    messages.extend(_normalize_history(history, _ROLE_FOR_GROQ))
+    messages.append({"role": "user", "content": question})
+
+    async with httpx.AsyncClient(timeout=60.0) as http:
+        r = await http.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={"Authorization": f"Bearer {api_key}"},
+            json={
+                "model": GROQ_MODEL,
+                "messages": messages,
+                "max_tokens": 1024,
+                "temperature": 0.3,
+            },
+        )
+        r.raise_for_status()
+        data = r.json()
+
+    choices = data.get("choices") or []
+    if not choices:
+        raise RuntimeError(f"Groq returned no choices: {data}")
+    return choices[0].get("message", {}).get("content", "")
+
+
+# Provider registry. Claude is sync (anthropic SDK does its own IO), Gemini
+# and Groq are async httpx calls — the dispatcher handles both.
+_SYNC_PROVIDERS: dict[str, Callable[[str, Optional[list[dict]], str], str]] = {
+    "claude": _call_claude,
+}
+_ASYNC_PROVIDERS: dict[str, Callable[..., object]] = {
+    "gemini": _call_gemini,
+    "groq": _call_groq,
+}
+
+# Order matters: Claude first (best quality), then free-tier fallbacks.
+DEFAULT_FALLBACK_CHAIN = ["claude", "gemini", "groq"]
+
+
+def _provider_is_configured(name: str) -> bool:
+    if name == "claude":
+        return bool(settings.ANTHROPIC_API_KEY) and HAS_ANTHROPIC
+    if name == "gemini":
+        return bool(settings.GEMINI_API_KEY)
+    if name == "groq":
+        return bool(settings.GROQ_API_KEY)
+    return False
+
+
+async def _invoke_provider(
+    name: str, question: str, history: Optional[list[dict]], system_prompt: str
+) -> str:
+    if name in _SYNC_PROVIDERS:
+        # anthropic SDK is sync; run it in a thread so we don't block the
+        # event loop for the full round-trip.
+        import asyncio
+
+        return await asyncio.to_thread(
+            _SYNC_PROVIDERS[name], question, history, system_prompt
+        )
+    if name in _ASYNC_PROVIDERS:
+        return await _ASYNC_PROVIDERS[name](question, history, system_prompt)
+    raise ValueError(f"Unknown provider: {name}")
+
+
 async def chat_with_ai(
     question: str,
     analysis_result: dict,
     conversation_history: list[dict] = None,
     business_context: dict = None,
     user_answers: dict = None,
+    provider: Optional[str] = None,
 ) -> str:
-    """
-    Chat with AI about the financial analysis.
-    Uses Claude API if available, falls back to smart local responses.
-    """
-    client = get_client()
+    """Send a financial-analysis chat message and return the assistant's text.
 
-    # Build context
+    If `provider` is given, that provider is tried first. On failure (or if
+    not configured), we fall through the chain Claude → Gemini → Groq, and
+    only hit `_local_response` if every remote option is unavailable.
+
+    Every provider error is logged with traceback, so a "why is my AI not
+    working" debug session is one `grep ai_service` away.
+    """
     financial_context = build_financial_context(analysis_result, business_context)
 
-    # Add user answers to context if provided
     if user_answers:
         financial_context += "\n### Management Answers to AI Questions\n"
         for q, a in user_answers.items():
             financial_context += f"Q: {q}\nA: {a}\n\n"
 
-    if client:
-        # Use Claude API
-        messages = []
+    system_prompt = f"{SYSTEM_PROMPT}\n\n{financial_context}"
 
-        # Add conversation history
-        if conversation_history:
-            for msg in conversation_history[-10:]:  # Keep last 10 messages
-                messages.append({
-                    "role": msg["role"],
-                    "content": msg["text"],
-                })
+    # Build the ordered chain: requested provider first, then every other
+    # provider in DEFAULT_FALLBACK_CHAIN. Skip any that aren't configured so
+    # we don't waste a round-trip on a guaranteed failure.
+    chain: list[str] = []
+    if provider and provider in DEFAULT_FALLBACK_CHAIN:
+        chain.append(provider)
+    for p in DEFAULT_FALLBACK_CHAIN:
+        if p not in chain:
+            chain.append(p)
+    chain = [p for p in chain if _provider_is_configured(p)]
 
-        # Add current question
-        messages.append({
-            "role": "user",
-            "content": question,
-        })
-
-        try:
-            response = client.messages.create(
-                model="claude-sonnet-4-20250514",
-                max_tokens=1024,
-                system=f"{SYSTEM_PROMPT}\n\n{financial_context}",
-                messages=messages,
-            )
-            return response.content[0].text
-        except Exception as e:
-            # Fall back to local if API fails
-            return _local_response(question, analysis_result)
-    else:
-        # No API key — use smart local responses
+    if not chain:
+        logger.warning(
+            "No AI provider configured (ANTHROPIC_API_KEY / GEMINI_API_KEY / "
+            "GROQ_API_KEY). Returning local rule-based response."
+        )
         return _local_response(question, analysis_result)
+
+    last_error: Optional[Exception] = None
+    for p in chain:
+        try:
+            text = await _invoke_provider(
+                p, question, conversation_history, system_prompt
+            )
+            if text and text.strip():
+                return text
+            # Empty response — treat as failure, try next provider.
+            raise RuntimeError(f"{p} returned empty response")
+        except Exception as e:
+            last_error = e
+            logger.exception("AI provider %s failed; falling through", p)
+            continue
+
+    # All providers exhausted. Surface the last error in dev; in production
+    # we gracefully fall back to the local rule-based response so the user
+    # still gets *something*.
+    logger.error(
+        "All AI providers failed. Last error: %r. Falling back to local.",
+        last_error,
+    )
+    return _local_response(question, analysis_result)
 
 
 def _local_response(question: str, analysis_result: dict) -> str:

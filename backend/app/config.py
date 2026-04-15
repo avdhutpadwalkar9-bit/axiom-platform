@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     CORS_ORIGINS: list[str] = ["http://localhost:3000", "https://axiom-platform.vercel.app"]
     ANTHROPIC_API_KEY: str = ""
+    # Optional free-tier providers for the chat advisor. When set, Gemini
+    # and Groq act as fallback paths if Claude fails or hits rate limits.
+    # Keys: aistudio.google.com (Gemini), console.groq.com (Groq).
+    GEMINI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
     RESEND_API_KEY: str = ""
     FROM_EMAIL: str = "CortexCFO <onboarding@resend.dev>"
     VERIFICATION_CODE_EXPIRE_MINUTES: int = 10

@@ -19,6 +19,9 @@ class ChatRequest(BaseModel):
     conversation_history: list[ChatMessage] = []
     business_context: dict | None = None
     user_answers: dict | None = None  # Answers to AI questions: {question: answer}
+    # Optional: "claude" | "gemini" | "groq". When omitted, Claude is tried
+    # first with automatic fallback to Gemini and Groq on failure.
+    provider: str | None = None
 
 
 class AnswerQuestionRequest(BaseModel):
@@ -27,6 +30,7 @@ class AnswerQuestionRequest(BaseModel):
     analysis_result: dict
     all_answers: dict = {}  # All previous Q&A pairs
     business_context: dict | None = None
+    provider: str | None = None
 
 
 @router.post("/ask")
@@ -46,6 +50,7 @@ async def ask_ai(
         conversation_history=history,
         business_context=data.business_context,
         user_answers=data.user_answers,
+        provider=data.provider,
     )
 
     return {"response": response}
@@ -80,6 +85,7 @@ Be specific and reference actual numbers from the data."""
         analysis_result=data.analysis_result,
         business_context=data.business_context,
         user_answers=all_answers,
+        provider=data.provider,
     )
 
     return {

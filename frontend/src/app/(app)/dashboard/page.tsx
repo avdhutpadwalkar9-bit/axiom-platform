@@ -171,6 +171,9 @@ export default function DashboardPage() {
   const [chatMessages, setChatMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  // "claude" (default, highest quality) | "gemini" (fast, free tier) | "groq" (fastest).
+  // Backend falls back automatically if the chosen one is unconfigured.
+  const [chatProvider, setChatProvider] = useState<"claude" | "gemini" | "groq">("claude");
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Question answer state
@@ -209,12 +212,17 @@ export default function DashboardPage() {
           analysis_result: lastResult,
           conversation_history: chatMessages.slice(-10),
           user_answers: Object.keys(userAnswers).length > 0 ? userAnswers : undefined,
+          provider: chatProvider,
         }),
       });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
       const data = await res.json();
       setChatMessages((prev) => [...prev, { role: "ai", text: data.response || data.answer || "I couldn't generate a response." }]);
-    } catch {
-      setChatMessages((prev) => [...prev, { role: "ai", text: "Sorry, I couldn't connect to the AI service. Please try again." }]);
+    } catch (err) {
+      const detail = err instanceof Error && err.message ? err.message : "please try again.";
+      setChatMessages((prev) => [...prev, { role: "ai", text: `Sorry, I couldn't reach the AI service — ${detail}` }]);
     } finally {
       setChatLoading(false);
     }
@@ -680,6 +688,31 @@ export default function DashboardPage() {
 
         {/* Input */}
         <div className="border-t border-white/8 p-4">
+          {/* Provider selector — three pills. Claude is default. */}
+          <div className="mb-2 flex items-center gap-1">
+            <span className="text-[10px] font-medium uppercase tracking-widest text-white/30 mr-1">Model</span>
+            {([
+              { id: "claude", label: "Claude", hint: "Anthropic Sonnet 4" },
+              { id: "gemini", label: "Gemini", hint: "Google 2.0 Flash" },
+              { id: "groq", label: "Groq", hint: "Llama 3.3 70B" },
+            ] as const).map((p) => {
+              const active = chatProvider === p.id;
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => setChatProvider(p.id)}
+                  title={p.hint}
+                  className={`text-[11px] font-medium px-2 py-1 rounded-md transition-colors ${
+                    active
+                      ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                      : "text-white/40 border border-white/5 hover:bg-white/5 hover:text-white/70"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+          </div>
           <div className="flex items-center gap-2">
             <input
               value={chatInput}
