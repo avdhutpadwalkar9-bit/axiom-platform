@@ -130,7 +130,7 @@ const showcaseFeatures = [
   {
     tag: null,
     title: "Get growth SOPs, not just dashboards",
-    desc: "Each month, your AI CFO ships a board-ready strategy memo: which dealer to drop, which SKU to push, which expense to renegotiate. Actionable. Ranked. Done.",
+    desc: "Each month, the Reviewing Brain ships a board-ready strategy memo: which dealer to drop, which SKU to push, which expense to renegotiate. Actionable. Ranked. CA-reviewed.",
     cta: null,
     ctaHref: null,
   },
@@ -333,42 +333,48 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               {/* Left: text content */}
               <div className="pt-4">
+                <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-6">
+                  <Sparkles className="w-3 h-3" />
+                  For MSMEs preparing for PE, M&amp;A, or growth capital
+                </div>
+
                 <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-serif-heading font-bold leading-[1.05] tracking-tight text-white mb-6">
-                  Audit-ready financials
+                  The continuous
                   <br />
-                  in 60 seconds.
+                  <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Quality of Earnings</span>
+                  <br />
+                  engine.
                 </h1>
 
                 <p className="text-[18px] text-white/55 leading-relaxed max-w-lg mb-8">
-                  Connect Tally. Get investor-grade P&amp;Ls, QoE reports, and
-                  board memos&mdash;before your chai gets cold.
+                  What Big-4 charges you &#8377;6&ndash;15 Lakh for, every time you raise capital. We ship it every month, for &#8377;25K. Powered by Claude, reviewed by a qualified CA.
                 </p>
 
                 <div className="flex flex-wrap gap-3 mb-6">
                   <Link href="/signup" className="btn-accent">
-                    Start free with Tally
+                    Start your 14-day trial
                   </Link>
                   <Link href="/contact" className="inline-flex items-center gap-2 text-white/70 hover:text-white px-5 py-3 rounded-xl border border-white/10 hover:border-white/20 text-sm font-medium transition-all">
-                    See a 90-second demo
+                    Book a QoE walkthrough
                   </Link>
                 </div>
 
-                <p className="text-[13px] text-white/35 mb-8">
-                  Free forever for businesses under &#8377;2 Cr revenue. No card required.
+                <p className="text-[13px] text-white/35 mb-8 flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  No card required &middot; Tally &amp; Zoho sync in 5 minutes &middot; Every report CA-signed
                 </p>
 
                 {/* Quote */}
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
                     <p className="text-[15px] text-white/55 italic leading-relaxed">
-                      &ldquo;Found &#8377;17 L of margin leakage in month one. Paid for
-                      itself 14&times; over.&rdquo;
+                      &ldquo;The strategic add-back schedule is what saved us in PE diligence. Worth &#8377;2 Cr in valuation alone.&rdquo;
                     </p>
                     <a
                       href="#reviews"
                       className="inline-flex items-center gap-1 text-[13px] text-emerald-400 font-medium mt-2 hover:underline"
                     >
-                      Read the full story
+                      &mdash; Founder, healthcare services chain
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </a>
                   </div>
@@ -557,6 +563,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
             {[
+              { label: "Every report CA-signed", icon: FileText },
               { label: "SOC 2 Type II in progress", icon: Shield },
               { label: "India data residency", icon: Lock },
               { label: "AES-256 + TLS 1.3", icon: Shield },
@@ -588,7 +595,9 @@ export default function LandingPage() {
               How it works
             </p>
             <h2 className="text-[30px] md:text-[38px] font-serif-heading font-bold text-white leading-[1.15]">
-              Three steps. One cup of chai.
+              From Tally to investor-ready,
+              <br />
+              with a CA sign-off.
             </h2>
           </FadeIn>
 
@@ -607,16 +616,16 @@ export default function LandingPage() {
               {
                 step: "02",
                 tag: "Analyse",
-                title: "AI reads every voucher",
-                desc: "Our agent classifies entries, flags one-time items, and builds your first Adjusted EBITDA schedule.",
-                time: "60 sec",
+                title: "AI drafts, CA reviews",
+                desc: "Our Claude-powered agent classifies entries and builds the Adjusted EBITDA schedule. A qualified Indian CA reviews and signs off before you see it.",
+                time: "24&ndash;48 hrs",
                 icon: Brain,
               },
               {
                 step: "03",
                 tag: "Export",
-                title: "Ship to investors",
-                desc: "Board-ready P&amp;L, balance sheet, QoE report, and strategy memo. Download or share in one click.",
+                title: "Ship the CA-signed report",
+                desc: "Board-ready P&amp;L, balance sheet, QoE, and add-back schedule. Every output carries the reviewing CA's name, stamp, and membership number.",
                 time: "Instant",
                 icon: FileText,
               },
@@ -739,8 +748,8 @@ export default function LandingPage() {
                   The old way
                 </p>
                 <p className="text-[14px] text-white/50 leading-relaxed">
-                  Hire a Big-4 firm for &#8377;6&nbsp;Lakh+. Wait 6&ndash;8 weeks.
-                  Get a static QoE deck. Repeat next year.
+                  Hire a Big-4 firm for &#8377;6&ndash;15&nbsp;Lakh. Wait 6&ndash;8 weeks.
+                  Get a static QoE deck. Repeat next funding round.
                 </p>
               </div>
               <div className="md:col-span-1 flex justify-center">
@@ -751,8 +760,8 @@ export default function LandingPage() {
                   CortexCFO
                 </p>
                 <p className="text-[14px] text-white leading-relaxed">
-                  &#8377;10K/month. Live dashboard, refreshed every night, with a
-                  growth SOP delivered to your inbox.
+                  &#8377;25K/month. Continuous QoE engine, CA-signed monthly pack,
+                  and a growth SOP delivered every 30 days.
                 </p>
               </div>
             </div>
@@ -790,7 +799,7 @@ export default function LandingPage() {
                         {feature.title}
                       </h3>
                       {feature.tag && (
-                        <span className="text-[10px] font-bold text-[#f2a60c] bg-[#f2a60c]/10 px-2 py-0.5 rounded-full uppercase">
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full uppercase">
                           {feature.tag}
                         </span>
                       )}
@@ -803,7 +812,7 @@ export default function LandingPage() {
                         {feature.cta && (
                           <Link
                             href={feature.ctaHref || "/contact"}
-                            className="inline-flex items-center gap-1 text-[13px] text-[#f2a60c] font-medium mt-3 hover:underline"
+                            className="inline-flex items-center gap-1 text-[13px] text-emerald-400 font-medium mt-3 hover:underline"
                           >
                             {feature.cta}
                             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -931,14 +940,14 @@ export default function LandingPage() {
                                 key={p.plan}
                                 className={`rounded-xl p-3 border ${
                                   p.plan === "Base Case"
-                                    ? "border-[#f2a60c]/30 bg-[#f2a60c]/5"
+                                    ? "border-emerald-500/30 bg-emerald-500/5"
                                     : "border-white/8"
                                 }`}
                               >
                                 <div className="flex items-center justify-between mb-2">
                                   <span className="text-[13px] font-medium">{p.plan}</span>
                                   {p.plan === "Base Case" && (
-                                    <span className="text-[10px] font-bold text-[#f2a60c] bg-[#f2a60c]/10 px-2 py-0.5 rounded-full">
+                                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
                                       ACTIVE
                                     </span>
                                   )}
@@ -1053,7 +1062,7 @@ export default function LandingPage() {
                         <Icon
                           className={`w-5 h-5 ${
                             i === activeCrossFunc
-                              ? "text-[#f2a60c]"
+                              ? "text-emerald-400"
                               : "text-white/25"
                           }`}
                         />
@@ -1229,24 +1238,24 @@ export default function LandingPage() {
             {[
               {
                 icon: Lightbulb,
-                title: "Replace ₹6 L of consulting",
-                desc: "Get the QoE rigour of a Big-4 advisory firm at a fraction of the cost\u2014every month, not once a year.",
+                title: "Replace ₹6\u201315 L per QoE",
+                desc: "Get the Big-4 diligence rigour every month, not once a year\u2014continuous, CA-signed, at 1/60th the cost.",
               },
               {
                 icon: Shield,
-                title: "Stay investor-ready",
-                desc: "Audit-ready Ind AS books, ranked add-backs, and a defensible adjusted EBITDA story\u2014for any lender, PE, or strategic acquirer.",
+                title: "Walk into diligence ready",
+                desc: "Ind AS-aligned books, ranked add-backs, and a defensible Adjusted EBITDA schedule\u2014before your next term sheet lands.",
               },
               {
                 icon: Star,
                 title: "Win your next board meeting",
-                desc: "Walk in with a board-ready memo and live dashboard. Answer every \u201cwhy\u201d in real time, with the underlying ledger one click away.",
+                desc: "Show up with a CA-signed board pack and a live dashboard. Answer every \u201cwhy\u201d in real time, with the underlying ledger one click away.",
               },
             ].map((item, i) => (
               <FadeIn key={i} delay={i * 120}>
                 <div className="p-8 rounded-2xl bg-white/5 border border-white/5 hover:shadow-lg transition-all duration-300 h-full group">
-                  <div className="w-12 h-12 rounded-2xl bg-[#f2a60c]/10 flex items-center justify-center mb-5 group-hover:bg-[#f2a60c]/20 transition-colors">
-                    <item.icon className="w-6 h-6 text-[#f2a60c]" />
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-5 group-hover:bg-emerald-500/20 transition-colors">
+                    <item.icon className="w-6 h-6 text-emerald-400" />
                   </div>
                   <h3 className="text-[18px] font-semibold mb-2">
                     {item.title}
@@ -1287,7 +1296,7 @@ export default function LandingPage() {
                   className="w-[360px] flex-shrink-0 bg-[#111] rounded-2xl p-6 border border-white/5 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-1.5 mb-3">
-                    <Quote className="w-4 h-4 text-[#f2a60c]" />
+                    <Quote className="w-4 h-4 text-emerald-400" />
                     <span
                       className={`text-[10px] font-semibold uppercase tracking-wider ${
                         review.positive ? "text-emerald-600" : "text-amber-600"
@@ -1322,7 +1331,7 @@ export default function LandingPage() {
                     className="w-[360px] flex-shrink-0 bg-[#111] rounded-2xl p-6 border border-white/5 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div className="flex items-center gap-1.5 mb-3">
-                      <Quote className="w-4 h-4 text-[#f2a60c]" />
+                      <Quote className="w-4 h-4 text-emerald-400" />
                       <span
                         className={`text-[10px] font-semibold uppercase tracking-wider ${
                           review.positive ? "text-emerald-600" : "text-amber-600"
@@ -1382,7 +1391,7 @@ export default function LandingPage() {
                         {tab.title}
                       </span>
                       {"isNew" in tab && tab.isNew && (
-                        <span className="text-[9px] font-bold text-[#f2a60c] bg-[#f2a60c]/10 px-1.5 py-0.5 rounded-full uppercase ml-auto">
+                        <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full uppercase ml-auto">
                           New
                         </span>
                       )}
@@ -1444,12 +1453,12 @@ export default function LandingPage() {
           <FadeIn delay={200}>
             <div className="text-center mt-12">
               <p className="text-[16px] text-white/45 mb-6">
-                Replace your &#8377;6 Lakh annual advisory retainer with a
-                &#8377;10K/month AI CFO that never sleeps&mdash;and ships actionable
-                growth SOPs every month.
+                Replace the &#8377;6&ndash;15 Lakh Big-4 QoE engagement with a
+                &#8377;25K/month continuous review engine&mdash;every report CA-signed,
+                every add-back defensible in diligence.
               </p>
               <Link href="/signup" className="btn-accent">
-                Start free with Tally
+                Start your 14-day trial
               </Link>
             </div>
           </FadeIn>
@@ -1485,16 +1494,16 @@ export default function LandingPage() {
               {
                 step: "02",
                 phase: "Normalise",
-                title: "Reviewing Brain reads everything",
-                desc: "Our agent classifies vouchers, isolates one-time expenses, and ships your first audit-ready P&L, balance sheet, and Adjusted EBITDA report\u2014done before your chai gets cold.",
-                timeline: "Instant",
+                title: "Reviewing Brain drafts, CA reviews",
+                desc: "Our Claude-powered agent classifies vouchers, isolates one-time expenses, and drafts the Ind AS-aligned P&L, balance sheet, and Adjusted EBITDA schedule. A qualified Indian CA then reviews and signs every output before delivery.",
+                timeline: "24\u201348 hrs",
                 icon: Brain,
               },
               {
                 step: "03",
-                phase: "Strategise",
-                title: "Receive monthly growth SOPs",
-                desc: "Every month, your AI CFO ships a board-ready memo: ranked add-backs, working capital actions, and the next strategic move\u2014plus chat-anytime answers.",
+                phase: "Stay ready",
+                title: "Receive monthly CA-signed packs",
+                desc: "Every month, a board-ready memo lands in your inbox: ranked add-backs, working capital actions, the next strategic move\u2014each pack carrying the reviewing CA's name, stamp, and membership number.",
                 timeline: "Ongoing",
                 icon: MessageSquare,
               },
@@ -1509,7 +1518,7 @@ export default function LandingPage() {
                   {/* Step number */}
                   <div className="flex-shrink-0">
                     <div className="w-[56px] h-[56px] rounded-2xl bg-[#111] border border-white/8 flex items-center justify-center shadow-sm relative z-10">
-                      <span className="text-[14px] font-bold text-[#f2a60c]">
+                      <span className="text-[14px] font-bold text-emerald-400">
                         {item.step}
                       </span>
                     </div>
@@ -1517,7 +1526,7 @@ export default function LandingPage() {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <p className="text-[12px] font-semibold text-[#f2a60c] uppercase tracking-wider mb-1">
+                    <p className="text-[12px] font-semibold text-emerald-400 uppercase tracking-wider mb-1">
                       {item.phase}
                     </p>
                     <h3 className="text-[20px] font-semibold text-white mb-2">
@@ -1539,14 +1548,31 @@ export default function LandingPage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════ */}
-      {/*  FLOATING "TALK TO A HUMAN" BUTTON                             */}
+      {/*  ADVISORY DISCLAIMER                                           */}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="px-6 py-10 bg-[#0a0a0a] border-t border-white/5">
+        <FadeIn>
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="text-[12px] text-white/35 leading-relaxed">
+              <span className="text-white/55 font-medium">Advisory, not audit.</span>{" "}
+              CortexCFO produces investor-grade financial analysis reviewed by a qualified
+              Indian Chartered Accountant. Outputs are not a substitute for a statutory
+              audit opinion, Big-4 QoE engagement, or independent legal/tax counsel.
+              All reports are advisory in nature and carry our standard disclaimer and E&amp;O cover.
+            </p>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/*  FLOATING CTA                                                  */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       <Link
         href="/signup"
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:scale-105 hover:bg-emerald-400 active:scale-95 transition-all text-[13px] font-semibold"
       >
         <Plug className="w-4 h-4" />
-        Connect Tally Free
+        Start 14-day trial
       </Link>
 
       <SiteFooter />
