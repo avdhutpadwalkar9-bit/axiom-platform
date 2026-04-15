@@ -46,7 +46,7 @@ export default function OnboardingPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisStatus, setAnalysisStatus] = useState("Preparing your analysis…");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const canProceed = () => {
@@ -78,22 +78,23 @@ export default function OnboardingPage() {
 
   const runAnalysis = async (demo = false) => {
     setLoading(true);
-    setAnalysisProgress(0);
 
-    // Simulated progress
-    const progressSteps = [
-      { pct: 15, label: "Reading your financial data..." },
-      { pct: 30, label: "Classifying accounts..." },
-      { pct: 50, label: "Checking Ind AS compliance..." },
-      { pct: 65, label: `Researching ${business.industry || "your"} industry benchmarks...` },
-      { pct: 80, label: "Generating strategic insights..." },
-      { pct: 95, label: "Preparing your dashboard..." },
+    // Rotate honest status messages while the real request is in flight.
+    // No fake percentage — we show an indeterminate indicator instead.
+    const messages = [
+      "Reading your financial data…",
+      "Classifying accounts by nature…",
+      "Checking Ind AS compliance…",
+      `Researching ${business.industry || "your"} industry benchmarks…`,
+      "Generating strategic insights…",
+      "Still working — larger ledgers take a bit longer…",
     ];
-
-    for (const step of progressSteps) {
-      setAnalysisProgress(step.pct);
-      await new Promise((r) => setTimeout(r, 800));
-    }
+    setAnalysisStatus(messages[0]);
+    let msgIdx = 0;
+    const msgTimer = setInterval(() => {
+      msgIdx = Math.min(msgIdx + 1, messages.length - 1);
+      setAnalysisStatus(messages[msgIdx]);
+    }, 2500);
 
     try {
       const token = localStorage.getItem("access_token");
@@ -144,7 +145,7 @@ export default function OnboardingPage() {
           onboarding_completed: true,
           is_demo_mode: demo,
         });
-        let profileRes = await fetch(`${API_BASE}/api/profile`, {
+        const profileRes = await fetch(`${API_BASE}/api/profile`, {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: profileBody,
@@ -157,16 +158,20 @@ export default function OnboardingPage() {
             body: profileBody,
           });
         }
-      } catch {
-        // Profile save is non-critical
+      } catch (profileErr) {
+        // Profile save is non-blocking, but we log it so it's visible in dev tools.
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("Profile save failed (non-blocking):", profileErr);
+        }
       }
 
-      setAnalysisProgress(100);
+      clearInterval(msgTimer);
+      setAnalysisStatus("Done");
       completeOnboarding();
-      await new Promise((r) => setTimeout(r, 500));
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      clearInterval(msgTimer);
+      setError(err instanceof Error ? err.message : "Something went wrong while analysing your data. Please try again.");
       setStep(2);
     } finally {
       setLoading(false);
@@ -203,14 +208,12 @@ export default function OnboardingPage() {
             Our AI is reviewing your data against Indian accounting standards and generating strategic insights.
           </p>
 
-          {/* Progress bar */}
-          <div className="w-full h-1.5 bg-[#0a0a0a] rounded-full overflow-hidden mb-4">
-            <div
-              className="h-full bg-emerald-500/100 rounded-full transition-all duration-500"
-              style={{ width: `${analysisProgress}%` }}
-            />
+          {/* Indeterminate progress — honest about unknown duration */}
+          <div className="w-full h-1.5 bg-[#0a0a0a] rounded-full overflow-hidden mb-4 relative">
+            <div className="absolute inset-y-0 w-1/3 bg-emerald-500 rounded-full indeterminate-bar" />
           </div>
-          <p className="text-xs text-white/15">{analysisProgress}% complete</p>
+          <p className="text-xs text-white/40" aria-live="polite">{analysisStatus}</p>
+          <p className="text-[11px] text-white/20 mt-2">Usually 10&ndash;30 seconds, longer for larger ledgers.</p>
 
           {error && (
             <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">

@@ -107,7 +107,7 @@ function fmt(value: number, compact = false): string {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
 }
 
-const PIE_COLORS = ["#6366f1", "#8b5cf6", "#a78bfa", "#c4b5fd", "#22c55e", "#14b8a6"];
+const PIE_COLORS = ["#10b981", "#14b8a6", "#22c55e", "#34d399", "#2dd4bf", "#06b6d4"];
 
 export default function AnalysisPage() {
   const { setResult: saveToStore } = useAnalysisStore();
@@ -147,11 +147,12 @@ export default function AnalysisPage() {
           user_answers: questionAnswers,
         }),
       });
-      if (!res.ok) throw new Error("AI request failed");
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setChatMessages(prev => [...prev, { role: "ai", text: data.response }]);
-    } catch {
-      setChatMessages(prev => [...prev, { role: "ai", text: "Sorry, I couldn't process that. Please try again." }]);
+    } catch (err) {
+      const detail = err instanceof Error && err.message ? err.message : "please try again.";
+      setChatMessages(prev => [...prev, { role: "ai", text: `Sorry, I couldn't process that — ${detail}` }]);
     } finally {
       setChatLoading(false);
       setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -175,7 +176,7 @@ export default function AnalysisPage() {
           all_answers: questionAnswers,
         }),
       });
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setQuestionAnswers(data.updated_answers);
       // Show the AI's response to the answer
@@ -186,8 +187,14 @@ export default function AnalysisPage() {
         { role: "ai", text: data.response },
       ]);
       setAnswerInputs(prev => ({ ...prev, [questionIdx]: "" }));
-    } catch {
-      // silent fail
+    } catch (err) {
+      const detail = err instanceof Error && err.message ? err.message : "please try again.";
+      setShowChat(true);
+      setChatMessages(prev => [
+        ...prev,
+        { role: "user", text: `Re: "${questionText.substring(0, 80)}..."\n\nAnswer: ${answer}` },
+        { role: "ai", text: `Sorry, I couldn't record that answer — ${detail}` },
+      ]);
     } finally {
       setChatLoading(false);
     }
@@ -387,7 +394,7 @@ export default function AnalysisPage() {
                       <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={40} paddingAngle={3}>
                         {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
                       </Pie>
-                      <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => fmt(Number(value), true)} />
+                      <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} itemStyle={{ color: "#fff" }} labelStyle={{ color: "#fff" }} formatter={(value) => fmt(Number(value), true)} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -428,8 +435,8 @@ export default function AnalysisPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                     <XAxis type="number" tick={{ fill: "#999", fontSize: 11 }} tickFormatter={(v) => fmt(v, true)} />
                     <YAxis type="category" dataKey="name" tick={{ fill: "#666", fontSize: 11 }} width={160} />
-                    <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => fmt(Number(value))} />
-                    <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} />
+                    <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} itemStyle={{ color: "#fff" }} labelStyle={{ color: "#fff" }} formatter={(value) => fmt(Number(value))} />
+                    <Bar dataKey="value" fill="#10b981" radius={[0, 4, 4, 0]} barSize={20} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

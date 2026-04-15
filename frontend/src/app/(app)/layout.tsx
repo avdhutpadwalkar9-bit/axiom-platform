@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
   BarChart3,
@@ -14,15 +15,17 @@ import {
   User,
   FolderOpen,
   TrendingUp,
+  Loader2,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { api } from "@/lib/api";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: BarChart3 },
   { label: "TB Analysis", href: "/analysis", icon: FileSpreadsheet },
   { label: "Industry Expertise", href: "/industries", icon: TrendingUp },
   { label: "Scenarios", href: "/scenarios", icon: GitBranch },
-  { label: "QoE Center", href: "/qoe", icon: Shield, comingSoon: true },
+  { label: "QoE Center", href: "/qoe", icon: Shield },
   { label: "Integrations", href: "/integrations", icon: Plug },
 ];
 
@@ -34,20 +37,51 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { business, personal } = useOnboardingStore();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      router.replace("/login");
-      return;
+    let cancelled = false;
+
+    async function gate() {
+      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+      if (!token) {
+        router.replace("/login");
+        return;
+      }
+      // Validate the token + enforce email verification via /auth/me.
+      try {
+        const me = await api.getMe();
+        if (cancelled) return;
+        if (!me.is_email_verified) {
+          router.replace("/verify-email");
+          return;
+        }
+        setMounted(true);
+      } catch {
+        if (cancelled) return;
+        // api.request() already redirects on 401; this covers transient errors.
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        router.replace("/login");
+      }
     }
-    setMounted(true);
+
+    gate();
+    return () => {
+      cancelled = true;
+    };
   }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     router.replace("/login");
   };
 
-  if (!mounted) return null;
+  if (!mounted) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-[#0a0a0a] text-white/40">
+        <Loader2 className="w-4 h-4 animate-spin" />
+      </div>
+    );
+  }
 
   const workspaceName = business.companyName || "My Workspace";
   const userName = personal.fullName || "User";
@@ -58,12 +92,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Dark sidebar */}
       <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 bg-[#111]">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2.5 px-5 py-4 hover:opacity-80 transition-opacity">
+        <Link href="/" className="flex items-center gap-2.5 px-5 py-4 hover:opacity-80 transition-opacity">
           <div className="h-7 w-7 rounded-lg bg-emerald-500 flex items-center justify-center">
             <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
           </div>
           <span className="text-[15px] font-semibold tracking-tight text-white">CortexCFO</span>
-        </a>
+        </Link>
 
         {/* Workspace */}
         <div className="mx-4 mb-5">

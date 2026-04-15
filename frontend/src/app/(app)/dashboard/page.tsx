@@ -70,11 +70,11 @@ function getStage(yearFounded: string) {
 /*  Chart colours                                                      */
 /* ------------------------------------------------------------------ */
 const EXPENSE_COLORS = [
-  "#6366f1", "#8b5cf6", "#a78bfa", "#c084fc",
-  "#818cf8", "#7c3aed", "#6d28d9", "#4f46e5",
-  "#4338ca", "#5b21b6",
+  "#10b981", "#14b8a6", "#22c55e", "#06b6d4",
+  "#84cc16", "#0ea5e9", "#34d399", "#2dd4bf",
+  "#4ade80", "#67e8f9",
 ];
-const PIE_COLORS = ["#6366f1", "#ef4444", "#22c55e"];
+const PIE_COLORS = ["#10b981", "#f43f5e", "#22c55e"];
 
 /* ------------------------------------------------------------------ */
 /*  Industry KPI extraction                                            */
@@ -500,7 +500,7 @@ export default function DashboardPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                   <XAxis type="number" tick={{ fill: "#999", fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => fmt(Number(v))} />
                   <YAxis type="category" dataKey="name" tick={{ fill: "#666", fontSize: 10 }} tickLine={false} axisLine={false} width={160} />
-                  <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => [fmt(Number(value)), "Amount"]} />
+                  <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} itemStyle={{ color: "#fff" }} labelStyle={{ color: "#fff" }} formatter={(value) => [fmt(Number(value)), "Amount"]} />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                     {expenseChartData.map((_, i) => (
                       <Cell key={i} fill={EXPENSE_COLORS[i % EXPENSE_COLORS.length]} opacity={0.8} />
@@ -523,7 +523,7 @@ export default function DashboardPage() {
                 <Pie data={bsPieData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
                   {bsPieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} opacity={0.8} />)}
                 </Pie>
-                <Tooltip contentStyle={{ backgroundColor: "white", border: "1px solid #e5e5e5", boxShadow: "0 2px 8px rgba(0,0,0,0.08)", borderRadius: "8px", fontSize: "12px" }} formatter={(value) => [fmt(Number(value)), ""]} />
+                <Tooltip contentStyle={{ backgroundColor: "#0a0a0a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", fontSize: "12px", color: "#fff" }} itemStyle={{ color: "#fff" }} labelStyle={{ color: "#fff" }} formatter={(value) => [fmt(Number(value)), ""]} />
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-2 mt-2">

@@ -1,271 +1,486 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Shield,
+  TrendingUp,
+  TrendingDown,
   AlertTriangle,
   CheckCircle2,
-  Clock,
-  ChevronDown,
-  ChevronRight,
-  FileText,
   Download,
-  Filter,
-  Search,
+  FileText,
+  Sparkles,
+  ArrowUpRight,
+  ChevronRight,
+  Info,
+  BadgeCheck,
 } from "lucide-react";
-import { qoeAdjustments } from "@/lib/dummy-data";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  ReferenceLine,
+} from "recharts";
+import { useAnalysisStore } from "@/stores/analysisStore";
 
-const statusConfig = {
-  flagged: { label: "Flagged", color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/20", icon: AlertTriangle },
-  approved: { label: "Approved", color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20", icon: CheckCircle2 },
-  pending: { label: "Pending", color: "text-blue-400", bg: "bg-blue-400/10", border: "border-blue-400/20", icon: Clock },
-};
-
-function formatINR(value: number) {
-  if (value === 0) return "—";
-  if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
-  if (value >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  return `₹${value}`;
+function fmt(value: number): string {
+  const abs = Math.abs(value);
+  const sign = value < 0 ? "-" : "";
+  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
+  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(2)} L`;
+  if (abs >= 1000) return `${sign}₹${(abs / 1000).toFixed(1)}K`;
+  return `${sign}₹${abs.toFixed(0)}`;
 }
 
+type Status = "approved" | "flagged" | "pending";
+
+interface AddBack {
+  id: string;
+  category: string;
+  description: string;
+  amount: number;
+  rationale: string;
+  status: Status;
+  indAs?: string;
+}
+
+const DEFAULT_ADDBACKS: AddBack[] = [
+  {
+    id: "ab-1",
+    category: "Related-party",
+    description: "Director's remuneration in excess of market",
+    amount: 2400000,
+    rationale: "Benchmarked against comparable roles at similar-size firms (₹18–24 L p.a.); excess is a non-recurring add-back.",
+    status: "approved",
+    indAs: "Ind AS 24",
+  },
+  {
+    id: "ab-2",
+    category: "Related-party",
+    description: "Rent paid to promoter HUF above market rate",
+    amount: 600000,
+    rationale: "Lease is 22% above the independent valuer benchmark for the same locality; excess is normalised.",
+    status: "flagged",
+    indAs: "Ind AS 24",
+  },
+  {
+    id: "ab-3",
+    category: "One-time",
+    description: "Legal & professional fees — IP filings",
+    amount: 1800000,
+    rationale: "IP prosecution costs for three patent applications; will not recur.",
+    status: "approved",
+    indAs: "Ind AS 37",
+  },
+  {
+    id: "ab-4",
+    category: "One-time",
+    description: "Restructuring & severance",
+    amount: 850000,
+    rationale: "Head-count rationalisation in Q3; severance cost is non-recurring.",
+    status: "approved",
+  },
+  {
+    id: "ab-5",
+    category: "Revenue",
+    description: "One-off government grant income",
+    amount: -450000,
+    rationale: "PLI scheme disbursement recognised in this year only; removed from run-rate EBITDA.",
+    status: "approved",
+    indAs: "Ind AS 20",
+  },
+  {
+    id: "ab-6",
+    category: "Accounting",
+    description: "Unbilled revenue reclassification",
+    amount: -320000,
+    rationale: "Service milestones not yet achieved; recognition deferred to match Ind AS 115.",
+    status: "pending",
+    indAs: "Ind AS 115",
+  },
+  {
+    id: "ab-7",
+    category: "Accounting",
+    description: "Excess provision for doubtful debts reversed",
+    amount: 280000,
+    rationale: "Aged receivables recovered post-balance-sheet date; provision was over-stated.",
+    status: "approved",
+    indAs: "Ind AS 109",
+  },
+];
+
+const COMPLIANCE_CHECKS = [
+  { label: "GSTR-3B vs Books (last 12 mo)", status: "ok" as const, detail: "All periods reconciled" },
+  { label: "GSTR-2A / 2B credit match", status: "warn" as const, detail: "₹4.8L blocked on vendor non-compliance" },
+  { label: "TDS deduction — professional fees", status: "warn" as const, detail: "Short deduction of ₹12K in Q3" },
+  { label: "Ind AS 115 revenue cut-off", status: "ok" as const, detail: "Deferred revenue schedule reviewed" },
+  { label: "Ind AS 24 related-party disclosure", status: "ok" as const, detail: "5 parties disclosed, 4 transactions" },
+  { label: "PF / ESI deposits", status: "warn" as const, detail: "Late deposit in Nov 2025; penalty risk low" },
+  { label: "MCA annual filings (MGT-7, AOC-4)", status: "ok" as const, detail: "Filed within due date" },
+  { label: "ROC charges register", status: "ok" as const, detail: "All 3 charges on record" },
+];
+
 export default function QoEPage() {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(qoeAdjustments.map((c) => c.category))
-  );
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { lastResult } = useAnalysisStore();
 
-  const toggleCategory = (cat: string) => {
-    setExpandedCategories((prev) => {
-      const next = new Set(prev);
-      if (next.has(cat)) next.delete(cat);
-      else next.add(cat);
-      return next;
-    });
-  };
+  const derived = useMemo(() => {
+    const fs = lastResult?.financial_statements;
+    if (fs && fs.net_income !== undefined) {
+      return { reported: fs.net_income, isLive: true };
+    }
+    return { reported: 3_850_000, isLive: false };
+  }, [lastResult]);
 
-  const totalFlagged = qoeAdjustments.flatMap((c) => c.items).filter((i) => i.status === "flagged").length;
-  const totalPending = qoeAdjustments.flatMap((c) => c.items).filter((i) => i.status === "pending").length;
-  const totalApproved = qoeAdjustments.flatMap((c) => c.items).filter((i) => i.status === "approved").length;
-  const totalAddbacks = qoeAdjustments
-    .flatMap((c) => c.items)
-    .filter((i) => i.type === "addback" && i.status === "approved")
-    .reduce((sum, i) => sum + Math.abs(i.amount), 0);
+  const totalAddbacks = DEFAULT_ADDBACKS.reduce((s, a) => s + (a.status !== "pending" ? a.amount : 0), 0);
+  const pendingAddbacks = DEFAULT_ADDBACKS.filter((a) => a.status === "pending").reduce((s, a) => s + a.amount, 0);
+  const adjustedEbitda = derived.reported + totalAddbacks;
+
+  const bridgeData = useMemo(() => {
+    const rows: Array<{ name: string; value: number; fill: string; isTotal?: boolean }> = [
+      { name: "Reported EBITDA", value: derived.reported, fill: "#64748b", isTotal: true },
+    ];
+    const categories = ["Related-party", "One-time", "Revenue", "Accounting"];
+    for (const cat of categories) {
+      const catTotal = DEFAULT_ADDBACKS.filter((a) => a.category === cat && a.status !== "pending").reduce((s, a) => s + a.amount, 0);
+      if (catTotal !== 0) {
+        rows.push({
+          name: cat,
+          value: catTotal,
+          fill: catTotal > 0 ? "#10b981" : "#f43f5e",
+        });
+      }
+    }
+    rows.push({ name: "Adjusted EBITDA", value: adjustedEbitda, fill: "#10b981", isTotal: true });
+    return rows;
+  }, [derived.reported, adjustedEbitda]);
+
+  const [expandedCat, setExpandedCat] = useState<string | null>("Related-party");
+
+  const catSummary = useMemo(() => {
+    const map: Record<string, { count: number; amount: number }> = {};
+    for (const a of DEFAULT_ADDBACKS) {
+      map[a.category] = map[a.category] || { count: 0, amount: 0 };
+      map[a.category].count += 1;
+      map[a.category].amount += a.amount;
+    }
+    return map;
+  }, []);
 
   return (
     <div className="p-6 lg:p-8 space-y-6 max-w-[1400px]">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-[#1a1a1a]">Quality of Earnings</h1>
-          <p className="text-sm text-[#999] mt-1">Continuous audit-readiness &middot; Compliance center</p>
+          <div className="flex items-center gap-2 mb-2">
+            <Shield className="w-4 h-4 text-emerald-400" />
+            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">Quality of Earnings</p>
+            <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+              <BadgeCheck className="w-2.5 h-2.5" /> CA-reviewed
+            </span>
+          </div>
+          <h1 className="text-2xl font-bold text-white">Quality of Earnings</h1>
+          <p className="text-sm text-white/40 mt-1">
+            Continuous audit-readiness &middot; Adjusted EBITDA with full add-back schedule &middot; Ind AS aligned
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#fafafa] border border-[#e5e5e5] rounded-lg text-xs text-[#666] hover:bg-white/[0.08] transition-colors">
-            <Download className="w-3 h-3" /> Export Report
+        <div className="flex items-center gap-2">
+          <button className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors">
+            <Download className="w-3.5 h-3.5" /> Excel
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-600 hover:bg-emerald-600/30 transition-colors">
-            <FileText className="w-3 h-3" /> Generate QoE Report
+          <button className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-400 transition-colors">
+            <FileText className="w-3.5 h-3.5" /> Download report (PDF)
           </button>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Items Flagged", value: totalFlagged, icon: AlertTriangle, color: "text-amber-400", bg: "bg-amber-400/10" },
-          { label: "Pending Review", value: totalPending, icon: Clock, color: "text-blue-400", bg: "bg-blue-400/10" },
-          { label: "Approved", value: totalApproved, icon: CheckCircle2, color: "text-emerald-400", bg: "bg-emerald-400/10" },
-          { label: "Approved Add-backs", value: formatINR(totalAddbacks), icon: Shield, color: "text-purple-400", bg: "bg-purple-400/10" },
-        ].map((card) => (
-          <div key={card.label} className="bg-white rounded-xl p-5 border border-[#e5e5e5]">
-            <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center mb-3`}>
-              <card.icon className={`w-4 h-4 ${card.color}`} />
-            </div>
-            <p className="text-xs text-[#999] mb-0.5">{card.label}</p>
-            <p className="text-2xl font-bold text-[#1a1a1a]">{card.value}</p>
+      {!derived.isLive && (
+        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex items-start gap-3">
+          <Info className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 text-sm">
+            <span className="text-amber-200 font-medium">Showing sample QoE workbook.</span>{" "}
+            <span className="text-white/60">
+              Upload a Trial Balance on the{" "}
+              <Link href="/analysis" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">TB Analysis</Link>{" "}
+              page to populate the bridge with your own numbers.
+            </span>
           </div>
-        ))}
+        </div>
+      )}
+
+      {/* KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-[#111] rounded-xl border border-white/8 p-5">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingDown className="w-3.5 h-3.5 text-white/30" />
+            <p className="text-xs text-white/40">Reported EBITDA</p>
+          </div>
+          <p className="text-2xl font-bold text-white tabular-nums">{fmt(derived.reported)}</p>
+          <p className="text-[11px] text-white/30 mt-1">Per books &middot; pre-adjustment</p>
+        </div>
+
+        <div className="bg-emerald-500/5 rounded-xl border border-emerald-500/20 p-5">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+            <p className="text-xs text-emerald-300">Adjusted EBITDA</p>
+          </div>
+          <p className="text-2xl font-bold text-white tabular-nums">{fmt(adjustedEbitda)}</p>
+          <p className="text-[11px] text-emerald-400/70 mt-1">
+            {totalAddbacks >= 0 ? "+" : ""}{fmt(totalAddbacks)} net adjustments
+          </p>
+        </div>
+
+        <div className="bg-[#111] rounded-xl border border-white/8 p-5">
+          <div className="flex items-center gap-2 mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-white/30" />
+            <p className="text-xs text-white/40">Add-backs identified</p>
+          </div>
+          <p className="text-2xl font-bold text-white tabular-nums">{DEFAULT_ADDBACKS.length}</p>
+          <p className="text-[11px] text-white/30 mt-1">
+            {DEFAULT_ADDBACKS.filter((a) => a.status === "approved").length} approved &middot;{" "}
+            {DEFAULT_ADDBACKS.filter((a) => a.status === "pending").length} pending
+          </p>
+        </div>
+
+        <div className="bg-[#111] rounded-xl border border-white/8 p-5">
+          <div className="flex items-center gap-2 mb-1">
+            <AlertTriangle className="w-3.5 h-3.5 text-white/30" />
+            <p className="text-xs text-white/40">Compliance health</p>
+          </div>
+          <p className="text-2xl font-bold text-white tabular-nums">
+            {COMPLIANCE_CHECKS.filter((c) => c.status === "ok").length}
+            <span className="text-white/30 text-base">/{COMPLIANCE_CHECKS.length}</span>
+          </p>
+          <p className="text-[11px] text-white/30 mt-1">
+            {COMPLIANCE_CHECKS.filter((c) => c.status === "warn").length} items need attention
+          </p>
+        </div>
       </div>
 
       {/* EBITDA Bridge */}
-      <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-        <h3 className="text-sm font-semibold text-[#1a1a1a] mb-4">Adjusted EBITDA Bridge</h3>
-        <div className="flex items-center gap-2 overflow-x-auto pb-2">
-          {[
-            { label: "Reported EBITDA", value: "-₹8.5L", color: "bg-gray-600" },
-            { label: "+", value: "", color: "" },
-            { label: "One-time Legal", value: "+₹1.8L", color: "bg-emerald-500/60" },
-            { label: "+", value: "", color: "" },
-            { label: "Founder Comp Adj.", value: "+₹2.4L", color: "bg-emerald-500/60" },
-            { label: "-", value: "", color: "" },
-            { label: "Consulting Rev.", value: "-₹0.45L", color: "bg-red-500/60" },
-            { label: "=", value: "", color: "" },
-            { label: "Adjusted EBITDA", value: "-₹4.8L", color: "bg-emerald-600" },
-          ].map((item, i) => (
-            <div key={i} className="flex items-center gap-2">
-              {item.color ? (
-                <div className={`${item.color} rounded-xl px-5 py-3 text-center min-w-[120px]`}>
-                  <p className="text-[10px] text-[#333] mb-0.5">{item.label}</p>
-                  <p className="text-sm font-bold text-[#1a1a1a]">{item.value}</p>
-                </div>
-              ) : (
-                <span className="text-xl text-[#666] font-light px-1">{item.label}</span>
-              )}
-            </div>
-          ))}
+      <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <h3 className="text-sm font-semibold text-white">EBITDA bridge</h3>
+            <p className="text-xs text-white/40 mt-0.5">Reported → Adjusted, by adjustment category</p>
+          </div>
+          <div className="flex items-center gap-4 text-[11px]">
+            <span className="flex items-center gap-1.5 text-white/50"><span className="w-2.5 h-2.5 rounded-sm bg-slate-500" /> Baseline</span>
+            <span className="flex items-center gap-1.5 text-white/50"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-500" /> Positive</span>
+            <span className="flex items-center gap-1.5 text-white/50"><span className="w-2.5 h-2.5 rounded-sm bg-rose-500" /> Negative</span>
+          </div>
         </div>
+        <ResponsiveContainer width="100%" height={280}>
+          <BarChart data={bridgeData} margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+            <XAxis dataKey="name" tick={{ fill: "#999", fontSize: 11 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fill: "#999", fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => fmt(Number(v))} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "#0a0a0a",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "8px",
+                fontSize: "12px",
+                color: "#fff",
+              }}
+              itemStyle={{ color: "#fff" }}
+              labelStyle={{ color: "#fff" }}
+              formatter={(value) => [fmt(Number(value)), "Impact"]}
+            />
+            <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" />
+            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+              {bridgeData.map((row, i) => (
+                <Cell key={i} fill={row.fill} opacity={0.85} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
-      {/* Filter Bar */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1 bg-white rounded-lg border border-[#e5e5e5] p-1">
-          {["all", "flagged", "pending", "approved"].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setStatusFilter(filter)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all capitalize ${
-                statusFilter === filter
-                  ? "bg-[#f5f5f5] text-[#1a1a1a]"
-                  : "text-[#999] hover:text-[#666]"
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
+      {/* Add-back schedule */}
+      <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <h3 className="text-sm font-semibold text-white">Add-back schedule</h3>
+            <p className="text-xs text-white/40 mt-0.5">
+              Every adjustment, with rationale and Ind AS reference &middot; reviewable line by line
+            </p>
+          </div>
+          {pendingAddbacks !== 0 && (
+            <span className="inline-flex items-center gap-1.5 text-[11px] bg-amber-500/10 border border-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full">
+              <AlertTriangle className="w-3 h-3" />
+              {fmt(pendingAddbacks)} pending review
+            </span>
+          )}
         </div>
-        <div className="flex-1" />
-        <div className="flex items-center gap-2 bg-white rounded-lg border border-[#e5e5e5] px-3 py-1.5">
-          <Search className="w-3 h-3 text-[#999]" />
-          <input
-            type="text"
-            placeholder="Search adjustments..."
-            className="bg-transparent text-xs text-[#666] outline-none w-48 placeholder:text-[#666]"
-          />
-        </div>
-      </div>
 
-      {/* QoE Categories */}
-      <div className="space-y-4">
-        {qoeAdjustments.map((category) => {
-          const isExpanded = expandedCategories.has(category.category);
-          const filteredItems = statusFilter === "all"
-            ? category.items
-            : category.items.filter((i) => i.status === statusFilter);
-
-          if (filteredItems.length === 0) return null;
-
-          return (
-            <div key={category.category} className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
-              <button
-                onClick={() => toggleCategory(category.category)}
-                className="w-full flex items-center justify-between p-5 hover:bg-white transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-[#999]" />
-                  ) : (
-                    <ChevronRight className="w-4 h-4 text-[#999]" />
-                  )}
-                  <h3 className="text-sm font-semibold text-[#1a1a1a]">{category.category}</h3>
-                  <span className="text-xs text-[#999] bg-[#fafafa] rounded-full px-2 py-0.5">
-                    {filteredItems.length} items
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {category.items.filter((i) => i.status === "flagged").length > 0 && (
-                    <span className="flex items-center gap-1 text-xs text-amber-400">
-                      <AlertTriangle className="w-3 h-3" />
-                      {category.items.filter((i) => i.status === "flagged").length} flagged
-                    </span>
-                  )}
-                </div>
-              </button>
-
-              {isExpanded && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="border-t border-[#e5e5e5]"
+        <div className="space-y-2">
+          {Object.entries(catSummary).map(([cat, s]) => {
+            const isOpen = expandedCat === cat;
+            const items = DEFAULT_ADDBACKS.filter((a) => a.category === cat);
+            return (
+              <div key={cat} className="rounded-lg border border-white/8 bg-white/[0.02] overflow-hidden">
+                <button
+                  onClick={() => setExpandedCat(isOpen ? null : cat)}
+                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.03] transition-colors text-left"
                 >
-                  <div className="divide-y divide-white/[0.03]">
-                    {filteredItems.map((item, i) => {
-                      const config = statusConfig[item.status as keyof typeof statusConfig];
-                      const StatusIcon = config.icon;
-                      return (
-                        <div key={i} className="flex items-center gap-4 px-5 py-4 hover:bg-white transition-colors">
-                          <StatusIcon className={`w-4 h-4 flex-shrink-0 ${config.color}`} />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-[#1a1a1a]">{item.description}</p>
-                            <p className="text-xs text-[#999] mt-0.5 capitalize">{item.type}</p>
-                          </div>
-                          <div className="text-right">
-                            {item.amount !== 0 && (
-                              <p className={`text-sm font-medium ${
-                                item.amount > 0 ? "text-amber-400" : "text-emerald-400"
-                              }`}>
-                                {formatINR(Math.abs(item.amount))}
-                              </p>
-                            )}
-                          </div>
-                          <span className={`text-xs px-2.5 py-1 rounded-full ${config.bg} ${config.color} border ${config.border}`}>
-                            {config.label}
-                          </span>
-                        </div>
-                      );
-                    })}
+                  <div className="flex items-center gap-3">
+                    <ChevronRight className={`w-3.5 h-3.5 text-white/30 transition-transform ${isOpen ? "rotate-90" : ""}`} />
+                    <span className="text-sm font-medium text-white">{cat}</span>
+                    <span className="text-[11px] text-white/30">{s.count} items</span>
                   </div>
-                </motion.div>
-              )}
-            </div>
-          );
-        })}
+                  <span className={`text-sm font-semibold tabular-nums ${s.amount > 0 ? "text-emerald-400" : s.amount < 0 ? "text-rose-400" : "text-white/50"}`}>
+                    {s.amount > 0 ? "+" : ""}{fmt(s.amount)}
+                  </span>
+                </button>
+                {isOpen && (
+                  <div className="border-t border-white/5 overflow-x-auto">
+                    <table className="w-full text-sm min-w-[600px]">
+                      <thead>
+                        <tr className="text-[11px] uppercase tracking-wider text-white/30 bg-white/[0.015]">
+                          <th className="text-left px-4 py-2 font-medium">Description</th>
+                          <th className="text-left px-3 py-2 font-medium">Ind AS</th>
+                          <th className="text-right px-3 py-2 font-medium">Amount</th>
+                          <th className="text-center px-3 py-2 font-medium">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {items.map((a) => (
+                          <tr key={a.id} className="border-t border-white/3">
+                            <td className="px-4 py-3 align-top">
+                              <p className="text-white text-sm">{a.description}</p>
+                              <p className="text-[11px] text-white/35 mt-1 leading-relaxed max-w-xl">{a.rationale}</p>
+                            </td>
+                            <td className="px-3 py-3 align-top text-[11px] text-white/50 whitespace-nowrap">{a.indAs ?? "—"}</td>
+                            <td className={`px-3 py-3 align-top text-right tabular-nums font-medium ${a.amount > 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                              {a.amount > 0 ? "+" : ""}{fmt(a.amount)}
+                            </td>
+                            <td className="px-3 py-3 align-top text-center">
+                              <StatusPill status={a.status} />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* GST Health Panel */}
-      <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
-        <div className="flex items-center gap-2 mb-5">
-          <Shield className="w-5 h-5 text-emerald-600" />
-          <h3 className="text-sm font-semibold text-[#1a1a1a]">GST & Tax Compliance Health</h3>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          {[
-            {
-              title: "GST Filing Status",
-              status: "On Track",
-              statusColor: "text-emerald-400",
-              items: ["GSTR-1: Filed (Mar 2026)", "GSTR-3B: Filed (Mar 2026)", "GSTR-9: Due Jun 2026"],
-            },
-            {
-              title: "Input Tax Credit",
-              status: "₹4.8L Blocked",
-              statusColor: "text-amber-400",
-              items: ["3 vendors non-compliant on GSTR-2A", "ITC at risk: ₹4.8L", "Action: Send vendor notices"],
-            },
-            {
-              title: "TDS Compliance",
-              status: "1 Issue",
-              statusColor: "text-amber-400",
-              items: ["TDS filed for Q4 FY26", "Short deduction flagged: ₹12K", "26AS reconciliation: 97% matched"],
-            },
-          ].map((panel) => (
-            <div key={panel.title} className="bg-white rounded-xl p-4 border border-[#e5e5e5]">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-medium text-[#999]">{panel.title}</p>
-                <span className={`text-xs font-medium ${panel.statusColor}`}>{panel.status}</span>
+      {/* Compliance matrix + workflow */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+          <h3 className="text-sm font-semibold text-white mb-1">Compliance &amp; regulatory health</h3>
+          <p className="text-xs text-white/40 mb-5">Continuous GST, TDS and MCA reconciliations</p>
+          <div className="space-y-2.5">
+            {COMPLIANCE_CHECKS.map((c) => (
+              <div key={c.label} className="flex items-start gap-3 p-3 rounded-lg border border-white/5 bg-white/[0.02]">
+                {c.status === "ok" ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white">{c.label}</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">{c.detail}</p>
+                </div>
               </div>
-              <ul className="space-y-2">
-                {panel.items.map((item, i) => (
-                  <li key={i} className="text-xs text-[#999] flex items-start gap-2">
-                    <span className="w-1 h-1 rounded-full bg-gray-600 mt-1.5 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+        <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+          <h3 className="text-sm font-semibold text-white mb-1">Review &amp; sign-off workflow</h3>
+          <p className="text-xs text-white/40 mb-5">Every number traceable to ledger &middot; UDIN captured on export</p>
+
+          <div className="space-y-3">
+            <WorkflowStep step={1} title="AI prepares first draft" detail="Add-back candidates surfaced, rationale drafted, Ind AS tags applied" done />
+            <WorkflowStep step={2} title="Preparer confirms ledger-level tie-out" detail="Each line item back-linked to Tally/Zoho transaction ID" done />
+            <WorkflowStep
+              step={3}
+              title="CA reviews &amp; approves add-backs"
+              detail={`${DEFAULT_ADDBACKS.filter((a) => a.status === "approved").length} approved &middot; ${DEFAULT_ADDBACKS.filter((a) => a.status === "pending").length} pending`}
+              done={false}
+              active
+            />
+            <WorkflowStep step={4} title="UDIN captured, PDF signed" detail="Report exported with CA's UDIN, firm seal, and advisory disclaimer" done={false} />
+          </div>
+
+          <div className="mt-6 pt-5 border-t border-white/5 text-[11px] text-white/40 leading-relaxed">
+            <span className="text-white/60 font-medium">Advisory, not audit.</span> This workbook is produced for
+            internal review and transaction support. It is not a substitute for a statutory audit opinion or a
+            Big-4 QoE engagement.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatusPill({ status }: { status: Status }) {
+  if (status === "approved")
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+        <CheckCircle2 className="w-2.5 h-2.5" /> Approved
+      </span>
+    );
+  if (status === "flagged")
+    return (
+      <span className="inline-flex items-center gap-1 text-[11px] bg-rose-500/10 border border-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full">
+        <AlertTriangle className="w-2.5 h-2.5" /> Flagged
+      </span>
+    );
+  return (
+    <span className="inline-flex items-center gap-1 text-[11px] bg-amber-500/10 border border-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">
+      <Info className="w-2.5 h-2.5" /> Pending
+    </span>
+  );
+}
+
+function WorkflowStep({
+  step,
+  title,
+  detail,
+  done,
+  active,
+}: {
+  step: number;
+  title: string;
+  detail: string;
+  done: boolean;
+  active?: boolean;
+}) {
+  return (
+    <div className={`flex items-start gap-3 p-3 rounded-lg border ${active ? "border-emerald-500/20 bg-emerald-500/5" : "border-white/5 bg-white/[0.02]"}`}>
+      <div
+        className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-semibold ${
+          done
+            ? "bg-emerald-500 text-white"
+            : active
+            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+            : "bg-white/5 text-white/30 border border-white/10"
+        }`}
+      >
+        {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : step}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-white" dangerouslySetInnerHTML={{ __html: title }} />
+          {active && (
+            <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 text-emerald-300 px-1.5 py-0.5 rounded-full">
+              <ArrowUpRight className="w-2.5 h-2.5" /> In progress
+            </span>
+          )}
+        </div>
+        <p className="text-[11px] text-white/40 mt-0.5" dangerouslySetInnerHTML={{ __html: detail }} />
       </div>
     </div>
   );

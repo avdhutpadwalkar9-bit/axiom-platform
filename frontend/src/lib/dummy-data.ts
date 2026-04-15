@@ -38,7 +38,7 @@ export const monthlyRevenue = [
 ];
 
 export const waterfallData = [
-  { name: "Beginning Cash", value: 1637200, fill: "#6366f1" },
+  { name: "Beginning Cash", value: 1637200, fill: "#10b981" },
   { name: "Revenue", value: 124500, fill: "#22c55e" },
   { name: "COGS", value: -34500, fill: "#ef4444" },
   { name: "Salaries", value: -89200, fill: "#ef4444" },
@@ -47,7 +47,7 @@ export const waterfallData = [
   { name: "G&A", value: -22200, fill: "#ef4444" },
   { name: "Other Income", value: 3300, fill: "#22c55e" },
   { name: "Tax Refund", value: 12000, fill: "#22c55e" },
-  { name: "Ending Cash", value: 1552000, fill: "#6366f1" },
+  { name: "Ending Cash", value: 1552000, fill: "#10b981" },
 ];
 
 export const expenseBreakdown = [
@@ -110,7 +110,7 @@ export const scenarioEvents = [
     month: "Jun 2026",
     impact: { burnRate: 21000, revenue: 15000, delay: 3 },
     type: "hiring",
-    color: "#8b5cf6",
+    color: "#10b981",
   },
   {
     id: "evt-2",
@@ -211,11 +211,11 @@ export const integrations = [
   { name: "Zoho Books", logo: "Z", category: "Accounting", status: "available", lastSync: null, color: "#f59e0b" },
   { name: "Razorpay", logo: "R", category: "Payments", status: "connected", lastSync: "5 min ago", color: "#3b82f6" },
   { name: "GSTN Portal", logo: "G", category: "Compliance", status: "connected", lastSync: "1 hour ago", color: "#22c55e" },
-  { name: "ICICI Bank", logo: "I", category: "Banking", status: "connected", lastSync: "30 min ago", color: "#6366f1" },
+  { name: "ICICI Bank", logo: "I", category: "Banking", status: "connected", lastSync: "30 min ago", color: "#f59e0b" },
   { name: "HDFC Bank", logo: "H", category: "Banking", status: "available", lastSync: null, color: "#0ea5e9" },
   { name: "QuickBooks", logo: "Q", category: "Accounting", status: "available", lastSync: null, color: "#22c55e" },
-  { name: "Stripe", logo: "S", category: "Payments", status: "available", lastSync: null, color: "#6366f1" },
-  { name: "Chargebee", logo: "C", category: "Billing", status: "available", lastSync: null, color: "#8b5cf6" },
+  { name: "Stripe", logo: "S", category: "Payments", status: "available", lastSync: null, color: "#6772e5" },
+  { name: "Chargebee", logo: "C", category: "Billing", status: "available", lastSync: null, color: "#ef4444" },
   { name: "Cashfree", logo: "CF", category: "Payments", status: "available", lastSync: null, color: "#10b981" },
   { name: "MCA Portal", logo: "M", category: "Compliance", status: "available", lastSync: null, color: "#f97316" },
   { name: "Income Tax", logo: "IT", category: "Compliance", status: "connected", lastSync: "1 day ago", color: "#14b8a6" },
