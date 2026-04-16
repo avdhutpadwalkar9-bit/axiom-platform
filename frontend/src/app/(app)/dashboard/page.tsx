@@ -477,109 +477,106 @@ export default function DashboardPage() {
           })}
         </div>
 
-        {/* Split row: Key Metrics (left) + Expense Chart (right) */}
-        <div className="grid lg:grid-cols-3 gap-5">
-          {/* Left: Key Metrics — mirrors the "My Wallet" section in the reference */}
-          <FadeIn>
-            <div className="bg-[#111] rounded-2xl p-5 border border-white/5 h-full">
-              <div className="flex items-center justify-between mb-1">
-                <h3 className="text-[15px] font-semibold text-white">Key metrics</h3>
-                <button
-                  onClick={() => router.push("/analysis")}
-                  className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
-                >
-                  + View all
-                </button>
+        {/* Expense Breakdown — full width, squeezes when AI Analyst opens */}
+        <FadeIn delay={100}>
+          <div className="bg-[#111] rounded-2xl p-5 border border-white/5">
+            <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
+              <div>
+                <h3 className="text-[15px] font-semibold text-white">Expense Breakdown</h3>
+                <p className="text-[26px] font-bold text-white mt-1 tracking-tight">{fmt(totalExpenses)}</p>
+                <p className="text-[11px] text-white/30">Top 8 expense heads &middot; current period</p>
               </div>
-              <p className="text-[11px] text-white/30 mb-4">Health check across the four pillars</p>
+              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-[11px] font-medium border border-emerald-500/20">
+                <Calendar className="w-3 h-3" />
+                {formattedDate ? `As of ${formattedDate}` : "Latest period"}
+              </span>
+            </div>
+            {expenseChartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={expenseChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fill: "#666", fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    interval={0}
+                  />
+                  <YAxis
+                    tick={{ fill: "#666", fontSize: 10 }}
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={(v) => fmt(Number(v))}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#0a0a0a",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "10px",
+                      fontSize: "12px",
+                      color: "#fff",
+                    }}
+                    itemStyle={{ color: "#fff" }}
+                    labelStyle={{ color: "#fff" }}
+                    cursor={{ fill: "rgba(16,185,129,0.05)" }}
+                    formatter={(value) => [fmt(Number(value)), "Amount"]}
+                  />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    {expenseChartData.map((_, i) => (
+                      <Cell key={i} fill={EXPENSE_COLORS[i % EXPENSE_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-sm text-white/20 text-center py-16">No expense data available</p>
+            )}
+          </div>
+        </FadeIn>
 
-              <div className="grid grid-cols-2 gap-3">
-                {metrics.map((m) => {
-                  const statusColor =
-                    m.status === "Healthy"
-                      ? "text-emerald-400"
-                      : m.status === "Adequate"
-                      ? "text-amber-400"
-                      : "text-rose-400";
-                  return (
-                    <div
-                      key={m.label}
-                      className="bg-white/3 rounded-xl p-3.5 border border-white/5 hover:border-white/10 transition-colors"
-                    >
-                      <div className="flex items-start justify-between mb-2">
-                        <span className="text-[11px] text-white/50 leading-tight">{m.label}</span>
-                        <MoreVertical className="w-3 h-3 text-white/15" />
-                      </div>
-                      <p className="text-[18px] font-bold text-white leading-none">{m.value}</p>
-                      <p className="text-[10px] text-white/25 mt-1">{m.sub}</p>
-                      <p className={`text-[10px] mt-2 font-medium flex items-center gap-1 ${statusColor}`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                        {m.status}
-                      </p>
+        {/* Key Metrics — full width, 4 tiles side-by-side */}
+        <FadeIn>
+          <div className="bg-[#111] rounded-2xl p-5 border border-white/5">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-[15px] font-semibold text-white">Key metrics</h3>
+              <button
+                onClick={() => router.push("/analysis")}
+                className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
+              >
+                + View all
+              </button>
+            </div>
+            <p className="text-[11px] text-white/30 mb-4">Health check across the four pillars</p>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {metrics.map((m) => {
+                const statusColor =
+                  m.status === "Healthy"
+                    ? "text-emerald-400"
+                    : m.status === "Adequate"
+                    ? "text-amber-400"
+                    : "text-rose-400";
+                return (
+                  <div
+                    key={m.label}
+                    className="bg-white/3 rounded-xl p-3.5 border border-white/5 hover:border-white/10 transition-colors"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <span className="text-[11px] text-white/50 leading-tight">{m.label}</span>
+                      <MoreVertical className="w-3 h-3 text-white/15" />
                     </div>
-                  );
-                })}
-              </div>
+                    <p className="text-[18px] font-bold text-white leading-none">{m.value}</p>
+                    <p className="text-[10px] text-white/25 mt-1">{m.sub}</p>
+                    <p className={`text-[10px] mt-2 font-medium flex items-center gap-1 ${statusColor}`}>
+                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                      {m.status}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
-          </FadeIn>
-
-          {/* Right: Expense Breakdown chart — mirrors the "Cash Flow" block */}
-          <FadeIn delay={100}>
-            <div className="lg:col-span-2 bg-[#111] rounded-2xl p-5 border border-white/5 h-full">
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <h3 className="text-[15px] font-semibold text-white">Expense Breakdown</h3>
-                  <p className="text-[26px] font-bold text-white mt-1 tracking-tight">{fmt(totalExpenses)}</p>
-                  <p className="text-[11px] text-white/30">Top 8 expense heads &middot; current period</p>
-                </div>
-                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-[11px] font-medium border border-emerald-500/20">
-                  <Calendar className="w-3 h-3" />
-                  {formattedDate ? `As of ${formattedDate}` : "Latest period"}
-                </span>
-              </div>
-              {expenseChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={260}>
-                  <BarChart data={expenseChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                    <XAxis
-                      dataKey="name"
-                      tick={{ fill: "#666", fontSize: 10 }}
-                      tickLine={false}
-                      axisLine={false}
-                      interval={0}
-                    />
-                    <YAxis
-                      tick={{ fill: "#666", fontSize: 10 }}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(v) => fmt(Number(v))}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#0a0a0a",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        borderRadius: "10px",
-                        fontSize: "12px",
-                        color: "#fff",
-                      }}
-                      itemStyle={{ color: "#fff" }}
-                      labelStyle={{ color: "#fff" }}
-                      cursor={{ fill: "rgba(16,185,129,0.05)" }}
-                      formatter={(value) => [fmt(Number(value)), "Amount"]}
-                    />
-                    <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                      {expenseChartData.map((_, i) => (
-                        <Cell key={i} fill={EXPENSE_COLORS[i % EXPENSE_COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="text-sm text-white/20 text-center py-16">No expense data available</p>
-              )}
-            </div>
-          </FadeIn>
-        </div>
+          </div>
+        </FadeIn>
 
         {/* Balance Sheet Snapshot */}
         <FadeIn delay={130}>
