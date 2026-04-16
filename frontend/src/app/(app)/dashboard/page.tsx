@@ -370,7 +370,7 @@ export default function DashboardPage() {
     <div className="flex">
       {/* Main content area */}
       <div
-        className={`flex-1 p-6 lg:p-8 space-y-6 max-w-[1400px] transition-all duration-300 ${
+        className={`flex-1 min-w-0 p-6 lg:p-8 space-y-6 transition-all duration-300 ${
           showAnalyst ? "mr-[400px]" : ""
         }`}
       >
