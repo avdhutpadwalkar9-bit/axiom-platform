@@ -196,7 +196,8 @@
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
 }
-.animate-ticker { animation: tickerScroll 30s linear infinite; }
+/* Testimonials ticker — slowed to 60s so visitors can actually read cards. */
+.animate-ticker { animation: tickerScroll 60s linear infinite; }
 
 /* ─── Hover Effects ─── */
 .hover-lift {
@@ -235,6 +236,31 @@
   box-shadow: 0 6px 24px rgba(16, 185, 129, 0.3);
 }
 .btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ─── Accent CTA Button (emerald, for hero + section CTAs) ─── */
+.btn-accent {
+  background: #10b981;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.22);
+}
+.btn-accent:hover {
+  background: #34d399;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(16, 185, 129, 0.32);
+}
+.btn-accent:active {
   transform: translateY(0) scale(0.98);
 }
 

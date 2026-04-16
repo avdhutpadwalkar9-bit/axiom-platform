@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from "react";
 import AIChatBubble from "@/components/AIChatBubble";
+import ModelSelector from "@/components/ModelSelector";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { exportAnalysisPdf } from "@/lib/exportPdf";
@@ -1405,30 +1406,9 @@ export default function AnalysisPage() {
 
             {/* Input */}
             <div className="border-t border-white/8 p-3">
-              {/* Provider selector */}
-              <div className="mb-2 flex items-center gap-1">
-                <span className="text-[10px] font-medium uppercase tracking-widest text-white/30 mr-1">Model</span>
-                {([
-                  { id: "claude", label: "Claude", hint: "Anthropic Sonnet 4" },
-                  { id: "gemini", label: "Gemini", hint: "Google 2.0 Flash" },
-                  { id: "groq", label: "Groq", hint: "Llama 3.3 70B" },
-                ] as const).map((p) => {
-                  const active = chatProvider === p.id;
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => setChatProvider(p.id)}
-                      title={p.hint}
-                      className={`text-[11px] font-medium px-2 py-1 rounded-md transition-colors ${
-                        active
-                          ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                          : "text-white/40 border border-white/5 hover:bg-white/5 hover:text-white/70"
-                      }`}
-                    >
-                      {p.label}
-                    </button>
-                  );
-                })}
+              {/* Provider selector — compact dropdown (Perplexity-style) */}
+              <div className="mb-2">
+                <ModelSelector value={chatProvider} onChange={setChatProvider} />
               </div>
               <div className="flex items-center gap-2">
                 <input

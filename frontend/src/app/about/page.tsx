@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Users, Brain, Shield, Globe, Mail } from "lucide-react";
+import { Users, Brain, Shield, Globe, Mail } from "lucide-react";
 import { FadeIn } from "@/components/Animate";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
@@ -123,7 +123,7 @@ export default function AboutPage() {
                   </div>
                   <div className="flex gap-2">
                     <a
-                      href="https://www.linkedin.com/in/avdhutpadwalkar/"
+                      href="https://www.linkedin.com/in/avdhut09/"
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label="LinkedIn"
@@ -143,24 +143,33 @@ export default function AboutPage() {
 
                 <div>
                   <h3 className="text-2xl font-bold mb-1">Avdhut Padwalkar</h3>
-                  <p className="text-sm text-emerald-400 font-medium mb-5">Founder &amp; CEO</p>
+                  <p className="text-sm text-emerald-400 font-medium mb-5">Founder &amp; CEO, CortexCFO</p>
                   <div className="space-y-3 text-[15px] text-white/55 leading-relaxed">
                     <p>
-                      Avdhut has spent the last decade working with Indian MSMEs on
-                      financial planning, quality of earnings, and M&amp;A readiness.
-                      Across auto-component, FMCG, and specialty-chemical businesses,
-                      the same gap kept showing up: great operators running on messy
-                      books, discovering margin leaks only when a Big-4 firm walked
-                      in for due diligence.
+                      Avdhut is a CA-qualified finance operator and IIM alumnus who
+                      has spent the last decade sitting across the table from Indian
+                      MSME promoters &mdash; at Deloitte on the audit and M&amp;A
+                      side, and at 118kpm Capital on the investor side.
                     </p>
                     <p>
-                      CortexCFO is the tool he wished existed&mdash;a continuous,
-                      AI-native review engine that surfaces what advisors find, every
-                      month, at 1/60th the cost.
+                      Through hundreds of engagements across auto-components, FMCG,
+                      specialty chemicals and B2B services, the same pattern kept
+                      repeating: excellent operators running on messy books,
+                      discovering margin leaks and related-party noise only when a
+                      Big-4 diligence team walked in &mdash; usually during a capital
+                      raise, when it was too late to fix quietly.
+                    </p>
+                    <p>
+                      CortexCFO is the tool he wished existed a decade ago. A
+                      continuous, AI-native review engine that surfaces what
+                      advisors find &mdash; add-backs, Ind AS gaps, working-capital
+                      drift, margin erosion &mdash; every month, at roughly 1/60th
+                      the cost of a traditional QoE engagement, and always signed
+                      off by a qualified CA.
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-6">
-                    {["Ex-Deloitte", "118kpm Capital", "IIM alumnus", "CA-qualified"].map((tag) => (
+                    {["CA-qualified", "IIM alumnus", "Ex-Deloitte audit & M&A", "118kpm Capital", "₹10–50 Cr MSMEs"].map((tag) => (
                       <span
                         key={tag}
                         className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
@@ -178,10 +187,10 @@ export default function AboutPage() {
             <div className="mt-6 bg-white/[0.02] rounded-2xl p-6 border border-white/5">
               <p className="text-[13px] text-white/50 leading-relaxed">
                 <span className="text-emerald-400 font-semibold">Building the team.</span>{" "}
-                We&apos;re hiring founding engineers (Python, TypeScript, LLM evals)
-                and a founding GTM lead.{" "}
-                <Link href="/contact" className="text-emerald-400 hover:underline font-medium">
-                  Get in touch &rarr;
+                We&apos;re hiring founding engineers, CAs and a founding GTM lead to
+                build the financial intelligence layer for Indian MSMEs.{" "}
+                <Link href="/careers" className="text-emerald-400 hover:underline font-medium">
+                  See open roles &rarr;
                 </Link>
               </p>
             </div>
@@ -230,24 +239,6 @@ export default function AboutPage() {
           </div>
         </section>
       </FadeIn>
-
-      {/* CTA */}
-      <section className="py-24 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
-        <FadeIn>
-          <div className="max-w-2xl mx-auto text-center relative z-10">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to get started?
-            </h2>
-            <p className="text-white/40 mb-10">
-              Join the growing community of Indian businesses using AI-powered financial intelligence.
-            </p>
-            <Link href="/signup" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-xl hover:bg-emerald-400 transition-all text-sm font-semibold shadow-lg shadow-emerald-500/20">
-              Start free trial <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </FadeIn>
-      </section>
 
       <SiteFooter />
     </div>

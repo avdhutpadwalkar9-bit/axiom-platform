@@ -23,6 +23,7 @@ from app.services.auth_service import (
     decode_token,
     get_user_by_id,
 )
+from app.services.email_service import send_welcome_email
 from app.services.verification_service import (
     can_resend,
     generate_and_send_code,
@@ -39,8 +40,15 @@ async def signup(data: UserCreate, db: AsyncSession = Depends(get_db)):
     except Exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
-    # Send verification code
+    # Send verification code (gated email)
     await generate_and_send_code(db, user.id, user.email)
+
+    # Fire the welcome/onboarding email alongside the verification code.
+    # Non-fatal — a Resend failure here must not block signup.
+    try:
+        send_welcome_email(user.email, user.name)
+    except Exception as e:  # pragma: no cover — best-effort delivery
+        print(f"[AUTH] Welcome email failed for {user.email}: {e}")
 
     return user
 

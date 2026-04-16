@@ -111,15 +111,19 @@ export default function PricingPage() {
             </div>
           </FadeIn>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 pt-4">
             {plans.map((plan, i) => (
               <FadeIn key={plan.name} delay={i * 80}>
-                <div className={`relative p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/40 bg-emerald-500/5 glow-border shadow-xl shadow-emerald-500/10" : "border-white/8 bg-[#111]"}`}>
+                {/* Relative wrapper lives OUTSIDE card-shine so the "Most popular"
+                    ribbon can sit above the card without being clipped by
+                    card-shine's overflow: hidden. */}
+                <div className="relative h-full">
                   {plan.highlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg shadow-emerald-500/30">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1.5 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg shadow-emerald-500/30 whitespace-nowrap">
                       &#9733; Most popular
                     </div>
                   )}
+                <div className={`relative p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/40 bg-emerald-500/5 glow-border shadow-xl shadow-emerald-500/10" : "border-white/8 bg-[#111]"}`}>
                   <p className="text-sm text-white/50 mb-1 mt-1">{plan.name}</p>
                   <div className="mb-1">
                     <span className="text-3xl font-bold">{plan.price}</span>
@@ -140,6 +144,7 @@ export default function PricingPage() {
                       </li>
                     ))}
                   </ul>
+                </div>
                 </div>
               </FadeIn>
             ))}

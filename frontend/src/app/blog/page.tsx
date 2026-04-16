@@ -136,24 +136,6 @@ export default function BlogPage() {
         </div>
       </section>
 
-      {/* ─── CTA ─── */}
-      <section className="px-6 pb-24">
-        <FadeIn>
-          <div className="max-w-3xl mx-auto text-center bg-white/[0.02] border border-white/8 rounded-2xl p-12">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">Ready to see it in action?</h2>
-            <p className="text-white/40 mb-8 max-w-md mx-auto text-sm">
-              Upload your Trial Balance and get AI-powered financial analysis, Ind AS compliance review, and strategic insights in under 60 seconds.
-            </p>
-            <Link
-              href="/signup"
-              className="inline-flex items-center gap-2 bg-emerald-500 text-white px-7 py-3.5 rounded-xl hover:bg-emerald-400 transition-all text-sm font-semibold shadow-lg shadow-emerald-500/20 hover:shadow-emerald-400/30"
-            >
-              Start free trial <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </FadeIn>
-      </section>
-
       <SiteFooter />
     </div>
   );

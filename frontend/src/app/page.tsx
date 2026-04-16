@@ -227,6 +227,327 @@ const reviews = [
 ];
 
 /* ------------------------------------------------------------------ */
+/*  FP&A Essentials — per-tab mockups                                 */
+/* ------------------------------------------------------------------ */
+function EssentialMockup({ index }: { index: number }) {
+  // Each mockup is a lightweight preview of what that feature produces
+  // in the real product. Same emerald / slate palette as the app.
+  switch (index) {
+    case 0: // Continuous QoE engine — EBITDA bridge + add-backs
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-4">
+          <div className="flex items-center justify-between text-[11px] text-white/40">
+            <span className="font-medium uppercase tracking-wider">EBITDA bridge</span>
+            <span className="text-emerald-400 font-semibold">+₹48.2L adjusted</span>
+          </div>
+          <div className="flex items-end gap-1.5 h-24">
+            {[
+              { label: "Reported", v: 60, color: "bg-slate-500/70" },
+              { label: "Related-party", v: 72, color: "bg-emerald-500/80" },
+              { label: "One-time", v: 80, color: "bg-emerald-500/80" },
+              { label: "Revenue cut-off", v: 86, color: "bg-emerald-500/80" },
+              { label: "Adjusted", v: 92, color: "bg-emerald-400" },
+            ].map((b) => (
+              <div key={b.label} className="flex-1 flex flex-col items-center gap-1">
+                <div className={`w-full ${b.color} rounded-t-sm`} style={{ height: `${b.v}%` }} />
+                <span className="text-[9px] text-white/40 leading-tight text-center">{b.label}</span>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-1.5 pt-2 border-t border-white/5">
+            {[
+              { label: "Promoter car lease", amt: "₹6.8L", tag: "Approved" },
+              { label: "Plant relocation (FY25)", amt: "₹14.4L", tag: "Approved" },
+              { label: "Deferred revenue cut-off", amt: "₹22.1L", tag: "Flagged" },
+            ].map((r) => (
+              <div key={r.label} className="flex items-center justify-between text-[11px]">
+                <span className="text-white/55">{r.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-white tabular-nums">{r.amt}</span>
+                  <span
+                    className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                      r.tag === "Approved"
+                        ? "bg-emerald-500/10 text-emerald-400"
+                        : "bg-amber-500/10 text-amber-400"
+                    }`}
+                  >
+                    {r.tag}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    case 1: // Audit-ready Ind AS books
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
+          <div className="flex items-center gap-2 text-[11px] text-white/40 uppercase tracking-wider font-medium">
+            <span>P&amp;L · year ended 31 Mar 2026</span>
+            <span className="ml-auto text-emerald-400 normal-case tracking-normal text-[10px] font-normal">
+              ✓ Ind AS compliant
+            </span>
+          </div>
+          <div className="space-y-1.5 text-[11px]">
+            {[
+              { label: "Revenue from operations", amt: "12.84 Cr", tag: "Ind AS 115" },
+              { label: "Cost of materials consumed", amt: "(7.12 Cr)", tag: "" },
+              { label: "Employee benefits expense", amt: "(1.94 Cr)", tag: "Ind AS 19" },
+              { label: "Finance costs", amt: "(32.4 L)", tag: "Ind AS 23" },
+              { label: "Depreciation", amt: "(48.6 L)", tag: "Ind AS 16" },
+            ].map((r) => (
+              <div key={r.label} className="flex items-center justify-between">
+                <span className="text-white/55">{r.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-white tabular-nums">₹{r.amt}</span>
+                  {r.tag && (
+                    <span className="text-[9px] text-emerald-400/80 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                      {r.tag}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+            <div className="flex items-center justify-between pt-1.5 border-t border-white/10 font-semibold">
+              <span className="text-white">Profit before tax</span>
+              <span className="text-emerald-400 tabular-nums">₹2.58 Cr</span>
+            </div>
+          </div>
+        </div>
+      );
+    case 2: // Strategic scenario planning
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
+          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+            <span>Scenario comparison</span>
+            <span className="text-emerald-400 normal-case tracking-normal text-[10px]">3 models</span>
+          </div>
+          {[
+            { name: "Base case", ebitda: "₹2.58 Cr", cash: "₹88L", tone: "slate" },
+            { name: "New plant (Kolhapur)", ebitda: "₹3.24 Cr", cash: "-₹1.2 Cr", tone: "amber" },
+            { name: "Drop bottom-20 dealers", ebitda: "₹2.94 Cr", cash: "₹1.4 Cr", tone: "emerald" },
+          ].map((s) => (
+            <div key={s.name} className="bg-white/3 rounded-lg p-3 border border-white/5">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[12px] text-white font-medium">{s.name}</span>
+                <span
+                  className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                    s.tone === "emerald"
+                      ? "bg-emerald-500/10 text-emerald-400"
+                      : s.tone === "amber"
+                      ? "bg-amber-500/10 text-amber-400"
+                      : "bg-white/5 text-white/50"
+                  }`}
+                >
+                  {s.tone === "emerald" ? "Recommended" : s.tone === "amber" ? "Cash-negative" : "Baseline"}
+                </span>
+              </div>
+              <div className="flex items-center gap-4 text-[10px]">
+                <span className="text-white/40">
+                  EBITDA <span className="text-white tabular-nums ml-1">{s.ebitda}</span>
+                </span>
+                <span className="text-white/40">
+                  Cash <span className="text-white tabular-nums ml-1">{s.cash}</span>
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    case 3: // Common-size & ratio benchmarking
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
+          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+            <span>You vs. peers · auto-component</span>
+            <span className="text-emerald-400 normal-case tracking-normal text-[10px]">MSME ₹10–50 Cr</span>
+          </div>
+          {[
+            { label: "Gross margin", you: 32, peer: 28, unit: "%" },
+            { label: "EBITDA margin", you: 18, peer: 14, unit: "%" },
+            { label: "Working capital days", you: 86, peer: 62, unit: "d", inverse: true },
+            { label: "Interest coverage", you: 4.2, peer: 5.8, unit: "x", inverse: true },
+          ].map((r) => {
+            const winning = r.inverse ? r.you < r.peer : r.you > r.peer;
+            return (
+              <div key={r.label} className="space-y-1">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="text-white/55">{r.label}</span>
+                  <div className="flex items-center gap-3 tabular-nums">
+                    <span className={winning ? "text-emerald-400 font-semibold" : "text-amber-400 font-semibold"}>
+                      {r.you}{r.unit}
+                    </span>
+                    <span className="text-white/30">
+                      {r.peer}{r.unit}
+                    </span>
+                  </div>
+                </div>
+                <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full ${winning ? "bg-emerald-500" : "bg-amber-500"}`}
+                    style={{ width: `${Math.min(100, (r.you / Math.max(r.you, r.peer)) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      );
+    case 4: // Working capital intelligence
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: "DSO", value: "54d", delta: "+6d" },
+              { label: "DPO", value: "42d", delta: "-3d" },
+              { label: "DIO", value: "74d", delta: "+12d" },
+            ].map((k) => (
+              <div key={k.label} className="bg-white/3 border border-white/5 rounded-lg p-2.5">
+                <p className="text-[9px] text-white/40 uppercase tracking-wider">{k.label}</p>
+                <p className="text-[18px] font-bold text-white tabular-nums">{k.value}</p>
+                <p className="text-[10px] text-amber-400 tabular-nums">{k.delta}</p>
+              </div>
+            ))}
+          </div>
+          <div className="bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
+            <p className="text-[11px] text-amber-300 font-medium mb-0.5">₹42L trapped in working capital</p>
+            <p className="text-[10px] text-white/50 leading-relaxed">
+              Receivables from top-3 dealers aged &gt;90 days. Recommended action: tighten credit terms or factor.
+            </p>
+          </div>
+        </div>
+      );
+    case 5: // Cash-flow forecasting
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
+          <div className="flex items-center justify-between text-[11px]">
+            <span className="text-white/40 font-medium uppercase tracking-wider">13-week cash forecast</span>
+            <span className="text-amber-400 text-[10px] normal-case tracking-normal">Shortfall W-9</span>
+          </div>
+          <div className="flex items-end gap-1 h-24">
+            {[78, 82, 76, 88, 84, 72, 68, 64, 48, 58, 66, 72, 80].map((h, i) => (
+              <div
+                key={i}
+                className={`flex-1 rounded-t-sm ${i === 8 ? "bg-amber-500" : "bg-emerald-500/70"}`}
+                style={{ height: `${h}%` }}
+              />
+            ))}
+          </div>
+          <div className="flex items-center justify-between text-[10px] text-white/40">
+            <span>W-1</span>
+            <span>W-7</span>
+            <span>W-13</span>
+          </div>
+        </div>
+      );
+    case 6: // Variance analysis
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-2">
+          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider mb-1">
+            <span>Top variances · vs. budget</span>
+            <span className="text-emerald-400 normal-case tracking-normal text-[10px]">5 flagged</span>
+          </div>
+          {[
+            { name: "SKU-042 margin erosion", delta: "-8.4%", neg: true },
+            { name: "Power &amp; fuel over-billing", delta: "+₹2.1L", neg: true },
+            { name: "Freight vs. budget", delta: "+12%", neg: true },
+            { name: "Dealer incentive (South)", delta: "+₹3.8L", neg: true },
+            { name: "Raw material price (HDPE)", delta: "-4.2%", neg: false },
+          ].map((v) => (
+            <div key={v.name} className="flex items-center justify-between text-[11px] py-1 border-b border-white/5 last:border-0">
+              <span className="text-white/60" dangerouslySetInnerHTML={{ __html: v.name }} />
+              <span className={`tabular-nums font-semibold ${v.neg ? "text-rose-400" : "text-emerald-400"}`}>
+                {v.delta}
+              </span>
+            </div>
+          ))}
+        </div>
+      );
+    case 7: // Monthly close in one click
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-2.5">
+          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+            <span>Close checklist · Mar 2026</span>
+            <span className="text-emerald-400 normal-case tracking-normal text-[10px]">8 / 8 complete</span>
+          </div>
+          {[
+            "Bank reconciliation (ICICI, HDFC)",
+            "Vendor invoice matching",
+            "GSTR-2B credit reconciliation",
+            "TDS certificate matching",
+            "Intercompany eliminations",
+            "Accruals &amp; prepayments roll-forward",
+            "Inventory valuation (moving-avg)",
+            "Management pack ready",
+          ].map((task) => (
+            <div key={task} className="flex items-center gap-2 text-[11px]">
+              <div className="w-4 h-4 rounded-md bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                <Check className="w-2.5 h-2.5 text-emerald-400" />
+              </div>
+              <span className="text-white/60" dangerouslySetInnerHTML={{ __html: task }} />
+            </div>
+          ))}
+        </div>
+      );
+    case 8: // Growth SOPs, not dashboards
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
+          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+            <span>Strategy memo · April 2026</span>
+            <span className="text-emerald-400 normal-case tracking-normal text-[10px]">3 actions</span>
+          </div>
+          {[
+            { rank: 1, action: "Drop dealers D17, D24, D31", impact: "+₹18L EBITDA", horizon: "60 days" },
+            { rank: 2, action: "Push SKU-021 in North region", impact: "+₹11L gross margin", horizon: "90 days" },
+            { rank: 3, action: "Renegotiate power contract", impact: "+₹6L/quarter", horizon: "45 days" },
+          ].map((m) => (
+            <div key={m.rank} className="bg-white/3 border border-white/5 rounded-lg p-3 flex items-start gap-3">
+              <div className="w-6 h-6 rounded-md bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center flex-shrink-0 text-[11px] font-bold text-emerald-400">
+                {m.rank}
+              </div>
+              <div className="flex-1">
+                <p className="text-[12px] text-white font-medium leading-tight">{m.action}</p>
+                <div className="flex items-center gap-3 mt-1 text-[10px]">
+                  <span className="text-emerald-400 tabular-nums font-semibold">{m.impact}</span>
+                  <span className="text-white/40">{m.horizon}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    case 9: // Native Tally + Zoho integrations
+      return (
+        <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
+          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+            <span>Connected feeds</span>
+            <span className="text-emerald-400 normal-case tracking-normal text-[10px]">6 live</span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { name: "Tally Prime", status: "live" },
+              { name: "Zoho Books", status: "live" },
+              { name: "ICICI Bank", status: "live" },
+              { name: "HDFC Bank", status: "live" },
+              { name: "GSTN", status: "live" },
+              { name: "Razorpay", status: "live" },
+            ].map((i) => (
+              <div key={i.name} className="bg-white/3 border border-white/5 rounded-lg p-2.5 flex items-center gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[11px] text-white/70 truncate">{i.name}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[10px] text-white/40 leading-relaxed pt-1">
+            Two-way OAuth sync. No CSV exports, no IT ticket, no break-glass.
+          </p>
+        </div>
+      );
+    default:
+      return null;
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  FP&A Essentials Tab Data                                          */
 /* ------------------------------------------------------------------ */
 const essentialsTabs = [
@@ -1427,23 +1748,8 @@ export default function LandingPage() {
                   <p className="text-[15px] text-white/50 leading-relaxed mb-6">
                     {essentialsTabs[activeEssential].desc}
                   </p>
-                  {/* Placeholder visual */}
-                  <div className="bg-white/5 rounded-xl p-6 border border-white/5">
-                    <div className="grid grid-cols-3 gap-4 mb-4">
-                      {[1, 2, 3].map((j) => (
-                        <div key={j} className="h-12 bg-white/5 rounded-lg animate-pulse" />
-                      ))}
-                    </div>
-                    <div className="space-y-2">
-                      {[1, 2, 3, 4].map((j) => (
-                        <div
-                          key={j}
-                          className="h-8 bg-white/5 rounded-lg"
-                          style={{ width: `${100 - j * 10}%` }}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                  {/* Live mockup — one per feature tab */}
+                  <EssentialMockup index={activeEssential} />
                 </div>
               </div>
             </FadeIn>
