@@ -111,9 +111,9 @@ export default function AboutPage() {
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Co-founders</p>
             <h2 className="text-3xl font-bold">The people behind the product</h2>
             <p className="text-white/40 text-[15px] leading-relaxed max-w-xl mx-auto mt-4">
-              Built by two operators who lived the problem &mdash; on both the
-              finance desk and the diligence side &mdash; across hundreds of
-              Indian MSME engagements.
+              Built by two management consultants on a mission to arm every
+              ambitious Indian MSME with the financial intelligence layer their
+              growth deserves.
             </p>
           </FadeIn>
 
@@ -136,25 +136,23 @@ export default function AboutPage() {
 
                 <div className="space-y-3 text-[14px] text-white/55 leading-relaxed flex-1">
                   <p>
-                    Finance operator with 5+ years across M&amp;A, financial
-                    modeling and FP&amp;A. Spent five years at MARC (Mangal
-                    Analytics &amp; Research Consulting) leading due diligence,
-                    valuation and the analytics division &mdash; then moved to
-                    Tohands as Finance Manager, where he runs bookkeeping,
-                    GST/TDS, SOPs and fundraising.
+                    A management consultant by training and an operator by
+                    practice. Avdhut has spent his career inside Indian MSMEs
+                    &mdash; helping promoters tighten their books, pressure-test
+                    their numbers, and build the kind of financial discipline
+                    that wins investor conviction and unlocks growth capital.
                   </p>
                   <p>
-                    Also teaches Financial Modeling, Stock Market Operations
-                    and Management Accounting as an Assistant Professor at Goa
-                    University, AITDA-Assagao, and Shree Damodar &amp; Dempo
-                    Colleges. CortexCFO is the tool he kept wishing his MSME
-                    clients had &mdash; continuous QoE, every month, at 1/60th
-                    the cost.
+                    He leads product, finance and AI at CortexCFO. His thesis
+                    is simple: every ambitious Indian business deserves the
+                    same quality of financial intelligence that private-equity
+                    portfolio companies enjoy &mdash; and software is the only
+                    way to get it there.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-6">
-                  {["MBA Finance", "Ex-MARC", "Asst. Professor, Goa University", "M&A & Valuation", "FP&A"].map((tag) => (
+                  {["Management Consulting", "M&A & Valuation", "FP&A", "Product & AI", "Indian MSMEs"].map((tag) => (
                     <span
                       key={tag}
                       className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
@@ -203,25 +201,23 @@ export default function AboutPage() {
 
                 <div className="space-y-3 text-[14px] text-white/55 leading-relaxed flex-1">
                   <p>
-                    Management consultant focused on market research design,
-                    partnership development and business growth. At MARC, led
-                    research frameworks for FMCG national rollouts, IT/SaaS
-                    APAC market entry and healthcare assessments &mdash; and
-                    won the firm&apos;s first-ever competitive FMCG tender
-                    against 15+ established consulting firms.
+                    A management consultant with deep roots in strategy, market
+                    research and partnership design. Rajan has built research
+                    frameworks for national brand rollouts and cross-border
+                    market entries, and has structured the kinds of partnerships
+                    that move ambitious businesses into their next orbit.
                   </p>
                   <p>
-                    Closed three strategic MOUs with VCs managing &gt;USD 10 Mn
-                    average deal sizes and built the MSME-focused Business
-                    Transformation Kit at MARC. The same go-to-market playbook
-                    &mdash; translating financial rigour into tangible,
-                    outcome-shaped proposals &mdash; is what he brings to
-                    CortexCFO.
+                    At CortexCFO he owns growth, go-to-market and the
+                    partnership flywheel. His bet: India is full of world-class
+                    operators building in the shadows &mdash; and the ones who
+                    pair sharp financial rigour with sharp positioning will
+                    define the next decade of Indian enterprise.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-6">
-                  {["BCom Accounting", "Ex-MARC", "VC partnerships (USD 10 Mn+)", "Market research", "MSME GTM"].map((tag) => (
+                  {["Management Consulting", "Market Research", "VC Partnerships", "Go-to-Market", "Indian MSMEs"].map((tag) => (
                     <span
                       key={tag}
                       className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
