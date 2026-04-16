@@ -1,6 +1,7 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface AIChatBubbleProps {
   role: "user" | "ai";
@@ -44,6 +45,7 @@ export default function AIChatBubble({ role, text, dark = false }: AIChatBubbleP
     <div className="flex justify-start">
       <div className={`max-w-[90%] rounded-2xl rounded-bl-sm px-5 py-4 ${bgBubble}`}>
         <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
           components={{
             h1: ({ children }) => <h1 className={`text-[15px] font-bold ${textColorStrong} mt-4 mb-2 first:mt-0`}>{children}</h1>,
             h2: ({ children }) => <h2 className={`text-[14px] font-bold ${textColorStrong} mt-4 mb-2 first:mt-0`}>{children}</h2>,
