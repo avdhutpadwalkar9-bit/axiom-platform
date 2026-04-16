@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TrendingUp, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function LoginPage() {
   const router = useRouter();
+  const checkAuth = useAuthStore((s) => s.checkAuth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,6 +21,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await api.login(email, password);
+      // Populate the auth store + user cache before navigating so SiteNav (and
+      // anything else listening) paints the signed-in state without waiting
+      // for its own checkAuth() to fire on mount.
+      await checkAuth();
       // Respect email verification — unverified users go through /verify-email first.
       try {
         const me = await api.getMe();

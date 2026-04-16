@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { TrendingUp, Loader2, Check } from "lucide-react";
 import { api } from "@/lib/api";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function SignupPage() {
   const router = useRouter();
+  const checkAuth = useAuthStore((s) => s.checkAuth);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,6 +37,9 @@ export default function SignupPage() {
     try {
       await api.signup(email, password, name);
       await api.login(email, password);
+      // Populate the auth store + user cache so a later return to landing
+      // paints the signed-in state without a cold round-trip to /auth/me.
+      await checkAuth();
       // Backend sends verification code on signup; route user to the code-entry page.
       router.push("/verify-email");
     } catch (err) {

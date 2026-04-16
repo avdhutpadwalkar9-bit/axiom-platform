@@ -3,12 +3,23 @@ from datetime import datetime, timedelta, timezone
 
 import bcrypt
 from jose import JWTError, jwt
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.models.user import User
 from app.models.workspace import Workspace, WorkspaceMember
+
+
+def normalize_email(email: str) -> str:
+    """Lowercase + strip so 'Foo@Bar.com ' and 'foo@bar.com' match the same row.
+
+    Historically we stored email exactly as typed, which caused login failures
+    when users signed up with one casing and logged in with another. All new
+    writes go through this, and reads use func.lower() so legacy mixed-case
+    rows still resolve.
+    """
+    return (email or "").strip().lower()
 
 
 def hash_password(password: str) -> str:
@@ -40,12 +51,13 @@ def decode_token(token: str) -> dict | None:
 
 
 async def create_user(db: AsyncSession, email: str, password: str, name: str | None = None) -> User:
-    user = User(email=email, password_hash=hash_password(password), name=name)
+    normalized = normalize_email(email)
+    user = User(email=normalized, password_hash=hash_password(password), name=name)
     db.add(user)
     await db.flush()
 
     # Create a default workspace for the user
-    workspace = Workspace(name=f"{name or email}'s Workspace", owner_id=user.id)
+    workspace = Workspace(name=f"{name or normalized}'s Workspace", owner_id=user.id)
     db.add(workspace)
     await db.flush()
 
@@ -58,7 +70,13 @@ async def create_user(db: AsyncSession, email: str, password: str, name: str | N
 
 
 async def authenticate_user(db: AsyncSession, email: str, password: str) -> User | None:
-    result = await db.execute(select(User).where(User.email == email))
+    # Case-insensitive lookup so historical rows stored with mixed casing still
+    # match what the user types at login. func.lower() is indexable with a
+    # functional index; for our traffic volume a seq scan is fine.
+    normalized = normalize_email(email)
+    result = await db.execute(
+        select(User).where(func.lower(User.email) == normalized)
+    )
     user = result.scalar_one_or_none()
     if not user or not verify_password(password, user.password_hash):
         return None

@@ -1,10 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, TrendingUp, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+
+// useLayoutEffect warns during SSR. Swap to useEffect on the server so we
+// don't get console noise — the difference is irrelevant there.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const productLinks = [
   { label: "Planning", desc: "Plan together with clarity and control.", href: "/product" },
@@ -24,14 +29,23 @@ export default function SiteNav() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  // mounted: toggles to true on the client after first render so we can
+  // safely display auth state pulled from localStorage without a hydration
+  // mismatch. Pre-mount we render a neutral ghost that matches SSR.
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Read auth state — rehydrates on every mount via checkAuth(). If a valid
-  // access_token is present in localStorage we swap the "Log in / Get started"
-  // CTAs for a profile chip with a dashboard + logout menu.
-  const { user, isAuthenticated, checkAuth, logout } = useAuthStore();
+  const { user, isAuthenticated, hydrate, checkAuth, logout } = useAuthStore();
+
+  // Pull the cached user out of localStorage before the browser paints, so
+  // a returning user on landing sees their profile chip immediately instead
+  // of "Sign in / Get started free" flashing first.
+  useIsomorphicLayoutEffect(() => {
+    hydrate();
+    setMounted(true);
+  }, [hydrate]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -40,6 +54,8 @@ export default function SiteNav() {
   }, []);
 
   useEffect(() => {
+    // Validate the token in the background — confirms the optimistic seed
+    // and refreshes the cached user object.
     checkAuth();
   }, [checkAuth]);
 
@@ -188,7 +204,15 @@ export default function SiteNav() {
 
           {/* Right side */}
           <div className="flex items-center gap-3">
-            {isAuthenticated ? (
+            {!mounted ? (
+              /* SSR + first client render: show a neutral ghost that matches
+                 the guest-state width. After mount we swap to either the
+                 profile chip or the guest CTAs based on localStorage. */
+              <div
+                className="hidden sm:block w-[180px] h-9"
+                aria-hidden="true"
+              />
+            ) : isAuthenticated ? (
               /* Signed-in chip + dropdown: dashboard / log out */
               <div className="relative hidden sm:block" ref={userMenuRef}>
                 <button
@@ -283,7 +307,10 @@ export default function SiteNav() {
               </Link>
             ))}
             <div className="border-t border-white/[0.06] mt-4 pt-4 flex flex-col gap-3">
-              {isAuthenticated ? (
+              {!mounted ? (
+                // Match the pre-hydration state on the desktop side.
+                <div className="h-[52px]" aria-hidden="true" />
+              ) : isAuthenticated ? (
                 <>
                   <Link
                     href="/dashboard"
