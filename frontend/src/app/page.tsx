@@ -642,7 +642,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  HERO SECTION                                                  */}
       {/* ═══════════════════════════════════════════════════════════════ */}
-      <section className="pt-12 pb-4 px-6">
+      <section className="pt-24 md:pt-28 pb-4 px-6">
         <div className="max-w-[1200px] mx-auto">
           <div
             className={`transition-all duration-1000 ${
