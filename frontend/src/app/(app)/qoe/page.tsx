@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Shield,
@@ -15,6 +15,10 @@ import {
   ChevronRight,
   Info,
   BadgeCheck,
+  Upload,
+  Loader2,
+  Users,
+  XCircle,
 } from "lucide-react";
 import {
   BarChart,
@@ -30,6 +34,23 @@ import {
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { exportQoEPdf } from "@/lib/exportPdf";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+interface CustomerConcentrationRow {
+  customer: string;
+  revenue: number;
+  share_pct: number;
+}
+
+interface GLUploadMeta {
+  parser?: string;
+  source_format?: string;
+  transaction_count?: number;
+  parser_warnings?: string[];
+  customer_concentration?: CustomerConcentrationRow[];
+  file_name?: string;
+}
 
 function fmt(value: number): string {
   const abs = Math.abs(value);
@@ -140,6 +161,66 @@ export default function QoEPage() {
     }
     return { reported: 3_850_000, isLive: false };
   }, [lastResult]);
+
+  // --- GL upload + customer concentration -------------------------------
+  //
+  // Two sources for GL insights:
+  //   1. If the user already uploaded a GL on /analysis, the analysis page
+  //      stashes upload_meta under 'cortexcfo-last-gl-meta' in
+  //      sessionStorage. We read it here on mount.
+  //   2. The user can also upload a GL directly on this page via the
+  //      Customer Concentration panel — useful when the primary analysis
+  //      was run off a TB or audited PDF.
+  const [glMeta, setGlMeta] = useState<GLUploadMeta | null>(null);
+  const [glLoading, setGlLoading] = useState(false);
+  const [glError, setGlError] = useState("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = sessionStorage.getItem("cortexcfo-last-gl-meta");
+      if (raw) setGlMeta(JSON.parse(raw) as GLUploadMeta);
+    } catch {
+      // Corrupted storage — ignore.
+    }
+  }, []);
+
+  const handleGlUpload = useCallback(async (file: File) => {
+    setGlLoading(true);
+    setGlError("");
+    try {
+      const token = typeof window !== "undefined"
+        ? localStorage.getItem("access_token")
+        : null;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("input_mode", "GL");
+      const res = await fetch(`${API_BASE}/api/analysis/upload`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      const meta: GLUploadMeta | undefined = data?.upload_meta;
+      if (!meta) throw new Error("Backend did not return GL metadata.");
+      setGlMeta(meta);
+      try {
+        sessionStorage.setItem("cortexcfo-last-gl-meta", JSON.stringify(meta));
+      } catch {
+        // Non-fatal.
+      }
+    } catch (err: unknown) {
+      setGlError(err instanceof Error ? err.message : "GL upload failed");
+    } finally {
+      setGlLoading(false);
+    }
+  }, []);
+
+  const topCustomers = glMeta?.customer_concentration ?? [];
+  const topConcentration = topCustomers.reduce((s, c) => s + c.share_pct, 0);
+  const top3 = topCustomers.slice(0, 3);
+  const top3Share = top3.reduce((s, c) => s + c.share_pct, 0);
 
   const totalAddbacks = DEFAULT_ADDBACKS.reduce((s, a) => s + (a.status !== "pending" ? a.amount : 0), 0);
   const pendingAddbacks = DEFAULT_ADDBACKS.filter((a) => a.status === "pending").reduce((s, a) => s + a.amount, 0);
@@ -380,6 +461,126 @@ export default function QoEPage() {
             );
           })}
         </div>
+      </div>
+
+      {/* Customer concentration — derived from GL upload */}
+      <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Users className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-sm font-semibold text-white">Customer concentration</h3>
+              {glMeta?.transaction_count ? (
+                <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+                  <BadgeCheck className="w-2.5 h-2.5" />
+                  Live &middot; {glMeta.transaction_count.toLocaleString("en-IN")} txns
+                </span>
+              ) : null}
+            </div>
+            <p className="text-xs text-white/40">
+              Top revenue-producing parties from your General Ledger &middot; flags customer concentration risk for QoE
+            </p>
+          </div>
+          <label
+            htmlFor="qoe-gl-upload"
+            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors cursor-pointer"
+          >
+            {glLoading ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <Upload className="w-3.5 h-3.5" />
+            )}
+            {glLoading ? "Uploading…" : topCustomers.length ? "Re-upload GL" : "Upload GL"}
+          </label>
+          <input
+            id="qoe-gl-upload"
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) handleGlUpload(f);
+            }}
+          />
+        </div>
+
+        {glError && (
+          <div className="mb-4 rounded-lg border border-rose-500/20 bg-rose-500/5 px-3 py-2 text-xs text-rose-300 flex items-center gap-2">
+            <XCircle className="w-3.5 h-3.5" /> {glError}
+          </div>
+        )}
+
+        {topCustomers.length === 0 ? (
+          <div className="rounded-lg border border-dashed border-white/10 bg-white/[0.015] px-5 py-8 text-center">
+            <Users className="w-8 h-8 text-white/20 mx-auto mb-2" />
+            <p className="text-sm text-white/50">No GL uploaded yet.</p>
+            <p className="text-[11px] text-white/35 mt-1">
+              Upload a Zoho / Tally / QuickBooks General Ledger Excel to see the top 10 customers by revenue.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* KPI strip: top-3 concentration + notable risk banner */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] px-4 py-3">
+                <p className="text-[10px] uppercase tracking-wider text-white/40">Top customer</p>
+                <p className="text-sm font-semibold text-white mt-1 truncate">
+                  {top3[0]?.customer || "—"}
+                </p>
+                <p className="text-xs text-emerald-400 mt-0.5 tabular-nums">
+                  {(top3[0]?.share_pct ?? 0).toFixed(1)}% of tracked revenue
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] px-4 py-3">
+                <p className="text-[10px] uppercase tracking-wider text-white/40">Top-3 share</p>
+                <p className={`text-sm font-semibold tabular-nums mt-1 ${top3Share >= 50 ? "text-amber-300" : "text-white"}`}>
+                  {top3Share.toFixed(1)}%
+                </p>
+                <p className="text-[11px] text-white/40 mt-0.5">
+                  {top3Share >= 50 ? "Concentration risk — diligence flag" : "Well-diversified"}
+                </p>
+              </div>
+              <div className="rounded-lg border border-white/5 bg-white/[0.02] px-4 py-3 col-span-2 md:col-span-1">
+                <p className="text-[10px] uppercase tracking-wider text-white/40">Top-10 tracked</p>
+                <p className="text-sm font-semibold text-white tabular-nums mt-1">
+                  {topConcentration.toFixed(1)}%
+                </p>
+                <p className="text-[11px] text-white/40 mt-0.5">
+                  of sales-side GL transactions
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[520px]">
+                <thead>
+                  <tr className="text-[11px] uppercase tracking-wider text-white/30 bg-white/[0.015]">
+                    <th className="text-left px-4 py-2 font-medium">#</th>
+                    <th className="text-left px-4 py-2 font-medium">Customer</th>
+                    <th className="text-right px-4 py-2 font-medium">Revenue</th>
+                    <th className="text-right px-4 py-2 font-medium">Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topCustomers.map((c, i) => (
+                    <tr key={c.customer + i} className="border-t border-white/3">
+                      <td className="px-4 py-3 text-white/40 tabular-nums">{i + 1}</td>
+                      <td className="px-4 py-3 text-white truncate max-w-[300px]">{c.customer}</td>
+                      <td className="px-4 py-3 text-right tabular-nums text-white">{fmt(c.revenue)}</td>
+                      <td className="px-4 py-3 text-right tabular-nums text-emerald-400">{c.share_pct.toFixed(2)}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-[11px] text-white/35 mt-4 leading-relaxed">
+              Aggregated from sales-side entries in your General Ledger; party names are shown here for your own
+              review only — redaction applies before any LLM-based analysis.
+              {glMeta?.source_format ? <> Source: <span className="text-white/50">{glMeta.source_format}</span>.</> : null}
+            </p>
+          </>
+        )}
       </div>
 
       {/* Compliance matrix + workflow */}

@@ -126,6 +126,27 @@ function fmt(value: number, compact = false): string {
 
 const PIE_COLORS = ["#10b981", "#14b8a6", "#22c55e", "#34d399", "#2dd4bf", "#06b6d4"];
 
+// Supported upload types. Keeps the picker honest about what the backend
+// will actually do — GL / AUDITED have dedicated parsers; the rest still
+// route through the TB pipeline today (the analyzer copes with partial
+// inputs thanks to ratios_meta) but are tagged so downstream UI can
+// render the correct banner.
+type InputMode = "TB" | "AUDITED" | "GL" | "PNL_ONLY" | "BS_ONLY" | "MIS" | "SIMPLE";
+const INPUT_MODE_OPTIONS: {
+  value: InputMode;
+  label: string;
+  sub: string;
+  accept: string;
+}[] = [
+  { value: "TB", label: "Trial Balance", sub: "CSV / Excel / JSON", accept: ".csv,.json,.xlsx,.xls" },
+  { value: "AUDITED", label: "Audited Financials", sub: "Schedule III PDF or Excel", accept: ".pdf,.xlsx,.xls" },
+  { value: "GL", label: "General Ledger", sub: "Zoho / Tally / QuickBooks Excel", accept: ".xlsx,.xls" },
+  { value: "PNL_ONLY", label: "P&L Only", sub: "Income statement extract", accept: ".csv,.xlsx,.xls" },
+  { value: "BS_ONLY", label: "Balance Sheet Only", sub: "Position statement extract", accept: ".csv,.xlsx,.xls" },
+  { value: "MIS", label: "MIS Report", sub: "Monthly management pack", accept: ".csv,.xlsx,.xls" },
+  { value: "SIMPLE", label: "Simple Excel", sub: "Ad-hoc summary sheet", accept: ".csv,.xlsx,.xls" },
+];
+
 export default function AnalysisPage() {
   const { setResult: saveToStore } = useAnalysisStore();
   const { business } = useOnboardingStore();
@@ -134,6 +155,10 @@ export default function AnalysisPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // Which input kind the user is uploading. Drives both the Accept filter
+  // on the file input and the input_mode form field posted to the backend
+  // dispatcher at /api/analysis/upload.
+  const [inputMode, setInputMode] = useState<InputMode>("TB");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["summary", "questions", "insights", "indas"]));
   const [activeTab, setActiveTab] = useState("overview");
   const [companyLabel, setCompanyLabel] = useState<string>("Your Company");
@@ -250,20 +275,33 @@ export default function AnalysisPage() {
     });
   };
 
-  const handleFileUpload = async (file: File) => {
+  const handleFileUpload = async (file: File, forcedMode?: InputMode) => {
     setLoading(true);
     setError("");
     try {
       const token = localStorage.getItem("access_token");
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch(`${API_BASE}/api/analysis/tb/upload`, {
+      formData.append("input_mode", forcedMode ?? inputMode);
+      const res = await fetch(`${API_BASE}/api/analysis/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
       });
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
+      // Stash GL upload_meta.customer_concentration into sessionStorage so
+      // the QoE page can read it without re-uploading.
+      try {
+        if (data?.upload_meta?.customer_concentration) {
+          sessionStorage.setItem(
+            "cortexcfo-last-gl-meta",
+            JSON.stringify(data.upload_meta),
+          );
+        }
+      } catch {
+        // sessionStorage quota / SSR — non-fatal.
+      }
       setResult(data);
       const label = file.name.replace(/\.\w+$/, "");
       setCompanyLabel(label);
@@ -276,7 +314,9 @@ export default function AnalysisPage() {
     }
   };
 
-  /** Upload a second file for year-on-year comparison (prior year). */
+  /** Upload a second file for year-on-year comparison (prior year). Reuses
+   *  the currently selected input_mode so a TB-vs-TB comparison stays a
+   *  TB analysis, and GL-vs-GL stays a GL analysis. */
   const handlePriorYearUpload = async (file: File) => {
     setPriorLoading(true);
     setError("");
@@ -284,7 +324,8 @@ export default function AnalysisPage() {
       const token = localStorage.getItem("access_token");
       const formData = new FormData();
       formData.append("file", file);
-      const res = await fetch(`${API_BASE}/api/analysis/tb/upload`, {
+      formData.append("input_mode", inputMode);
+      const res = await fetch(`${API_BASE}/api/analysis/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData,
@@ -1496,12 +1537,13 @@ export default function AnalysisPage() {
   }
 
   // Upload / Manual entry view
+  const activeMode = INPUT_MODE_OPTIONS.find((o) => o.value === inputMode) ?? INPUT_MODE_OPTIONS[0];
   return (
     <div className="p-6 lg:p-8 max-w-[1000px] mx-auto">
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-white">Trial Balance Analysis</h1>
+        <h1 className="text-3xl font-bold text-white">Financial Analysis</h1>
         <p className="text-sm text-white/30 mt-2">
-          Upload your Trial Balance and get instant Ind AS review, AI-powered questions, and detailed financial analysis
+          Upload a Trial Balance, Audited Financials, General Ledger, or MIS — we&apos;ll deliver an instant Ind AS review, AI-powered questions, and detailed ratio analysis
         </p>
       </div>
 
@@ -1513,6 +1555,31 @@ export default function AnalysisPage() {
 
       {mode === "upload" && (
         <div className="space-y-6">
+          {/* File-type picker — drives both the <input accept="..."> filter
+              and the `input_mode` form field sent to the dispatcher. */}
+          <div>
+            <p className="text-xs uppercase tracking-wider text-white/40 mb-3">What are you uploading?</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              {INPUT_MODE_OPTIONS.map((opt) => {
+                const isActive = inputMode === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => setInputMode(opt.value)}
+                    className={`text-left p-3 rounded-xl border transition-all ${
+                      isActive
+                        ? "border-emerald-500/60 bg-emerald-500/10 text-white"
+                        : "border-white/8 bg-[#111] text-white/70 hover:border-white/20 hover:bg-white/5"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold">{opt.label}</p>
+                    <p className="text-xs text-white/40 mt-0.5">{opt.sub}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* Drag & Drop Zone */}
           <div
             onDragOver={(e) => e.preventDefault()}
@@ -1523,7 +1590,7 @@ export default function AnalysisPage() {
             <input
               id="file-input"
               type="file"
-              accept=".csv,.json,.xlsx,.xls"
+              accept={activeMode.accept}
               multiple
               className="hidden"
               onChange={(e) => {
@@ -1540,13 +1607,17 @@ export default function AnalysisPage() {
               <Upload className="w-12 h-12 text-white/40 mx-auto mb-4" />
             )}
             <p className="text-lg font-medium text-white mb-2">
-              {loading ? "Analyzing..." : "Drop your Trial Balance here"}
+              {loading ? "Analyzing..." : `Drop your ${activeMode.label} here`}
             </p>
             <p className="text-sm text-white/30">
-              Supports CSV, JSON, and Excel (.xlsx) files from Tally, Zoho, or any accounting software.
+              Accepted formats: {activeMode.accept.replace(/\./g, "").toUpperCase().replace(/,/g, ", ")}
             </p>
             <p className="text-xs text-emerald-400/70 mt-2">
-              Tip: upload the current year first. Once analyzed, you can add a prior year for variance analysis.
+              {inputMode === "AUDITED"
+                ? "Tip: works best on digitally generated PDFs. Scanned or image-only PDFs will need OCR (coming soon)."
+                : inputMode === "GL"
+                ? "Tip: export the complete ledger from Zoho / Tally — we'll aggregate it and surface top customers automatically."
+                : "Tip: upload the current year first. Once analyzed, you can add a prior year for variance analysis."}
             </p>
           </div>
 
