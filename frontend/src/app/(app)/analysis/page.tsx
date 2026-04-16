@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import AIChatBubble from "@/components/AIChatBubble";
 import { useAnalysisStore } from "@/stores/analysisStore";
+import { exportAnalysisPdf } from "@/lib/exportPdf";
 import {
   Upload,
   FileSpreadsheet,
@@ -25,6 +26,8 @@ import {
   Send,
   X,
   Sparkles,
+  GitCompareArrows,
+  Calendar,
 } from "lucide-react";
 import {
   BarChart,
@@ -118,6 +121,14 @@ export default function AnalysisPage() {
   const [error, setError] = useState("");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["summary", "questions", "insights", "indas"]));
   const [activeTab, setActiveTab] = useState("overview");
+  const [companyLabel, setCompanyLabel] = useState<string>("Your Company");
+
+  // Multi-year comparison state. When a second file is uploaded as the
+  // "prior year", we unlock the Comparison tab with variance analysis.
+  const [priorResult, setPriorResult] = useState<AnalysisResult | null>(null);
+  const [currentYearLabel, setCurrentYearLabel] = useState<string>("Current Year");
+  const [priorYearLabel, setPriorYearLabel] = useState<string>("Prior Year");
+  const [priorLoading, setPriorLoading] = useState(false);
 
   // Ask AI chat state
   const [showChat, setShowChat] = useState(false);
@@ -133,8 +144,17 @@ export default function AnalysisPage() {
   const handleAskAI = async () => {
     if (!chatInput.trim() || !result) return;
     const question = chatInput.trim();
+
+    // Capture full history INCLUDING the new user message BEFORE the async
+    // state update — setChatMessages is batched by React, so `chatMessages`
+    // still holds the OLD array after the setter call.
+    const updatedHistory: { role: "user" | "ai"; text: string }[] = [
+      ...chatMessages,
+      { role: "user", text: question },
+    ];
+
     setChatInput("");
-    setChatMessages(prev => [...prev, { role: "user", text: question }]);
+    setChatMessages(updatedHistory);
     setChatLoading(true);
 
     try {
@@ -145,7 +165,7 @@ export default function AnalysisPage() {
         body: JSON.stringify({
           question,
           analysis_result: result,
-          conversation_history: chatMessages.slice(-10),
+          conversation_history: updatedHistory.slice(-10),
           user_answers: questionAnswers,
           provider: chatProvider,
         }),
@@ -226,12 +246,38 @@ export default function AnalysisPage() {
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setResult(data);
-      saveToStore(data, file.name.replace(/\.\w+$/, ""));
+      const label = file.name.replace(/\.\w+$/, "");
+      setCompanyLabel(label);
+      saveToStore(data, label);
       setMode("results");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  /** Upload a second file for year-on-year comparison (prior year). */
+  const handlePriorYearUpload = async (file: File) => {
+    setPriorLoading(true);
+    setError("");
+    try {
+      const token = localStorage.getItem("access_token");
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`${API_BASE}/api/analysis/tb/upload`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setPriorResult(data);
+      setActiveTab("comparison");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Prior year upload failed");
+    } finally {
+      setPriorLoading(false);
     }
   };
 
@@ -306,14 +352,91 @@ export default function AnalysisPage() {
             <p className="text-sm text-white/30 mt-1">Ind AS compliant review &middot; AI-powered insights</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => { setMode("upload"); setResult(null); }} className="px-4 py-2 bg-white/3 border border-white/8 rounded-lg text-xs text-white/40 hover:bg-white/5 transition-colors">
+            <button onClick={() => { setMode("upload"); setResult(null); setPriorResult(null); }} className="px-4 py-2 bg-white/3 border border-white/8 rounded-lg text-xs text-white/40 hover:bg-white/5 transition-colors">
               New Analysis
             </button>
-            <button className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5">
+            <button
+              onClick={() => exportAnalysisPdf(result, companyLabel, priorResult, priorResult ? `${priorYearLabel} vs ${currentYearLabel}` : undefined)}
+              className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5"
+            >
               <Download className="w-3 h-3" /> Export PDF
             </button>
           </div>
         </div>
+
+        {/* Prior-year upload strip — shown when we have a current-year result
+            but no prior year yet. Lets user unlock variance analysis. */}
+        {!priorResult && (
+          <div className="bg-[#111] rounded-xl border border-white/8 p-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+              <GitCompareArrows className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-white">Compare with another year</p>
+              <p className="text-xs text-white/40 mt-0.5">Upload a second trial balance to unlock variance and common-size comparison.</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                value={priorYearLabel}
+                onChange={(e) => setPriorYearLabel(e.target.value)}
+                placeholder="e.g., FY 2023-24"
+                className="w-32 bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/20 outline-none focus:border-emerald-500/50"
+              />
+              <input
+                id="prior-file-input"
+                type="file"
+                accept=".csv,.json,.xlsx,.xls"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handlePriorYearUpload(f);
+                }}
+              />
+              <button
+                onClick={() => document.getElementById("prior-file-input")?.click()}
+                disabled={priorLoading}
+                className="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {priorLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                {priorLoading ? "Analyzing..." : "Upload Prior Year"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Year labels strip — shown when comparison is active. */}
+        {priorResult && (
+          <div className="bg-[#111] rounded-xl border border-emerald-500/20 p-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+              <Calendar className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="flex-1 flex items-center gap-4">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-white/30">Prior</p>
+                <input
+                  value={priorYearLabel}
+                  onChange={(e) => setPriorYearLabel(e.target.value)}
+                  className="bg-transparent border-none text-sm text-white font-medium outline-none w-28 mt-0.5"
+                />
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/20" />
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-white/30">Current</p>
+                <input
+                  value={currentYearLabel}
+                  onChange={(e) => setCurrentYearLabel(e.target.value)}
+                  className="bg-transparent border-none text-sm text-white font-medium outline-none w-28 mt-0.5"
+                />
+              </div>
+            </div>
+            <button
+              onClick={() => { setPriorResult(null); setActiveTab("overview"); }}
+              className="px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white hover:bg-white/5 transition-colors"
+            >
+              Remove comparison
+            </button>
+          </div>
+        )}
 
         {/* Warnings */}
         {warnings.length > 0 && (
@@ -336,6 +459,7 @@ export default function AnalysisPage() {
             { key: "overview", label: "Overview" },
             { key: "questions", label: "AI Questions" },
             { key: "deepdive", label: "Deep Dive" },
+            ...(priorResult ? [{ key: "comparison", label: "Comparison" }] : []),
           ].map(tab => (
             <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white/5 text-white" : "text-white/30 hover:text-white/40"}`}>
               {tab.label}
@@ -1004,6 +1128,217 @@ export default function AnalysisPage() {
           </div>
         )}
 
+        {/* Comparison Tab — variance + common-size vs prior year */}
+        {activeTab === "comparison" && priorResult && (
+          <div className="space-y-6">
+            {(() => {
+              const curr = result;
+              const prev = priorResult;
+              const cfs = curr.financial_statements;
+              const pfs = prev.financial_statements;
+              const cr = curr.ratios;
+              const pr = prev.ratios;
+
+              const varianceRow = (label: string, currVal: number, prevVal: number, expenseLike = false) => {
+                const change = currVal - prevVal;
+                const pctChange = prevVal !== 0 ? (change / Math.abs(prevVal)) * 100 : 0;
+                const isGood = expenseLike ? change <= 0 : change >= 0;
+                return { label, currVal, prevVal, change, pctChange, isGood };
+              };
+
+              const headlineRows = [
+                varianceRow("Total Revenue", cfs.total_revenue, pfs.total_revenue),
+                varianceRow("Total Expenses", cfs.total_expenses, pfs.total_expenses, true),
+                varianceRow("Net Income", cfs.net_income, pfs.net_income),
+                varianceRow("Total Assets", cfs.total_assets, pfs.total_assets),
+                varianceRow("Total Liabilities", cfs.total_liabilities, pfs.total_liabilities, true),
+                varianceRow("Total Equity", cfs.total_equity, pfs.total_equity),
+              ];
+
+              // Build P&L expense variance by matching account names
+              const expenseMap: Record<string, { curr: number; prev: number }> = {};
+              curr.classified_accounts.expenses.forEach(e => {
+                expenseMap[e.name] = { curr: Math.abs(e.net), prev: 0 };
+              });
+              prev.classified_accounts.expenses.forEach(e => {
+                if (expenseMap[e.name]) expenseMap[e.name].prev = Math.abs(e.net);
+                else expenseMap[e.name] = { curr: 0, prev: Math.abs(e.net) };
+              });
+              const expenseVarianceList = Object.entries(expenseMap)
+                .map(([name, v]) => ({ name, ...v, change: v.curr - v.prev, pctChange: v.prev !== 0 ? ((v.curr - v.prev) / v.prev) * 100 : (v.curr > 0 ? 100 : 0) }))
+                .sort((a, b) => Math.abs(b.curr) - Math.abs(a.curr));
+
+              return (
+                <>
+                  {/* Headline Variance Cards */}
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                    {headlineRows.map(row => (
+                      <div key={row.label} className="bg-[#111] rounded-xl border border-white/8 p-5">
+                        <p className="text-xs text-white/30">{row.label}</p>
+                        <div className="flex items-baseline gap-2 mt-2">
+                          <p className="text-xl font-bold text-white">{fmt(row.currVal, true)}</p>
+                          <p className="text-xs text-white/40">vs {fmt(row.prevVal, true)}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-2">
+                          {row.change >= 0 ? (
+                            <TrendingUp className={`w-3.5 h-3.5 ${row.isGood ? "text-emerald-400" : "text-red-400"}`} />
+                          ) : (
+                            <TrendingDown className={`w-3.5 h-3.5 ${row.isGood ? "text-emerald-400" : "text-red-400"}`} />
+                          )}
+                          <span className={`text-xs font-semibold ${row.isGood ? "text-emerald-400" : "text-red-400"}`}>
+                            {row.change >= 0 ? "+" : ""}{fmt(row.change, true)} ({row.pctChange >= 0 ? "+" : ""}{row.pctChange.toFixed(1)}%)
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Variance Analysis Table — P&L line items */}
+                  <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                      <div>
+                        <h3 className="text-sm font-semibold text-white">Variance Analysis — Expenses</h3>
+                        <p className="text-[10px] text-white/30 mt-0.5">{priorYearLabel} vs {currentYearLabel}</p>
+                      </div>
+                      <span className="text-[10px] text-white/20">{expenseVarianceList.length} line items</span>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-white/5 text-[11px] text-white/30 uppercase tracking-wider">
+                            <th className="text-left px-6 py-3 font-medium">Account</th>
+                            <th className="text-right px-6 py-3 font-medium">{priorYearLabel}</th>
+                            <th className="text-right px-6 py-3 font-medium">{currentYearLabel}</th>
+                            <th className="text-right px-6 py-3 font-medium">Change</th>
+                            <th className="text-right px-6 py-3 font-medium">% Change</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {expenseVarianceList.map((row, i) => {
+                            const isBad = row.change > 0; // For expenses: increase is bad
+                            return (
+                              <tr key={i} className="border-b border-white/3 hover:bg-white/[0.02]">
+                                <td className="px-6 py-2.5 text-white/60">{row.name}</td>
+                                <td className="px-6 py-2.5 text-right text-white/40 tabular-nums">{fmt(row.prev, true)}</td>
+                                <td className="px-6 py-2.5 text-right text-white font-medium tabular-nums">{fmt(row.curr, true)}</td>
+                                <td className={`px-6 py-2.5 text-right font-medium tabular-nums ${isBad ? "text-red-400" : "text-emerald-400"}`}>
+                                  {row.change >= 0 ? "+" : ""}{fmt(row.change, true)}
+                                </td>
+                                <td className={`px-6 py-2.5 text-right font-medium tabular-nums ${isBad ? "text-red-400" : "text-emerald-400"}`}>
+                                  {row.pctChange >= 0 ? "+" : ""}{row.pctChange.toFixed(1)}%
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Ratio Comparison */}
+                  <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-white/5">
+                      <h3 className="text-sm font-semibold text-white">Ratio Comparison</h3>
+                      <p className="text-[10px] text-white/30 mt-0.5">Year-on-year health check</p>
+                    </div>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-white/5 text-[11px] text-white/30 uppercase tracking-wider">
+                          <th className="text-left px-6 py-3 font-medium">Ratio</th>
+                          <th className="text-right px-6 py-3 font-medium">{priorYearLabel}</th>
+                          <th className="text-right px-6 py-3 font-medium">{currentYearLabel}</th>
+                          <th className="text-right px-6 py-3 font-medium">Change</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { label: "Current Ratio", prev: pr.current_ratio, curr: cr.current_ratio, suffix: "x", higherBetter: true },
+                          { label: "Debt-to-Equity", prev: pr.debt_to_equity, curr: cr.debt_to_equity, suffix: "x", higherBetter: false },
+                          { label: "Gross Margin", prev: pr.gross_margin, curr: cr.gross_margin, suffix: "%", higherBetter: true },
+                          { label: "Net Margin", prev: pr.net_margin, curr: cr.net_margin, suffix: "%", higherBetter: true },
+                          { label: "Return on Equity", prev: pr.return_on_equity, curr: cr.return_on_equity, suffix: "%", higherBetter: true },
+                        ].map((r, i) => {
+                            const delta = r.curr - r.prev;
+                            const isGood = r.higherBetter ? delta >= 0 : delta <= 0;
+                            return (
+                              <tr key={i} className="border-b border-white/3">
+                                <td className="px-6 py-3 text-white/60">{r.label}</td>
+                                <td className="px-6 py-3 text-right text-white/40 tabular-nums">{r.prev}{r.suffix}</td>
+                                <td className="px-6 py-3 text-right text-white font-semibold tabular-nums">{r.curr}{r.suffix}</td>
+                                <td className={`px-6 py-3 text-right font-medium tabular-nums ${isGood ? "text-emerald-400" : "text-red-400"}`}>
+                                  {delta >= 0 ? "+" : ""}{delta.toFixed(2)}{r.suffix}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        <tr className="border-b border-white/3">
+                          <td className="px-6 py-3 text-white/60">Working Capital</td>
+                          <td className="px-6 py-3 text-right text-white/40 tabular-nums">{fmt(pr.working_capital, true)}</td>
+                          <td className="px-6 py-3 text-right text-white font-semibold tabular-nums">{fmt(cr.working_capital, true)}</td>
+                          <td className={`px-6 py-3 text-right font-medium tabular-nums ${(cr.working_capital - pr.working_capital) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                            {(cr.working_capital - pr.working_capital) >= 0 ? "+" : ""}{fmt(cr.working_capital - pr.working_capital, true)}
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Common-Size Comparison */}
+                  <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-white/5">
+                      <h3 className="text-sm font-semibold text-white">Common-Size P&amp;L Comparison</h3>
+                      <p className="text-[10px] text-white/30 mt-0.5">Each line as % of revenue — reveals structural shifts</p>
+                    </div>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-white/5 text-[11px] text-white/30 uppercase tracking-wider">
+                          <th className="text-left px-6 py-3 font-medium">Item</th>
+                          <th className="text-right px-6 py-3 font-medium">{priorYearLabel}</th>
+                          <th className="text-right px-6 py-3 font-medium">{currentYearLabel}</th>
+                          <th className="text-right px-6 py-3 font-medium">Shift (pp)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr className="border-b border-white/3 bg-white/[0.02]">
+                          <td className="px-6 py-3 text-white font-semibold">Revenue</td>
+                          <td className="px-6 py-3 text-right text-white/40 tabular-nums">100.0%</td>
+                          <td className="px-6 py-3 text-right text-white font-semibold tabular-nums">100.0%</td>
+                          <td className="px-6 py-3 text-right text-white/30 tabular-nums">—</td>
+                        </tr>
+                        {expenseVarianceList.slice(0, 8).map((row, i) => {
+                          const prevPct = pfs.total_revenue > 0 ? (row.prev / pfs.total_revenue) * 100 : 0;
+                          const currPct = cfs.total_revenue > 0 ? (row.curr / cfs.total_revenue) * 100 : 0;
+                          const shift = currPct - prevPct;
+                          return (
+                            <tr key={i} className="border-b border-white/3">
+                              <td className="px-6 py-2.5 text-white/60">{row.name}</td>
+                              <td className="px-6 py-2.5 text-right text-white/40 tabular-nums">{prevPct.toFixed(1)}%</td>
+                              <td className="px-6 py-2.5 text-right text-white font-medium tabular-nums">{currPct.toFixed(1)}%</td>
+                              <td className={`px-6 py-2.5 text-right font-medium tabular-nums ${shift > 0 ? "text-red-400" : "text-emerald-400"}`}>
+                                {shift >= 0 ? "+" : ""}{shift.toFixed(2)} pp
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        <tr className="border-t border-white/10 bg-emerald-500/5">
+                          <td className="px-6 py-3 text-white font-semibold">Net Income</td>
+                          <td className="px-6 py-3 text-right text-white/60 tabular-nums">{(pfs.total_revenue > 0 ? (pfs.net_income / pfs.total_revenue) * 100 : 0).toFixed(1)}%</td>
+                          <td className={`px-6 py-3 text-right font-bold tabular-nums ${cfs.net_income >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                            {(cfs.total_revenue > 0 ? (cfs.net_income / cfs.total_revenue) * 100 : 0).toFixed(1)}%
+                          </td>
+                          <td className="px-6 py-3 text-right text-white/40 tabular-nums">
+                            {((cfs.total_revenue > 0 ? (cfs.net_income / cfs.total_revenue) * 100 : 0) - (pfs.total_revenue > 0 ? (pfs.net_income / pfs.total_revenue) * 100 : 0)).toFixed(2)} pp
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              );
+            })()}
+          </div>
+        )}
+
         {/* Floating Ask AI Button */}
         <button
           onClick={() => setShowChat(!showChat)}
@@ -1162,7 +1497,9 @@ export default function AnalysisPage() {
             <p className="text-sm text-white/30">
               Supports CSV, JSON, and Excel (.xlsx) files from Tally, Zoho, or any accounting software.
             </p>
-            <p className="text-xs text-white/20 mt-2">You can select multiple files for comparison (coming soon)</p>
+            <p className="text-xs text-emerald-400/70 mt-2">
+              Tip: upload the current year first. Once analyzed, you can add a prior year for variance analysis.
+            </p>
           </div>
 
           <div className="flex items-center gap-4">

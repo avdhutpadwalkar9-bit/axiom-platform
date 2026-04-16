@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   User,
@@ -39,7 +39,7 @@ const FINANCIAL_YEARS = ["FY 2023-24", "FY 2024-25", "FY 2025-26"];
 export default function OnboardingPage() {
   const router = useRouter();
   const {
-    currentStep, personal, business, upload,
+    currentStep, completed, personal, business, upload,
     setStep, setPersonal, setBusiness, setUpload, completeOnboarding,
   } = useOnboardingStore();
   const { setResult: saveAnalysis } = useAnalysisStore();
@@ -48,6 +48,15 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
   const [analysisStatus, setAnalysisStatus] = useState("Preparing your analysis…");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+
+  // If onboarding was already completed (currentStep persisted as 4 in
+  // localStorage), redirect straight to the dashboard instead of showing
+  // a blank right panel.
+  useEffect(() => {
+    if (completed || currentStep > 3) {
+      router.replace("/dashboard");
+    }
+  }, [completed, currentStep, router]);
 
   const canProceed = () => {
     if (currentStep === 0) return personal.fullName.trim() && personal.role;
@@ -230,7 +239,9 @@ export default function OnboardingPage() {
       {/* Left Panel — Progress */}
       <div className="hidden lg:flex w-80 flex-col border-r border-white/8 bg-[#111] p-8">
         <div className="flex items-center gap-2.5 mb-12">
-          <img src="/axiom-logo.png" alt="CortexCFO" className="w-8 h-8 rounded-lg object-cover" />
+          <div className="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+          </div>
           <span className="text-lg font-bold text-white tracking-[-0.02em]">CortexCFO</span>
         </div>
 

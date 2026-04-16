@@ -187,8 +187,17 @@ export default function DashboardPage() {
   const handleAskAI = async () => {
     if (!chatInput.trim() || !lastResult) return;
     const question = chatInput.trim();
+
+    // Capture the full history INCLUDING the new user message BEFORE the
+    // async state update — setChatMessages is batched by React, so reading
+    // `chatMessages` after the setter still gives the OLD array.
+    const updatedHistory: { role: "user" | "ai"; text: string }[] = [
+      ...chatMessages,
+      { role: "user", text: question },
+    ];
+
     setChatInput("");
-    setChatMessages((prev) => [...prev, { role: "user", text: question }]);
+    setChatMessages(updatedHistory);
     setChatLoading(true);
 
     try {
@@ -210,7 +219,7 @@ export default function DashboardPage() {
         body: JSON.stringify({
           question,
           analysis_result: lastResult,
-          conversation_history: chatMessages.slice(-10),
+          conversation_history: updatedHistory.slice(-10),
           user_answers: Object.keys(userAnswers).length > 0 ? userAnswers : undefined,
           provider: chatProvider,
         }),
