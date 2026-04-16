@@ -46,10 +46,22 @@ import {
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+interface RatioMetaEntry { value: number; status: "ok" | "not_computable"; reason?: string }
+interface RatiosMetaBag {
+  current_ratio: RatioMetaEntry;
+  debt_to_equity: RatioMetaEntry;
+  gross_margin: RatioMetaEntry;
+  net_margin: RatioMetaEntry;
+  return_on_equity: RatioMetaEntry;
+  working_capital: RatioMetaEntry;
+}
 interface AnalysisResult {
   summary: { total_debit: number; total_credit: number; is_balanced: boolean; variance: number };
   financial_statements: { total_assets: number; total_liabilities: number; total_equity: number; total_revenue: number; total_expenses: number; net_income: number };
   ratios: { current_ratio: number; debt_to_equity: number; gross_margin: number; net_margin: number; return_on_equity: number; working_capital: number };
+  ratios_meta?: RatiosMetaBag;
+  completeness?: { computed: number; total: number; pct: number };
+  input_mode?: "TB" | "AUDITED" | "GL" | "PNL_ONLY" | "BS_ONLY" | "MIS" | "SIMPLE";
   classified_accounts: { assets: AccountItem[]; liabilities: AccountItem[]; equity: AccountItem[]; revenue: AccountItem[]; expenses: AccountItem[] };
   ind_as_observations: { standard: string; observation: string; severity: string }[];
   ai_questions: { question: string; reason: string }[];
@@ -537,25 +549,43 @@ export default function AnalysisPage() {
               <div className="bg-[#111] rounded-xl border border-white/8 p-6">
                 <h3 className="text-sm font-semibold text-white mb-4">Key Financial Ratios</h3>
                 <div className="space-y-4">
-                  {[
-                    { label: "Current Ratio", value: `${ratios.current_ratio}x`, benchmark: "Ideal: > 1.5x", ok: ratios.current_ratio >= 1.5 },
-                    { label: "Debt-to-Equity", value: `${ratios.debt_to_equity}x`, benchmark: "Ideal: < 2.0x", ok: ratios.debt_to_equity <= 2 },
-                    { label: "Gross Margin", value: `${ratios.gross_margin}%`, benchmark: "Industry: 30-50%", ok: ratios.gross_margin >= 30 },
-                    { label: "Net Margin", value: `${ratios.net_margin}%`, benchmark: "Healthy: > 10%", ok: ratios.net_margin >= 10 },
-                    { label: "Return on Equity", value: `${ratios.return_on_equity}%`, benchmark: "Good: > 15%", ok: ratios.return_on_equity >= 15 },
-                    { label: "Working Capital", value: fmt(ratios.working_capital, true), benchmark: "Should be positive", ok: ratios.working_capital > 0 },
-                  ].map(r => (
-                    <div key={r.label} className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-white/40">{r.label}</p>
-                        <p className="text-[10px] text-white/40">{r.benchmark}</p>
+                  {(() => {
+                    const rm = result.ratios_meta;
+                    const row = (
+                      key: keyof RatiosMetaBag,
+                      label: string,
+                      benchmark: string,
+                      format: (v: number) => string,
+                      okWhen: (v: number) => boolean,
+                    ) => {
+                      const m = rm?.[key];
+                      const legacy = ratios[key] as number;
+                      const computable = !m || m.status === "ok";
+                      const value = computable ? format(m ? m.value : legacy) : "—";
+                      const ok = computable && okWhen(m ? m.value : legacy);
+                      return { label, benchmark, value, ok, computable, reason: m?.reason };
+                    };
+                    const ratioRows = [
+                      row("current_ratio", "Current Ratio", "Ideal: > 1.5x", (v) => `${v}x`, (v) => v >= 1.5),
+                      row("debt_to_equity", "Debt-to-Equity", "Ideal: < 2.0x", (v) => `${v}x`, (v) => v <= 2),
+                      row("gross_margin", "Gross Margin", "Industry: 30-50%", (v) => `${v}%`, (v) => v >= 30),
+                      row("net_margin", "Net Margin", "Healthy: > 10%", (v) => `${v}%`, (v) => v >= 10),
+                      row("return_on_equity", "Return on Equity", "Good: > 15%", (v) => `${v}%`, (v) => v >= 15),
+                      row("working_capital", "Working Capital", "Should be positive", (v) => fmt(v, true), (v) => v > 0),
+                    ];
+                    return ratioRows.map((r) => (
+                      <div key={r.label} className="flex items-center justify-between" title={!r.computable ? r.reason : undefined}>
+                        <div>
+                          <p className="text-sm text-white/40">{r.label}</p>
+                          <p className="text-[10px] text-white/40">{r.computable ? r.benchmark : (r.reason ?? "Not available")}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm font-bold ${r.computable ? "text-white" : "text-white/35"}`}>{r.value}</span>
+                          <div className={`w-2 h-2 rounded-full ${!r.computable ? "bg-white/20" : r.ok ? "bg-emerald-500" : "bg-amber-500"}`} />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-white">{r.value}</span>
-                        <div className={`w-2 h-2 rounded-full ${r.ok ? "bg-emerald-500" : "bg-amber-500"}`} />
-                      </div>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
             </div>
@@ -912,27 +942,34 @@ export default function AnalysisPage() {
                 {(() => {
                   const takeaways: string[] = [];
 
-                  // 1. Profitability
-                  if (fs.net_income >= 0) {
+                  const rm = result.ratios_meta;
+                  const isComputed = (k: keyof RatiosMetaBag) => !rm || rm[k].status === "ok";
+
+                  // 1. Profitability — skip if no revenue (net margin not computable)
+                  if (fs.net_income >= 0 && isComputed("net_margin")) {
                     takeaways.push(`The business is profitable with a net margin of ${ratios.net_margin}%. Revenue of ${fmt(fs.total_revenue, true)} comfortably covers expenses.`);
-                  } else {
+                  } else if (fs.net_income < 0 && fs.total_revenue > 0) {
                     takeaways.push(`The business is running at a loss of ${fmt(Math.abs(fs.net_income), true)}. Expenses exceed revenue by ${fmt(fs.total_expenses - fs.total_revenue, true)}.`);
                   }
 
-                  // 2. Liquidity
-                  if (ratios.current_ratio >= 1.5) {
-                    takeaways.push(`Liquidity is strong with a current ratio of ${ratios.current_ratio}x. The business can comfortably meet short-term obligations.`);
-                  } else if (ratios.current_ratio >= 1) {
-                    takeaways.push(`Liquidity is adequate at ${ratios.current_ratio}x current ratio, but there is limited buffer. Keep an eye on receivables and payables timing.`);
-                  } else {
-                    takeaways.push(`Liquidity is a concern. The current ratio is ${ratios.current_ratio}x (below 1.0), meaning short-term liabilities exceed current assets.`);
+                  // 2. Liquidity — only if current ratio was computable
+                  if (isComputed("current_ratio")) {
+                    if (ratios.current_ratio >= 1.5) {
+                      takeaways.push(`Liquidity is strong with a current ratio of ${ratios.current_ratio}x. The business can comfortably meet short-term obligations.`);
+                    } else if (ratios.current_ratio >= 1) {
+                      takeaways.push(`Liquidity is adequate at ${ratios.current_ratio}x current ratio, but there is limited buffer. Keep an eye on receivables and payables timing.`);
+                    } else {
+                      takeaways.push(`Liquidity is a concern. The current ratio is ${ratios.current_ratio}x (below 1.0), meaning short-term liabilities exceed current assets.`);
+                    }
                   }
 
-                  // 3. Capital structure
-                  if (ratios.debt_to_equity > 1.5) {
-                    takeaways.push(`The business is heavily leveraged with a debt-to-equity ratio of ${ratios.debt_to_equity}x. Consider paying down debt to reduce interest burden.`);
-                  } else {
-                    takeaways.push(`Capital structure is balanced with a debt-to-equity ratio of ${ratios.debt_to_equity}x. Borrowing levels are within acceptable range.`);
+                  // 3. Capital structure — only if D/E was computable
+                  if (isComputed("debt_to_equity")) {
+                    if (ratios.debt_to_equity > 1.5) {
+                      takeaways.push(`The business is heavily leveraged with a debt-to-equity ratio of ${ratios.debt_to_equity}x. Consider paying down debt to reduce interest burden.`);
+                    } else {
+                      takeaways.push(`Capital structure is balanced with a debt-to-equity ratio of ${ratios.debt_to_equity}x. Borrowing levels are within acceptable range.`);
+                    }
                   }
 
                   // 4. Top expense
@@ -1023,25 +1060,50 @@ export default function AnalysisPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      { name: "Current Ratio", yours: `${ratios.current_ratio}x`, benchmark: "1.5x", ok: ratios.current_ratio >= 1.5 },
-                      { name: "Debt-to-Equity", yours: `${ratios.debt_to_equity}x`, benchmark: "<2.0x", ok: ratios.debt_to_equity <= 2 },
-                      { name: "Gross Margin", yours: `${ratios.gross_margin}%`, benchmark: "30-40%", ok: ratios.gross_margin >= 30 },
-                      { name: "Net Margin", yours: `${ratios.net_margin}%`, benchmark: ">10%", ok: ratios.net_margin >= 10 },
-                      { name: "ROE", yours: `${ratios.return_on_equity}%`, benchmark: ">15%", ok: ratios.return_on_equity >= 15 },
-                      { name: "Working Capital", yours: fmt(ratios.working_capital, true), benchmark: "Positive", ok: ratios.working_capital > 0 },
-                    ].map((row) => (
-                      <tr key={row.name} className="border-b border-white/3">
-                        <td className="py-3 text-white/50">{row.name}</td>
-                        <td className="py-3 text-right text-white font-semibold tabular-nums">{row.yours}</td>
-                        <td className="py-3 text-right text-white/30 tabular-nums">{row.benchmark}</td>
-                        <td className="py-3 text-right">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${row.ok ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
-                            {row.ok ? "Healthy" : "Review"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {(() => {
+                      const rm = result.ratios_meta;
+                      type Row = { name: string; yours: string; benchmark: string; status: "Healthy" | "Review" | "N/A"; reason?: string };
+                      const row = (
+                        key: keyof RatiosMetaBag,
+                        name: string,
+                        benchmark: string,
+                        format: (v: number) => string,
+                        okWhen: (v: number) => boolean,
+                      ): Row => {
+                        const m = rm?.[key];
+                        const legacy = ratios[key] as number;
+                        if (m && m.status === "not_computable") {
+                          return { name, yours: "—", benchmark, status: "N/A", reason: m.reason };
+                        }
+                        const v = m ? m.value : legacy;
+                        return { name, yours: format(v), benchmark, status: okWhen(v) ? "Healthy" : "Review" };
+                      };
+                      return [
+                        row("current_ratio", "Current Ratio", "1.5x", (v) => `${v}x`, (v) => v >= 1.5),
+                        row("debt_to_equity", "Debt-to-Equity", "<2.0x", (v) => `${v}x`, (v) => v <= 2),
+                        row("gross_margin", "Gross Margin", "30-40%", (v) => `${v}%`, (v) => v >= 30),
+                        row("net_margin", "Net Margin", ">10%", (v) => `${v}%`, (v) => v >= 10),
+                        row("return_on_equity", "ROE", ">15%", (v) => `${v}%`, (v) => v >= 15),
+                        row("working_capital", "Working Capital", "Positive", (v) => fmt(v, true), (v) => v > 0),
+                      ].map((r) => (
+                        <tr key={r.name} className="border-b border-white/3" title={r.status === "N/A" ? r.reason : undefined}>
+                          <td className="py-3 text-white/50">{r.name}</td>
+                          <td className={`py-3 text-right font-semibold tabular-nums ${r.status === "N/A" ? "text-white/35" : "text-white"}`}>{r.yours}</td>
+                          <td className="py-3 text-right text-white/30 tabular-nums">{r.benchmark}</td>
+                          <td className="py-3 text-right">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                              r.status === "Healthy"
+                                ? "bg-emerald-500/10 text-emerald-400"
+                                : r.status === "Review"
+                                ? "bg-red-500/10 text-red-400"
+                                : "bg-white/5 text-white/40"
+                            }`}>
+                              {r.status === "N/A" ? "Not available" : r.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ));
+                    })()}
                   </tbody>
                 </table>
               </div>

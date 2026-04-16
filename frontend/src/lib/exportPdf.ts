@@ -40,6 +40,15 @@ interface AccountItem {
   sub_group: string;
 }
 
+interface RatioMetaPdf { value: number; status: "ok" | "not_computable"; reason?: string }
+interface RatiosMetaPdf {
+  current_ratio: RatioMetaPdf;
+  debt_to_equity: RatioMetaPdf;
+  gross_margin: RatioMetaPdf;
+  net_margin: RatioMetaPdf;
+  return_on_equity: RatioMetaPdf;
+  working_capital: RatioMetaPdf;
+}
 interface AnalysisResult {
   summary: { total_debit: number; total_credit: number; is_balanced: boolean; variance: number };
   financial_statements: {
@@ -50,6 +59,9 @@ interface AnalysisResult {
     current_ratio: number; debt_to_equity: number; gross_margin: number;
     net_margin: number; return_on_equity: number; working_capital: number;
   };
+  ratios_meta?: RatiosMetaPdf;
+  completeness?: { computed: number; total: number; pct: number };
+  input_mode?: "TB" | "AUDITED" | "GL" | "PNL_ONLY" | "BS_ONLY" | "MIS" | "SIMPLE";
   classified_accounts: {
     assets: AccountItem[]; liabilities: AccountItem[]; equity: AccountItem[];
     revenue: AccountItem[]; expenses: AccountItem[];
@@ -58,6 +70,22 @@ interface AnalysisResult {
   ai_questions: { question: string; reason: string }[];
   insights: { category: string; title: string; detail: string; action: string; severity: string }[];
   warnings: { severity: string; title: string; detail: string }[];
+}
+
+// Helper: read a ratio from ratios_meta when present, fall back to the
+// legacy flat bag. Returns "—" for not_computable ratios so the printed
+// PDF doesn't show misleading zeros.
+function renderRatio(
+  result: AnalysisResult,
+  key: keyof RatiosMetaPdf,
+  format: (v: number) => string,
+): { text: string; computable: boolean; value: number; reason?: string } {
+  const m = result.ratios_meta?.[key];
+  if (m && m.status === "not_computable") {
+    return { text: "—", computable: false, value: 0, reason: m.reason };
+  }
+  const v = m ? m.value : (result.ratios[key] as number);
+  return { text: format(v), computable: true, value: v };
 }
 
 // ── Number + currency helpers ──────────────────────────────────────────────
@@ -270,12 +298,16 @@ export function exportAnalysisPdf(
   doc.setFontSize(8);
   doc.setTextColor(...MUTED);
   doc.text("KEY RATIOS", margin + 4, y + 7);
+  const mkRatio = (key: keyof RatiosMetaPdf, label: string, format: (v: number) => string, okWhen: (v: number) => boolean) => {
+    const r = renderRatio(result, key, format);
+    return { label, value: r.text, ok: r.computable && okWhen(r.value), computable: r.computable };
+  };
   const ratioItems = [
-    { label: "Current Ratio", value: `${ratios.current_ratio}x`, ok: ratios.current_ratio >= 1.5 },
-    { label: "Debt/Equity", value: `${ratios.debt_to_equity}x`, ok: ratios.debt_to_equity <= 2 },
-    { label: "Gross Margin", value: `${ratios.gross_margin}%`, ok: ratios.gross_margin >= 30 },
-    { label: "Net Margin", value: `${ratios.net_margin}%`, ok: ratios.net_margin >= 10 },
-    { label: "ROE", value: `${ratios.return_on_equity}%`, ok: ratios.return_on_equity >= 15 },
+    mkRatio("current_ratio", "Current Ratio", (v) => `${v}x`, (v) => v >= 1.5),
+    mkRatio("debt_to_equity", "Debt/Equity", (v) => `${v}x`, (v) => v <= 2),
+    mkRatio("gross_margin", "Gross Margin", (v) => `${v}%`, (v) => v >= 30),
+    mkRatio("net_margin", "Net Margin", (v) => `${v}%`, (v) => v >= 10),
+    mkRatio("return_on_equity", "ROE", (v) => `${v}%`, (v) => v >= 15),
   ];
   const rw = contentW / ratioItems.length;
   ratioItems.forEach((r, i) => {
@@ -284,7 +316,8 @@ export function exportAnalysisPdf(
     doc.setTextColor(...MUTED);
     doc.text(r.label, rx + 4, y + 16);
     doc.setFontSize(10);
-    const rgb = r.ok ? EMERALD : RED;
+    // Muted grey for not-computable ratios ("—"), emerald for healthy, red otherwise.
+    const rgb = !r.computable ? MUTED : r.ok ? EMERALD : RED;
     doc.setTextColor(rgb[0], rgb[1], rgb[2]);
     doc.text(r.value, rx + 4, y + 23);
   });
@@ -295,7 +328,7 @@ export function exportAnalysisPdf(
   doc.setTextColor(...MUTED);
   doc.text("EXECUTIVE SUMMARY", margin, y);
   y += 5;
-  const summaryText = buildExecutiveSummary(fs, ratios, ca);
+  const summaryText = buildExecutiveSummary(fs, ratios, ca, result.ratios_meta);
   doc.setFontSize(9);
   doc.setTextColor(...WHITE);
   const wrappedSummary = doc.splitTextToSize(summaryText, contentW);
@@ -492,13 +525,24 @@ export function exportAnalysisPdf(
 
   sectionHeader("Ratio Analysis vs Industry Benchmarks");
 
+  const ratioRow = (
+    key: keyof RatiosMetaPdf,
+    label: string,
+    benchmark: string,
+    format: (v: number) => string,
+    okWhen: (v: number) => boolean,
+  ): string[] => {
+    const r = renderRatio(result, key, format);
+    const status = !r.computable ? "Not available" : okWhen(r.value) ? "Healthy" : "Review";
+    return [label, r.text, benchmark, status];
+  };
   const ratioRows = [
-    ["Current Ratio", `${ratios.current_ratio}x`, "1.5x", ratios.current_ratio >= 1.5 ? "Healthy" : "Review"],
-    ["Debt-to-Equity", `${ratios.debt_to_equity}x`, "<2.0x", ratios.debt_to_equity <= 2 ? "Healthy" : "Review"],
-    ["Gross Margin", `${ratios.gross_margin}%`, "30-40%", ratios.gross_margin >= 30 ? "Healthy" : "Review"],
-    ["Net Margin", `${ratios.net_margin}%`, ">10%", ratios.net_margin >= 10 ? "Healthy" : "Review"],
-    ["Return on Equity", `${ratios.return_on_equity}%`, ">15%", ratios.return_on_equity >= 15 ? "Healthy" : "Review"],
-    ["Working Capital", fmt(ratios.working_capital, true), "Positive", ratios.working_capital > 0 ? "Healthy" : "Review"],
+    ratioRow("current_ratio", "Current Ratio", "1.5x", (v) => `${v}x`, (v) => v >= 1.5),
+    ratioRow("debt_to_equity", "Debt-to-Equity", "<2.0x", (v) => `${v}x`, (v) => v <= 2),
+    ratioRow("gross_margin", "Gross Margin", "30-40%", (v) => `${v}%`, (v) => v >= 30),
+    ratioRow("net_margin", "Net Margin", ">10%", (v) => `${v}%`, (v) => v >= 10),
+    ratioRow("return_on_equity", "Return on Equity", ">15%", (v) => `${v}%`, (v) => v >= 15),
+    ratioRow("working_capital", "Working Capital", "Positive", (v) => fmt(v, true), (v) => v > 0),
   ];
 
   autoTable(doc, {
@@ -518,8 +562,15 @@ export function exportAnalysisPdf(
     didParseCell: (data) => {
       if (data.column.index === 3 && data.section === "body") {
         const text = String(data.cell.raw || "");
-        data.cell.styles.textColor = text === "Healthy" ? EMERALD : RED;
+        data.cell.styles.textColor =
+          text === "Healthy" ? EMERALD : text === "Not available" ? MUTED : RED;
         data.cell.styles.fontStyle = "bold";
+      }
+      if (data.column.index === 1 && data.section === "body") {
+        // Dim the "—" cells so they visibly read as missing, not as a number.
+        if (String(data.cell.raw || "") === "—") {
+          data.cell.styles.textColor = MUTED;
+        }
       }
     },
   });
@@ -707,21 +758,25 @@ function buildExecutiveSummary(
   fs: AnalysisResult["financial_statements"],
   ratios: AnalysisResult["ratios"],
   ca: AnalysisResult["classified_accounts"],
+  ratiosMeta?: RatiosMetaPdf,
 ): string {
   const lines: string[] = [];
+  const ok = (key: keyof RatiosMetaPdf) => !ratiosMeta || ratiosMeta[key].status === "ok";
 
-  if (fs.net_income >= 0) {
+  if (fs.net_income >= 0 && fs.total_revenue > 0 && ok("net_margin")) {
     lines.push(`The business is profitable at a net margin of ${ratios.net_margin}%, on revenue of ${fmt(fs.total_revenue, true)}.`);
-  } else {
+  } else if (fs.net_income < 0 && fs.total_revenue > 0) {
     lines.push(`The business reported a net loss of ${fmt(Math.abs(fs.net_income), true)}; expenses exceeded revenue by ${fmt(fs.total_expenses - fs.total_revenue, true)}.`);
   }
 
-  if (ratios.current_ratio >= 1.5) {
-    lines.push(`Liquidity is strong (current ratio ${ratios.current_ratio}x).`);
-  } else if (ratios.current_ratio >= 1) {
-    lines.push(`Liquidity is tight (current ratio ${ratios.current_ratio}x) — monitor receivables / payables timing.`);
-  } else {
-    lines.push(`Liquidity is a concern (current ratio ${ratios.current_ratio}x) — short-term liabilities exceed current assets.`);
+  if (ok("current_ratio")) {
+    if (ratios.current_ratio >= 1.5) {
+      lines.push(`Liquidity is strong (current ratio ${ratios.current_ratio}x).`);
+    } else if (ratios.current_ratio >= 1) {
+      lines.push(`Liquidity is tight (current ratio ${ratios.current_ratio}x) — monitor receivables / payables timing.`);
+    } else {
+      lines.push(`Liquidity is a concern (current ratio ${ratios.current_ratio}x) — short-term liabilities exceed current assets.`);
+    }
   }
 
   const topExp = [...ca.expenses].sort((a, b) => Math.abs(b.net) - Math.abs(a.net))[0];
@@ -730,7 +785,9 @@ function buildExecutiveSummary(
     lines.push(`The largest cost head is ${topExp.name} at ${p}% of revenue.`);
   }
 
-  return lines.join(" ");
+  return lines.length > 0
+    ? lines.join(" ")
+    : "Uploaded data did not contain the inputs needed for a narrative summary. See the statements and ratios pages for available figures.";
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
