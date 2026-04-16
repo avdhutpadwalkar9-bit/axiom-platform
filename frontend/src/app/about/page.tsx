@@ -104,91 +104,162 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Founder */}
+      {/* Co-founders */}
       <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <FadeIn className="text-center mb-12">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Founder</p>
-            <h2 className="text-3xl font-bold">The person behind the product</h2>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Co-founders</p>
+            <h2 className="text-3xl font-bold">The people behind the product</h2>
+            <p className="text-white/40 text-[15px] leading-relaxed max-w-xl mx-auto mt-4">
+              Built by two operators who lived the problem &mdash; on both the
+              finance desk and the diligence side &mdash; across hundreds of
+              Indian MSME engagements.
+            </p>
           </FadeIn>
 
-          <FadeIn>
-            <div className="bg-[#111] rounded-2xl p-8 md:p-10 border border-white/5 hover:border-white/10 transition-all">
-              <div className="grid md:grid-cols-[auto_1fr] gap-8 items-start">
-                <div className="flex flex-col items-center md:items-start">
-                  <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/20 flex items-center justify-center mb-4">
-                    <span className="text-5xl font-bold bg-gradient-to-br from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Avdhut */}
+            <FadeIn>
+              <div className="bg-[#111] rounded-2xl p-8 border border-white/5 hover:border-white/10 transition-all h-full flex flex-col">
+                <div className="flex items-start gap-5 mb-6">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-3xl font-bold bg-gradient-to-br from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                       AP
                     </span>
                   </div>
-                  <div className="flex gap-2">
-                    <a
-                      href="https://www.linkedin.com/in/avdhut09/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label="LinkedIn"
-                      className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
-                    >
-                      <LinkedinIcon className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
-                    </a>
-                    <a
-                      href="mailto:avdhut@cortexcfo.ai"
-                      aria-label="Email"
-                      className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
-                    >
-                      <Mail className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
-                    </a>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl font-bold">Avdhut Padwalkar</h3>
+                    <p className="text-sm text-emerald-400 font-medium">Co-founder &amp; CEO</p>
+                    <p className="text-[12px] text-white/35 mt-1">Finance, product, AI &middot; Goa</p>
                   </div>
                 </div>
 
-                <div>
-                  <h3 className="text-2xl font-bold mb-1">Avdhut Padwalkar</h3>
-                  <p className="text-sm text-emerald-400 font-medium mb-5">Founder &amp; CEO, CortexCFO</p>
-                  <div className="space-y-3 text-[15px] text-white/55 leading-relaxed">
-                    <p>
-                      Avdhut is a CA-qualified finance operator and IIM alumnus who
-                      has spent the last decade sitting across the table from Indian
-                      MSME promoters &mdash; at Deloitte on the audit and M&amp;A
-                      side, and at 118kpm Capital on the investor side.
-                    </p>
-                    <p>
-                      Through hundreds of engagements across auto-components, FMCG,
-                      specialty chemicals and B2B services, the same pattern kept
-                      repeating: excellent operators running on messy books,
-                      discovering margin leaks and related-party noise only when a
-                      Big-4 diligence team walked in &mdash; usually during a capital
-                      raise, when it was too late to fix quietly.
-                    </p>
-                    <p>
-                      CortexCFO is the tool he wished existed a decade ago. A
-                      continuous, AI-native review engine that surfaces what
-                      advisors find &mdash; add-backs, Ind AS gaps, working-capital
-                      drift, margin erosion &mdash; every month, at roughly 1/60th
-                      the cost of a traditional QoE engagement, and always signed
-                      off by a qualified CA.
-                    </p>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-6">
-                    {["CA-qualified", "IIM alumnus", "Ex-Deloitte audit & M&A", "118kpm Capital", "₹10–50 Cr MSMEs"].map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+                <div className="space-y-3 text-[14px] text-white/55 leading-relaxed flex-1">
+                  <p>
+                    Finance operator with 5+ years across M&amp;A, financial
+                    modeling and FP&amp;A. Spent five years at MARC (Mangal
+                    Analytics &amp; Research Consulting) leading due diligence,
+                    valuation and the analytics division &mdash; then moved to
+                    Tohands as Finance Manager, where he runs bookkeeping,
+                    GST/TDS, SOPs and fundraising.
+                  </p>
+                  <p>
+                    Also teaches Financial Modeling, Stock Market Operations
+                    and Management Accounting as an Assistant Professor at Goa
+                    University, AITDA-Assagao, and Shree Damodar &amp; Dempo
+                    Colleges. CortexCFO is the tool he kept wishing his MSME
+                    clients had &mdash; continuous QoE, every month, at 1/60th
+                    the cost.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-6">
+                  {["MBA Finance", "Ex-MARC", "Asst. Professor, Goa University", "M&A & Valuation", "FP&A"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 mt-5 pt-5 border-t border-white/5">
+                  <a
+                    href="https://www.linkedin.com/in/avdhut09/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Avdhut on LinkedIn"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
+                  >
+                    <LinkedinIcon className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
+                  </a>
+                  <a
+                    href="mailto:avdhut@cortexcfo.ai"
+                    aria-label="Email Avdhut"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
+                  >
+                    <Mail className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
+                  </a>
                 </div>
               </div>
-            </div>
-          </FadeIn>
+            </FadeIn>
 
-          <FadeIn delay={150}>
+            {/* Rajan */}
+            <FadeIn delay={100}>
+              <div className="bg-[#111] rounded-2xl p-8 border border-white/5 hover:border-white/10 transition-all h-full flex flex-col">
+                <div className="flex items-start gap-5 mb-6">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-3xl font-bold bg-gradient-to-br from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                      RN
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl font-bold">Rajan Nagaraju</h3>
+                    <p className="text-sm text-emerald-400 font-medium">Co-founder &mdash; Growth &amp; Strategy</p>
+                    <p className="text-[12px] text-white/35 mt-1">GTM, partnerships, research &middot; Goa</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-[14px] text-white/55 leading-relaxed flex-1">
+                  <p>
+                    Management consultant focused on market research design,
+                    partnership development and business growth. At MARC, led
+                    research frameworks for FMCG national rollouts, IT/SaaS
+                    APAC market entry and healthcare assessments &mdash; and
+                    won the firm&apos;s first-ever competitive FMCG tender
+                    against 15+ established consulting firms.
+                  </p>
+                  <p>
+                    Closed three strategic MOUs with VCs managing &gt;USD 10 Mn
+                    average deal sizes and built the MSME-focused Business
+                    Transformation Kit at MARC. The same go-to-market playbook
+                    &mdash; translating financial rigour into tangible,
+                    outcome-shaped proposals &mdash; is what he brings to
+                    CortexCFO.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-6">
+                  {["BCom Accounting", "Ex-MARC", "VC partnerships (USD 10 Mn+)", "Market research", "MSME GTM"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex gap-2 mt-5 pt-5 border-t border-white/5">
+                  <a
+                    href="https://www.linkedin.com/in/rajan1705"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Rajan on LinkedIn"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
+                  >
+                    <LinkedinIcon className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
+                  </a>
+                  <a
+                    href="mailto:rajan@cortexcfo.ai"
+                    aria-label="Email Rajan"
+                    className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
+                  >
+                    <Mail className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
+                  </a>
+                </div>
+              </div>
+            </FadeIn>
+          </div>
+
+          <FadeIn delay={200}>
             <div className="mt-6 bg-white/[0.02] rounded-2xl p-6 border border-white/5">
               <p className="text-[13px] text-white/50 leading-relaxed">
                 <span className="text-emerald-400 font-semibold">Building the team.</span>{" "}
-                We&apos;re hiring founding engineers, CAs and a founding GTM lead to
-                build the financial intelligence layer for Indian MSMEs.{" "}
+                We&apos;re hiring founding engineers, CAs and a founding GTM
+                associate to build the financial intelligence layer for Indian
+                MSMEs.{" "}
                 <Link href="/careers" className="text-emerald-400 hover:underline font-medium">
                   See open roles &rarr;
                 </Link>

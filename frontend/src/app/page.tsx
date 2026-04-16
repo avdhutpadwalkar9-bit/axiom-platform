@@ -291,10 +291,11 @@ function EssentialMockup({ index }: { index: number }) {
           <div className="space-y-1.5 text-[11px]">
             {[
               { label: "Revenue from operations", amt: "12.84 Cr", tag: "Ind AS 115" },
-              { label: "Cost of materials consumed", amt: "(7.12 Cr)", tag: "" },
+              { label: "Cost of materials consumed", amt: "(7.12 Cr)", tag: "Ind AS 2" },
               { label: "Employee benefits expense", amt: "(1.94 Cr)", tag: "Ind AS 19" },
               { label: "Finance costs", amt: "(32.4 L)", tag: "Ind AS 23" },
-              { label: "Depreciation", amt: "(48.6 L)", tag: "Ind AS 16" },
+              { label: "Depreciation & amortisation", amt: "(48.6 L)", tag: "Ind AS 16" },
+              { label: "Other expenses", amt: "(39.0 L)", tag: "" },
             ].map((r) => (
               <div key={r.label} className="flex items-center justify-between">
                 <span className="text-white/55">{r.label}</span>
