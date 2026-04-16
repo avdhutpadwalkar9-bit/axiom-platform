@@ -293,9 +293,9 @@ export default function QoEPage() {
           <div className="flex-1 text-sm">
             <span className="text-amber-200 font-medium">Showing sample QoE workbook.</span>{" "}
             <span className="text-white/60">
-              Upload a Trial Balance on the{" "}
-              <Link href="/analysis" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">TB Analysis</Link>{" "}
-              page to populate the bridge with your own numbers.
+              Upload your financials on the{" "}
+              <Link href="/analysis" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">Analysis</Link>{" "}
+              page (TB, GL, or audited FS) to populate the bridge with your own numbers.
             </span>
           </div>
         </div>
