@@ -111,6 +111,15 @@ class ApiClient {
     });
   }
 
+  // Irreversible. Wipes the user row and every record tied to it.
+  // Caller is responsible for clearing localStorage + redirecting on success.
+  async deleteAccount(password: string, confirmation: string) {
+    return this.request<{ message: string }>("/api/auth/delete-account", {
+      method: "POST",
+      body: JSON.stringify({ password, confirmation }),
+    });
+  }
+
   // Models
   async listModels() {
     return this.request<

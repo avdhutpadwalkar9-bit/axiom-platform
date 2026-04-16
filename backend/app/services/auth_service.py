@@ -86,3 +86,38 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> User
 async def get_user_by_id(db: AsyncSession, user_id: uuid.UUID) -> User | None:
     result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
+
+
+async def delete_user_account(db: AsyncSession, user_id: uuid.UUID) -> None:
+    """Permanently delete a user and every record that belongs to them.
+
+    Two tables reference ``users.id`` without ``ondelete=CASCADE`` — their
+    rows must be removed first, otherwise Postgres blocks the user delete
+    with a FK violation:
+
+    * ``email_verifications`` — verification codes
+    * ``business_profiles`` — onboarding / company info
+
+    Everything else cascades from the user delete via declared FKs:
+
+    * ``workspaces`` (owner_id CASCADE) →
+      ``financial_models`` → ``sections`` / ``variables`` / ``scenarios``
+      → ``cell_values``
+    * ``workspace_members`` (user_id CASCADE)
+
+    We commit here so the delete is atomic from the caller's perspective.
+    There is no undo.
+    """
+    from sqlalchemy import delete
+
+    from app.models.business_profile import BusinessProfile
+    from app.models.email_verification import EmailVerification
+
+    await db.execute(
+        delete(EmailVerification).where(EmailVerification.user_id == user_id)
+    )
+    await db.execute(
+        delete(BusinessProfile).where(BusinessProfile.user_id == user_id)
+    )
+    await db.execute(delete(User).where(User.id == user_id))
+    await db.commit()

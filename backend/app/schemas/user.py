@@ -39,5 +39,13 @@ class VerifyEmailRequest(BaseModel):
     code: str
 
 
+class DeleteAccountRequest(BaseModel):
+    # The literal confirmation string protects against accidental or
+    # click-through deletion. We check the exact text on the server so
+    # the frontend can't lower the bar by accident.
+    password: str
+    confirmation: str
+
+
 class MessageResponse(BaseModel):
     message: str

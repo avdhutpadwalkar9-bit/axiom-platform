@@ -7,6 +7,7 @@ from app.database import get_db
 from app.middleware.auth import get_current_user
 from app.models.user import User
 from app.schemas.user import (
+    DeleteAccountRequest,
     MessageResponse,
     RefreshRequest,
     TokenResponse,
@@ -21,7 +22,9 @@ from app.services.auth_service import (
     create_refresh_token,
     create_user,
     decode_token,
+    delete_user_account,
     get_user_by_id,
+    verify_password,
 )
 from app.services.email_service import send_welcome_email
 from app.services.verification_service import (
@@ -146,3 +149,43 @@ async def resend_verification(
 
     await generate_and_send_code(db, current_user.id, current_user.email)
     return MessageResponse(message="Verification code sent")
+
+
+# Exact literal the client must type to confirm deletion. Anything else
+# (case, whitespace, trimming) is rejected — raising the bar on typos.
+DELETE_ACCOUNT_CONFIRMATION = "DELETE MY ACCOUNT"
+
+
+@router.post("/delete-account", response_model=MessageResponse)
+async def delete_account(
+    data: DeleteAccountRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Permanently delete the current user and all associated data.
+
+    Requires two guards:
+
+    1. Re-authentication — the caller must send the current password.
+       JWT alone isn't enough because a stolen token shouldn't be able
+       to nuke the account.
+    2. Exact confirmation string — "DELETE MY ACCOUNT", case-sensitive.
+       Protects against click-through / autofill.
+
+    POST (not DELETE) so that the request body travels through every
+    proxy and HTTP client without surprises — some middleware strips
+    bodies from DELETE requests.
+    """
+    if data.confirmation != DELETE_ACCOUNT_CONFIRMATION:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Confirmation must be exactly: {DELETE_ACCOUNT_CONFIRMATION}",
+        )
+    if not verify_password(data.password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password",
+        )
+
+    await delete_user_account(db, current_user.id)
+    return MessageResponse(message="Account and all associated data deleted")
