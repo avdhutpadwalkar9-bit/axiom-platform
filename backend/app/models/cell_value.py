@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import Boolean, ForeignKey, Integer, Numeric, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.database import Base, utc_now_naive
 
 
 class CellValue(Base):
@@ -19,7 +19,7 @@ class CellValue(Base):
     period_index: Mapped[int] = mapped_column(Integer, nullable=False)
     value: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     is_override: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(default=utc_now_naive)
 
     variable = relationship("Variable", back_populates="cell_values")
     scenario = relationship("Scenario", back_populates="cell_values")

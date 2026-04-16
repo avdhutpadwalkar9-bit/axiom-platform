@@ -1,10 +1,10 @@
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime
 
 from sqlalchemy import ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.database import Base, utc_now_naive
 
 
 class FinancialModel(Base):
@@ -17,10 +17,10 @@ class FinancialModel(Base):
     start_date: Mapped[date] = mapped_column(nullable=False)
     period_count: Mapped[int] = mapped_column(Integer, default=36)
     period_type: Mapped[str] = mapped_column(String(20), default="monthly")
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(default=utc_now_naive)
     updated_at: Mapped[datetime] = mapped_column(
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
+        default=utc_now_naive,
+        onupdate=utc_now_naive,
     )
 
     workspace = relationship("Workspace", back_populates="models")

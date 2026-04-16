@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.database import Base, utc_now_naive
 
 
 class Scenario(Base):
@@ -15,7 +15,7 @@ class Scenario(Base):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     is_base: Mapped[bool] = mapped_column(Boolean, default=False)
     color: Mapped[str | None] = mapped_column(String(7), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(default=utc_now_naive)
 
     model = relationship("FinancialModel", back_populates="scenarios")
     cell_values = relationship("CellValue", back_populates="scenario", cascade="all, delete-orphan")

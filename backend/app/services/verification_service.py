@@ -2,12 +2,13 @@
 
 import secrets
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
+from app.database import utc_now_naive
 from app.models.email_verification import EmailVerification
 from app.models.user import User
 from app.services.email_service import send_verification_email
@@ -28,7 +29,8 @@ async def generate_and_send_code(db: AsyncSession, user_id: uuid.UUID, email: st
     )
 
     code = _generate_code()
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=settings.VERIFICATION_CODE_EXPIRE_MINUTES)
+    # Naive UTC so it compares cleanly against the naive expires_at column.
+    expires_at = utc_now_naive() + timedelta(minutes=settings.VERIFICATION_CODE_EXPIRE_MINUTES)
 
     verification = EmailVerification(
         user_id=user_id,
@@ -46,7 +48,7 @@ async def generate_and_send_code(db: AsyncSession, user_id: uuid.UUID, email: st
 
 async def verify_code(db: AsyncSession, user_id: uuid.UUID, code: str) -> bool:
     """Verify a code. Returns True if valid, False otherwise."""
-    now = datetime.now(timezone.utc)
+    now = utc_now_naive()
 
     result = await db.execute(
         select(EmailVerification).where(
@@ -76,8 +78,7 @@ async def verify_code(db: AsyncSession, user_id: uuid.UUID, code: str) -> bool:
 
 async def can_resend(db: AsyncSession, user_id: uuid.UUID) -> bool:
     """Check if enough time has passed since the last code was sent (60s cooldown)."""
-    now = datetime.now(timezone.utc)
-    cooldown = now - timedelta(seconds=60)
+    cooldown = utc_now_naive() - timedelta(seconds=60)
 
     result = await db.execute(
         select(EmailVerification)

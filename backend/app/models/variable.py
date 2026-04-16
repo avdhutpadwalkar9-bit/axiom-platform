@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import Boolean, ForeignKey, Integer, Numeric, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.database import Base
+from app.database import Base, utc_now_naive
 
 
 class Variable(Base):
@@ -22,7 +22,7 @@ class Variable(Base):
     default_value: Mapped[float | None] = mapped_column(Numeric, nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
     is_cumulative: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    created_at: Mapped[datetime] = mapped_column(default=utc_now_naive)
 
     model = relationship("FinancialModel", back_populates="variables")
     section = relationship("Section", back_populates="variables")
