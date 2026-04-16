@@ -18,6 +18,7 @@ const productLinks = [
 ];
 
 const resourceLinks = [
+  { label: "Knowledge Base", href: "/knowledge-base" },
   { label: "Blog", href: "/blog" },
   { label: "Glossary", href: "/glossary" },
   { label: "FAQ", href: "/faq" },
@@ -290,6 +291,7 @@ export default function SiteNav() {
               { label: "About", href: "/about" },
               { label: "Product", href: "/product" },
               { label: "Pricing", href: "/pricing" },
+              { label: "Knowledge Base", href: "/knowledge-base" },
               { label: "Blog", href: "/blog" },
               { label: "FAQ", href: "/faq" },
               { label: "Contact", href: "/contact" },
