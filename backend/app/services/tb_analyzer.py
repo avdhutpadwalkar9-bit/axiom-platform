@@ -40,13 +40,28 @@ class AnalysisResult:
     total_expenses: float = 0
     net_income: float = 0
 
-    # Ratios
+    # Ratios — legacy flat numbers, kept for backward compatibility
     current_ratio: float = 0
     debt_to_equity: float = 0
     gross_margin: float = 0
     net_margin: float = 0
     return_on_equity: float = 0
     working_capital: float = 0
+
+    # Ratios — declarative metadata. Each ratio is either
+    #   {"value": <number>, "status": "ok"}
+    # or
+    #   {"value": 0.0, "status": "not_computable", "reason": "<plain-English>"}
+    # The dashboard uses this to render "—" + a tooltip instead of a silent 0.
+    ratios_meta: dict = field(default_factory=dict)
+
+    # Completeness — how many ratios actually computed vs. total tried.
+    completeness: dict = field(default_factory=dict)
+
+    # Which kind of file produced this analysis. Defaults to "TB" because
+    # that's the only path today. Downstream parsers (audited FS, GL, P&L,
+    # MIS) will override this.
+    input_mode: str = "TB"
 
     # Ind AS observations
     ind_as_observations: list = field(default_factory=list)
@@ -242,24 +257,43 @@ def analyze_trial_balance(entries: list[dict]) -> dict:
         i["credit"] - i["debit"] for i in result.liabilities if i["sub_group"] == "current_liabilities"
     )
 
-    # Financial Ratios
-    if current_liabilities > 0:
-        result.current_ratio = round(current_assets / current_liabilities, 2)
-    if result.total_equity > 0:
-        result.debt_to_equity = round(result.total_liabilities / result.total_equity, 2)
-        result.return_on_equity = round((result.net_income / result.total_equity) * 100, 2)
-    if result.total_revenue > 0:
-        result.net_margin = round((result.net_income / result.total_revenue) * 100, 2)
+    # Financial ratios — declarative computation with NotComputable reasons
+    # so the dashboard can show "—" + tooltip instead of a silent 0.
+    cogs = sum(
+        i["debit"] - i["credit"] for i in result.expenses
+        if re.search(r"purchase|cost.*good|cogs", i["name"].lower())
+    )
+    result.ratios_meta = _compute_ratios(
+        current_assets=current_assets,
+        current_liabilities=current_liabilities,
+        total_liabilities=result.total_liabilities,
+        total_equity=result.total_equity,
+        total_revenue=result.total_revenue,
+        net_income=result.net_income,
+        cogs=cogs,
+    )
 
-        # Try to find COGS for gross margin
-        cogs = sum(
-            i["debit"] - i["credit"] for i in result.expenses
-            if re.search(r"purchase|cost.*good|cogs", i["name"].lower())
-        )
-        if cogs > 0:
-            result.gross_margin = round(((result.total_revenue - cogs) / result.total_revenue) * 100, 2)
+    # Mirror computed values into the legacy flat fields so existing callers
+    # (analysis page, PDF export, etc.) keep working unchanged. Not-computable
+    # ratios mirror as 0.0 — the legacy behaviour.
+    result.current_ratio = result.ratios_meta["current_ratio"]["value"]
+    result.debt_to_equity = result.ratios_meta["debt_to_equity"]["value"]
+    result.return_on_equity = result.ratios_meta["return_on_equity"]["value"]
+    result.net_margin = result.ratios_meta["net_margin"]["value"]
+    result.gross_margin = result.ratios_meta["gross_margin"]["value"]
+    result.working_capital = result.ratios_meta["working_capital"]["value"]
 
-    result.working_capital = round(current_assets - current_liabilities, 2)
+    # Completeness: how many ratios actually computed (for the "5 of 6 ratios"
+    # chip on the dashboard).
+    computed = sum(
+        1 for m in result.ratios_meta.values() if m["status"] == "ok"
+    )
+    total = len(result.ratios_meta)
+    result.completeness = {
+        "computed": computed,
+        "total": total,
+        "pct": round(computed / total * 100, 0) if total else 0,
+    }
 
     # Ind AS Observations
     _check_ind_as(result, classified_entries)
@@ -521,6 +555,124 @@ def _generate_insights(result: AnalysisResult):
             })
 
 
+def _compute_ratios(
+    *,
+    current_assets: float,
+    current_liabilities: float,
+    total_liabilities: float,
+    total_equity: float,
+    total_revenue: float,
+    net_income: float,
+    cogs: float,
+) -> dict:
+    """Compute the standard ratio pack declaratively.
+
+    Every ratio is either {"value": number, "status": "ok"} when inputs
+    allow a meaningful number, or {"value": 0.0, "status": "not_computable",
+    "reason": <plain-English>} when a required input is missing or zero.
+
+    The reasons are user-facing: they surface as tooltips on the dashboard
+    when a metric shows "—". Keep them short and actionable.
+    """
+    meta: dict = {}
+
+    # Current ratio — liquidity
+    if current_liabilities <= 0:
+        meta["current_ratio"] = {
+            "value": 0.0,
+            "status": "not_computable",
+            "reason": "No current liabilities classified in the trial balance.",
+        }
+    else:
+        meta["current_ratio"] = {
+            "value": round(current_assets / current_liabilities, 2),
+            "status": "ok",
+        }
+
+    # Debt-to-equity — leverage
+    if total_equity <= 0:
+        meta["debt_to_equity"] = {
+            "value": 0.0,
+            "status": "not_computable",
+            "reason": (
+                "Equity is zero or negative — D/E is not meaningful for this "
+                "company right now."
+            ),
+        }
+    else:
+        meta["debt_to_equity"] = {
+            "value": round(total_liabilities / total_equity, 2),
+            "status": "ok",
+        }
+
+    # Return on equity
+    if total_equity <= 0:
+        meta["return_on_equity"] = {
+            "value": 0.0,
+            "status": "not_computable",
+            "reason": (
+                "Equity is zero or negative — return on equity cannot be "
+                "interpreted."
+            ),
+        }
+    else:
+        meta["return_on_equity"] = {
+            "value": round(net_income / total_equity * 100, 2),
+            "status": "ok",
+        }
+
+    # Net margin — needs revenue
+    if total_revenue <= 0:
+        meta["net_margin"] = {
+            "value": 0.0,
+            "status": "not_computable",
+            "reason": "No revenue recorded in the trial balance.",
+        }
+    else:
+        meta["net_margin"] = {
+            "value": round(net_income / total_revenue * 100, 2),
+            "status": "ok",
+        }
+
+    # Gross margin — needs revenue AND a COGS / purchase account
+    if total_revenue <= 0:
+        meta["gross_margin"] = {
+            "value": 0.0,
+            "status": "not_computable",
+            "reason": "No revenue recorded in the trial balance.",
+        }
+    elif cogs <= 0:
+        meta["gross_margin"] = {
+            "value": 0.0,
+            "status": "not_computable",
+            "reason": (
+                "No COGS / purchase account found — gross margin cannot be "
+                "separated from total expenses."
+            ),
+        }
+    else:
+        meta["gross_margin"] = {
+            "value": round((total_revenue - cogs) / total_revenue * 100, 2),
+            "status": "ok",
+        }
+
+    # Working capital — subtraction, always numerically computable but only
+    # meaningful if any current items were classified.
+    if current_assets == 0 and current_liabilities == 0:
+        meta["working_capital"] = {
+            "value": 0.0,
+            "status": "not_computable",
+            "reason": "No current assets or liabilities classified.",
+        }
+    else:
+        meta["working_capital"] = {
+            "value": round(current_assets - current_liabilities, 2),
+            "status": "ok",
+        }
+
+    return meta
+
+
 def _to_dict(result: AnalysisResult) -> dict:
     """Convert result to a JSON-serializable dict."""
     return {
@@ -546,6 +698,11 @@ def _to_dict(result: AnalysisResult) -> dict:
             "return_on_equity": result.return_on_equity,
             "working_capital": result.working_capital,
         },
+        # NEW — richer per-ratio metadata so the dashboard can render "—"
+        # + a tooltip instead of a silent 0 when inputs are missing.
+        "ratios_meta": result.ratios_meta,
+        "completeness": result.completeness,
+        "input_mode": result.input_mode,
         "classified_accounts": {
             "assets": result.assets,
             "liabilities": result.liabilities,

@@ -23,6 +23,8 @@ import {
   Search,
   SlidersHorizontal,
   MoreVertical,
+  Gauge,
+  HelpCircle,
 } from "lucide-react";
 import {
   BarChart,
@@ -250,33 +252,66 @@ export default function DashboardPage() {
 
   const totalExpenses = classified.expenses.reduce((s, e) => s + Math.abs(e.net), 0);
 
-  /* ---- Key metric cards (ratio tiles) ---- */
-  const metrics = [
-    {
-      label: "Current Ratio",
-      value: `${ratios.current_ratio.toFixed(2)}x`,
-      sub: "Liquidity",
-      status: ratios.current_ratio >= 1.5 ? "Healthy" : ratios.current_ratio >= 1 ? "Adequate" : "Attention",
-    },
-    {
-      label: "D/E Ratio",
-      value: `${ratios.debt_to_equity.toFixed(2)}x`,
-      sub: "Leverage",
-      status: ratios.debt_to_equity <= 1 ? "Healthy" : ratios.debt_to_equity <= 1.5 ? "Adequate" : "Attention",
-    },
-    {
-      label: "Gross Margin",
-      value: pct(ratios.gross_margin),
-      sub: "Profitability",
-      status: ratios.gross_margin >= 0.35 ? "Healthy" : ratios.gross_margin >= 0.2 ? "Adequate" : "Attention",
-    },
-    {
-      label: "Net Margin",
-      value: pct(ratios.net_margin),
-      sub: "Bottom-line",
-      status: ratios.net_margin >= 0.1 ? "Healthy" : ratios.net_margin >= 0.03 ? "Adequate" : "Attention",
-    },
+  /* ---- Key metric cards (ratio tiles) ----
+   * Each tile is driven off `ratios_meta` when the backend ships it, so we
+   * can render "—" + a tooltip when a denominator is missing instead of
+   * a misleading 0. We fall back to the legacy flat `ratios` bag for older
+   * cached analyses in localStorage.
+   */
+  const ratiosMeta = lastResult.ratios_meta;
+  type MetricStatus = "Healthy" | "Adequate" | "Attention" | "Unavailable";
+  interface Metric {
+    label: string;
+    sub: string;
+    value: string;
+    status: MetricStatus;
+    reason?: string;
+  }
+  function readMetric(
+    key: keyof NonNullable<typeof ratiosMeta>,
+    label: string,
+    sub: string,
+    format: (n: number) => string,
+    grade: (n: number) => MetricStatus,
+  ): Metric {
+    const meta = ratiosMeta?.[key];
+    if (meta?.status === "not_computable") {
+      return { label, sub, value: "—", status: "Unavailable", reason: meta.reason };
+    }
+    const v = meta ? meta.value : (ratios[key] as number);
+    return { label, sub, value: format(v), status: grade(v) };
+  }
+  const metrics: Metric[] = [
+    readMetric(
+      "current_ratio",
+      "Current Ratio",
+      "Liquidity",
+      (v) => `${v.toFixed(2)}x`,
+      (v) => (v >= 1.5 ? "Healthy" : v >= 1 ? "Adequate" : "Attention"),
+    ),
+    readMetric(
+      "debt_to_equity",
+      "D/E Ratio",
+      "Leverage",
+      (v) => `${v.toFixed(2)}x`,
+      (v) => (v <= 1 ? "Healthy" : v <= 1.5 ? "Adequate" : "Attention"),
+    ),
+    readMetric(
+      "gross_margin",
+      "Gross Margin",
+      "Profitability",
+      (v) => pct(v),
+      (v) => (v >= 0.35 ? "Healthy" : v >= 0.2 ? "Adequate" : "Attention"),
+    ),
+    readMetric(
+      "net_margin",
+      "Net Margin",
+      "Bottom-line",
+      (v) => pct(v),
+      (v) => (v >= 0.1 ? "Healthy" : v >= 0.03 ? "Adequate" : "Attention"),
+    ),
   ];
+  const completeness = lastResult.completeness;
 
   /* ---- KPI cards (top row, 3 cards) ---- */
   const kpiCards = [
@@ -539,37 +574,75 @@ export default function DashboardPage() {
           <div className="bg-[#111] rounded-2xl p-5 border border-white/5">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-[15px] font-semibold text-white">Key metrics</h3>
-              <button
-                onClick={() => router.push("/analysis")}
-                className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
-              >
-                + View all
-              </button>
+              <div className="flex items-center gap-3">
+                {completeness && completeness.total > 0 && (
+                  <span
+                    title={
+                      completeness.computed === completeness.total
+                        ? "All ratios computed from the uploaded data."
+                        : "Some ratios could not be computed — hover a tile to see why."
+                    }
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border ${
+                      completeness.computed === completeness.total
+                        ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-300 border-amber-500/20"
+                    }`}
+                  >
+                    <Gauge className="w-3 h-3" />
+                    {completeness.computed}/{completeness.total} ratios
+                  </span>
+                )}
+                <button
+                  onClick={() => router.push("/analysis")}
+                  className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
+                >
+                  + View all
+                </button>
+              </div>
             </div>
             <p className="text-[11px] text-white/30 mb-4">Health check across the four pillars</p>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {metrics.map((m) => {
-                const statusColor =
-                  m.status === "Healthy"
-                    ? "text-emerald-400"
-                    : m.status === "Adequate"
-                    ? "text-amber-400"
-                    : "text-rose-400";
+                const isUnavailable = m.status === "Unavailable";
+                const statusColor = isUnavailable
+                  ? "text-white/30"
+                  : m.status === "Healthy"
+                  ? "text-emerald-400"
+                  : m.status === "Adequate"
+                  ? "text-amber-400"
+                  : "text-rose-400";
                 return (
                   <div
                     key={m.label}
-                    className="bg-white/3 rounded-xl p-3.5 border border-white/5 hover:border-white/10 transition-colors"
+                    className={`rounded-xl p-3.5 border transition-colors ${
+                      isUnavailable
+                        ? "bg-white/[0.02] border-white/5"
+                        : "bg-white/3 border-white/5 hover:border-white/10"
+                    }`}
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <span className="text-[11px] text-white/50 leading-tight">{m.label}</span>
+                      <span className="text-[11px] text-white/50 leading-tight flex items-center gap-1">
+                        {m.label}
+                        {isUnavailable && m.reason && (
+                          <span title={m.reason} className="cursor-help">
+                            <HelpCircle className="w-3 h-3 text-white/30" />
+                          </span>
+                        )}
+                      </span>
                       <MoreVertical className="w-3 h-3 text-white/15" />
                     </div>
-                    <p className="text-[18px] font-bold text-white leading-none">{m.value}</p>
+                    <p
+                      className={`text-[18px] font-bold leading-none ${
+                        isUnavailable ? "text-white/40" : "text-white"
+                      }`}
+                    >
+                      {m.value}
+                    </p>
                     <p className="text-[10px] text-white/25 mt-1">{m.sub}</p>
                     <p className={`text-[10px] mt-2 font-medium flex items-center gap-1 ${statusColor}`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      {m.status}
+                      {isUnavailable ? "Not available" : m.status}
                     </p>
                   </div>
                 );

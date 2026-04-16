@@ -19,6 +19,44 @@ interface Ratios {
   working_capital: number;
 }
 
+// Per-ratio status so the dashboard can render "—" + a tooltip instead of
+// a silent 0 when a denominator is missing or the account wasn't present.
+// The legacy `ratios` bag is still populated (mirroring `.value`), so
+// existing consumers don't break — only the dashboard opts into the new
+// shape today.
+export type RatioStatus = "ok" | "not_computable";
+export interface RatioMeta {
+  value: number;
+  status: RatioStatus;
+  reason?: string;
+}
+export interface RatiosMeta {
+  current_ratio: RatioMeta;
+  debt_to_equity: RatioMeta;
+  gross_margin: RatioMeta;
+  net_margin: RatioMeta;
+  return_on_equity: RatioMeta;
+  working_capital: RatioMeta;
+}
+
+export interface Completeness {
+  computed: number;
+  total: number;
+  pct: number;
+}
+
+// Source type of the uploaded file — drives downstream behaviour. Defaults
+// to "TB" because that's the only path shipping today. Parsers for audited
+// financials, general ledgers, standalone P&Ls etc. will set their own.
+export type InputMode =
+  | "TB"
+  | "AUDITED"
+  | "GL"
+  | "PNL_ONLY"
+  | "BS_ONLY"
+  | "MIS"
+  | "SIMPLE";
+
 interface AccountItem {
   name: string;
   code: string;
@@ -62,6 +100,11 @@ export interface AnalysisResult {
   };
   financial_statements: FinancialStatements;
   ratios: Ratios;
+  // Optional because old persisted analyses in localStorage predate this
+  // field. New analyses from the backend always include it.
+  ratios_meta?: RatiosMeta;
+  completeness?: Completeness;
+  input_mode?: InputMode;
   classified_accounts: {
     assets: AccountItem[];
     liabilities: AccountItem[];
