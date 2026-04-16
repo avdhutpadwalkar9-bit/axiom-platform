@@ -35,13 +35,43 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 @router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def signup(data: UserCreate, db: AsyncSession = Depends(get_db)):
-    try:
-        user = await create_user(db, data.email, data.password, data.name)
-    except Exception:
+    # Distinguish real duplicate-email from other failures. Historically we
+    # caught any Exception and surfaced "Email already registered", which made
+    # DB/schema issues look like duplicates to the user. Do the pre-check
+    # explicitly and let other failures bubble up as 500 (visible in logs).
+    from sqlalchemy import func, select
+    from app.models.user import User
+    from app.services.auth_service import normalize_email
+
+    normalized = normalize_email(data.email)
+    existing = await db.execute(
+        select(User.id).where(func.lower(User.email) == normalized)
+    )
+    if existing.scalar_one_or_none() is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
 
+    try:
+        user = await create_user(db, data.email, data.password, data.name)
+    except Exception as e:
+        # Log full traceback so we can diagnose DB/schema issues instead of
+        # blaming them on duplicate emails.
+        import traceback
+        print(f"[AUTH] Signup create_user failed for {data.email!r}: {e}")
+        print(traceback.format_exc())
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Signup failed: {type(e).__name__}: {str(e)[:200]}",
+        )
+
     # Send verification code (gated email)
-    await generate_and_send_code(db, user.id, user.email)
+    try:
+        await generate_and_send_code(db, user.id, user.email)
+    except Exception as e:
+        # Verification email failure is non-fatal — user is created, they
+        # can request a resend. Log so we can see if Resend is broken.
+        import traceback
+        print(f"[AUTH] Verification email failed for {user.email}: {e}")
+        print(traceback.format_exc())
 
     # Fire the welcome/onboarding email alongside the verification code.
     # Non-fatal — a Resend failure here must not block signup.
