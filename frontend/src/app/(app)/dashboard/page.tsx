@@ -367,10 +367,10 @@ export default function DashboardPage() {
   const equityShare = fs.total_assets > 0 ? fs.total_equity / fs.total_assets : 0;
 
   return (
-    <div className="flex">
+    <div className="flex w-full">
       {/* Main content area */}
       <div
-        className={`flex-1 min-w-0 p-6 lg:p-8 space-y-6 transition-all duration-300 ${
+        className={`flex-1 min-w-0 py-6 pl-6 pr-4 lg:py-8 lg:pl-8 lg:pr-6 space-y-6 transition-all duration-300 ${
           showAnalyst ? "mr-[400px]" : ""
         }`}
       >
