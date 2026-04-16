@@ -322,6 +322,7 @@ export default function DashboardPage() {
       date: formattedDate,
       metric: fmt(fs.total_revenue),
       status: "Completed",
+      onClick: () => router.push("/analysis"),
     },
     {
       icon: TrendingUp,
@@ -330,6 +331,7 @@ export default function DashboardPage() {
       date: formattedDate,
       metric: `${Object.keys(ratios).length} ratios`,
       status: "Completed",
+      onClick: () => router.push("/analysis"),
     },
     {
       icon: Shield,
@@ -338,6 +340,7 @@ export default function DashboardPage() {
       date: formattedDate,
       metric: indAS && indAS.length > 0 ? `${indAS.length} observations` : "Clean",
       status: "Completed",
+      onClick: () => router.push("/qoe"),
     },
     {
       icon: MessageSquare,
@@ -346,6 +349,7 @@ export default function DashboardPage() {
       date: formattedDate,
       metric: chatMessages.length > 0 ? `${chatMessages.length} messages` : "Ready",
       status: chatMessages.length > 0 ? "Active" : "Idle",
+      onClick: () => setShowAnalyst(true),
     },
     {
       icon: Sparkles,
@@ -354,8 +358,13 @@ export default function DashboardPage() {
       date: formattedDate,
       metric: insights && insights.length > 0 ? `${insights.length} findings` : "—",
       status: "Completed",
+      onClick: () => router.push("/analysis"),
     },
   ];
+
+  /* ---- Balance-sheet funding mix shares ---- */
+  const liabShare = fs.total_assets > 0 ? fs.total_liabilities / fs.total_assets : 0;
+  const equityShare = fs.total_assets > 0 ? fs.total_equity / fs.total_assets : 0;
 
   return (
     <div className="flex">
@@ -523,12 +532,10 @@ export default function DashboardPage() {
                   <p className="text-[26px] font-bold text-white mt-1 tracking-tight">{fmt(totalExpenses)}</p>
                   <p className="text-[11px] text-white/30">Top 8 expense heads &middot; current period</p>
                 </div>
-                <div className="flex items-center gap-1 p-0.5 bg-white/5 rounded-full border border-white/5">
-                  <button className="px-3 py-1 rounded-full text-[11px] text-white/50">Monthly</button>
-                  <button className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-medium border border-emerald-500/25">
-                    Latest
-                  </button>
-                </div>
+                <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-[11px] font-medium border border-emerald-500/20">
+                  <Calendar className="w-3 h-3" />
+                  {formattedDate ? `As of ${formattedDate}` : "Latest period"}
+                </span>
               </div>
               {expenseChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={260}>
@@ -574,6 +581,69 @@ export default function DashboardPage() {
           </FadeIn>
         </div>
 
+        {/* Balance Sheet Snapshot */}
+        <FadeIn delay={130}>
+          <div className="bg-[#111] rounded-2xl p-5 border border-white/5">
+            <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
+              <div>
+                <h3 className="text-[15px] font-semibold text-white">Balance Sheet Snapshot</h3>
+                <p className="text-[11px] text-white/30 mt-0.5">How assets are funded as of the latest close</p>
+              </div>
+              <button
+                onClick={() => router.push("/analysis")}
+                className="flex items-center gap-1 text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+              >
+                Open statement <ArrowUpRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+              <div className="rounded-xl bg-white/3 border border-white/5 p-4">
+                <p className="text-[11px] text-white/40">Total Assets</p>
+                <p className="text-[22px] font-bold text-white mt-1.5 tracking-tight">{fmt(fs.total_assets)}</p>
+                <p className="text-[10px] text-white/30 mt-1">What the business owns</p>
+              </div>
+              <div className="rounded-xl bg-white/3 border border-white/5 p-4">
+                <p className="text-[11px] text-white/40">Total Liabilities</p>
+                <p className="text-[22px] font-bold text-white mt-1.5 tracking-tight">{fmt(fs.total_liabilities)}</p>
+                <p className="text-[10px] text-white/30 mt-1">{pct(liabShare)} of assets</p>
+              </div>
+              <div className="rounded-xl bg-white/3 border border-white/5 p-4">
+                <p className="text-[11px] text-white/40">Total Equity</p>
+                <p className="text-[22px] font-bold text-white mt-1.5 tracking-tight">{fmt(fs.total_equity)}</p>
+                <p className="text-[10px] text-white/30 mt-1">{pct(equityShare)} of assets</p>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] text-white/40">Funding mix</span>
+                <span className="text-[11px] text-white/40">{fmt(fs.total_assets)}</span>
+              </div>
+              <div className="flex h-2.5 rounded-full overflow-hidden bg-white/5">
+                <div
+                  className="bg-rose-400/80"
+                  style={{ width: `${Math.max(0, Math.min(100, liabShare * 100))}%` }}
+                />
+                <div
+                  className="bg-emerald-400/80"
+                  style={{ width: `${Math.max(0, Math.min(100, equityShare * 100))}%` }}
+                />
+              </div>
+              <div className="flex items-center gap-4 mt-3 flex-wrap">
+                <span className="flex items-center gap-1.5 text-[11px] text-white/50">
+                  <span className="w-2 h-2 rounded-full bg-rose-400/80" />
+                  Liabilities {pct(liabShare)}
+                </span>
+                <span className="flex items-center gap-1.5 text-[11px] text-white/50">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400/80" />
+                  Equity {pct(equityShare)}
+                </span>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
+
         {/* Recent Activities */}
         <FadeIn delay={150}>
           <div className="bg-[#111] rounded-2xl border border-white/5 overflow-hidden">
@@ -611,7 +681,11 @@ export default function DashboardPage() {
                   {activities.map((a, i) => {
                     const Icon = a.icon;
                     return (
-                      <tr key={i} className="border-b border-white/5 last:border-b-0 hover:bg-white/[0.02] transition-colors">
+                      <tr
+                        key={i}
+                        onClick={a.onClick}
+                        className="border-b border-white/5 last:border-b-0 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                      >
                         <td className="px-5 py-3.5 text-white">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center">

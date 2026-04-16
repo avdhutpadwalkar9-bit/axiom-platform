@@ -16,6 +16,8 @@ import {
   FolderOpen,
   TrendingUp,
   Loader2,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
@@ -176,6 +178,39 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+
+        {/* Subscription upgrade card */}
+        <div className="px-3 pb-3">
+          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/8 to-transparent border border-emerald-500/20 p-4">
+            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full bg-emerald-500/20 blur-2xl pointer-events-none" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-1.5">
+                <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center">
+                  <Sparkles className="w-3 h-3 text-white" />
+                </div>
+                <p className="text-[13px] font-semibold text-white">Upgrade to Pro</p>
+              </div>
+              <p className="text-[11px] text-white/50 leading-relaxed mb-3">
+                Unlimited analyses, multi-entity workspaces and priority AI models.
+              </p>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => router.push("/pricing")}
+                  className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] font-semibold py-1.5 transition-colors"
+                >
+                  Upgrade
+                  <ArrowRight className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={() => router.push("/pricing")}
+                  className="text-[11px] text-white/40 hover:text-white/70 font-medium transition-colors"
+                >
+                  Learn more
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Logout */}
         <div className="border-t border-white/5 p-3">
