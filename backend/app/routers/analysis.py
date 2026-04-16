@@ -2,15 +2,21 @@ import csv
 import io
 import json
 
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from openpyxl import load_workbook
 from pydantic import BaseModel
 
 from app.middleware.auth import get_current_user
 from app.models.user import User
+from app.services.audited_fs_parser import parse_audited_fs_pdf
+from app.services.gl_parser import customer_concentration, parse_gl_excel
 from app.services.tb_analyzer import analyze_trial_balance
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
+
+# Input modes accepted by the uploader. Keep in sync with frontend's
+# `InputMode` union and backend `AnalysisResult.input_mode`.
+_VALID_INPUT_MODES = {"TB", "AUDITED", "GL", "PNL_ONLY", "BS_ONLY", "MIS", "SIMPLE"}
 
 
 class TBEntryInput(BaseModel):
@@ -392,3 +398,252 @@ def _parse_number(value: str) -> float:
         return float(value)
     except ValueError:
         return 0.0
+
+
+# =========================================================================
+# Unified upload dispatcher — picks the right parser based on `input_mode`
+# and feeds the resulting synthetic TB into `analyze_trial_balance` so the
+# rest of the pipeline (ratios_meta, Ind AS checks, insights) is shared.
+#
+# This is deliberately additive; the legacy /tb/upload and /tb/json routes
+# above stay untouched so old callers keep working.
+# =========================================================================
+
+
+def _parse_tb_file(file_name: str, content: bytes) -> list[dict]:
+    """Parse a TB-shaped file (CSV / JSON / Excel) into raw entries.
+
+    Extracted so both the legacy /tb/upload route and the new dispatcher
+    can share the code. We re-run the light-weight header detection used
+    by /tb/upload — for brevity we just redirect heavy-lifting callers
+    to the existing logic when needed.
+    """
+    entries: list[dict] = []
+    name_l = file_name.lower()
+
+    if name_l.endswith(".json"):
+        text = content.decode("utf-8-sig")
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid JSON file: {exc}",
+            )
+        if isinstance(data, list):
+            entries = data
+        elif isinstance(data, dict) and "entries" in data:
+            entries = data["entries"]
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid JSON format — expected list or {entries: [...]}.",
+            )
+        return entries
+
+    if name_l.endswith(".csv"):
+        text = content.decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(text))
+        for row in reader:
+            account_name = (
+                row.get("account_name") or row.get("Account Name") or
+                row.get("AccountName") or row.get("Particulars") or
+                row.get("Account") or row.get("Ledger") or ""
+            )
+            debit = _parse_number(
+                row.get("debit") or row.get("Debit") or row.get("Dr") or "0"
+            )
+            credit = _parse_number(
+                row.get("credit") or row.get("Credit") or row.get("Cr") or "0"
+            )
+            if account_name:
+                entries.append({
+                    "account_name": account_name.strip(),
+                    "debit": debit,
+                    "credit": credit,
+                })
+        return entries
+
+    if name_l.endswith(".xlsx") or name_l.endswith(".xls"):
+        wb = load_workbook(io.BytesIO(content), data_only=True)
+        ws = wb.active
+        if ws is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Empty Excel file",
+            )
+
+        header_row = -1
+        name_col = debit_col = credit_col = code_col = -1
+        header_names = {"account", "account name", "particulars", "ledger", "name"}
+        debit_names = {"debit", "net debit", "dr", "debit amount"}
+        credit_names = {"credit", "net credit", "cr", "credit amount"}
+        code_names = {"account code", "code", "accountcode"}
+
+        for row_idx in range(1, min(11, ws.max_row + 1)):
+            cells = [str(c.value or "").strip().lower() for c in ws[row_idx]]
+            for i, cell in enumerate(cells):
+                if cell in header_names and name_col == -1:
+                    name_col = i
+                    header_row = row_idx
+                if cell in debit_names and debit_col == -1:
+                    debit_col = i
+                if cell in credit_names and credit_col == -1:
+                    credit_col = i
+                if cell in code_names and code_col == -1:
+                    code_col = i
+            if name_col != -1 and debit_col != -1:
+                break
+
+        if header_row == -1:
+            header_row = 1
+            name_col = 0
+            debit_col = 2
+            credit_col = 3
+
+        current_group = ""
+        section_names = {
+            "assets", "liabilities", "equities", "equity",
+            "income", "revenue", "expense", "expenses",
+        }
+        for row in ws.iter_rows(min_row=header_row + 1, values_only=True):
+            cells = list(row)
+            if name_col >= len(cells):
+                continue
+            raw_name = str(cells[name_col] or "").strip()
+            if not raw_name:
+                continue
+            clean_name = raw_name.lower().strip()
+            if clean_name in section_names:
+                current_group = raw_name
+                continue
+            if clean_name.startswith("total for") or clean_name == "total":
+                continue
+            if clean_name in header_names:
+                continue
+            debit = _parse_number(
+                str(cells[debit_col] if 0 <= debit_col < len(cells) else 0)
+            )
+            credit = _parse_number(
+                str(cells[credit_col] if 0 <= credit_col < len(cells) else 0)
+            )
+            code = str(cells[code_col] if 0 <= code_col < len(cells) else "").strip()
+            if debit == 0 and credit == 0:
+                continue
+            entries.append({
+                "account_code": code,
+                "account_name": raw_name,
+                "debit": debit,
+                "credit": credit,
+                "group": current_group,
+            })
+        return entries
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=(
+            f"Unsupported file format for TB mode: {file_name}. "
+            "Please upload .csv, .json, .xlsx or .xls."
+        ),
+    )
+
+
+@router.post("/upload")
+async def analyze_upload(
+    file: UploadFile = File(...),
+    input_mode: str = Form("TB"),
+    current_user: User = Depends(get_current_user),
+):
+    """Unified upload endpoint.
+
+    Accepts an `input_mode` form field telling the server what to expect:
+      - "TB" (default): trial balance (CSV / JSON / XLSX)
+      - "AUDITED": Indian Schedule III audited financial statements (PDF)
+      - "GL": General Ledger export (Zoho Books / Tally / QuickBooks XLSX)
+      - "PNL_ONLY", "BS_ONLY", "MIS", "SIMPLE": routed through the TB path
+        today (the analyzer copes with partial data thanks to
+        ratios_meta); dedicated parsers will land in later waves.
+
+    Returns the same shape as `/tb/upload`, with an extra `upload_meta`
+    block when a richer parser is used (GL transactions, unit multipliers,
+    parser warnings, etc.)."""
+    if not file.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No file provided",
+        )
+    mode = (input_mode or "TB").upper().strip()
+    if mode not in _VALID_INPUT_MODES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"Unknown input_mode '{input_mode}'. "
+                f"Expected one of: {sorted(_VALID_INPUT_MODES)}"
+            ),
+        )
+
+    content = await file.read()
+    upload_meta: dict = {"file_name": file.filename, "declared_mode": mode}
+
+    # -------- AUDITED: PDF (or Excel export) --------
+    if mode == "AUDITED":
+        if not file.filename.lower().endswith(".pdf"):
+            # Let Excel exports of audited statements fall through to the
+            # TB parser — still tagged as AUDITED in the final result.
+            entries = _parse_tb_file(file.filename, content)
+            upload_meta["parser"] = "tb_fallback_for_audited_excel"
+        else:
+            parsed = parse_audited_fs_pdf(content)
+            entries = parsed.tb_entries
+            upload_meta.update({
+                "parser": "audited_fs_pdf",
+                "pages_parsed": parsed.pages_parsed,
+                "unit_multiplier": parsed.unit_multiplier,
+                "raw_text_length": parsed.raw_text_length,
+                "parser_warnings": parsed.warnings,
+            })
+
+    # -------- GL: transaction-level ledger --------
+    elif mode == "GL":
+        if not (file.filename.lower().endswith((".xlsx", ".xls"))):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    "GL mode expects an Excel export (.xlsx / .xls) from "
+                    "Zoho Books, Tally or QuickBooks. Please re-export the "
+                    "General Ledger and retry."
+                ),
+            )
+        parsed = parse_gl_excel(content)
+        entries = parsed.tb_entries
+        upload_meta.update({
+            "parser": "gl_parser",
+            "source_format": parsed.source_format,
+            "transaction_count": parsed.total_rows,
+            "parser_warnings": parsed.warnings,
+            "customer_concentration": customer_concentration(parsed.transactions),
+        })
+
+    # -------- TB / PNL_ONLY / BS_ONLY / MIS / SIMPLE --------
+    else:
+        entries = _parse_tb_file(file.filename, content)
+        upload_meta["parser"] = "tb_generic"
+
+    if not entries:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                upload_meta.get("parser_warnings", [
+                    "No valid entries found in file"
+                ])[0]
+                if upload_meta.get("parser_warnings")
+                else "No valid entries found in file"
+            ),
+        )
+
+    result = analyze_trial_balance(entries)
+    # Overwrite the analyzer's default "TB" tag with the user-declared mode
+    # so the frontend knows what it's looking at.
+    result["input_mode"] = mode
+    result["upload_meta"] = upload_meta
+    return result
