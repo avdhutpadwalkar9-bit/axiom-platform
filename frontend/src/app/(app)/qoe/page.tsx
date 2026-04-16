@@ -28,6 +28,8 @@ import {
   ReferenceLine,
 } from "recharts";
 import { useAnalysisStore } from "@/stores/analysisStore";
+import { useOnboardingStore } from "@/stores/onboardingStore";
+import { exportQoEPdf } from "@/lib/exportPdf";
 
 function fmt(value: number): string {
   const abs = Math.abs(value);
@@ -128,6 +130,8 @@ const COMPLIANCE_CHECKS = [
 
 export default function QoEPage() {
   const { lastResult } = useAnalysisStore();
+  const { business } = useOnboardingStore();
+  const qoeCompanyName = business?.companyName?.trim() || "Your Company";
 
   const derived = useMemo(() => {
     const fs = lastResult?.financial_statements;
@@ -193,7 +197,10 @@ export default function QoEPage() {
           <button className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors">
             <Download className="w-3.5 h-3.5" /> Excel
           </button>
-          <button className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-400 transition-colors">
+          <button
+            onClick={() => exportQoEPdf(derived.reported, DEFAULT_ADDBACKS, COMPLIANCE_CHECKS, qoeCompanyName)}
+            className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-400 transition-colors"
+          >
             <FileText className="w-3.5 h-3.5" /> Download report (PDF)
           </button>
         </div>

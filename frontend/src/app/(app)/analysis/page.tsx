@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import AIChatBubble from "@/components/AIChatBubble";
 import { useAnalysisStore } from "@/stores/analysisStore";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 import { exportAnalysisPdf } from "@/lib/exportPdf";
 import {
   Upload,
@@ -114,6 +115,7 @@ const PIE_COLORS = ["#10b981", "#14b8a6", "#22c55e", "#34d399", "#2dd4bf", "#06b
 
 export default function AnalysisPage() {
   const { setResult: saveToStore } = useAnalysisStore();
+  const { business } = useOnboardingStore();
   const [mode, setMode] = useState<"upload" | "manual" | "results">("upload");
   const [rows, setRows] = useState<TBRow[]>([{ account_name: "", debit: "", credit: "" }]);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -122,6 +124,10 @@ export default function AnalysisPage() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["summary", "questions", "insights", "indas"]));
   const [activeTab, setActiveTab] = useState("overview");
   const [companyLabel, setCompanyLabel] = useState<string>("Your Company");
+
+  // Real company name for exports — prefer onboarding profile, fall back to
+  // filename-derived companyLabel, then a safe generic.
+  const reportCompanyName = business?.companyName?.trim() || companyLabel || "Your Company";
 
   // Multi-year comparison state. When a second file is uploaded as the
   // "prior year", we unlock the Comparison tab with variance analysis.
@@ -356,7 +362,7 @@ export default function AnalysisPage() {
               New Analysis
             </button>
             <button
-              onClick={() => exportAnalysisPdf(result, companyLabel, priorResult, priorResult ? `${priorYearLabel} vs ${currentYearLabel}` : undefined)}
+              onClick={() => exportAnalysisPdf(result, reportCompanyName, priorResult, priorResult ? `${priorYearLabel} vs ${currentYearLabel}` : undefined)}
               className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5"
             >
               <Download className="w-3 h-3" /> Export PDF
