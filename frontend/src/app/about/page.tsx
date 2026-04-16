@@ -139,20 +139,21 @@ export default function AboutPage() {
                     A management consultant by training and an operator by
                     practice. Avdhut has spent his career inside Indian MSMEs
                     &mdash; helping promoters tighten their books, pressure-test
-                    their numbers, and build the kind of financial discipline
-                    that wins investor conviction and unlocks growth capital.
+                    their numbers, and roll out the accounting, ERP and
+                    reporting software stacks that turn messy operations into
+                    investor-ready businesses.
                   </p>
                   <p>
-                    He leads product, finance and AI at CortexCFO. His thesis
-                    is simple: every ambitious Indian business deserves the
-                    same quality of financial intelligence that private-equity
-                    portfolio companies enjoy &mdash; and software is the only
-                    way to get it there.
+                    He also teaches financial modeling and capital markets to
+                    the next generation of finance professionals. At CortexCFO
+                    he leads product, finance and AI &mdash; shipping the tool
+                    he kept wishing his clients had: PE-grade financial
+                    intelligence, every month, at a fraction of the cost.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-6">
-                  {["Management Consulting", "M&A & Valuation", "FP&A", "Product & AI", "Indian MSMEs"].map((tag) => (
+                  {["Management Consulting", "FP&A", "Software Implementation", "Teaching", "Product & AI"].map((tag) => (
                     <span
                       key={tag}
                       className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
@@ -194,30 +195,31 @@ export default function AboutPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-xl font-bold">Rajan Nagaraju</h3>
-                    <p className="text-sm text-emerald-400 font-medium">Co-founder &mdash; Growth &amp; Strategy</p>
-                    <p className="text-[12px] text-white/35 mt-1">GTM, partnerships, research &middot; Goa</p>
+                    <p className="text-sm text-emerald-400 font-medium">Co-founder &mdash; Growth &amp; Automation</p>
+                    <p className="text-[12px] text-white/35 mt-1">AI, automation, growth &middot; Goa</p>
                   </div>
                 </div>
 
                 <div className="space-y-3 text-[14px] text-white/55 leading-relaxed flex-1">
                   <p>
-                    A management consultant with deep roots in strategy, market
-                    research and partnership design. Rajan has built research
-                    frameworks for national brand rollouts and cross-border
-                    market entries, and has structured the kinds of partnerships
-                    that move ambitious businesses into their next orbit.
+                    A management consultant obsessed with making complicated
+                    things simple. Rajan designs AI-first workflows and
+                    automation pipelines that turn manual drudgery into crisp,
+                    repeatable systems &mdash; across research, partnerships,
+                    GTM and the back-office plumbing that keeps a startup
+                    honest.
                   </p>
                   <p>
                     At CortexCFO he owns growth, go-to-market and the
-                    partnership flywheel. His bet: India is full of world-class
-                    operators building in the shadows &mdash; and the ones who
-                    pair sharp financial rigour with sharp positioning will
-                    define the next decade of Indian enterprise.
+                    automation spine that lets a small team punch far above
+                    its weight. His bet: the Indian MSMEs that win the next
+                    decade will be the ones that wire AI and automation into
+                    every function &mdash; not just into the marketing deck.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-6">
-                  {["Management Consulting", "Market Research", "VC Partnerships", "Go-to-Market", "Indian MSMEs"].map((tag) => (
+                  {["Management Consulting", "AI & Automation", "Process Design", "Go-to-Market", "Indian MSMEs"].map((tag) => (
                     <span
                       key={tag}
                       className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
