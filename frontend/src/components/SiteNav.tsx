@@ -123,7 +123,7 @@ export default function SiteNav() {
                 isActive("/about") ? "text-white" : "text-white/50 hover:text-white/80"
               }`}
             >
-              Customers
+              About
             </Link>
 
             {/* Product dropdown */}
@@ -287,7 +287,7 @@ export default function SiteNav() {
         <div className="fixed inset-0 z-40 bg-[#0a0a0a]/98 backdrop-blur-xl lg:hidden">
           <div className="pt-20 px-6 pb-8 flex flex-col gap-2">
             {[
-              { label: "Customers", href: "/about" },
+              { label: "About", href: "/about" },
               { label: "Product", href: "/product" },
               { label: "Pricing", href: "/pricing" },
               { label: "Blog", href: "/blog" },
