@@ -61,6 +61,38 @@ const categories: { label: Category; icon: React.ElementType; desc: string }[] =
 const articles: Article[] = [
   // ---------------- Core Concepts ----------------
   {
+    slug: "why-financial-analysis-matters-msmes",
+    title: "Why financial analysis matters for MSMEs",
+    category: "Core Concepts",
+    readMin: 6,
+    featured: true,
+    summary:
+      "MSMEs power a third of Indian GDP, yet most run on instinct and quarterly GST deadlines. Financial analysis is what turns raw bookkeeping into the decisions that compound into scale.",
+    body: [
+      "India's 63 million MSMEs contribute close to a third of GDP and nearly 40% of exports. Yet the gap between the best-run and the median MSME is enormous — and almost always traced to one thing: how well the promoter can read their own numbers.",
+      "Bookkeeping tells you what happened. Financial analysis tells you what it means. Without it, every price change is a guess, every hire is a risk, and every bank conversation is defensive.",
+      "Four questions a basic analysis pack answers every month — which products or customers are actually profitable after overhead, where cash is trapped in the working-capital cycle, whether gross margin is holding or slipping, and whether the business is earning above its real cost of capital.",
+      "The MSME-specific stakes are bigger than they look. Thin margins mean a 2% leak compounds into survival risk. Family ownership mixes personal and business flows, hiding the real picture. Bank dependence means weak numbers cost you interest points every year.",
+      "The cost of not doing it is never an invoice. It shows up as a vendor you could not negotiate harder with, a banker who charged you 80 bps more, an investor who walked away, a product line you kept alive two years too long. Financial analysis is how you stop paying that tax.",
+    ],
+  },
+  {
+    slug: "budgeting-for-msmes",
+    title: "Budgeting for MSMEs: from spreadsheet to strategy",
+    category: "Core Concepts",
+    readMin: 5,
+    featured: true,
+    summary:
+      "A budget is not a forecast. It is a commitment to a plan — and the ritual of comparing it to reality every month is how disciplined MSMEs outgrow their peers.",
+    body: [
+      "Most MSMEs skip budgeting because \"we are too small\" or \"things change too fast\". Neither is true. The smallest promoter-led business benefits more from a budget than a ₹500 Cr enterprise — because cash is tighter and every rupee has to earn its keep.",
+      "A working MSME budget has five parts: revenue targets split by segment, product or customer; a fixed-versus-variable cost split; a capex plan tied to growth milestones; a month-by-month cash plan; and at minimum two scenarios — base and downside — with trigger points that swap you from one to the other.",
+      "The monthly variance ritual is where budgeting becomes leadership. Sit with the numbers on the fifth working day. Flag any line where actuals deviate more than 10% from budget. Ask why. The answer is always either a lesson (the budget was wrong) or an action (something in the business needs fixing).",
+      "Rolling budgets beat annual budgets for MSMEs. A 12-month rolling view, refreshed every quarter, reflects reality. An annual budget frozen in March stops being useful by June.",
+      "The payoff is compounding. With a budget, pricing decisions have anchors. Hiring conversations have limits. Bankers and investors see a promoter who runs the business, not one who hopes it runs itself.",
+    ],
+  },
+  {
     slug: "what-is-quality-of-earnings",
     title: "What is Quality of Earnings (QoE)?",
     category: "Core Concepts",
@@ -80,7 +112,6 @@ const articles: Article[] = [
     title: "FP&A 101: Why MSMEs need it",
     category: "Core Concepts",
     readMin: 4,
-    featured: true,
     summary:
       "FP&A turns bookkeeping into a decision-making muscle — the gap between reporting what happened and shaping what happens next.",
     body: [
@@ -124,7 +155,6 @@ const articles: Article[] = [
     title: "Preparing your books for investor diligence",
     category: "Playbooks",
     readMin: 7,
-    featured: true,
     summary:
       "Investors buy certainty, not stories. A diligence-ready book turns the conversation from \"can we trust your numbers\" to \"what do we do with this business next\".",
     body: [
