@@ -503,9 +503,37 @@ def _local_response(question: str, analysis_result: dict) -> str:
     if any(w in q for w in ["employee", "salary", "payroll", "staff", "hiring"]):
         payroll = [e for e in ca.get("expenses", []) if any(w in e['name'].lower() for w in ["salary", "wage", "payroll", "staff", "pf", "esi", "gratuity"])]
         total = sum(abs(e['net']) for e in payroll)
-        resp = f"Employee costs: {fmt(total)} ({total/fs['total_expenses']*100:.1f}% of total expenses)\n\n"
+        pct = total / fs['total_expenses'] * 100 if fs['total_expenses'] else 0
+
+        # Try to pick a headcount out of the question (e.g. "40 employees",
+        # "have 12 staff"). Falls back to generic framing if we can't find one.
+        import re as _re
+        headcount_match = _re.search(r"\b(\d{1,4})\s*(?:employees?|people|staff|headcount|team|workers?)\b", q)
+        headcount = int(headcount_match.group(1)) if headcount_match else None
+
+        resp = "## Employee Cost Breakdown\n\n"
+        resp += f"- **Total payroll cost**: {fmt(total)} ({pct:.1f}% of total expenses)\n"
         for e in payroll:
-            resp += f"• {e['name']}: {fmt(abs(e['net']))}\n"
+            resp += f"- {e['name']}: {fmt(abs(e['net']))}\n"
+
+        if headcount and total > 0:
+            per_head_yr = total / headcount
+            per_head_mo = per_head_yr / 12
+            resp += f"\n## Average Salary Math\n\n"
+            resp += f"With {headcount} employees: **{fmt(per_head_yr)}/year per head**, or **₹{per_head_mo:,.0f}/month**.\n\n"
+            resp += "## Indian Industry Benchmark\n\n"
+            if per_head_mo < 10000:
+                resp += f"**This is very low.** Manufacturing and trading MSMEs in India typically pay ₹15,000-30,000/month minimum for full-time skilled workers. At ₹{per_head_mo:,.0f}/month your team is either (a) mostly part-time / contract labour, (b) headcount is overstated, or (c) a lot of compensation is sitting outside the salary ledger (as benefits, director remuneration, or paid through a related party).\n\n"
+            elif per_head_mo < 25000:
+                resp += f"**On the low side.** Entry-level manufacturing wages in India cluster around ₹15-25k/month, so you're in the range for unskilled / semi-skilled labour but nothing more senior. If you have any mid-level staff, the number doesn't add up.\n\n"
+            elif per_head_mo < 50000:
+                resp += f"**Broadly in line with Indian MSME norms** for a mixed team of operators and junior execs (₹25-50k/month average). No red flag.\n\n"
+            else:
+                resp += f"**Above average.** You're paying senior-team salaries on average. Worth checking you're getting the productivity that justifies it.\n\n"
+            resp += "## Next Step\n\n"
+            resp += "- Reconcile the payroll ledger to actual HR headcount. A mismatch here often hides contract labour, promoter remuneration, or missing CTC components like PF / ESI / gratuity.\n"
+        else:
+            resp += "\nShare your employee headcount and I can tell you if the average salary is in line with Indian MSME norms.\n"
         return resp
 
     if any(w in q for w in ["asset", "balance sheet", "what do we own"]):
