@@ -55,6 +55,18 @@ interface RatiosMetaBag {
   return_on_equity: RatioMetaEntry;
   working_capital: RatioMetaEntry;
 }
+interface UploadMeta {
+  file_name?: string;
+  declared_mode?: string;
+  parser?: string;
+  source_format?: string;
+  pages_parsed?: number;
+  unit_multiplier?: number;
+  raw_text_length?: number;
+  transaction_count?: number;
+  parser_warnings?: string[];
+  customer_concentration?: { customer: string; revenue: number; share_pct: number }[];
+}
 interface AnalysisResult {
   summary: { total_debit: number; total_credit: number; is_balanced: boolean; variance: number };
   financial_statements: { total_assets: number; total_liabilities: number; total_equity: number; total_revenue: number; total_expenses: number; net_income: number };
@@ -62,6 +74,7 @@ interface AnalysisResult {
   ratios_meta?: RatiosMetaBag;
   completeness?: { computed: number; total: number; pct: number };
   input_mode?: "TB" | "AUDITED" | "GL" | "PNL_ONLY" | "BS_ONLY" | "MIS" | "SIMPLE";
+  upload_meta?: UploadMeta;
   classified_accounts: { assets: AccountItem[]; liabilities: AccountItem[]; equity: AccountItem[]; revenue: AccountItem[]; expenses: AccountItem[] };
   ind_as_observations: { standard: string; observation: string; severity: string }[];
   ai_questions: { question: string; reason: string }[];
@@ -403,6 +416,27 @@ export default function AnalysisPage() {
       value: Math.abs(e.net),
     }));
 
+    const um = result.upload_meta;
+    const parserLabel = (() => {
+      const im = result.input_mode ?? "TB";
+      if (im === "AUDITED") return "Audited Financial Statements";
+      if (im === "GL") return "General Ledger";
+      if (im === "PNL_ONLY") return "P&L Extract";
+      if (im === "BS_ONLY") return "Balance Sheet Extract";
+      if (im === "MIS") return "MIS Report";
+      if (im === "SIMPLE") return "Simple Excel";
+      return "Trial Balance";
+    })();
+    const unitLabel = (() => {
+      const u = um?.unit_multiplier;
+      if (!u || u === 1) return null;
+      if (u >= 1_00_00_000) return "in crores";
+      if (u >= 1_00_000) return "in lakhs";
+      if (u >= 1_000_000) return "in millions";
+      if (u >= 1_000) return "in thousands";
+      return null;
+    })();
+
     return (
       <div className="p-6 lg:p-8 space-y-6 max-w-[1400px]">
         {/* Header */}
@@ -423,6 +457,61 @@ export default function AnalysisPage() {
             </button>
           </div>
         </div>
+
+        {/* Parser feedback banner — shows which input mode was used plus any
+            parser warnings (scanned PDF, no customer-id column, etc.). Only
+            renders when upload_meta is present, so manual entries stay clean. */}
+        {um && (
+          <div className="bg-[#111] rounded-xl border border-white/8 p-4 flex items-start gap-4 flex-wrap">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+              <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
+            </div>
+            <div className="flex-1 min-w-[240px]">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-sm font-medium text-white">{parserLabel}</p>
+                {result.input_mode && result.input_mode !== "TB" && (
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    {result.input_mode}
+                  </span>
+                )}
+                {unitLabel && (
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-white/5 border border-white/10 text-white/60 px-2 py-0.5 rounded-full">
+                    Amounts {unitLabel}
+                  </span>
+                )}
+                {typeof um.transaction_count === "number" && (
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-white/5 border border-white/10 text-white/60 px-2 py-0.5 rounded-full">
+                    {um.transaction_count.toLocaleString("en-IN")} transactions
+                  </span>
+                )}
+                {typeof um.pages_parsed === "number" && (
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-white/5 border border-white/10 text-white/60 px-2 py-0.5 rounded-full">
+                    {um.pages_parsed} pages parsed
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-white/40 mt-1">
+                {um.file_name ?? "Uploaded file"}
+                {um.source_format ? <> &middot; Source detected: <span className="text-white/60">{um.source_format}</span></> : null}
+              </p>
+              {um.parser_warnings && um.parser_warnings.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {um.parser_warnings.map((w, i) => (
+                    <p key={i} className="text-[11px] text-amber-300/80 leading-relaxed">
+                      <AlertTriangle className="w-3 h-3 inline-block mr-1 align-text-top text-amber-400" />
+                      {w}
+                    </p>
+                  ))}
+                </div>
+              )}
+              {result.input_mode === "AUDITED" && (
+                <p className="text-[11px] text-white/40 mt-2 leading-relaxed">
+                  Numbers were extracted directly from the audited PDF. For precision-critical analysis, upload the underlying Trial Balance or General Ledger as well.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Prior-year upload strip — shown when we have a current-year result
             but no prior year yet. Lets user unlock variance analysis. */}
