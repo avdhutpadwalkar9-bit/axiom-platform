@@ -131,26 +131,26 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-app-canvas px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 mb-6">
             <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-white" />
+              <TrendingUp className="w-4 h-4 text-app-text" />
             </div>
-            <span className="text-lg font-semibold text-white">CortexCFO</span>
+            <span className="text-lg font-semibold text-app-text">CortexCFO</span>
           </Link>
           <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
             <Mail className="w-6 h-6 text-emerald-600" />
           </div>
-          <h1 className="text-2xl font-semibold text-white">Verify your email</h1>
-          <p className="text-sm text-white/40 mt-2">
+          <h1 className="text-2xl font-semibold text-app-text">Verify your email</h1>
+          <p className="text-sm text-app-text-subtle mt-2">
             We sent a 6-digit code to<br />
-            <span className="text-white font-medium">{email || "..."}</span>
+            <span className="text-app-text font-medium">{email || "..."}</span>
           </p>
         </div>
 
-        <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+        <div className="bg-app-card rounded-xl border border-app-border p-6">
           {success ? (
             <div className="text-center py-4">
               <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3">
@@ -179,7 +179,7 @@ export default function VerifyEmailPage() {
                     onChange={(e) => handleChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
                     onFocus={(e) => e.target.select()}
-                    className="w-11 h-13 text-center text-lg font-semibold rounded-lg border border-white/10 bg-white/5 text-white outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                    className="w-11 h-13 text-center text-lg font-semibold rounded-lg border border-app-border-strong bg-app-card-hover text-app-text outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                     autoFocus={i === 0}
                   />
                 ))}
@@ -188,7 +188,7 @@ export default function VerifyEmailPage() {
               <button
                 type="submit"
                 disabled={loading || code.some((d) => d === "")}
-                className="w-full bg-emerald-500 text-white font-medium py-2.5 rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
+                className="w-full bg-emerald-500 text-app-text font-medium py-2.5 rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Verifying...</>
@@ -202,10 +202,10 @@ export default function VerifyEmailPage() {
 
         {/* Resend */}
         {!success && (
-          <p className="text-center text-sm text-white/30 mt-6">
+          <p className="text-center text-sm text-app-text-subtle mt-6">
             Didn&apos;t receive a code?{" "}
             {resendCooldown > 0 ? (
-              <span className="text-white/20">Resend in {resendCooldown}s</span>
+              <span className="text-app-text-subtle">Resend in {resendCooldown}s</span>
             ) : (
               <button
                 onClick={handleResend}

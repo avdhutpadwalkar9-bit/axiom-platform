@@ -79,7 +79,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (!mounted) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#0a0a0a] text-white/40">
+      <div className="flex h-screen items-center justify-center bg-app-canvas text-app-text-subtle">
         <Loader2 className="w-4 h-4 animate-spin" />
       </div>
     );
@@ -90,15 +90,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const wsActive = pathname === "/profile" || pathname === "/uploads";
 
   return (
-    <div className="flex h-screen bg-[#0a0a0a] text-white overflow-hidden">
+    <div className="flex h-screen bg-app-canvas text-app-text overflow-hidden">
       {/* Dark sidebar */}
-      <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-white/5 bg-[#111]">
+      <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-app-border/70 bg-app-card">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 px-5 py-4 hover:opacity-80 transition-opacity">
           <div className="h-7 w-7 rounded-lg bg-emerald-500 flex items-center justify-center">
-            <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+            <svg className="w-3.5 h-3.5 text-app-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
           </div>
-          <span className="text-[15px] font-semibold tracking-tight text-white">CortexCFO</span>
+          <span className="text-[15px] font-semibold tracking-tight text-app-text">CortexCFO</span>
         </Link>
 
         {/* Workspace */}
@@ -106,17 +106,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <button
             onClick={() => setWsOpen(!wsOpen)}
             className={`w-full flex items-center gap-2.5 rounded-lg border px-3 py-2.5 transition-colors ${
-              wsOpen || wsActive ? "border-emerald-500/20 bg-emerald-500/5" : "border-white/8 bg-white/3 hover:bg-white/5"
+              wsOpen || wsActive ? "border-emerald-500/20 bg-emerald-500/5" : "border-app-border bg-app-canvas hover:bg-app-card-hover"
             }`}
           >
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10">
               <Building2 className="h-3.5 w-3.5 text-emerald-400" />
             </div>
             <div className="flex-1 min-w-0 text-left">
-              <p className="text-[13px] font-medium text-white truncate">{workspaceName}</p>
-              <p className="text-[10px] text-white/30">{userName}</p>
+              <p className="text-[13px] font-medium text-app-text truncate">{workspaceName}</p>
+              <p className="text-[10px] text-app-text-subtle">{userName}</p>
             </div>
-            <ChevronDown className={`h-3.5 w-3.5 text-white/20 transition-transform ${wsOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-3.5 w-3.5 text-app-text-subtle transition-transform ${wsOpen ? "rotate-180" : ""}`} />
           </button>
 
           {wsOpen && (
@@ -132,7 +132,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     key={item.href}
                     onClick={() => router.push(item.href)}
                     className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium transition-colors ${
-                      isActive ? "bg-emerald-500/10 text-emerald-400" : "text-white/30 hover:bg-white/5 hover:text-white/60"
+                      isActive ? "bg-emerald-500/10 text-emerald-400" : "text-app-text-subtle hover:bg-app-card-hover hover:text-app-text-muted"
                     }`}
                   >
                     <Icon className="h-3.5 w-3.5" />
@@ -146,7 +146,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 space-y-0.5">
-          <p className="px-3 mb-2 text-[10px] font-medium uppercase tracking-widest text-white/20">
+          <p className="px-3 mb-2 text-[10px] font-medium uppercase tracking-widest text-app-text-subtle">
             Platform
           </p>
           {navItems.map((item) => {
@@ -160,10 +160,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 onClick={() => !comingSoon && router.push(item.href)}
                 className={`relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors ${
                   comingSoon
-                    ? "text-white/15 cursor-default"
+                    ? "text-app-text/15 cursor-default"
                     : isActive
                     ? "bg-emerald-500/10 text-emerald-400"
-                    : "text-white/40 hover:bg-white/5 hover:text-white/70"
+                    : "text-app-text-subtle hover:bg-app-card-hover hover:text-app-text-muted"
                 }`}
               >
                 {isActive && !comingSoon && (
@@ -172,7 +172,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Icon className={`h-[18px] w-[18px] ${isActive && !comingSoon ? "text-emerald-400" : ""}`} />
                 <span>{item.label}</span>
                 {comingSoon && (
-                  <span className="ml-auto text-[9px] bg-white/5 text-white/20 px-1.5 py-0.5 rounded-full font-normal">Soon</span>
+                  <span className="ml-auto text-[9px] bg-app-card-hover text-app-text-subtle px-1.5 py-0.5 rounded-full font-normal">Soon</span>
                 )}
               </button>
             );
@@ -186,24 +186,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="relative">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center">
-                  <Sparkles className="w-3 h-3 text-white" />
+                  <Sparkles className="w-3 h-3 text-app-text" />
                 </div>
-                <p className="text-[13px] font-semibold text-white">Upgrade to Pro</p>
+                <p className="text-[13px] font-semibold text-app-text">Upgrade to Pro</p>
               </div>
-              <p className="text-[11px] text-white/50 leading-relaxed mb-3">
+              <p className="text-[11px] text-app-text-muted leading-relaxed mb-3">
                 Unlimited analyses, multi-entity workspaces and priority AI models.
               </p>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => router.push("/pricing")}
-                  className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-white text-[11px] font-semibold py-1.5 transition-colors"
+                  className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-app-text text-[11px] font-semibold py-1.5 transition-colors"
                 >
                   Upgrade
                   <ArrowRight className="w-3 h-3" />
                 </button>
                 <button
                   onClick={() => router.push("/pricing")}
-                  className="text-[11px] text-white/40 hover:text-white/70 font-medium transition-colors"
+                  className="text-[11px] text-app-text-subtle hover:text-app-text-muted font-medium transition-colors"
                 >
                   Learn more
                 </button>
@@ -213,10 +213,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
 
         {/* Logout */}
-        <div className="border-t border-white/5 p-3">
+        <div className="border-t border-app-border/70 p-3">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium text-white/30 transition-colors hover:bg-white/5 hover:text-white/50"
+            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium text-app-text-subtle transition-colors hover:bg-app-card-hover hover:text-app-text-muted"
           >
             <LogOut className="h-4 w-4" />
             <span>Log out</span>
@@ -224,7 +224,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto page-enter bg-[#0a0a0a]">
+      <main className="flex-1 overflow-y-auto page-enter bg-app-canvas">
         {children}
       </main>
     </div>

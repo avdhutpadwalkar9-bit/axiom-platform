@@ -208,13 +208,13 @@ export default function DashboardPage() {
         <div className="w-20 h-20 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6">
           <FileUp className="w-10 h-10 text-emerald-400" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-2">No Financial Data Yet</h1>
-        <p className="text-white/40 max-w-md mb-8">
+        <h1 className="text-2xl font-bold text-app-text mb-2">No Financial Data Yet</h1>
+        <p className="text-app-text-subtle max-w-md mb-8">
           Upload your trial balance or financial statements to unlock your personalised overview with AI-powered insights.
         </p>
         <button
           onClick={() => router.push("/analysis")}
-          className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-medium transition-colors flex items-center gap-2"
+          className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-app-text font-medium transition-colors flex items-center gap-2"
         >
           <FileUp className="w-4 h-4" /> Upload Financials
         </button>
@@ -412,17 +412,17 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-[28px] font-bold text-white tracking-tight">Overview</h1>
-            <p className="text-sm text-white/40 mt-1">
-              Summary of {displayName ? <span className="text-white/60">{displayName}</span> : "your"} financial position
-              {formattedDate && <span className="text-white/30"> &middot; as of {formattedDate}</span>}
+            <h1 className="text-[28px] font-bold text-app-text tracking-tight">Overview</h1>
+            <p className="text-sm text-app-text-subtle mt-1">
+              Summary of {displayName ? <span className="text-app-text-muted">{displayName}</span> : "your"} financial position
+              {formattedDate && <span className="text-app-text-subtle"> &middot; as of {formattedDate}</span>}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-white/8 bg-white/3 hover:bg-white/5 text-[12px] text-white/60 transition-colors">
+            <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-app-border bg-app-canvas hover:bg-app-card-hover text-[12px] text-app-text-muted transition-colors">
               <Calendar className="w-3.5 h-3.5" />
               {formattedDate || "Latest"}
-              <ChevronDown className="w-3 h-3 text-white/30" />
+              <ChevronDown className="w-3 h-3 text-app-text-subtle" />
             </button>
             <button
               onClick={() => router.push("/analysis")}
@@ -443,29 +443,29 @@ export default function DashboardPage() {
                 <div
                   className={`relative rounded-2xl p-5 transition-all ${
                     kpi.active
-                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/10"
-                      : "bg-[#111] border border-white/8 hover:border-white/15"
+                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-app-text shadow-lg shadow-emerald-500/10"
+                      : "bg-app-card border border-app-border hover:border-white/15"
                   }`}
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div
                         className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                          kpi.active ? "bg-white/15" : "bg-white/5 border border-white/8"
+                          kpi.active ? "bg-white/15" : "bg-app-card-hover border border-app-border"
                         }`}
                       >
-                        <Icon className={`w-4 h-4 ${kpi.active ? "text-white" : "text-emerald-400"}`} />
+                        <Icon className={`w-4 h-4 ${kpi.active ? "text-app-text" : "text-emerald-400"}`} />
                       </div>
                       <div>
-                        <p className={`text-[13px] font-semibold ${kpi.active ? "text-white" : "text-white"}`}>
+                        <p className={`text-[13px] font-semibold ${kpi.active ? "text-app-text" : "text-app-text"}`}>
                           {kpi.label}
                         </p>
-                        <p className={`text-[11px] ${kpi.active ? "text-white/70" : "text-white/35"}`}>{kpi.sub}</p>
+                        <p className={`text-[11px] ${kpi.active ? "text-app-text-muted" : "text-app-text-subtle"}`}>{kpi.sub}</p>
                       </div>
                     </div>
                     <button
                       className={`${
-                        kpi.active ? "text-white/60 hover:text-white" : "text-white/20 hover:text-white/40"
+                        kpi.active ? "text-app-text-muted hover:text-app-text" : "text-app-text-subtle hover:text-app-text-subtle"
                       } transition-colors`}
                     >
                       <MoreVertical className="w-4 h-4" />
@@ -473,14 +473,14 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="flex items-baseline gap-2 mt-6">
-                    <p className={`text-[26px] font-bold tracking-tight ${kpi.active ? "text-white" : "text-white"}`}>
+                    <p className={`text-[26px] font-bold tracking-tight ${kpi.active ? "text-app-text" : "text-app-text"}`}>
                       {kpi.value}
                     </p>
                     {kpi.deltaText && (
                       <span
                         className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
                           kpi.active
-                            ? "bg-white/20 text-white"
+                            ? "bg-white/20 text-app-text"
                             : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/15"
                         }`}
                       >
@@ -491,19 +491,19 @@ export default function DashboardPage() {
 
                   <div
                     className={`mt-5 pt-4 border-t flex items-center justify-between ${
-                      kpi.active ? "border-white/15" : "border-white/5"
+                      kpi.active ? "border-white/15" : "border-app-border/70"
                     }`}
                   >
                     <button
                       onClick={() => router.push("/analysis")}
                       className={`text-[12px] ${
-                        kpi.active ? "text-white/85 hover:text-white" : "text-white/50 hover:text-white"
+                        kpi.active ? "text-app-text/85 hover:text-app-text" : "text-app-text-muted hover:text-app-text"
                       } transition-colors flex items-center gap-1`}
                     >
                       See details
                     </button>
                     <ArrowUpRight
-                      className={`w-3.5 h-3.5 ${kpi.active ? "text-white/70" : "text-white/30"}`}
+                      className={`w-3.5 h-3.5 ${kpi.active ? "text-app-text-muted" : "text-app-text-subtle"}`}
                     />
                   </div>
                 </div>
@@ -514,12 +514,12 @@ export default function DashboardPage() {
 
         {/* Expense Breakdown — full width, squeezes when AI Analyst opens */}
         <FadeIn delay={100}>
-          <div className="bg-[#111] rounded-2xl p-5 border border-white/5">
+          <div className="bg-app-card rounded-2xl p-5 border border-app-border/70">
             <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
               <div>
-                <h3 className="text-[15px] font-semibold text-white">Expense Breakdown</h3>
-                <p className="text-[26px] font-bold text-white mt-1 tracking-tight">{fmt(totalExpenses)}</p>
-                <p className="text-[11px] text-white/30">Top 8 expense heads &middot; current period</p>
+                <h3 className="text-[15px] font-semibold text-app-text">Expense Breakdown</h3>
+                <p className="text-[26px] font-bold text-app-text mt-1 tracking-tight">{fmt(totalExpenses)}</p>
+                <p className="text-[11px] text-app-text-subtle">Top 8 expense heads &middot; current period</p>
               </div>
               <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-[11px] font-medium border border-emerald-500/20">
                 <Calendar className="w-3 h-3" />
@@ -564,16 +564,16 @@ export default function DashboardPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <p className="text-sm text-white/20 text-center py-16">No expense data available</p>
+              <p className="text-sm text-app-text-subtle text-center py-16">No expense data available</p>
             )}
           </div>
         </FadeIn>
 
         {/* Key Metrics — full width, 4 tiles side-by-side */}
         <FadeIn>
-          <div className="bg-[#111] rounded-2xl p-5 border border-white/5">
+          <div className="bg-app-card rounded-2xl p-5 border border-app-border/70">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-[15px] font-semibold text-white">Key metrics</h3>
+              <h3 className="text-[15px] font-semibold text-app-text">Key metrics</h3>
               <div className="flex items-center gap-3">
                 {completeness && completeness.total > 0 && (
                   <span
@@ -600,13 +600,13 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
-            <p className="text-[11px] text-white/30 mb-4">Health check across the four pillars</p>
+            <p className="text-[11px] text-app-text-subtle mb-4">Health check across the four pillars</p>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {metrics.map((m) => {
                 const isUnavailable = m.status === "Unavailable";
                 const statusColor = isUnavailable
-                  ? "text-white/30"
+                  ? "text-app-text-subtle"
                   : m.status === "Healthy"
                   ? "text-emerald-400"
                   : m.status === "Adequate"
@@ -617,29 +617,29 @@ export default function DashboardPage() {
                     key={m.label}
                     className={`rounded-xl p-3.5 border transition-colors ${
                       isUnavailable
-                        ? "bg-white/[0.02] border-white/5"
-                        : "bg-white/3 border-white/5 hover:border-white/10"
+                        ? "bg-app-canvas border-app-border/70"
+                        : "bg-app-canvas border-app-border/70 hover:border-app-border-strong"
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
-                      <span className="text-[11px] text-white/50 leading-tight flex items-center gap-1">
+                      <span className="text-[11px] text-app-text-muted leading-tight flex items-center gap-1">
                         {m.label}
                         {isUnavailable && m.reason && (
                           <span title={m.reason} className="cursor-help">
-                            <HelpCircle className="w-3 h-3 text-white/30" />
+                            <HelpCircle className="w-3 h-3 text-app-text-subtle" />
                           </span>
                         )}
                       </span>
-                      <MoreVertical className="w-3 h-3 text-white/15" />
+                      <MoreVertical className="w-3 h-3 text-app-text/15" />
                     </div>
                     <p
                       className={`text-[18px] font-bold leading-none ${
-                        isUnavailable ? "text-white/40" : "text-white"
+                        isUnavailable ? "text-app-text-subtle" : "text-app-text"
                       }`}
                     >
                       {m.value}
                     </p>
-                    <p className="text-[10px] text-white/25 mt-1">{m.sub}</p>
+                    <p className="text-[10px] text-app-text/25 mt-1">{m.sub}</p>
                     <p className={`text-[10px] mt-2 font-medium flex items-center gap-1 ${statusColor}`}>
                       <span className="w-1.5 h-1.5 rounded-full bg-current" />
                       {isUnavailable ? "Not available" : m.status}
@@ -653,11 +653,11 @@ export default function DashboardPage() {
 
         {/* Balance Sheet Snapshot */}
         <FadeIn delay={130}>
-          <div className="bg-[#111] rounded-2xl p-5 border border-white/5">
+          <div className="bg-app-card rounded-2xl p-5 border border-app-border/70">
             <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
               <div>
-                <h3 className="text-[15px] font-semibold text-white">Balance Sheet Snapshot</h3>
-                <p className="text-[11px] text-white/30 mt-0.5">How assets are funded as of the latest close</p>
+                <h3 className="text-[15px] font-semibold text-app-text">Balance Sheet Snapshot</h3>
+                <p className="text-[11px] text-app-text-subtle mt-0.5">How assets are funded as of the latest close</p>
               </div>
               <button
                 onClick={() => router.push("/analysis")}
@@ -668,29 +668,29 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-              <div className="rounded-xl bg-white/3 border border-white/5 p-4">
-                <p className="text-[11px] text-white/40">Total Assets</p>
-                <p className="text-[22px] font-bold text-white mt-1.5 tracking-tight">{fmt(fs.total_assets)}</p>
-                <p className="text-[10px] text-white/30 mt-1">What the business owns</p>
+              <div className="rounded-xl bg-app-canvas border border-app-border/70 p-4">
+                <p className="text-[11px] text-app-text-subtle">Total Assets</p>
+                <p className="text-[22px] font-bold text-app-text mt-1.5 tracking-tight">{fmt(fs.total_assets)}</p>
+                <p className="text-[10px] text-app-text-subtle mt-1">What the business owns</p>
               </div>
-              <div className="rounded-xl bg-white/3 border border-white/5 p-4">
-                <p className="text-[11px] text-white/40">Total Liabilities</p>
-                <p className="text-[22px] font-bold text-white mt-1.5 tracking-tight">{fmt(fs.total_liabilities)}</p>
-                <p className="text-[10px] text-white/30 mt-1">{pct(liabShare)} of assets</p>
+              <div className="rounded-xl bg-app-canvas border border-app-border/70 p-4">
+                <p className="text-[11px] text-app-text-subtle">Total Liabilities</p>
+                <p className="text-[22px] font-bold text-app-text mt-1.5 tracking-tight">{fmt(fs.total_liabilities)}</p>
+                <p className="text-[10px] text-app-text-subtle mt-1">{pct(liabShare)} of assets</p>
               </div>
-              <div className="rounded-xl bg-white/3 border border-white/5 p-4">
-                <p className="text-[11px] text-white/40">Total Equity</p>
-                <p className="text-[22px] font-bold text-white mt-1.5 tracking-tight">{fmt(fs.total_equity)}</p>
-                <p className="text-[10px] text-white/30 mt-1">{pct(equityShare)} of assets</p>
+              <div className="rounded-xl bg-app-canvas border border-app-border/70 p-4">
+                <p className="text-[11px] text-app-text-subtle">Total Equity</p>
+                <p className="text-[22px] font-bold text-app-text mt-1.5 tracking-tight">{fmt(fs.total_equity)}</p>
+                <p className="text-[10px] text-app-text-subtle mt-1">{pct(equityShare)} of assets</p>
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] text-white/40">Funding mix</span>
-                <span className="text-[11px] text-white/40">{fmt(fs.total_assets)}</span>
+                <span className="text-[11px] text-app-text-subtle">Funding mix</span>
+                <span className="text-[11px] text-app-text-subtle">{fmt(fs.total_assets)}</span>
               </div>
-              <div className="flex h-2.5 rounded-full overflow-hidden bg-white/5">
+              <div className="flex h-2.5 rounded-full overflow-hidden bg-app-card-hover">
                 <div
                   className="bg-rose-400/80"
                   style={{ width: `${Math.max(0, Math.min(100, liabShare * 100))}%` }}
@@ -701,11 +701,11 @@ export default function DashboardPage() {
                 />
               </div>
               <div className="flex items-center gap-4 mt-3 flex-wrap">
-                <span className="flex items-center gap-1.5 text-[11px] text-white/50">
+                <span className="flex items-center gap-1.5 text-[11px] text-app-text-muted">
                   <span className="w-2 h-2 rounded-full bg-rose-400/80" />
                   Liabilities {pct(liabShare)}
                 </span>
-                <span className="flex items-center gap-1.5 text-[11px] text-white/50">
+                <span className="flex items-center gap-1.5 text-[11px] text-app-text-muted">
                   <span className="w-2 h-2 rounded-full bg-emerald-400/80" />
                   Equity {pct(equityShare)}
                 </span>
@@ -716,19 +716,19 @@ export default function DashboardPage() {
 
         {/* Recent Activities */}
         <FadeIn delay={150}>
-          <div className="bg-[#111] rounded-2xl border border-white/5 overflow-hidden">
+          <div className="bg-app-card rounded-2xl border border-app-border/70 overflow-hidden">
             <div className="flex items-center justify-between px-5 pt-5 pb-4 flex-wrap gap-3">
-              <h3 className="text-[15px] font-semibold text-white">Recent Activities</h3>
+              <h3 className="text-[15px] font-semibold text-app-text">Recent Activities</h3>
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-app-text-subtle" />
                   <input
                     placeholder="Search"
-                    className="bg-white/3 border border-white/8 rounded-lg pl-9 pr-3 py-1.5 text-[12px] text-white placeholder:text-white/25 outline-none focus:border-emerald-500/30 w-[180px]"
+                    className="bg-app-canvas border border-app-border rounded-lg pl-9 pr-3 py-1.5 text-[12px] text-app-text placeholder:text-app-text/25 outline-none focus:border-emerald-500/30 w-[180px]"
                     readOnly
                   />
                 </div>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/3 hover:bg-white/5 border border-white/8 text-[12px] text-white/50">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-app-canvas hover:bg-app-card-hover border border-app-border text-[12px] text-app-text-muted">
                   <SlidersHorizontal className="w-3 h-3" />
                   Filter
                 </button>
@@ -738,12 +738,12 @@ export default function DashboardPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-[13px]">
                 <thead>
-                  <tr className="border-t border-b border-white/5 bg-white/3">
-                    <th className="text-left px-5 py-3 font-medium text-white/40 text-[11px] uppercase tracking-wider">Activity</th>
-                    <th className="text-left px-5 py-3 font-medium text-white/40 text-[11px] uppercase tracking-wider">Reference</th>
-                    <th className="text-left px-5 py-3 font-medium text-white/40 text-[11px] uppercase tracking-wider">Date</th>
-                    <th className="text-left px-5 py-3 font-medium text-white/40 text-[11px] uppercase tracking-wider">Metric</th>
-                    <th className="text-left px-5 py-3 font-medium text-white/40 text-[11px] uppercase tracking-wider">Status</th>
+                  <tr className="border-t border-b border-app-border/70 bg-app-canvas">
+                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Activity</th>
+                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Reference</th>
+                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Date</th>
+                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Metric</th>
+                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Status</th>
                     <th className="w-10"></th>
                   </tr>
                 </thead>
@@ -754,9 +754,9 @@ export default function DashboardPage() {
                       <tr
                         key={i}
                         onClick={a.onClick}
-                        className="border-b border-white/5 last:border-b-0 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                        className="border-b border-app-border/70 last:border-b-0 hover:bg-app-card-hover transition-colors cursor-pointer"
                       >
-                        <td className="px-5 py-3.5 text-white">
+                        <td className="px-5 py-3.5 text-app-text">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center">
                               <Icon className="w-3.5 h-3.5 text-emerald-400" />
@@ -764,9 +764,9 @@ export default function DashboardPage() {
                             <span className="font-medium text-[13px]">{a.label}</span>
                           </div>
                         </td>
-                        <td className="px-5 py-3.5 text-white/40 text-[12px] font-mono">{a.ref}</td>
-                        <td className="px-5 py-3.5 text-white/40 text-[12px]">{a.date || "—"}</td>
-                        <td className="px-5 py-3.5 text-white/70 text-[12px]">{a.metric}</td>
+                        <td className="px-5 py-3.5 text-app-text-subtle text-[12px] font-mono">{a.ref}</td>
+                        <td className="px-5 py-3.5 text-app-text-subtle text-[12px]">{a.date || "—"}</td>
+                        <td className="px-5 py-3.5 text-app-text-muted text-[12px]">{a.metric}</td>
                         <td className="px-5 py-3.5">
                           <span
                             className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${
@@ -774,14 +774,14 @@ export default function DashboardPage() {
                                 ? "text-emerald-400"
                                 : a.status === "Active"
                                 ? "text-cyan-400"
-                                : "text-white/40"
+                                : "text-app-text-subtle"
                             }`}
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-current" />
                             {a.status}
                           </span>
                         </td>
-                        <td className="px-3 py-3.5 text-white/20 hover:text-white/40 cursor-pointer">
+                        <td className="px-3 py-3.5 text-app-text-subtle hover:text-app-text-subtle cursor-pointer">
                           <MoreVertical className="w-4 h-4" />
                         </td>
                       </tr>
@@ -798,7 +798,7 @@ export default function DashboardPage() {
       {!showAnalyst && (
         <button
           onClick={() => setShowAnalyst(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 text-sm font-medium"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-500 text-app-text shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 text-sm font-medium"
         >
           <Sparkles className="w-4 h-4" /> AI Analyst
         </button>
@@ -806,34 +806,34 @@ export default function DashboardPage() {
 
       {/* ── AI Analyst Sidebar ── */}
       <div
-        className={`fixed top-0 right-0 h-full w-[400px] bg-[#111] border-l border-white/8 shadow-2xl shadow-black/30 z-40 flex flex-col transition-transform duration-300 ease-out ${
+        className={`fixed top-0 right-0 h-full w-[400px] bg-app-card border-l border-app-border shadow-2xl shadow-black/30 z-40 flex flex-col transition-transform duration-300 ease-out ${
           showAnalyst ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-white/8">
+        <div className="flex items-center gap-3 px-6 py-5 border-b border-app-border">
           <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
+            <Sparkles className="w-4 h-4 text-app-text" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-semibold text-white">AI Analyst</p>
-            <p className="text-[10px] text-white/30">Ask anything about your financials</p>
+            <p className="text-sm font-semibold text-app-text">AI Analyst</p>
+            <p className="text-[10px] text-app-text-subtle">Ask anything about your financials</p>
           </div>
           <button
             onClick={() => setShowAnalyst(false)}
-            className="w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center transition-colors"
+            className="w-7 h-7 rounded-lg hover:bg-app-card-hover flex items-center justify-center transition-colors"
           >
-            <X className="w-4 h-4 text-white/30" />
+            <X className="w-4 h-4 text-app-text-subtle" />
           </button>
         </div>
 
-        <div className="px-6 py-3 border-b border-white/5 bg-white/3">
-          <p className="text-[10px] text-white/30 uppercase tracking-wider font-medium mb-2">Analysing</p>
+        <div className="px-6 py-3 border-b border-app-border/70 bg-app-canvas">
+          <p className="text-[10px] text-app-text-subtle uppercase tracking-wider font-medium mb-2">Analysing</p>
           <div className="flex flex-wrap gap-1.5">
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-white/60">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-app-card-hover border border-app-border text-app-text-muted">
               {displayName}
             </span>
             {industry && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/8 text-white/60">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-app-card-hover border border-app-border text-app-text-muted">
                 {industry}
               </span>
             )}
@@ -846,7 +846,7 @@ export default function DashboardPage() {
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
           {chatMessages.length === 0 && (
             <div className="py-6">
-              <p className="text-xs text-white/30 mb-4">Try asking:</p>
+              <p className="text-xs text-app-text-subtle mb-4">Try asking:</p>
               <div className="space-y-2">
                 {[
                   "Summarise my financial health",
@@ -858,9 +858,9 @@ export default function DashboardPage() {
                   <button
                     key={q}
                     onClick={() => setChatInput(q)}
-                    className="flex w-full items-center gap-2 text-left text-sm text-white/40 hover:text-white bg-white/3 hover:bg-white/5 rounded-lg px-3.5 py-2.5 transition-colors border border-transparent hover:border-white/8"
+                    className="flex w-full items-center gap-2 text-left text-sm text-app-text-subtle hover:text-app-text bg-app-canvas hover:bg-app-card-hover rounded-lg px-3.5 py-2.5 transition-colors border border-transparent hover:border-app-border"
                   >
-                    <ArrowUpRight className="w-3 h-3 flex-shrink-0 text-white/15" />
+                    <ArrowUpRight className="w-3 h-3 flex-shrink-0 text-app-text/15" />
                     {q}
                   </button>
                 ))}
@@ -872,7 +872,7 @@ export default function DashboardPage() {
           ))}
           {chatLoading && (
             <div className="flex justify-start">
-              <div className="bg-white/5 rounded-2xl rounded-bl-sm px-4 py-3">
+              <div className="bg-app-card-hover rounded-2xl rounded-bl-sm px-4 py-3">
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "0ms" }} />
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -884,7 +884,7 @@ export default function DashboardPage() {
           <div ref={chatEndRef} />
         </div>
 
-        <div className="border-t border-white/8 p-4">
+        <div className="border-t border-app-border p-4">
           <div className="mb-2">
             <ModelSelector value={chatProvider} onChange={setChatProvider} />
           </div>
@@ -894,14 +894,14 @@ export default function DashboardPage() {
               onChange={(e) => setChatInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAskAI()}
               placeholder="Ask about your financials..."
-              className="flex-1 bg-white/3 border border-white/8 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-emerald-500/30 transition-colors"
+              className="flex-1 bg-app-canvas border border-app-border rounded-xl px-4 py-3 text-sm text-app-text placeholder:text-app-text-subtle outline-none focus:border-emerald-500/30 transition-colors"
             />
             <button
               onClick={handleAskAI}
               disabled={!chatInput.trim() || chatLoading}
               className="w-11 h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors disabled:opacity-30"
             >
-              <Send className="w-4 h-4 text-white" />
+              <Send className="w-4 h-4 text-app-text" />
             </button>
           </div>
         </div>

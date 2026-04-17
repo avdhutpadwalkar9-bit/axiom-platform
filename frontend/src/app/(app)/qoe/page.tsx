@@ -226,9 +226,40 @@ export default function QoEPage() {
   const pendingAddbacks = DEFAULT_ADDBACKS.filter((a) => a.status === "pending").reduce((s, a) => s + a.amount, 0);
   const adjustedEbitda = derived.reported + totalAddbacks;
 
+  // ── QoE quality indicators (deterministic, derived from the data) ──
+  // Uplift magnitude + share of pending items + any flagged add-backs all
+  // feed into the score. This keeps the headline number honest rather than
+  // a hard-coded "8.2".
+  const flaggedCount = DEFAULT_ADDBACKS.filter((a) => a.status === "flagged").length;
+  const pendingCount = DEFAULT_ADDBACKS.filter((a) => a.status === "pending").length;
+  const qoeScore = useMemo(() => {
+    const upliftPct = derived.reported !== 0 ? Math.abs(totalAddbacks / derived.reported) : 0;
+    let score = 9.5;
+    score -= Math.min(upliftPct * 6, 2.5);    // large uplift = lower quality
+    score -= flaggedCount * 0.4;               // each flagged item dings
+    score -= pendingCount * 0.25;              // pending items dink a bit less
+    const warnCount = COMPLIANCE_CHECKS.filter((c) => c.status === "warn").length;
+    score -= warnCount * 0.15;                 // compliance warnings
+    return Math.max(5.0, Math.min(9.8, score));
+  }, [derived.reported, totalAddbacks, flaggedCount, pendingCount]);
+
+  const confidence = qoeScore >= 8.5 ? "High" : qoeScore >= 7.0 ? "Moderate" : "Low";
+  const confidenceTone =
+    confidence === "High"
+      ? "border-emerald-500/40 text-emerald-300 bg-emerald-500/5"
+      : confidence === "Moderate"
+      ? "border-sky-500/40 text-sky-300 bg-sky-500/5"
+      : "border-amber-500/40 text-amber-300 bg-amber-500/5";
+
+  // FY period label — shown in the header stat pills. If we have a live
+  // result we could derive this; for now use a sensible placeholder.
+  const periodLabel = "FY2025 (Apr 2024 – Mar 2025)";
+
   const bridgeData = useMemo(() => {
+    // Waterfall bar fills use explicit brand hexes so Recharts renders
+    // them instead of falling back to default near-black.
     const rows: Array<{ name: string; value: number; fill: string; isTotal?: boolean }> = [
-      { name: "Reported EBITDA", value: derived.reported, fill: "#64748b", isTotal: true },
+      { name: "Reported EBITDA", value: derived.reported, fill: "#6B7280", isTotal: true },
     ];
     const categories = ["Related-party", "One-time", "Revenue", "Accounting"];
     for (const cat of categories) {
@@ -237,11 +268,11 @@ export default function QoEPage() {
         rows.push({
           name: cat,
           value: catTotal,
-          fill: catTotal > 0 ? "#10b981" : "#f43f5e",
+          fill: catTotal > 0 ? "#34D399" : "#F87171",
         });
       }
     }
-    rows.push({ name: "Adjusted EBITDA", value: adjustedEbitda, fill: "#10b981", isTotal: true });
+    rows.push({ name: "Adjusted EBITDA", value: adjustedEbitda, fill: "#34D399", isTotal: true });
     return rows;
   }, [derived.reported, adjustedEbitda]);
 
@@ -265,34 +296,50 @@ export default function QoEPage() {
           <div className="flex items-center gap-2 mb-2">
             <Shield className="w-4 h-4 text-emerald-400" />
             <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">Quality of Earnings</p>
-            <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full">
               <BadgeCheck className="w-2.5 h-2.5" /> CA-reviewed
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-white">Quality of Earnings</h1>
-          <p className="text-sm text-white/40 mt-1">
+          <h1 className="text-2xl font-bold text-app-text">Quality of Earnings</h1>
+          <p className="text-sm text-app-text-subtle mt-1">
             Continuous audit-readiness &middot; Adjusted EBITDA with full add-back schedule &middot; Ind AS aligned
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors">
+          <button className="inline-flex items-center gap-2 bg-app-card-hover border border-app-border-strong text-app-text-muted px-4 py-2 rounded-lg text-sm hover:bg-app-elevated hover:text-app-text transition-colors">
             <Download className="w-3.5 h-3.5" /> Excel
           </button>
           <button
             onClick={() => exportQoEPdf(derived.reported, DEFAULT_ADDBACKS, COMPLIANCE_CHECKS, qoeCompanyName)}
-            className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-400 transition-colors"
+            className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-400 transition-colors shadow-[0_4px_16px_rgba(52,211,153,0.22)]"
           >
             <FileText className="w-3.5 h-3.5" /> Download report (PDF)
           </button>
         </div>
       </div>
 
+      {/* Stat pills — three quick-read signals right under the header. */}
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold bg-emerald-500 text-white px-3 py-1.5 rounded-full tabular-nums shadow-[0_4px_16px_rgba(52,211,153,0.25)]">
+          QoE Score: {qoeScore.toFixed(1)} / 10
+        </span>
+        <span className={`inline-flex items-center gap-1.5 text-[12px] font-medium border px-3 py-1.5 rounded-full ${confidenceTone}`}>
+          Confidence: {confidence}
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium border border-app-border-strong text-app-text-muted bg-app-card px-3 py-1.5 rounded-full tabular-nums">
+          {periodLabel}
+        </span>
+        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium border border-app-border text-app-text-subtle bg-app-card px-3 py-1.5 rounded-full">
+          {qoeCompanyName}
+        </span>
+      </div>
+
       {!derived.isLive && (
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 flex items-start gap-3">
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-3">
           <Info className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1 text-sm">
             <span className="text-amber-200 font-medium">Showing sample QoE workbook.</span>{" "}
-            <span className="text-white/60">
+            <span className="text-app-text-muted">
               Upload your financials on the{" "}
               <Link href="/analysis" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">Analysis</Link>{" "}
               page (TB, GL, or audited FS) to populate the bridge with your own numbers.
@@ -303,87 +350,88 @@ export default function QoEPage() {
 
       {/* KPI row */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-[#111] rounded-xl border border-white/8 p-5">
+        <div className="bg-app-card rounded-xl border border-app-border p-5">
           <div className="flex items-center gap-2 mb-1">
-            <TrendingDown className="w-3.5 h-3.5 text-white/30" />
-            <p className="text-xs text-white/40">Reported EBITDA</p>
+            <TrendingDown className="w-3.5 h-3.5 text-app-text-subtle" />
+            <p className="text-xs text-app-text-subtle">Reported EBITDA</p>
           </div>
-          <p className="text-2xl font-bold text-white tabular-nums">{fmt(derived.reported)}</p>
-          <p className="text-[11px] text-white/30 mt-1">Per books &middot; pre-adjustment</p>
+          <p className="text-2xl font-bold text-app-text tabular-nums">{fmt(derived.reported)}</p>
+          <p className="text-[11px] text-app-text-subtle mt-1">Per books &middot; pre-adjustment</p>
         </div>
 
-        <div className="bg-emerald-500/5 rounded-xl border border-emerald-500/20 p-5">
+        <div className="bg-emerald-500/5 rounded-xl border border-emerald-500/30 p-5">
           <div className="flex items-center gap-2 mb-1">
             <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
             <p className="text-xs text-emerald-300">Adjusted EBITDA</p>
           </div>
-          <p className="text-2xl font-bold text-white tabular-nums">{fmt(adjustedEbitda)}</p>
-          <p className="text-[11px] text-emerald-400/70 mt-1">
+          <p className="text-2xl font-bold text-app-text tabular-nums">{fmt(adjustedEbitda)}</p>
+          <p className="text-[11px] text-emerald-400/80 mt-1">
             {totalAddbacks >= 0 ? "+" : ""}{fmt(totalAddbacks)} net adjustments
           </p>
         </div>
 
-        <div className="bg-[#111] rounded-xl border border-white/8 p-5">
+        <div className="bg-app-card rounded-xl border border-app-border p-5">
           <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-white/30" />
-            <p className="text-xs text-white/40">Add-backs identified</p>
+            <Sparkles className="w-3.5 h-3.5 text-app-text-subtle" />
+            <p className="text-xs text-app-text-subtle">Add-backs identified</p>
           </div>
-          <p className="text-2xl font-bold text-white tabular-nums">{DEFAULT_ADDBACKS.length}</p>
-          <p className="text-[11px] text-white/30 mt-1">
+          <p className="text-2xl font-bold text-app-text tabular-nums">{DEFAULT_ADDBACKS.length}</p>
+          <p className="text-[11px] text-app-text-subtle mt-1">
             {DEFAULT_ADDBACKS.filter((a) => a.status === "approved").length} approved &middot;{" "}
             {DEFAULT_ADDBACKS.filter((a) => a.status === "pending").length} pending
           </p>
         </div>
 
-        <div className="bg-[#111] rounded-xl border border-white/8 p-5">
+        <div className="bg-app-card rounded-xl border border-app-border p-5">
           <div className="flex items-center gap-2 mb-1">
-            <AlertTriangle className="w-3.5 h-3.5 text-white/30" />
-            <p className="text-xs text-white/40">Compliance health</p>
+            <AlertTriangle className="w-3.5 h-3.5 text-app-text-subtle" />
+            <p className="text-xs text-app-text-subtle">Compliance health</p>
           </div>
-          <p className="text-2xl font-bold text-white tabular-nums">
+          <p className="text-2xl font-bold text-app-text tabular-nums">
             {COMPLIANCE_CHECKS.filter((c) => c.status === "ok").length}
-            <span className="text-white/30 text-base">/{COMPLIANCE_CHECKS.length}</span>
+            <span className="text-app-text-subtle text-base">/{COMPLIANCE_CHECKS.length}</span>
           </p>
-          <p className="text-[11px] text-white/30 mt-1">
+          <p className="text-[11px] text-app-text-subtle mt-1">
             {COMPLIANCE_CHECKS.filter((c) => c.status === "warn").length} items need attention
           </p>
         </div>
       </div>
 
       {/* EBITDA Bridge */}
-      <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+      <div className="bg-app-card rounded-xl border border-app-border p-6">
         <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-white">EBITDA bridge</h3>
-            <p className="text-xs text-white/40 mt-0.5">Reported → Adjusted, by adjustment category</p>
+            <h3 className="text-sm font-semibold text-app-text">EBITDA bridge</h3>
+            <p className="text-xs text-app-text-subtle mt-0.5">Reported → Adjusted, by adjustment category</p>
           </div>
           <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1.5 text-white/50"><span className="w-2.5 h-2.5 rounded-sm bg-slate-500" /> Baseline</span>
-            <span className="flex items-center gap-1.5 text-white/50"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-500" /> Positive</span>
-            <span className="flex items-center gap-1.5 text-white/50"><span className="w-2.5 h-2.5 rounded-sm bg-rose-500" /> Negative</span>
+            <span className="flex items-center gap-1.5 text-app-text-muted"><span className="w-2.5 h-2.5 rounded-sm bg-[#6B7280]" /> Baseline</span>
+            <span className="flex items-center gap-1.5 text-app-text-muted"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-400" /> Positive</span>
+            <span className="flex items-center gap-1.5 text-app-text-muted"><span className="w-2.5 h-2.5 rounded-sm bg-rose-400" /> Negative</span>
           </div>
         </div>
         <ResponsiveContainer width="100%" height={280}>
           <BarChart data={bridgeData} margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis dataKey="name" tick={{ fill: "#999", fontSize: 11 }} tickLine={false} axisLine={false} />
-            <YAxis tick={{ fill: "#999", fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => fmt(Number(v))} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+            <XAxis dataKey="name" tick={{ fill: "#A3A3A3", fontSize: 11 }} tickLine={false} axisLine={false} />
+            <YAxis tick={{ fill: "#A3A3A3", fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => fmt(Number(v))} />
             <Tooltip
               contentStyle={{
-                backgroundColor: "#0a0a0a",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "8px",
+                backgroundColor: "#1F1F1F",
+                border: "1px solid #3A3A3A",
+                borderRadius: "10px",
                 fontSize: "12px",
-                color: "#fff",
+                color: "#F5F5F5",
+                boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
               }}
-              itemStyle={{ color: "#fff" }}
-              labelStyle={{ color: "#fff" }}
+              itemStyle={{ color: "#F5F5F5" }}
+              labelStyle={{ color: "#F5F5F5", fontWeight: 600, marginBottom: "4px" }}
               formatter={(value) => [fmt(Number(value)), "Impact"]}
             />
             <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" />
             <Bar dataKey="value" radius={[6, 6, 0, 0]}>
               {bridgeData.map((row, i) => (
-                <Cell key={i} fill={row.fill} opacity={0.85} />
+                <Cell key={i} fill={row.fill} />
               ))}
             </Bar>
           </BarChart>
@@ -391,16 +439,16 @@ export default function QoEPage() {
       </div>
 
       {/* Add-back schedule */}
-      <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+      <div className="bg-app-card rounded-xl border border-app-border p-6">
         <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-white">Add-back schedule</h3>
-            <p className="text-xs text-white/40 mt-0.5">
+            <h3 className="text-sm font-semibold text-app-text">Add-back schedule</h3>
+            <p className="text-xs text-app-text-subtle mt-0.5">
               Every adjustment, with rationale and Ind AS reference &middot; reviewable line by line
             </p>
           </div>
           {pendingAddbacks !== 0 && (
-            <span className="inline-flex items-center gap-1.5 text-[11px] bg-amber-500/10 border border-amber-500/20 text-amber-300 px-2.5 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2.5 py-1 rounded-full">
               <AlertTriangle className="w-3 h-3" />
               {fmt(pendingAddbacks)} pending review
             </span>
@@ -412,25 +460,25 @@ export default function QoEPage() {
             const isOpen = expandedCat === cat;
             const items = DEFAULT_ADDBACKS.filter((a) => a.category === cat);
             return (
-              <div key={cat} className="rounded-lg border border-white/8 bg-white/[0.02] overflow-hidden">
+              <div key={cat} className="rounded-lg border border-app-border bg-app-canvas overflow-hidden">
                 <button
                   onClick={() => setExpandedCat(isOpen ? null : cat)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.03] transition-colors text-left"
+                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-app-card-hover transition-colors text-left"
                 >
                   <div className="flex items-center gap-3">
-                    <ChevronRight className={`w-3.5 h-3.5 text-white/30 transition-transform ${isOpen ? "rotate-90" : ""}`} />
-                    <span className="text-sm font-medium text-white">{cat}</span>
-                    <span className="text-[11px] text-white/30">{s.count} items</span>
+                    <ChevronRight className={`w-3.5 h-3.5 text-app-text-subtle transition-transform ${isOpen ? "rotate-90" : ""}`} />
+                    <span className="text-sm font-medium text-app-text">{cat}</span>
+                    <span className="text-[11px] text-app-text-subtle">{s.count} items</span>
                   </div>
-                  <span className={`text-sm font-semibold tabular-nums ${s.amount > 0 ? "text-emerald-400" : s.amount < 0 ? "text-rose-400" : "text-white/50"}`}>
+                  <span className={`text-sm font-semibold tabular-nums ${s.amount > 0 ? "text-emerald-400" : s.amount < 0 ? "text-rose-400" : "text-app-text-muted"}`}>
                     {s.amount > 0 ? "+" : ""}{fmt(s.amount)}
                   </span>
                 </button>
                 {isOpen && (
-                  <div className="border-t border-white/5 overflow-x-auto">
+                  <div className="border-t border-app-border overflow-x-auto">
                     <table className="w-full text-sm min-w-[600px]">
                       <thead>
-                        <tr className="text-[11px] uppercase tracking-wider text-white/30 bg-white/[0.015]">
+                        <tr className="text-[11px] uppercase tracking-wider text-app-text-subtle bg-app-card">
                           <th className="text-left px-4 py-2 font-medium">Description</th>
                           <th className="text-left px-3 py-2 font-medium">Ind AS</th>
                           <th className="text-right px-3 py-2 font-medium">Amount</th>
@@ -439,12 +487,12 @@ export default function QoEPage() {
                       </thead>
                       <tbody>
                         {items.map((a) => (
-                          <tr key={a.id} className="border-t border-white/3">
+                          <tr key={a.id} className="border-t border-app-border/70">
                             <td className="px-4 py-3 align-top">
-                              <p className="text-white text-sm">{a.description}</p>
-                              <p className="text-[11px] text-white/35 mt-1 leading-relaxed max-w-xl">{a.rationale}</p>
+                              <p className="text-app-text text-sm">{a.description}</p>
+                              <p className="text-[11px] text-app-text-subtle mt-1 leading-relaxed max-w-xl">{a.rationale}</p>
                             </td>
-                            <td className="px-3 py-3 align-top text-[11px] text-white/50 whitespace-nowrap">{a.indAs ?? "—"}</td>
+                            <td className="px-3 py-3 align-top text-[11px] text-app-text-muted whitespace-nowrap">{a.indAs ?? "—"}</td>
                             <td className={`px-3 py-3 align-top text-right tabular-nums font-medium ${a.amount > 0 ? "text-emerald-400" : "text-rose-400"}`}>
                               {a.amount > 0 ? "+" : ""}{fmt(a.amount)}
                             </td>
@@ -464,26 +512,26 @@ export default function QoEPage() {
       </div>
 
       {/* Customer concentration — derived from GL upload */}
-      <div className="bg-[#111] rounded-xl border border-white/8 p-6">
+      <div className="bg-app-card rounded-xl border border-app-border p-6">
         <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Users className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-semibold text-white">Customer concentration</h3>
+              <h3 className="text-sm font-semibold text-app-text">Customer concentration</h3>
               {glMeta?.transaction_count ? (
-                <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full">
                   <BadgeCheck className="w-2.5 h-2.5" />
                   Live &middot; {glMeta.transaction_count.toLocaleString("en-IN")} txns
                 </span>
               ) : null}
             </div>
-            <p className="text-xs text-white/40">
+            <p className="text-xs text-app-text-subtle">
               Top revenue-producing parties from your General Ledger &middot; flags customer concentration risk for QoE
             </p>
           </div>
           <label
             htmlFor="qoe-gl-upload"
-            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/70 px-4 py-2 rounded-lg text-sm hover:bg-white/10 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-2 bg-app-card-hover border border-app-border-strong text-app-text-muted px-4 py-2 rounded-lg text-sm hover:bg-app-elevated hover:text-app-text transition-colors cursor-pointer"
           >
             {glLoading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -505,16 +553,16 @@ export default function QoEPage() {
         </div>
 
         {glError && (
-          <div className="mb-4 rounded-lg border border-rose-500/20 bg-rose-500/5 px-3 py-2 text-xs text-rose-300 flex items-center gap-2">
+          <div className="mb-4 rounded-lg border border-rose-500/30 bg-rose-500/5 px-3 py-2 text-xs text-rose-300 flex items-center gap-2">
             <XCircle className="w-3.5 h-3.5" /> {glError}
           </div>
         )}
 
         {topCustomers.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-white/10 bg-white/[0.015] px-5 py-8 text-center">
-            <Users className="w-8 h-8 text-white/20 mx-auto mb-2" />
-            <p className="text-sm text-white/50">No GL uploaded yet.</p>
-            <p className="text-[11px] text-white/35 mt-1">
+          <div className="rounded-lg border border-dashed border-app-border-strong bg-app-canvas px-5 py-8 text-center">
+            <Users className="w-8 h-8 text-app-text-subtle mx-auto mb-2" />
+            <p className="text-sm text-app-text-muted">No GL uploaded yet.</p>
+            <p className="text-[11px] text-app-text-subtle mt-1">
               Upload a Zoho / Tally / QuickBooks General Ledger Excel to see the top 10 customers by revenue.
             </p>
           </div>
@@ -522,30 +570,30 @@ export default function QoEPage() {
           <>
             {/* KPI strip: top-3 concentration + notable risk banner */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
-              <div className="rounded-lg border border-white/5 bg-white/[0.02] px-4 py-3">
-                <p className="text-[10px] uppercase tracking-wider text-white/40">Top customer</p>
-                <p className="text-sm font-semibold text-white mt-1 truncate">
+              <div className="rounded-lg border border-app-border/70 bg-app-canvas px-4 py-3">
+                <p className="text-[10px] uppercase tracking-wider text-app-text-subtle">Top customer</p>
+                <p className="text-sm font-semibold text-app-text mt-1 truncate">
                   {top3[0]?.customer || "—"}
                 </p>
                 <p className="text-xs text-emerald-400 mt-0.5 tabular-nums">
                   {(top3[0]?.share_pct ?? 0).toFixed(1)}% of tracked revenue
                 </p>
               </div>
-              <div className="rounded-lg border border-white/5 bg-white/[0.02] px-4 py-3">
-                <p className="text-[10px] uppercase tracking-wider text-white/40">Top-3 share</p>
-                <p className={`text-sm font-semibold tabular-nums mt-1 ${top3Share >= 50 ? "text-amber-300" : "text-white"}`}>
+              <div className="rounded-lg border border-app-border/70 bg-app-canvas px-4 py-3">
+                <p className="text-[10px] uppercase tracking-wider text-app-text-subtle">Top-3 share</p>
+                <p className={`text-sm font-semibold tabular-nums mt-1 ${top3Share >= 50 ? "text-amber-300" : "text-app-text"}`}>
                   {top3Share.toFixed(1)}%
                 </p>
-                <p className="text-[11px] text-white/40 mt-0.5">
+                <p className="text-[11px] text-app-text-subtle mt-0.5">
                   {top3Share >= 50 ? "Concentration risk — diligence flag" : "Well-diversified"}
                 </p>
               </div>
-              <div className="rounded-lg border border-white/5 bg-white/[0.02] px-4 py-3 col-span-2 md:col-span-1">
-                <p className="text-[10px] uppercase tracking-wider text-white/40">Top-10 tracked</p>
-                <p className="text-sm font-semibold text-white tabular-nums mt-1">
+              <div className="rounded-lg border border-app-border/70 bg-app-canvas px-4 py-3 col-span-2 md:col-span-1">
+                <p className="text-[10px] uppercase tracking-wider text-app-text-subtle">Top-10 tracked</p>
+                <p className="text-sm font-semibold text-app-text tabular-nums mt-1">
                   {topConcentration.toFixed(1)}%
                 </p>
-                <p className="text-[11px] text-white/40 mt-0.5">
+                <p className="text-[11px] text-app-text-subtle mt-0.5">
                   of sales-side GL transactions
                 </p>
               </div>
@@ -554,7 +602,7 @@ export default function QoEPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[520px]">
                 <thead>
-                  <tr className="text-[11px] uppercase tracking-wider text-white/30 bg-white/[0.015]">
+                  <tr className="text-[11px] uppercase tracking-wider text-app-text-subtle bg-app-canvas">
                     <th className="text-left px-4 py-2 font-medium">#</th>
                     <th className="text-left px-4 py-2 font-medium">Customer</th>
                     <th className="text-right px-4 py-2 font-medium">Revenue</th>
@@ -563,10 +611,10 @@ export default function QoEPage() {
                 </thead>
                 <tbody>
                   {topCustomers.map((c, i) => (
-                    <tr key={c.customer + i} className="border-t border-white/3">
-                      <td className="px-4 py-3 text-white/40 tabular-nums">{i + 1}</td>
-                      <td className="px-4 py-3 text-white truncate max-w-[300px]">{c.customer}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-white">{fmt(c.revenue)}</td>
+                    <tr key={c.customer + i} className="border-t border-app-border/70">
+                      <td className="px-4 py-3 text-app-text-subtle tabular-nums">{i + 1}</td>
+                      <td className="px-4 py-3 text-app-text truncate max-w-[300px]">{c.customer}</td>
+                      <td className="px-4 py-3 text-right tabular-nums text-app-text">{fmt(c.revenue)}</td>
                       <td className="px-4 py-3 text-right tabular-nums text-emerald-400">{c.share_pct.toFixed(2)}%</td>
                     </tr>
                   ))}
@@ -574,10 +622,10 @@ export default function QoEPage() {
               </table>
             </div>
 
-            <p className="text-[11px] text-white/35 mt-4 leading-relaxed">
+            <p className="text-[11px] text-app-text-subtle mt-4 leading-relaxed">
               Aggregated from sales-side entries in your General Ledger; party names are shown here for your own
               review only — redaction applies before any LLM-based analysis.
-              {glMeta?.source_format ? <> Source: <span className="text-white/50">{glMeta.source_format}</span>.</> : null}
+              {glMeta?.source_format ? <> Source: <span className="text-app-text-muted">{glMeta.source_format}</span>.</> : null}
             </p>
           </>
         )}
@@ -585,29 +633,29 @@ export default function QoEPage() {
 
       {/* Compliance matrix + workflow */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-          <h3 className="text-sm font-semibold text-white mb-1">Compliance &amp; regulatory health</h3>
-          <p className="text-xs text-white/40 mb-5">Continuous GST, TDS and MCA reconciliations</p>
+        <div className="bg-app-card rounded-xl border border-app-border p-6">
+          <h3 className="text-sm font-semibold text-app-text mb-1">Compliance &amp; regulatory health</h3>
+          <p className="text-xs text-app-text-subtle mb-5">Continuous GST, TDS and MCA reconciliations</p>
           <div className="space-y-2.5">
             {COMPLIANCE_CHECKS.map((c) => (
-              <div key={c.label} className="flex items-start gap-3 p-3 rounded-lg border border-white/5 bg-white/[0.02]">
+              <div key={c.label} className="flex items-start gap-3 p-3 rounded-lg border border-app-border/70 bg-app-canvas">
                 {c.status === "ok" ? (
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
                 ) : (
                   <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
                 )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white">{c.label}</p>
-                  <p className="text-[11px] text-white/40 mt-0.5">{c.detail}</p>
+                  <p className="text-sm text-app-text">{c.label}</p>
+                  <p className="text-[11px] text-app-text-subtle mt-0.5">{c.detail}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-          <h3 className="text-sm font-semibold text-white mb-1">Review &amp; sign-off workflow</h3>
-          <p className="text-xs text-white/40 mb-5">Every number traceable to ledger &middot; UDIN captured on export</p>
+        <div className="bg-app-card rounded-xl border border-app-border p-6">
+          <h3 className="text-sm font-semibold text-app-text mb-1">Review &amp; sign-off workflow</h3>
+          <p className="text-xs text-app-text-subtle mb-5">Every number traceable to ledger &middot; UDIN captured on export</p>
 
           <div className="space-y-3">
             <WorkflowStep step={1} title="AI prepares first draft" detail="Add-back candidates surfaced, rationale drafted, Ind AS tags applied" done />
@@ -622,10 +670,69 @@ export default function QoEPage() {
             <WorkflowStep step={4} title="UDIN captured, PDF signed" detail="Report exported with CA's UDIN, firm seal, and advisory disclaimer" done={false} />
           </div>
 
-          <div className="mt-6 pt-5 border-t border-white/5 text-[11px] text-white/40 leading-relaxed">
-            <span className="text-white/60 font-medium">Advisory, not audit.</span> This workbook is produced for
+          <div className="mt-6 pt-5 border-t border-app-border/70 text-[11px] text-app-text-subtle leading-relaxed">
+            <span className="text-app-text-muted font-medium">Advisory, not audit.</span> This workbook is produced for
             internal review and transaction support. It is not a substitute for a statutory audit opinion or a
             Big-4 QoE engagement.
+          </div>
+        </div>
+      </div>
+
+      {/* AI Analyst Summary — the headline takeaway a PE/CA would want to
+          read in 30 seconds. Pulled to the bottom intentionally so readers
+          scroll past the proof (bridge, add-backs, compliance) before hitting
+          the editorial synthesis. */}
+      <div className="rounded-xl border border-app-border bg-app-card p-6 relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400" />
+        <div className="pl-4">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">
+              CortexAI &nbsp;/&nbsp; Analyst Summary
+            </p>
+          </div>
+          <blockquote className="font-mono text-[13px] leading-relaxed text-app-text-muted">
+            The business exhibits <span className="text-app-text">{((derived.reported / (derived.reported + totalAddbacks)) * 100).toFixed(0)}%</span>{" "}
+            of adjusted EBITDA as reported, expanding to{" "}
+            <span className="text-app-text">{fmt(adjustedEbitda)}</span> post-normalisation — a{" "}
+            <span className="text-emerald-400">
+              {totalAddbacks >= 0 ? "+" : ""}{((totalAddbacks / Math.max(1, derived.reported)) * 100).toFixed(1)}%
+            </span>{" "}
+            uplift driven primarily by{" "}
+            {(() => {
+              const cats = Object.entries(catSummary)
+                .filter(([, s]) => s.amount > 0)
+                .sort((a, b) => b[1].amount - a[1].amount)
+                .slice(0, 2)
+                .map(([c]) => c.toLowerCase());
+              return cats.length ? cats.join(" and ") : "normalised items";
+            })()}{" "}
+            adjustments. {flaggedCount > 0 && (
+              <>
+                {flaggedCount} flagged {flaggedCount === 1 ? "item" : "items"} in the schedule ({fmt(
+                  DEFAULT_ADDBACKS.filter((a) => a.status === "flagged").reduce((s, a) => s + a.amount, 0)
+                )}) require CA concurrence before sign-off.{" "}
+              </>
+            )}
+            {pendingCount > 0 && (
+              <>
+                Pending review items sit at <span className="text-amber-300">{fmt(pendingAddbacks)}</span> and
+                are excluded from the headline adjusted figure until approved.{" "}
+              </>
+            )}
+            Compliance health stands at{" "}
+            <span className="text-app-text tabular-nums">
+              {COMPLIANCE_CHECKS.filter((c) => c.status === "ok").length}/{COMPLIANCE_CHECKS.length}
+            </span>{" "}
+            with{" "}
+            {COMPLIANCE_CHECKS.filter((c) => c.status === "warn").length} open item(s) flagged for management attention.
+            Overall: <span className="text-emerald-300 font-semibold">{confidence.toLowerCase()}-confidence QoE</span> suitable
+            for investor sharing once pending items clear.
+          </blockquote>
+          <div className="mt-4 flex items-center gap-4 text-[11px] text-app-text-subtle">
+            <span>Generated {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
+            <span className="text-app-text-subtle/60">&middot;</span>
+            <span>Editable — not a signed opinion</span>
           </div>
         </div>
       </div>
@@ -636,18 +743,18 @@ export default function QoEPage() {
 function StatusPill({ status }: { status: Status }) {
   if (status === "approved")
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
+      <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full">
         <CheckCircle2 className="w-2.5 h-2.5" /> Approved
       </span>
     );
   if (status === "flagged")
     return (
-      <span className="inline-flex items-center gap-1 text-[11px] bg-rose-500/10 border border-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full">
+      <span className="inline-flex items-center gap-1 text-[11px] bg-rose-500/10 border border-rose-500/30 text-rose-300 px-2 py-0.5 rounded-full">
         <AlertTriangle className="w-2.5 h-2.5" /> Flagged
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1 text-[11px] bg-amber-500/10 border border-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full">
+    <span className="inline-flex items-center gap-1 text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full">
       <Info className="w-2.5 h-2.5" /> Pending
     </span>
   );
@@ -667,28 +774,28 @@ function WorkflowStep({
   active?: boolean;
 }) {
   return (
-    <div className={`flex items-start gap-3 p-3 rounded-lg border ${active ? "border-emerald-500/20 bg-emerald-500/5" : "border-white/5 bg-white/[0.02]"}`}>
+    <div className={`flex items-start gap-3 p-3 rounded-lg border ${active ? "border-emerald-500/30 bg-emerald-500/5" : "border-app-border/70 bg-app-canvas"}`}>
       <div
         className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-semibold ${
           done
             ? "bg-emerald-500 text-white"
             : active
-            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-            : "bg-white/5 text-white/30 border border-white/10"
+            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+            : "bg-app-card-hover text-app-text-subtle border border-app-border-strong"
         }`}
       >
         {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : step}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="text-sm text-white" dangerouslySetInnerHTML={{ __html: title }} />
+          <p className="text-sm text-app-text" dangerouslySetInnerHTML={{ __html: title }} />
           {active && (
             <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 text-emerald-300 px-1.5 py-0.5 rounded-full">
               <ArrowUpRight className="w-2.5 h-2.5" /> In progress
             </span>
           )}
         </div>
-        <p className="text-[11px] text-white/40 mt-0.5" dangerouslySetInnerHTML={{ __html: detail }} />
+        <p className="text-[11px] text-app-text-subtle mt-0.5" dangerouslySetInnerHTML={{ __html: detail }} />
       </div>
     </div>
   );

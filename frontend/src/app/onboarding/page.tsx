@@ -205,24 +205,24 @@ export default function OnboardingPage() {
   // Step 3: AI Analysis Loading
   if (currentStep === 3) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a] px-8">
+      <div className="flex items-center justify-center min-h-screen bg-app-canvas px-8">
         <div className="max-w-md w-full text-center">
           <div className="w-16 h-16 rounded-2xl bg-emerald-500 flex items-center justify-center mx-auto mb-8">
             <Sparkles className="w-8 h-8 text-emerald-400 animate-pulse" />
           </div>
-          <h2 className="text-2xl font-light text-white mb-3 tracking-[-0.02em]">
+          <h2 className="text-2xl font-light text-app-text mb-3 tracking-[-0.02em]">
             Analyzing your financials
           </h2>
-          <p className="text-sm text-white/30 mb-10">
+          <p className="text-sm text-app-text-subtle mb-10">
             Our AI is reviewing your data against Indian accounting standards and generating strategic insights.
           </p>
 
           {/* Indeterminate progress — honest about unknown duration */}
-          <div className="w-full h-1.5 bg-[#0a0a0a] rounded-full overflow-hidden mb-4 relative">
+          <div className="w-full h-1.5 bg-app-canvas rounded-full overflow-hidden mb-4 relative">
             <div className="absolute inset-y-0 w-1/3 bg-emerald-500 rounded-full indeterminate-bar" />
           </div>
-          <p className="text-xs text-white/40" aria-live="polite">{analysisStatus}</p>
-          <p className="text-[11px] text-white/20 mt-2">Usually 10&ndash;30 seconds, longer for larger ledgers.</p>
+          <p className="text-xs text-app-text-subtle" aria-live="polite">{analysisStatus}</p>
+          <p className="text-[11px] text-app-text/20 mt-2">Usually 10&ndash;30 seconds, longer for larger ledgers.</p>
 
           {error && (
             <div className="mt-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
@@ -235,14 +235,14 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex">
+    <div className="min-h-screen bg-app-canvas flex">
       {/* Left Panel — Progress */}
-      <div className="hidden lg:flex w-80 flex-col border-r border-white/8 bg-[#111] p-8">
+      <div className="hidden lg:flex w-80 flex-col border-r border-app-border bg-app-card p-8">
         <div className="flex items-center gap-2.5 mb-12">
           <div className="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+            <svg className="w-4 h-4 text-app-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
           </div>
-          <span className="text-lg font-bold text-white tracking-[-0.02em]">CortexCFO</span>
+          <span className="text-lg font-bold text-app-text tracking-[-0.02em]">CortexCFO</span>
         </div>
 
         <div className="space-y-2 flex-1">
@@ -254,26 +254,26 @@ export default function OnboardingPage() {
               <div
                 key={step.id}
                 className={`flex items-center gap-4 p-4 rounded-xl transition-all ${
-                  isActive ? "bg-[#0a0a0a] border border-white/8" : ""
+                  isActive ? "bg-app-canvas border border-app-border" : ""
                 }`}
               >
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                  isDone ? "bg-emerald-500/100/20" : isActive ? "bg-emerald-500/10" : "bg-[#0a0a0a]"
+                  isDone ? "bg-emerald-500/100/20" : isActive ? "bg-emerald-500/10" : "bg-app-canvas"
                 }`}>
-                  {isDone ? <Check className="w-4 h-4 text-emerald-400" /> : <Icon className={`w-4 h-4 ${isActive ? "text-emerald-400" : "text-white/15"}`} />}
+                  {isDone ? <Check className="w-4 h-4 text-emerald-400" /> : <Icon className={`w-4 h-4 ${isActive ? "text-emerald-400" : "text-app-text/15"}`} />}
                 </div>
                 <div>
-                  <p className={`text-sm font-medium ${isActive ? "text-white" : isDone ? "text-white/60" : "text-white/15"}`}>
+                  <p className={`text-sm font-medium ${isActive ? "text-app-text" : isDone ? "text-app-text-muted" : "text-app-text/15"}`}>
                     {step.label}
                   </p>
-                  <p className="text-[10px] text-white/15">Step {step.id + 1} of 3</p>
+                  <p className="text-[10px] text-app-text/15">Step {step.id + 1} of 3</p>
                 </div>
               </div>
             );
           })}
         </div>
 
-        <p className="text-[11px] text-white/15 mt-auto">
+        <p className="text-[11px] text-app-text/15 mt-auto">
           Your data is encrypted and never shared.
         </p>
       </div>
@@ -292,31 +292,31 @@ export default function OnboardingPage() {
             <div className="space-y-8">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400/70 mb-3">Step 1 of 3</p>
-                <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">Tell us about yourself</h1>
-                <p className="text-sm text-white/30">This helps us personalize your experience.</p>
+                <h1 className="text-3xl font-light text-app-text tracking-[-0.02em] mb-2">Tell us about yourself</h1>
+                <p className="text-sm text-app-text-subtle">This helps us personalize your experience.</p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-xs text-white/40 mb-1.5 font-medium">Full Name *</label>
+                  <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Full Name *</label>
                   <input
                     value={personal.fullName}
                     onChange={(e) => setPersonal({ fullName: e.target.value })}
                     placeholder="e.g., Avdhut Padwalkar"
-                    className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                    className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/40 mb-1.5 font-medium">Phone Number</label>
+                  <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Phone Number</label>
                   <input
                     value={personal.phone}
                     onChange={(e) => setPersonal({ phone: e.target.value })}
                     placeholder="+91 98765 43210"
-                    className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                    className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-white/40 mb-1.5 font-medium">Your Role *</label>
+                  <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Your Role *</label>
                   <div className="grid grid-cols-2 gap-2">
                     {ROLES.map((role) => (
                       <button
@@ -324,8 +324,8 @@ export default function OnboardingPage() {
                         onClick={() => setPersonal({ role })}
                         className={`p-3 rounded-xl text-xs font-medium text-left transition-all ${
                           personal.role === role
-                            ? "bg-emerald-500/10 border border-emerald-500/20 text-white"
-                            : "bg-[#111] border border-white/8 text-white/40 hover:bg-[#111]/[0.06]"
+                            ? "bg-emerald-500/10 border border-emerald-500/20 text-app-text"
+                            : "bg-app-card border border-app-border text-app-text-subtle hover:bg-app-card/[0.06]"
                         }`}
                       >
                         {role}
@@ -342,76 +342,76 @@ export default function OnboardingPage() {
             <div className="space-y-8">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400/70 mb-3">Step 2 of 3</p>
-                <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">About your business</h1>
-                <p className="text-sm text-white/30">This helps our AI understand your industry context.</p>
+                <h1 className="text-3xl font-light text-app-text tracking-[-0.02em] mb-2">About your business</h1>
+                <p className="text-sm text-app-text-subtle">This helps our AI understand your industry context.</p>
               </div>
 
               <div className="space-y-5">
                 <div>
-                  <label className="block text-xs text-white/40 mb-1.5 font-medium">Company Name *</label>
+                  <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Company Name *</label>
                   <input
                     value={business.companyName}
                     onChange={(e) => setBusiness({ companyName: e.target.value })}
                     placeholder="e.g., TechFlow Solutions Pvt Ltd"
-                    className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                    className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">Industry *</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Industry *</label>
                     <select
                       value={business.industry}
                       onChange={(e) => setBusiness({ industry: e.target.value })}
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text outline-none focus:border-emerald-500/30 transition-all"
                     >
-                      <option value="" className="bg-[#111]">Select industry</option>
+                      <option value="" className="bg-app-card">Select industry</option>
                       {INDUSTRIES.map((ind) => (
-                        <option key={ind} value={ind} className="bg-[#111]">{ind}</option>
+                        <option key={ind} value={ind} className="bg-app-card">{ind}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">Entity Type *</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Entity Type *</label>
                     <select
                       value={business.entityType}
                       onChange={(e) => setBusiness({ entityType: e.target.value })}
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text outline-none focus:border-emerald-500/30 transition-all"
                     >
-                      <option value="" className="bg-[#111]">Select type</option>
+                      <option value="" className="bg-app-card">Select type</option>
                       {ENTITY_TYPES.map((et) => (
-                        <option key={et} value={et} className="bg-[#111]">{et}</option>
+                        <option key={et} value={et} className="bg-app-card">{et}</option>
                       ))}
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/40 mb-1.5 font-medium">
+                  <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">
                     Brief about services & products
-                    <span className="text-white/15 ml-1">(helps AI understand your business)</span>
+                    <span className="text-app-text/15 ml-1">(helps AI understand your business)</span>
                   </label>
                   <textarea
                     value={business.servicesDescription}
                     onChange={(e) => setBusiness({ servicesDescription: e.target.value })}
                     placeholder="e.g., We are a B2B SaaS company providing HR automation tools to mid-market companies in India. Our main products are payroll processing and employee engagement platforms."
                     rows={3}
-                    className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all resize-none"
+                    className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all resize-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">Website URL</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Website URL</label>
                     <input
                       value={business.websiteUrl}
                       onChange={(e) => setBusiness({ websiteUrl: e.target.value })}
                       placeholder="https://example.com"
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">Year Founded</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Year Founded</label>
                     <input
                       value={business.yearFounded}
                       onChange={(e) => setBusiness({ yearFounded: e.target.value })}
@@ -419,21 +419,21 @@ export default function OnboardingPage() {
                       type="number"
                       min="1900"
                       max="2026"
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-white/40 mb-1.5 font-medium">Any major pivots in the business?</label>
+                  <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Any major pivots in the business?</label>
                   <div className="flex gap-2 mb-2">
                     <button
                       onClick={() => setBusiness({ hadPivot: false })}
-                      className={`px-4 py-2 rounded-lg text-xs font-medium ${!business.hadPivot ? "bg-emerald-500/10 border border-emerald-500/20 text-white" : "bg-[#111] border border-white/8 text-white/40"}`}
+                      className={`px-4 py-2 rounded-lg text-xs font-medium ${!business.hadPivot ? "bg-emerald-500/10 border border-emerald-500/20 text-app-text" : "bg-app-card border border-app-border text-app-text-subtle"}`}
                     >No</button>
                     <button
                       onClick={() => setBusiness({ hadPivot: true })}
-                      className={`px-4 py-2 rounded-lg text-xs font-medium ${business.hadPivot ? "bg-emerald-500/10 border border-emerald-500/20 text-white" : "bg-[#111] border border-white/8 text-white/40"}`}
+                      className={`px-4 py-2 rounded-lg text-xs font-medium ${business.hadPivot ? "bg-emerald-500/10 border border-emerald-500/20 text-app-text" : "bg-app-card border border-app-border text-app-text-subtle"}`}
                     >Yes</button>
                   </div>
                   {business.hadPivot && (
@@ -441,35 +441,35 @@ export default function OnboardingPage() {
                       value={business.pivotDescription}
                       onChange={(e) => setBusiness({ pivotDescription: e.target.value })}
                       placeholder="Briefly describe the pivot..."
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                     />
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">Annual Turnover</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Annual Turnover</label>
                     <select
                       value={business.turnoverRange}
                       onChange={(e) => setBusiness({ turnoverRange: e.target.value })}
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text outline-none focus:border-emerald-500/30 transition-all"
                     >
-                      <option value="" className="bg-[#111]">Select range</option>
+                      <option value="" className="bg-app-card">Select range</option>
                       {TURNOVER_RANGES.map((tr) => (
-                        <option key={tr} value={tr} className="bg-[#111]">{tr}</option>
+                        <option key={tr} value={tr} className="bg-app-card">{tr}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">Accounting Software</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Accounting Software</label>
                     <select
                       value={business.accountingSoftware}
                       onChange={(e) => setBusiness({ accountingSoftware: e.target.value })}
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-4 py-3 text-sm text-white outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-4 py-3 text-sm text-app-text outline-none focus:border-emerald-500/30 transition-all"
                     >
-                      <option value="" className="bg-[#111]">Select software</option>
+                      <option value="" className="bg-app-card">Select software</option>
                       {ACCOUNTING_SOFTWARE.map((sw) => (
-                        <option key={sw} value={sw} className="bg-[#111]">{sw}</option>
+                        <option key={sw} value={sw} className="bg-app-card">{sw}</option>
                       ))}
                     </select>
                   </div>
@@ -477,31 +477,31 @@ export default function OnboardingPage() {
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">GSTIN</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">GSTIN</label>
                     <input
                       value={business.gstin}
                       onChange={(e) => setBusiness({ gstin: e.target.value })}
                       placeholder="Optional"
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-3 py-3 text-xs text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-3 py-3 text-xs text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">PAN</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">PAN</label>
                     <input
                       value={business.pan}
                       onChange={(e) => setBusiness({ pan: e.target.value })}
                       placeholder="Optional"
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-3 py-3 text-xs text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-3 py-3 text-xs text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-white/40 mb-1.5 font-medium">Employees</label>
+                    <label className="block text-xs text-app-text-subtle mb-1.5 font-medium">Employees</label>
                     <input
                       value={business.employeeCount}
                       onChange={(e) => setBusiness({ employeeCount: e.target.value })}
                       placeholder="e.g., 25"
                       type="number"
-                      className="w-full rounded-xl bg-[#0a0a0a] border border-white/8 px-3 py-3 text-xs text-white placeholder:text-white/15 outline-none focus:border-emerald-500/30 transition-all"
+                      className="w-full rounded-xl bg-app-canvas border border-app-border px-3 py-3 text-xs text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/30 transition-all"
                     />
                   </div>
                 </div>
@@ -514,13 +514,13 @@ export default function OnboardingPage() {
             <div className="space-y-8">
               <div>
                 <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400/70 mb-3">Step 3 of 3</p>
-                <h1 className="text-3xl font-light text-white tracking-[-0.02em] mb-2">Upload your financials</h1>
-                <p className="text-sm text-white/30">Upload a Trial Balance or General Ledger to unlock AI-powered analysis.</p>
+                <h1 className="text-3xl font-light text-app-text tracking-[-0.02em] mb-2">Upload your financials</h1>
+                <p className="text-sm text-app-text-subtle">Upload a Trial Balance or General Ledger to unlock AI-powered analysis.</p>
               </div>
 
               {/* Financial Year Selection */}
               <div>
-                <label className="block text-xs text-white/40 mb-2 font-medium">Select Financial Year(s) *</label>
+                <label className="block text-xs text-app-text-subtle mb-2 font-medium">Select Financial Year(s) *</label>
                 <div className="flex gap-2">
                   {FINANCIAL_YEARS.map((fy) => (
                     <button
@@ -528,8 +528,8 @@ export default function OnboardingPage() {
                       onClick={() => toggleFY(fy)}
                       className={`flex-1 p-3 rounded-xl text-xs font-medium text-center transition-all ${
                         upload.financialYears.includes(fy)
-                          ? "bg-emerald-500/10 border border-emerald-500/20 text-white"
-                          : "bg-[#111] border border-white/8 text-white/30 hover:bg-[#111]/[0.06]"
+                          ? "bg-emerald-500/10 border border-emerald-500/20 text-app-text"
+                          : "bg-app-card border border-app-border text-app-text-subtle hover:bg-app-card/[0.06]"
                       }`}
                     >
                       {fy}
@@ -545,7 +545,7 @@ export default function OnboardingPage() {
                 className={`border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer transition-all ${
                   uploadedFile
                     ? "border-emerald-500/30 bg-emerald-500/100/5"
-                    : "border-white/8 hover:border-emerald-500/20 hover:bg-emerald-500/5"
+                    : "border-app-border hover:border-emerald-500/20 hover:bg-emerald-500/5"
                 }`}
                 onClick={() => document.getElementById("onboarding-file-input")?.click()}
               >
@@ -562,43 +562,43 @@ export default function OnboardingPage() {
                 {uploadedFile ? (
                   <>
                     <FileSpreadsheet className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
-                    <p className="text-sm font-medium text-white">{uploadedFile.name}</p>
-                    <p className="text-xs text-white/30 mt-1">{(uploadedFile.size / 1024).toFixed(0)} KB — Click to change</p>
+                    <p className="text-sm font-medium text-app-text">{uploadedFile.name}</p>
+                    <p className="text-xs text-app-text-subtle mt-1">{(uploadedFile.size / 1024).toFixed(0)} KB — Click to change</p>
                   </>
                 ) : (
                   <>
-                    <Upload className="w-10 h-10 text-white/15 mx-auto mb-3" />
-                    <p className="text-sm text-white/60 mb-1">Drop your Trial Balance or GL here</p>
-                    <p className="text-xs text-white/15">CSV, JSON, or Excel files accepted</p>
+                    <Upload className="w-10 h-10 text-app-text/15 mx-auto mb-3" />
+                    <p className="text-sm text-app-text-muted mb-1">Drop your Trial Balance or GL here</p>
+                    <p className="text-xs text-app-text/15">CSV, JSON, or Excel files accepted</p>
                   </>
                 )}
               </div>
 
               {/* Download sample */}
-              <div className="flex items-center justify-center gap-2 text-xs text-white/15">
+              <div className="flex items-center justify-center gap-2 text-xs text-app-text/15">
                 <Info className="w-3 h-3" />
                 <span>Need a sample? <button className="text-emerald-400 hover:text-emerald-400 underline">Download CSV template</button></span>
               </div>
 
               {/* OR Demo Mode */}
               <div className="flex items-center gap-4">
-                <div className="flex-1 h-px bg-[#0a0a0a]" />
-                <span className="text-xs text-white/15">OR</span>
-                <div className="flex-1 h-px bg-[#0a0a0a]" />
+                <div className="flex-1 h-px bg-app-canvas" />
+                <span className="text-xs text-app-text/15">OR</span>
+                <div className="flex-1 h-px bg-app-canvas" />
               </div>
 
               <button
                 onClick={handleDemoMode}
-                className="w-full p-5 rounded-xl border border-white/8 bg-[#111] hover:bg-white/5 hover:border-white/8 transition-all text-left flex items-center gap-4"
+                className="w-full p-5 rounded-xl border border-app-border bg-app-card hover:bg-app-card-hover hover:border-app-border transition-all text-left flex items-center gap-4"
               >
                 <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0">
                   <Sparkles className="w-5 h-5 text-purple-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Explore Demo Environment</p>
-                  <p className="text-xs text-white/30 mt-0.5">Don&apos;t have data ready? Try with Acme Tech Pvt Ltd — a sample manufacturing company.</p>
+                  <p className="text-sm font-semibold text-app-text">Explore Demo Environment</p>
+                  <p className="text-xs text-app-text-subtle mt-0.5">Don&apos;t have data ready? Try with Acme Tech Pvt Ltd — a sample manufacturing company.</p>
                 </div>
-                <ArrowRight className="w-4 h-4 text-white/15 ml-auto" />
+                <ArrowRight className="w-4 h-4 text-app-text/15 ml-auto" />
               </button>
             </div>
           )}
@@ -607,14 +607,14 @@ export default function OnboardingPage() {
           {currentStep < 3 && (
             <div className="flex items-center justify-between mt-10">
               {currentStep > 0 ? (
-                <button onClick={handleBack} className="flex items-center gap-2 text-sm text-white/30 hover:text-white/70 transition-colors">
+                <button onClick={handleBack} className="flex items-center gap-2 text-sm text-app-text-subtle hover:text-app-text/70 transition-colors">
                   <ChevronLeft className="w-4 h-4" /> Back
                 </button>
               ) : <div />}
               <button
                 onClick={handleNext}
                 disabled={!canProceed()}
-                className="flex items-center gap-2 bg-[#111] text-[#0a0a0f] font-semibold px-8 py-3 rounded-full hover:bg-white/5 transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm"
+                className="flex items-center gap-2 bg-app-card text-[#0a0a0f] font-semibold px-8 py-3 rounded-full hover:bg-app-card-hover transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm"
               >
                 {currentStep === 2 ? "Analyze Now" : "Continue"}
                 <ChevronRight className="w-4 h-4" />

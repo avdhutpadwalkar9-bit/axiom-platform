@@ -442,11 +442,11 @@ export default function AnalysisPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Financial Analysis Report</h1>
-            <p className="text-sm text-white/30 mt-1">Ind AS compliant review &middot; AI-powered insights</p>
+            <h1 className="text-2xl font-bold text-app-text">Financial Analysis Report</h1>
+            <p className="text-sm text-app-text-subtle mt-1">Ind AS compliant review &middot; AI-powered insights</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => { setMode("upload"); setResult(null); setPriorResult(null); }} className="px-4 py-2 bg-white/3 border border-white/8 rounded-lg text-xs text-white/40 hover:bg-white/5 transition-colors">
+            <button onClick={() => { setMode("upload"); setResult(null); setPriorResult(null); }} className="px-4 py-2 bg-app-canvas border border-app-border rounded-lg text-xs text-app-text-subtle hover:bg-app-card-hover transition-colors">
               New Analysis
             </button>
             <button
@@ -462,37 +462,37 @@ export default function AnalysisPage() {
             parser warnings (scanned PDF, no customer-id column, etc.). Only
             renders when upload_meta is present, so manual entries stay clean. */}
         {um && (
-          <div className="bg-[#111] rounded-xl border border-white/8 p-4 flex items-start gap-4 flex-wrap">
+          <div className="bg-app-card rounded-xl border border-app-border p-4 flex items-start gap-4 flex-wrap">
             <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
               <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
             </div>
             <div className="flex-1 min-w-[240px]">
               <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-sm font-medium text-white">{parserLabel}</p>
+                <p className="text-sm font-medium text-app-text">{parserLabel}</p>
                 {result.input_mode && result.input_mode !== "TB" && (
                   <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full uppercase tracking-wider">
                     {result.input_mode}
                   </span>
                 )}
                 {unitLabel && (
-                  <span className="inline-flex items-center gap-1 text-[10px] bg-white/5 border border-white/10 text-white/60 px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-app-card-hover border border-app-border-strong text-app-text-muted px-2 py-0.5 rounded-full">
                     Amounts {unitLabel}
                   </span>
                 )}
                 {typeof um.transaction_count === "number" && (
-                  <span className="inline-flex items-center gap-1 text-[10px] bg-white/5 border border-white/10 text-white/60 px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-app-card-hover border border-app-border-strong text-app-text-muted px-2 py-0.5 rounded-full">
                     {um.transaction_count.toLocaleString("en-IN")} transactions
                   </span>
                 )}
                 {typeof um.pages_parsed === "number" && (
-                  <span className="inline-flex items-center gap-1 text-[10px] bg-white/5 border border-white/10 text-white/60 px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[10px] bg-app-card-hover border border-app-border-strong text-app-text-muted px-2 py-0.5 rounded-full">
                     {um.pages_parsed} pages parsed
                   </span>
                 )}
               </div>
-              <p className="text-xs text-white/40 mt-1">
+              <p className="text-xs text-app-text-subtle mt-1">
                 {um.file_name ?? "Uploaded file"}
-                {um.source_format ? <> &middot; Source detected: <span className="text-white/60">{um.source_format}</span></> : null}
+                {um.source_format ? <> &middot; Source detected: <span className="text-app-text-muted">{um.source_format}</span></> : null}
               </p>
               {um.parser_warnings && um.parser_warnings.length > 0 && (
                 <div className="mt-2 space-y-1">
@@ -505,7 +505,7 @@ export default function AnalysisPage() {
                 </div>
               )}
               {result.input_mode === "AUDITED" && (
-                <p className="text-[11px] text-white/40 mt-2 leading-relaxed">
+                <p className="text-[11px] text-app-text-subtle mt-2 leading-relaxed">
                   Numbers were extracted directly from the audited PDF. For precision-critical analysis, upload the underlying Trial Balance or General Ledger as well.
                 </p>
               )}
@@ -516,20 +516,20 @@ export default function AnalysisPage() {
         {/* Prior-year upload strip — shown when we have a current-year result
             but no prior year yet. Lets user unlock variance analysis. */}
         {!priorResult && (
-          <div className="bg-[#111] rounded-xl border border-white/8 p-4 flex items-center gap-4">
+          <div className="bg-app-card rounded-xl border border-app-border p-4 flex items-center gap-4">
             <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
               <GitCompareArrows className="w-4 h-4 text-emerald-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-white">Compare with another year</p>
-              <p className="text-xs text-white/40 mt-0.5">Upload a second trial balance to unlock variance and common-size comparison.</p>
+              <p className="text-sm font-medium text-app-text">Compare with another year</p>
+              <p className="text-xs text-app-text-subtle mt-0.5">Upload a second trial balance to unlock variance and common-size comparison.</p>
             </div>
             <div className="flex items-center gap-2">
               <input
                 value={priorYearLabel}
                 onChange={(e) => setPriorYearLabel(e.target.value)}
                 placeholder="e.g., FY 2023-24"
-                className="w-32 bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-xs text-white placeholder:text-white/20 outline-none focus:border-emerald-500/50"
+                className="w-32 bg-app-canvas border border-app-border rounded-lg px-3 py-2 text-xs text-app-text placeholder:text-app-text-subtle outline-none focus:border-emerald-500/50"
               />
               <input
                 id="prior-file-input"
@@ -555,32 +555,32 @@ export default function AnalysisPage() {
 
         {/* Year labels strip — shown when comparison is active. */}
         {priorResult && (
-          <div className="bg-[#111] rounded-xl border border-emerald-500/20 p-4 flex items-center gap-4">
+          <div className="bg-app-card rounded-xl border border-emerald-500/20 p-4 flex items-center gap-4">
             <div className="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
               <Calendar className="w-4 h-4 text-emerald-400" />
             </div>
             <div className="flex-1 flex items-center gap-4">
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-white/30">Prior</p>
+                <p className="text-[10px] uppercase tracking-widest text-app-text-subtle">Prior</p>
                 <input
                   value={priorYearLabel}
                   onChange={(e) => setPriorYearLabel(e.target.value)}
-                  className="bg-transparent border-none text-sm text-white font-medium outline-none w-28 mt-0.5"
+                  className="bg-transparent border-none text-sm text-app-text font-medium outline-none w-28 mt-0.5"
                 />
               </div>
-              <ChevronRight className="w-4 h-4 text-white/20" />
+              <ChevronRight className="w-4 h-4 text-app-text-subtle" />
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-white/30">Current</p>
+                <p className="text-[10px] uppercase tracking-widest text-app-text-subtle">Current</p>
                 <input
                   value={currentYearLabel}
                   onChange={(e) => setCurrentYearLabel(e.target.value)}
-                  className="bg-transparent border-none text-sm text-white font-medium outline-none w-28 mt-0.5"
+                  className="bg-transparent border-none text-sm text-app-text font-medium outline-none w-28 mt-0.5"
                 />
               </div>
             </div>
             <button
               onClick={() => { setPriorResult(null); setActiveTab("overview"); }}
-              className="px-3 py-1.5 rounded-lg text-xs text-white/40 hover:text-white hover:bg-white/5 transition-colors"
+              className="px-3 py-1.5 rounded-lg text-xs text-app-text-subtle hover:text-app-text hover:bg-app-card-hover transition-colors"
             >
               Remove comparison
             </button>
@@ -594,8 +594,8 @@ export default function AnalysisPage() {
               <div key={i} className={`flex items-start gap-3 p-4 rounded-xl border ${w.severity === "critical" ? "bg-red-500/50/10 border-red-500/20" : "bg-amber-500/10 border-amber-500/20"}`}>
                 {w.severity === "critical" ? <XCircle className="w-5 h-5 text-red-400 mt-0.5" /> : <AlertTriangle className="w-5 h-5 text-amber-400 mt-0.5" />}
                 <div>
-                  <p className="text-sm font-medium text-white">{w.title}</p>
-                  <p className="text-xs text-white/30 mt-0.5">{w.detail}</p>
+                  <p className="text-sm font-medium text-app-text">{w.title}</p>
+                  <p className="text-xs text-app-text-subtle mt-0.5">{w.detail}</p>
                 </div>
               </div>
             ))}
@@ -603,14 +603,14 @@ export default function AnalysisPage() {
         )}
 
         {/* Tab Nav */}
-        <div className="flex gap-1 bg-[#111] rounded-lg border border-white/8 p-1 w-fit">
+        <div className="flex gap-1 bg-app-card rounded-lg border border-app-border p-1 w-fit">
           {[
             { key: "overview", label: "Overview" },
             { key: "questions", label: "AI Questions" },
             { key: "deepdive", label: "Deep Dive" },
             ...(priorResult ? [{ key: "comparison", label: "Comparison" }] : []),
           ].map(tab => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-white/5 text-white" : "text-white/30 hover:text-white/40"}`}>
+            <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${activeTab === tab.key ? "bg-app-card-hover text-app-text" : "text-app-text-subtle hover:text-app-text-subtle"}`}>
               {tab.label}
             </button>
           ))}
@@ -627,20 +627,20 @@ export default function AnalysisPage() {
                 { label: "Net Income", value: fmt(fs.net_income, true), icon: fs.net_income >= 0 ? TrendingUp : TrendingDown, color: fs.net_income >= 0 ? "text-emerald-400" : "text-red-400", bg: fs.net_income >= 0 ? "bg-emerald-400/10" : "bg-red-400/10" },
                 { label: "TB Status", value: summary.is_balanced ? "Balanced ✓" : `Var: ${fmt(summary.variance)}`, icon: summary.is_balanced ? CheckCircle2 : AlertTriangle, color: summary.is_balanced ? "text-emerald-400" : "text-red-400", bg: summary.is_balanced ? "bg-emerald-400/10" : "bg-red-400/10" },
               ].map(card => (
-                <div key={card.label} className="bg-[#111] rounded-xl p-5 border border-white/8">
+                <div key={card.label} className="bg-app-card rounded-xl p-5 border border-app-border">
                   <div className={`w-8 h-8 rounded-lg ${card.bg} flex items-center justify-center mb-3`}>
                     <card.icon className={`w-4 h-4 ${card.color}`} />
                   </div>
-                  <p className="text-xs text-white/30">{card.label}</p>
-                  <p className="text-xl font-bold text-white mt-0.5">{card.value}</p>
+                  <p className="text-xs text-app-text-subtle">{card.label}</p>
+                  <p className="text-xl font-bold text-app-text mt-0.5">{card.value}</p>
                 </div>
               ))}
             </div>
 
             {/* Balance Sheet + Ratios */}
             <div className="grid lg:grid-cols-2 gap-6">
-              <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-                <h3 className="text-sm font-semibold text-white mb-4">Balance Sheet Summary</h3>
+              <div className="bg-app-card rounded-xl border border-app-border p-6">
+                <h3 className="text-sm font-semibold text-app-text mb-4">Balance Sheet Summary</h3>
                 <div className="space-y-3">
                   {[
                     { label: "Total Assets", value: fs.total_assets, color: "bg-emerald-500" },
@@ -650,14 +650,14 @@ export default function AnalysisPage() {
                     <div key={item.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-2 h-2 rounded-full ${item.color}`} />
-                        <span className="text-sm text-white/30">{item.label}</span>
+                        <span className="text-sm text-app-text-subtle">{item.label}</span>
                       </div>
-                      <span className="text-sm font-medium text-white">{fmt(item.value, true)}</span>
+                      <span className="text-sm font-medium text-app-text">{fmt(item.value, true)}</span>
                     </div>
                   ))}
-                  <div className="border-t border-white/8 pt-3">
+                  <div className="border-t border-app-border pt-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-white/40 font-medium">Assets = L + E</span>
+                      <span className="text-sm text-app-text-subtle font-medium">Assets = L + E</span>
                       <span className={`text-sm font-bold ${Math.abs(fs.total_assets - fs.total_liabilities - fs.total_equity) < 1 ? "text-emerald-400" : "text-amber-400"}`}>
                         {Math.abs(fs.total_assets - fs.total_liabilities - fs.total_equity) < 1 ? "Balanced ✓" : "Check Required"}
                       </span>
@@ -676,8 +676,8 @@ export default function AnalysisPage() {
                 </div>
               </div>
 
-              <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-                <h3 className="text-sm font-semibold text-white mb-4">Key Financial Ratios</h3>
+              <div className="bg-app-card rounded-xl border border-app-border p-6">
+                <h3 className="text-sm font-semibold text-app-text mb-4">Key Financial Ratios</h3>
                 <div className="space-y-4">
                   {(() => {
                     const rm = result.ratios_meta;
@@ -706,11 +706,11 @@ export default function AnalysisPage() {
                     return ratioRows.map((r) => (
                       <div key={r.label} className="flex items-center justify-between" title={!r.computable ? r.reason : undefined}>
                         <div>
-                          <p className="text-sm text-white/40">{r.label}</p>
-                          <p className="text-[10px] text-white/40">{r.computable ? r.benchmark : (r.reason ?? "Not available")}</p>
+                          <p className="text-sm text-app-text-subtle">{r.label}</p>
+                          <p className="text-[10px] text-app-text-subtle">{r.computable ? r.benchmark : (r.reason ?? "Not available")}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={`text-sm font-bold ${r.computable ? "text-white" : "text-white/35"}`}>{r.value}</span>
+                          <span className={`text-sm font-bold ${r.computable ? "text-app-text" : "text-app-text-subtle"}`}>{r.value}</span>
                           <div className={`w-2 h-2 rounded-full ${!r.computable ? "bg-white/20" : r.ok ? "bg-emerald-500" : "bg-amber-500"}`} />
                         </div>
                       </div>
@@ -722,8 +722,8 @@ export default function AnalysisPage() {
 
             {/* Expense Breakdown */}
             {expenseData.length > 0 && (
-              <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-                <h3 className="text-sm font-semibold text-white mb-4">Expense Breakdown (Top 8)</h3>
+              <div className="bg-app-card rounded-xl border border-app-border p-6">
+                <h3 className="text-sm font-semibold text-app-text mb-4">Expense Breakdown (Top 8)</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={expenseData} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
@@ -744,27 +744,27 @@ export default function AnalysisPage() {
             <div className="bg-emerald-500/5 rounded-xl border border-emerald-500/10 p-6">
               <div className="flex items-center gap-2 mb-3">
                 <HelpCircle className="w-5 h-5 text-emerald-400" />
-                <h3 className="text-sm font-semibold text-white">AI Clarifying Questions</h3>
+                <h3 className="text-sm font-semibold text-app-text">AI Clarifying Questions</h3>
               </div>
-              <p className="text-xs text-white/30 mb-6">The AI identified these areas that need clarification for a more accurate analysis. Answering these will improve the quality of the financial review.</p>
+              <p className="text-xs text-app-text-subtle mb-6">The AI identified these areas that need clarification for a more accurate analysis. Answering these will improve the quality of the financial review.</p>
 
               {ai_questions.map((q, i) => {
                 const isAnswered = !!questionAnswers[q.question];
                 return (
-                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/5 border-emerald-500/20" : "bg-[#111] border-white/8"}`}>
+                  <div key={i} className={`mb-4 p-5 rounded-xl border ${isAnswered ? "bg-emerald-500/5 border-emerald-500/20" : "bg-app-card border-app-border"}`}>
                     <div className="flex items-start gap-3">
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${isAnswered ? "bg-emerald-500/20" : "bg-emerald-500/10"}`}>
                         {isAnswered ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> : <span className="text-xs font-bold text-emerald-400">{i + 1}</span>}
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm text-white leading-relaxed">{q.question}</p>
-                        <p className="text-xs text-white/30 mt-2 italic">Why this matters: {q.reason}</p>
+                        <p className="text-sm text-app-text leading-relaxed">{q.question}</p>
+                        <p className="text-xs text-app-text-subtle mt-2 italic">Why this matters: {q.reason}</p>
 
                         {/* Answer section */}
                         {isAnswered ? (
                           <div className="mt-3 p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/10">
                             <p className="text-xs text-emerald-400 font-medium mb-1">Your answer:</p>
-                            <p className="text-sm text-white/70">{questionAnswers[q.question]}</p>
+                            <p className="text-sm text-app-text-muted">{questionAnswers[q.question]}</p>
                           </div>
                         ) : (
                           <div className="mt-3 flex gap-2">
@@ -773,12 +773,12 @@ export default function AnalysisPage() {
                               onChange={(e) => setAnswerInputs(prev => ({ ...prev, [i]: e.target.value }))}
                               onKeyDown={(e) => e.key === "Enter" && handleAnswerQuestion(i, q.question)}
                               placeholder="Type your answer..."
-                              className="flex-1 bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/50"
+                              className="flex-1 bg-app-canvas border border-app-border rounded-lg px-3 py-2 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/50"
                             />
                             <button
                               onClick={() => handleAnswerQuestion(i, q.question)}
                               disabled={!answerInputs[i]?.trim() || chatLoading}
-                              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 rounded-lg text-xs text-white font-medium disabled:opacity-30 transition-colors flex items-center gap-1"
+                              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 rounded-lg text-xs text-app-text font-medium disabled:opacity-30 transition-colors flex items-center gap-1"
                             >
                               <Send className="w-3 h-3" /> Submit
                             </button>
@@ -797,17 +797,17 @@ export default function AnalysisPage() {
         {activeTab === "deepdive" && (
           <div className="space-y-4">
             {/* Section 1: Ind AS Review */}
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
               <button
                 onClick={() => toggleSection("indas")}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/3 transition-colors"
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-app-canvas transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-emerald-400" />
-                  <h3 className="text-sm font-semibold text-white">Ind AS Compliance Review</h3>
-                  <span className="text-[10px] text-white/20 ml-1">{ind_as_observations.length} observations</span>
+                  <h3 className="text-sm font-semibold text-app-text">Ind AS Compliance Review</h3>
+                  <span className="text-[10px] text-app-text-subtle ml-1">{ind_as_observations.length} observations</span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${expandedSections.has("indas") ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-app-text-subtle transition-transform ${expandedSections.has("indas") ? "rotate-180" : ""}`} />
               </button>
               {expandedSections.has("indas") && (
                 <div className="px-6 pb-5 space-y-3">
@@ -816,8 +816,8 @@ export default function AnalysisPage() {
                       <div className="flex items-start gap-3">
                         {obs.severity === "high" ? <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" /> : obs.severity === "medium" ? <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />}
                         <div>
-                          <p className="text-xs font-semibold text-white mb-1">{obs.standard}</p>
-                          <p className="text-sm text-white/40 leading-relaxed">{obs.observation}</p>
+                          <p className="text-xs font-semibold text-app-text mb-1">{obs.standard}</p>
+                          <p className="text-sm text-app-text-subtle leading-relaxed">{obs.observation}</p>
                         </div>
                       </div>
                     </div>
@@ -827,17 +827,17 @@ export default function AnalysisPage() {
             </div>
 
             {/* Section 2: Insights & Actions */}
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
               <button
                 onClick={() => toggleSection("insights")}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/3 transition-colors"
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-app-canvas transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-emerald-400" />
-                  <h3 className="text-sm font-semibold text-white">Insights &amp; Actions</h3>
-                  <span className="text-[10px] text-white/20 ml-1">{insights.length} findings</span>
+                  <h3 className="text-sm font-semibold text-app-text">Insights &amp; Actions</h3>
+                  <span className="text-[10px] text-app-text-subtle ml-1">{insights.length} findings</span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${expandedSections.has("insights") ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-app-text-subtle transition-transform ${expandedSections.has("insights") ? "rotate-180" : ""}`} />
               </button>
               {expandedSections.has("insights") && (
                 <div className="px-6 pb-5 space-y-3">
@@ -845,13 +845,13 @@ export default function AnalysisPage() {
                     <div key={i} className={`p-4 rounded-xl border ${ins.severity === "critical" || ins.severity === "high" ? "bg-red-500/5 border-red-500/20" : ins.severity === "warning" || ins.severity === "medium" ? "bg-amber-500/5 border-amber-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}>
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <span className="text-[10px] uppercase tracking-wider text-white/30">{ins.category}</span>
-                          <h4 className="text-sm font-semibold text-white mt-0.5">{ins.title}</h4>
+                          <span className="text-[10px] uppercase tracking-wider text-app-text-subtle">{ins.category}</span>
+                          <h4 className="text-sm font-semibold text-app-text mt-0.5">{ins.title}</h4>
                         </div>
                       </div>
-                      <p className="text-xs text-white/40 leading-relaxed mb-3">{ins.detail}</p>
+                      <p className="text-xs text-app-text-subtle leading-relaxed mb-3">{ins.detail}</p>
                       {ins.action && (
-                        <div className="flex items-center gap-2 p-2.5 bg-[#111] rounded-lg border border-white/8">
+                        <div className="flex items-center gap-2 p-2.5 bg-app-card rounded-lg border border-app-border">
                           <ArrowRight className="w-3 h-3 text-emerald-400" />
                           <p className="text-xs text-emerald-400 font-medium">{ins.action}</p>
                         </div>
@@ -863,16 +863,16 @@ export default function AnalysisPage() {
             </div>
 
             {/* Section 3: Financial Statements */}
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
+            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
               <button
                 onClick={() => toggleSection("statements")}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/3 transition-colors"
+                className="w-full flex items-center justify-between px-6 py-4 hover:bg-app-canvas transition-colors"
               >
                 <div className="flex items-center gap-2">
                   <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                  <h3 className="text-sm font-semibold text-white">Financial Statements</h3>
+                  <h3 className="text-sm font-semibold text-app-text">Financial Statements</h3>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-white/30 transition-transform ${expandedSections.has("statements") ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 text-app-text-subtle transition-transform ${expandedSections.has("statements") ? "rotate-180" : ""}`} />
               </button>
               {expandedSections.has("statements") && (
                 <div className="px-6 pb-5">
@@ -901,61 +901,61 @@ export default function AnalysisPage() {
                   link.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/8 text-xs font-medium text-white/40 hover:bg-white/5 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-app-border text-xs font-medium text-app-text-subtle hover:bg-app-card-hover transition-colors"
               >
                 <Download className="w-3.5 h-3.5" /> Export Classified Accounts (CSV)
               </button>
             </div>
 
             {/* Profit & Loss Statement — Runway-style clean table */}
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-              <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-white">Profit &amp; Loss Statement</h3>
-                <span className="text-[10px] text-white/20">Current Period</span>
+            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
+              <div className="px-6 py-4 border-b border-app-border/70 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-app-text">Profit &amp; Loss Statement</h3>
+                <span className="text-[10px] text-app-text-subtle">Current Period</span>
               </div>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/5">
-                    <th className="text-left px-6 py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium">Driver</th>
-                    <th className="text-right px-6 py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium">Amount</th>
-                    <th className="text-right px-6 py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium w-32">% of Revenue</th>
+                  <tr className="border-b border-app-border/70">
+                    <th className="text-left px-6 py-3 text-[11px] text-app-text-subtle uppercase tracking-wider font-medium">Driver</th>
+                    <th className="text-right px-6 py-3 text-[11px] text-app-text-subtle uppercase tracking-wider font-medium">Amount</th>
+                    <th className="text-right px-6 py-3 text-[11px] text-app-text-subtle uppercase tracking-wider font-medium w-32">% of Revenue</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="bg-white/[0.02]">
-                    <td className="px-6 py-2 text-[10px] text-white/30 uppercase tracking-wider font-semibold" colSpan={3}>Revenue</td>
+                  <tr className="bg-app-canvas">
+                    <td className="px-6 py-2 text-[10px] text-app-text-subtle uppercase tracking-wider font-semibold" colSpan={3}>Revenue</td>
                   </tr>
                   {ca.revenue.map((item, i) => (
-                    <tr key={`rev-${i}`} className="border-b border-white/3 hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-2.5 text-white/60">{item.name}</td>
-                      <td className="px-6 py-2.5 text-right font-medium text-white tabular-nums">{fmt(Math.abs(item.net))}</td>
-                      <td className="px-6 py-2.5 text-right text-white/30 tabular-nums text-xs">{fs.total_revenue > 0 ? ((Math.abs(item.net) / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
+                    <tr key={`rev-${i}`} className="border-b border-white/3 hover:bg-app-canvas transition-colors">
+                      <td className="px-6 py-2.5 text-app-text-muted">{item.name}</td>
+                      <td className="px-6 py-2.5 text-right font-medium text-app-text tabular-nums">{fmt(Math.abs(item.net))}</td>
+                      <td className="px-6 py-2.5 text-right text-app-text-subtle tabular-nums text-xs">{fs.total_revenue > 0 ? ((Math.abs(item.net) / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
                     </tr>
                   ))}
-                  <tr className="border-t border-white/10 bg-white/[0.03]">
-                    <td className="px-6 py-3 font-semibold text-white">Total Revenue</td>
-                    <td className="px-6 py-3 text-right font-bold text-white tabular-nums">{fmt(fs.total_revenue)}</td>
+                  <tr className="border-t border-app-border-strong bg-app-card-hover">
+                    <td className="px-6 py-3 font-semibold text-app-text">Total Revenue</td>
+                    <td className="px-6 py-3 text-right font-bold text-app-text tabular-nums">{fmt(fs.total_revenue)}</td>
                     <td className="px-6 py-3 text-right text-emerald-400 tabular-nums text-xs">100.0%</td>
                   </tr>
 
-                  <tr className="bg-white/[0.02]">
-                    <td className="px-6 py-2 text-[10px] text-white/30 uppercase tracking-wider font-semibold" colSpan={3}>Expenses</td>
+                  <tr className="bg-app-canvas">
+                    <td className="px-6 py-2 text-[10px] text-app-text-subtle uppercase tracking-wider font-semibold" colSpan={3}>Expenses</td>
                   </tr>
                   {ca.expenses.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
-                    <tr key={`exp-${i}`} className="border-b border-white/3 hover:bg-white/[0.02] transition-colors">
-                      <td className="px-6 py-2.5 text-white/60">{item.name}</td>
-                      <td className="px-6 py-2.5 text-right font-medium text-white tabular-nums">{fmt(Math.abs(item.net))}</td>
-                      <td className="px-6 py-2.5 text-right text-white/30 tabular-nums text-xs">{fs.total_revenue > 0 ? ((Math.abs(item.net) / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
+                    <tr key={`exp-${i}`} className="border-b border-white/3 hover:bg-app-canvas transition-colors">
+                      <td className="px-6 py-2.5 text-app-text-muted">{item.name}</td>
+                      <td className="px-6 py-2.5 text-right font-medium text-app-text tabular-nums">{fmt(Math.abs(item.net))}</td>
+                      <td className="px-6 py-2.5 text-right text-app-text-subtle tabular-nums text-xs">{fs.total_revenue > 0 ? ((Math.abs(item.net) / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
                     </tr>
                   ))}
-                  <tr className="border-t border-white/10 bg-white/[0.03]">
-                    <td className="px-6 py-3 font-semibold text-white">Total Expenses</td>
-                    <td className="px-6 py-3 text-right font-bold text-white tabular-nums">{fmt(fs.total_expenses)}</td>
+                  <tr className="border-t border-app-border-strong bg-app-card-hover">
+                    <td className="px-6 py-3 font-semibold text-app-text">Total Expenses</td>
+                    <td className="px-6 py-3 text-right font-bold text-app-text tabular-nums">{fmt(fs.total_expenses)}</td>
                     <td className="px-6 py-3 text-right text-red-400 tabular-nums text-xs">{fs.total_revenue > 0 ? ((fs.total_expenses / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
                   </tr>
 
                   <tr className="border-t-2 border-emerald-500/20 bg-emerald-500/5">
-                    <td className="px-6 py-4 font-bold text-white text-base">Net Income</td>
+                    <td className="px-6 py-4 font-bold text-app-text text-base">Net Income</td>
                     <td className={`px-6 py-4 text-right font-bold text-base tabular-nums ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fmt(fs.net_income)}</td>
                     <td className={`px-6 py-4 text-right font-semibold tabular-nums ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-400"}`}>{fs.total_revenue > 0 ? ((fs.net_income / fs.total_revenue) * 100).toFixed(1) : "0"}%</td>
                   </tr>
@@ -964,61 +964,61 @@ export default function AnalysisPage() {
             </div>
 
             {/* Balance Sheet */}
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-              <div className="px-6 py-4 border-b border-white/8 bg-white/3">
-                <h3 className="text-sm font-semibold text-white">Balance Sheet</h3>
+            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
+              <div className="px-6 py-4 border-b border-app-border bg-app-canvas">
+                <h3 className="text-sm font-semibold text-app-text">Balance Sheet</h3>
               </div>
               <div className="p-6">
                 <table className="w-full text-sm">
                   <tbody>
-                    <tr className="border-b border-white/5">
-                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Assets</td>
+                    <tr className="border-b border-app-border/70">
+                      <td className="py-3 text-[11px] text-app-text-subtle uppercase tracking-wider font-medium" colSpan={2}>Assets</td>
                     </tr>
                     {ca.assets.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
                       <tr key={`ast-${i}`} className="border-b border-white/3">
-                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
+                        <td className="py-2.5 pl-4 text-app-text-subtle">{item.name}</td>
+                        <td className="py-2.5 text-right font-medium text-app-text">{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
-                    <tr className="border-b border-white/8 bg-white/3">
-                      <td className="py-3 font-semibold text-white">Total Assets</td>
-                      <td className="py-3 text-right font-bold text-white">{fmt(Math.abs(fs.total_assets))}</td>
+                    <tr className="border-b border-app-border bg-app-canvas">
+                      <td className="py-3 font-semibold text-app-text">Total Assets</td>
+                      <td className="py-3 text-right font-bold text-app-text">{fmt(Math.abs(fs.total_assets))}</td>
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="border-b border-white/5">
-                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Liabilities</td>
+                    <tr className="border-b border-app-border/70">
+                      <td className="py-3 text-[11px] text-app-text-subtle uppercase tracking-wider font-medium" colSpan={2}>Liabilities</td>
                     </tr>
                     {ca.liabilities.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
                       <tr key={`lib-${i}`} className="border-b border-white/3">
-                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
+                        <td className="py-2.5 pl-4 text-app-text-subtle">{item.name}</td>
+                        <td className="py-2.5 text-right font-medium text-app-text">{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
-                    <tr className="border-b border-white/8 bg-white/3">
-                      <td className="py-3 font-semibold text-white">Total Liabilities</td>
-                      <td className="py-3 text-right font-bold text-white">{fmt(Math.abs(fs.total_liabilities))}</td>
+                    <tr className="border-b border-app-border bg-app-canvas">
+                      <td className="py-3 font-semibold text-app-text">Total Liabilities</td>
+                      <td className="py-3 text-right font-bold text-app-text">{fmt(Math.abs(fs.total_liabilities))}</td>
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
-                    <tr className="border-b border-white/5">
-                      <td className="py-3 text-[11px] text-white/30 uppercase tracking-wider font-medium" colSpan={2}>Equity</td>
+                    <tr className="border-b border-app-border/70">
+                      <td className="py-3 text-[11px] text-app-text-subtle uppercase tracking-wider font-medium" colSpan={2}>Equity</td>
                     </tr>
                     {ca.equity.sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).map((item, i) => (
                       <tr key={`eq-${i}`} className="border-b border-white/3">
-                        <td className="py-2.5 pl-4 text-white/40">{item.name}</td>
-                        <td className="py-2.5 text-right font-medium text-white">{fmt(Math.abs(item.net))}</td>
+                        <td className="py-2.5 pl-4 text-app-text-subtle">{item.name}</td>
+                        <td className="py-2.5 text-right font-medium text-app-text">{fmt(Math.abs(item.net))}</td>
                       </tr>
                     ))}
-                    <tr className="border-b border-white/8 bg-white/3">
-                      <td className="py-3 font-semibold text-white">Total Equity</td>
-                      <td className="py-3 text-right font-bold text-white">{fmt(Math.abs(fs.total_equity))}</td>
+                    <tr className="border-b border-app-border bg-app-canvas">
+                      <td className="py-3 font-semibold text-app-text">Total Equity</td>
+                      <td className="py-3 text-right font-bold text-app-text">{fmt(Math.abs(fs.total_equity))}</td>
                     </tr>
 
                     <tr><td className="py-2" colSpan={2}></td></tr>
                     <tr className="bg-blue-50/50 border-t-2 border-blue-200">
-                      <td className="py-4 font-bold text-white text-base">Liabilities + Equity</td>
-                      <td className="py-4 text-right font-bold text-base text-white">{fmt(Math.abs(fs.total_liabilities) + Math.abs(fs.total_equity))}</td>
+                      <td className="py-4 font-bold text-app-text text-base">Liabilities + Equity</td>
+                      <td className="py-4 text-right font-bold text-base text-app-text">{fmt(Math.abs(fs.total_liabilities) + Math.abs(fs.total_equity))}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -1026,36 +1026,36 @@ export default function AnalysisPage() {
             </div>
 
             {/* Cash Flow Indicators */}
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-              <div className="px-6 py-4 border-b border-white/8 bg-white/3">
-                <h3 className="text-sm font-semibold text-white">Cash Flow Indicators</h3>
-                <p className="text-[10px] text-white/30 mt-0.5">Estimated from Trial Balance data</p>
+            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
+              <div className="px-6 py-4 border-b border-app-border bg-app-canvas">
+                <h3 className="text-sm font-semibold text-app-text">Cash Flow Indicators</h3>
+                <p className="text-[10px] text-app-text-subtle mt-0.5">Estimated from Trial Balance data</p>
               </div>
               <div className="p-6">
                 <table className="w-full text-sm">
                   <tbody>
                     <tr className="border-b border-white/3">
-                      <td className="py-3 text-white/40">Net Income</td>
+                      <td className="py-3 text-app-text-subtle">Net Income</td>
                       <td className={`py-3 text-right font-medium ${fs.net_income >= 0 ? "text-emerald-400" : "text-red-500"}`}>{fmt(fs.net_income)}</td>
                     </tr>
                     <tr className="border-b border-white/3">
-                      <td className="py-3 text-white/40">Add: Depreciation (non-cash)</td>
-                      <td className="py-3 text-right font-medium text-white">
+                      <td className="py-3 text-app-text-subtle">Add: Depreciation (non-cash)</td>
+                      <td className="py-3 text-right font-medium text-app-text">
                         {fmt(ca.expenses.filter(e => e.name.toLowerCase().includes("depreciation") || e.name.toLowerCase().includes("amortisation") || e.name.toLowerCase().includes("amortization")).reduce((s, e) => s + Math.abs(e.net), 0))}
                       </td>
                     </tr>
                     <tr className="border-b border-white/3">
-                      <td className="py-3 text-white/40">Working Capital</td>
-                      <td className={`py-3 text-right font-medium ${ratios.working_capital >= 0 ? "text-white" : "text-red-500"}`}>{fmt(ratios.working_capital)}</td>
+                      <td className="py-3 text-app-text-subtle">Working Capital</td>
+                      <td className={`py-3 text-right font-medium ${ratios.working_capital >= 0 ? "text-app-text" : "text-red-500"}`}>{fmt(ratios.working_capital)}</td>
                     </tr>
                     <tr className="border-b border-white/3">
-                      <td className="py-3 text-white/40">Cash &amp; Bank Balance</td>
-                      <td className="py-3 text-right font-medium text-white">
+                      <td className="py-3 text-app-text-subtle">Cash &amp; Bank Balance</td>
+                      <td className="py-3 text-right font-medium text-app-text">
                         {fmt(ca.assets.filter(e => e.name.toLowerCase().includes("cash") || e.name.toLowerCase().includes("bank")).reduce((s, e) => s + Math.abs(e.net), 0))}
                       </td>
                     </tr>
-                    <tr className="bg-white/3 border-t border-white/8">
-                      <td className="py-4 font-semibold text-white">Estimated Operating Cash Flow</td>
+                    <tr className="bg-app-canvas border-t border-app-border">
+                      <td className="py-4 font-semibold text-app-text">Estimated Operating Cash Flow</td>
                       <td className={`py-4 text-right font-bold ${fs.net_income + ca.expenses.filter(e => e.name.toLowerCase().includes("depreciation")).reduce((s, e) => s + Math.abs(e.net), 0) >= 0 ? "text-emerald-400" : "text-red-500"}`}>
                         {fmt(fs.net_income + ca.expenses.filter(e => e.name.toLowerCase().includes("depreciation") || e.name.toLowerCase().includes("amortisation")).reduce((s, e) => s + Math.abs(e.net), 0))}
                       </td>
@@ -1066,8 +1066,8 @@ export default function AnalysisPage() {
             </div>
 
             {/* 5 Key Takeaways */}
-            <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-              <h3 className="text-sm font-semibold text-white mb-4">5 Key Takeaways</h3>
+            <div className="bg-app-card rounded-xl border border-app-border p-6">
+              <h3 className="text-sm font-semibold text-app-text mb-4">5 Key Takeaways</h3>
               <div className="space-y-3">
                 {(() => {
                   const takeaways: string[] = [];
@@ -1119,9 +1119,9 @@ export default function AnalysisPage() {
                   }
 
                   return takeaways.map((t, i) => (
-                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white/3 border border-white/5">
-                      <span className="w-6 h-6 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-[11px] font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
-                      <p className="text-sm text-white/70 leading-relaxed">{t}</p>
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-app-canvas border border-app-border/70">
+                      <span className="w-6 h-6 rounded-full bg-[#1a1a1a] text-app-text flex items-center justify-center text-[11px] font-bold flex-shrink-0 mt-0.5">{i + 1}</span>
+                      <p className="text-sm text-app-text-muted leading-relaxed">{t}</p>
                     </div>
                   ));
                 })()}
@@ -1129,15 +1129,15 @@ export default function AnalysisPage() {
             </div>
 
             {/* Common Size Analysis */}
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-              <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
-                <h3 className="text-sm font-semibold text-white">Common Size Analysis</h3>
-                <p className="text-[10px] text-white/30 mt-0.5">Each line item as a percentage of revenue</p>
+            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
+              <div className="px-6 py-4 border-b border-app-border/70 bg-app-canvas">
+                <h3 className="text-sm font-semibold text-app-text">Common Size Analysis</h3>
+                <p className="text-[10px] text-app-text-subtle mt-0.5">Each line item as a percentage of revenue</p>
               </div>
               <div className="p-6">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-[11px] text-white/30 uppercase tracking-wider border-b border-white/5">
+                    <tr className="text-[11px] text-app-text-subtle uppercase tracking-wider border-b border-app-border/70">
                       <th className="text-left py-2 font-medium">Item</th>
                       <th className="text-right py-2 font-medium">Amount</th>
                       <th className="text-right py-2 font-medium">% of Revenue</th>
@@ -1155,11 +1155,11 @@ export default function AnalysisPage() {
                       { name: "Net Income", value: fs.net_income, pct: fs.total_revenue > 0 ? (fs.net_income / fs.total_revenue) * 100 : 0 },
                     ].map((row) => (
                       <tr key={row.name} className="border-b border-white/3">
-                        <td className="py-2.5 text-white/50">{row.name}</td>
-                        <td className="py-2.5 text-right text-white font-medium tabular-nums">{fmt(row.value, true)}</td>
-                        <td className="py-2.5 text-right text-white/40 tabular-nums">{row.pct.toFixed(1)}%</td>
+                        <td className="py-2.5 text-app-text-muted">{row.name}</td>
+                        <td className="py-2.5 text-right text-app-text font-medium tabular-nums">{fmt(row.value, true)}</td>
+                        <td className="py-2.5 text-right text-app-text-subtle tabular-nums">{row.pct.toFixed(1)}%</td>
                         <td className="py-2.5 text-right w-32">
-                          <div className="h-2 bg-white/5 rounded-full overflow-hidden ml-auto" style={{ width: "100px" }}>
+                          <div className="h-2 bg-app-card-hover rounded-full overflow-hidden ml-auto" style={{ width: "100px" }}>
                             <div
                               className={`h-full rounded-full ${row.name === "Net Income" ? (row.pct >= 0 ? "bg-emerald-500" : "bg-red-500") : "bg-emerald-500/40"}`}
                               style={{ width: `${Math.min(Math.abs(row.pct), 100)}%` }}
@@ -1174,15 +1174,15 @@ export default function AnalysisPage() {
             </div>
 
             {/* Ratio Analysis with Industry Benchmarks */}
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-              <div className="px-6 py-4 border-b border-white/5 bg-white/[0.02]">
-                <h3 className="text-sm font-semibold text-white">Ratio Analysis vs Industry Benchmarks</h3>
-                <p className="text-[10px] text-white/30 mt-0.5">Your metrics compared to industry averages</p>
+            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
+              <div className="px-6 py-4 border-b border-app-border/70 bg-app-canvas">
+                <h3 className="text-sm font-semibold text-app-text">Ratio Analysis vs Industry Benchmarks</h3>
+                <p className="text-[10px] text-app-text-subtle mt-0.5">Your metrics compared to industry averages</p>
               </div>
               <div className="p-6">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-[11px] text-white/30 uppercase tracking-wider border-b border-white/5">
+                    <tr className="text-[11px] text-app-text-subtle uppercase tracking-wider border-b border-app-border/70">
                       <th className="text-left py-2 font-medium">Ratio</th>
                       <th className="text-right py-2 font-medium">Your Value</th>
                       <th className="text-right py-2 font-medium">Industry Avg</th>
@@ -1217,16 +1217,16 @@ export default function AnalysisPage() {
                         row("working_capital", "Working Capital", "Positive", (v) => fmt(v, true), (v) => v > 0),
                       ].map((r) => (
                         <tr key={r.name} className="border-b border-white/3" title={r.status === "N/A" ? r.reason : undefined}>
-                          <td className="py-3 text-white/50">{r.name}</td>
-                          <td className={`py-3 text-right font-semibold tabular-nums ${r.status === "N/A" ? "text-white/35" : "text-white"}`}>{r.yours}</td>
-                          <td className="py-3 text-right text-white/30 tabular-nums">{r.benchmark}</td>
+                          <td className="py-3 text-app-text-muted">{r.name}</td>
+                          <td className={`py-3 text-right font-semibold tabular-nums ${r.status === "N/A" ? "text-app-text-subtle" : "text-app-text"}`}>{r.yours}</td>
+                          <td className="py-3 text-right text-app-text-subtle tabular-nums">{r.benchmark}</td>
                           <td className="py-3 text-right">
                             <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
                               r.status === "Healthy"
                                 ? "bg-emerald-500/10 text-emerald-400"
                                 : r.status === "Review"
                                 ? "bg-red-500/10 text-red-400"
-                                : "bg-white/5 text-white/40"
+                                : "bg-app-card-hover text-app-text-subtle"
                             }`}>
                               {r.status === "N/A" ? "Not available" : r.status}
                             </span>
@@ -1263,7 +1263,7 @@ export default function AnalysisPage() {
                   link.href = url; link.download = "profit_and_loss.csv"; link.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/8 text-xs font-medium text-white/40 hover:bg-white/5 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-app-border text-xs font-medium text-app-text-subtle hover:bg-app-card-hover transition-colors"
               >
                 <Download className="w-3.5 h-3.5" /> Download P&L (CSV)
               </button>
@@ -1291,7 +1291,7 @@ export default function AnalysisPage() {
                   link.href = url; link.download = "balance_sheet.csv"; link.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/8 text-xs font-medium text-white/40 hover:bg-white/5 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-app-border text-xs font-medium text-app-text-subtle hover:bg-app-card-hover transition-colors"
               >
                 <Download className="w-3.5 h-3.5" /> Download Balance Sheet (CSV)
               </button>
@@ -1314,7 +1314,7 @@ export default function AnalysisPage() {
                   link.href = url; link.download = "classified_accounts.csv"; link.click();
                   URL.revokeObjectURL(url);
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/8 text-xs font-medium text-white/40 hover:bg-white/5 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-app-border text-xs font-medium text-app-text-subtle hover:bg-app-card-hover transition-colors"
               >
                 <Download className="w-3.5 h-3.5" /> Download Classified Ledger (CSV)
               </button>
@@ -1372,11 +1372,11 @@ export default function AnalysisPage() {
                   {/* Headline Variance Cards */}
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                     {headlineRows.map(row => (
-                      <div key={row.label} className="bg-[#111] rounded-xl border border-white/8 p-5">
-                        <p className="text-xs text-white/30">{row.label}</p>
+                      <div key={row.label} className="bg-app-card rounded-xl border border-app-border p-5">
+                        <p className="text-xs text-app-text-subtle">{row.label}</p>
                         <div className="flex items-baseline gap-2 mt-2">
-                          <p className="text-xl font-bold text-white">{fmt(row.currVal, true)}</p>
-                          <p className="text-xs text-white/40">vs {fmt(row.prevVal, true)}</p>
+                          <p className="text-xl font-bold text-app-text">{fmt(row.currVal, true)}</p>
+                          <p className="text-xs text-app-text-subtle">vs {fmt(row.prevVal, true)}</p>
                         </div>
                         <div className="flex items-center gap-1.5 mt-2">
                           {row.change >= 0 ? (
@@ -1393,18 +1393,18 @@ export default function AnalysisPage() {
                   </div>
 
                   {/* Variance Analysis Table — P&L line items */}
-                  <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+                  <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
+                    <div className="px-6 py-4 border-b border-app-border/70 flex items-center justify-between">
                       <div>
-                        <h3 className="text-sm font-semibold text-white">Variance Analysis — Expenses</h3>
-                        <p className="text-[10px] text-white/30 mt-0.5">{priorYearLabel} vs {currentYearLabel}</p>
+                        <h3 className="text-sm font-semibold text-app-text">Variance Analysis — Expenses</h3>
+                        <p className="text-[10px] text-app-text-subtle mt-0.5">{priorYearLabel} vs {currentYearLabel}</p>
                       </div>
-                      <span className="text-[10px] text-white/20">{expenseVarianceList.length} line items</span>
+                      <span className="text-[10px] text-app-text-subtle">{expenseVarianceList.length} line items</span>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="border-b border-white/5 text-[11px] text-white/30 uppercase tracking-wider">
+                          <tr className="border-b border-app-border/70 text-[11px] text-app-text-subtle uppercase tracking-wider">
                             <th className="text-left px-6 py-3 font-medium">Account</th>
                             <th className="text-right px-6 py-3 font-medium">{priorYearLabel}</th>
                             <th className="text-right px-6 py-3 font-medium">{currentYearLabel}</th>
@@ -1416,10 +1416,10 @@ export default function AnalysisPage() {
                           {expenseVarianceList.map((row, i) => {
                             const isBad = row.change > 0; // For expenses: increase is bad
                             return (
-                              <tr key={i} className="border-b border-white/3 hover:bg-white/[0.02]">
-                                <td className="px-6 py-2.5 text-white/60">{row.name}</td>
-                                <td className="px-6 py-2.5 text-right text-white/40 tabular-nums">{fmt(row.prev, true)}</td>
-                                <td className="px-6 py-2.5 text-right text-white font-medium tabular-nums">{fmt(row.curr, true)}</td>
+                              <tr key={i} className="border-b border-white/3 hover:bg-app-canvas">
+                                <td className="px-6 py-2.5 text-app-text-muted">{row.name}</td>
+                                <td className="px-6 py-2.5 text-right text-app-text-subtle tabular-nums">{fmt(row.prev, true)}</td>
+                                <td className="px-6 py-2.5 text-right text-app-text font-medium tabular-nums">{fmt(row.curr, true)}</td>
                                 <td className={`px-6 py-2.5 text-right font-medium tabular-nums ${isBad ? "text-red-400" : "text-emerald-400"}`}>
                                   {row.change >= 0 ? "+" : ""}{fmt(row.change, true)}
                                 </td>
@@ -1435,14 +1435,14 @@ export default function AnalysisPage() {
                   </div>
 
                   {/* Ratio Comparison */}
-                  <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-white/5">
-                      <h3 className="text-sm font-semibold text-white">Ratio Comparison</h3>
-                      <p className="text-[10px] text-white/30 mt-0.5">Year-on-year health check</p>
+                  <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
+                    <div className="px-6 py-4 border-b border-app-border/70">
+                      <h3 className="text-sm font-semibold text-app-text">Ratio Comparison</h3>
+                      <p className="text-[10px] text-app-text-subtle mt-0.5">Year-on-year health check</p>
                     </div>
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-white/5 text-[11px] text-white/30 uppercase tracking-wider">
+                        <tr className="border-b border-app-border/70 text-[11px] text-app-text-subtle uppercase tracking-wider">
                           <th className="text-left px-6 py-3 font-medium">Ratio</th>
                           <th className="text-right px-6 py-3 font-medium">{priorYearLabel}</th>
                           <th className="text-right px-6 py-3 font-medium">{currentYearLabel}</th>
@@ -1461,9 +1461,9 @@ export default function AnalysisPage() {
                             const isGood = r.higherBetter ? delta >= 0 : delta <= 0;
                             return (
                               <tr key={i} className="border-b border-white/3">
-                                <td className="px-6 py-3 text-white/60">{r.label}</td>
-                                <td className="px-6 py-3 text-right text-white/40 tabular-nums">{r.prev}{r.suffix}</td>
-                                <td className="px-6 py-3 text-right text-white font-semibold tabular-nums">{r.curr}{r.suffix}</td>
+                                <td className="px-6 py-3 text-app-text-muted">{r.label}</td>
+                                <td className="px-6 py-3 text-right text-app-text-subtle tabular-nums">{r.prev}{r.suffix}</td>
+                                <td className="px-6 py-3 text-right text-app-text font-semibold tabular-nums">{r.curr}{r.suffix}</td>
                                 <td className={`px-6 py-3 text-right font-medium tabular-nums ${isGood ? "text-emerald-400" : "text-red-400"}`}>
                                   {delta >= 0 ? "+" : ""}{delta.toFixed(2)}{r.suffix}
                                 </td>
@@ -1471,9 +1471,9 @@ export default function AnalysisPage() {
                             );
                           })}
                         <tr className="border-b border-white/3">
-                          <td className="px-6 py-3 text-white/60">Working Capital</td>
-                          <td className="px-6 py-3 text-right text-white/40 tabular-nums">{fmt(pr.working_capital, true)}</td>
-                          <td className="px-6 py-3 text-right text-white font-semibold tabular-nums">{fmt(cr.working_capital, true)}</td>
+                          <td className="px-6 py-3 text-app-text-muted">Working Capital</td>
+                          <td className="px-6 py-3 text-right text-app-text-subtle tabular-nums">{fmt(pr.working_capital, true)}</td>
+                          <td className="px-6 py-3 text-right text-app-text font-semibold tabular-nums">{fmt(cr.working_capital, true)}</td>
                           <td className={`px-6 py-3 text-right font-medium tabular-nums ${(cr.working_capital - pr.working_capital) >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                             {(cr.working_capital - pr.working_capital) >= 0 ? "+" : ""}{fmt(cr.working_capital - pr.working_capital, true)}
                           </td>
@@ -1483,14 +1483,14 @@ export default function AnalysisPage() {
                   </div>
 
                   {/* Common-Size Comparison */}
-                  <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-white/5">
-                      <h3 className="text-sm font-semibold text-white">Common-Size P&amp;L Comparison</h3>
-                      <p className="text-[10px] text-white/30 mt-0.5">Each line as % of revenue — reveals structural shifts</p>
+                  <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
+                    <div className="px-6 py-4 border-b border-app-border/70">
+                      <h3 className="text-sm font-semibold text-app-text">Common-Size P&amp;L Comparison</h3>
+                      <p className="text-[10px] text-app-text-subtle mt-0.5">Each line as % of revenue — reveals structural shifts</p>
                     </div>
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-white/5 text-[11px] text-white/30 uppercase tracking-wider">
+                        <tr className="border-b border-app-border/70 text-[11px] text-app-text-subtle uppercase tracking-wider">
                           <th className="text-left px-6 py-3 font-medium">Item</th>
                           <th className="text-right px-6 py-3 font-medium">{priorYearLabel}</th>
                           <th className="text-right px-6 py-3 font-medium">{currentYearLabel}</th>
@@ -1498,11 +1498,11 @@ export default function AnalysisPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr className="border-b border-white/3 bg-white/[0.02]">
-                          <td className="px-6 py-3 text-white font-semibold">Revenue</td>
-                          <td className="px-6 py-3 text-right text-white/40 tabular-nums">100.0%</td>
-                          <td className="px-6 py-3 text-right text-white font-semibold tabular-nums">100.0%</td>
-                          <td className="px-6 py-3 text-right text-white/30 tabular-nums">—</td>
+                        <tr className="border-b border-white/3 bg-app-canvas">
+                          <td className="px-6 py-3 text-app-text font-semibold">Revenue</td>
+                          <td className="px-6 py-3 text-right text-app-text-subtle tabular-nums">100.0%</td>
+                          <td className="px-6 py-3 text-right text-app-text font-semibold tabular-nums">100.0%</td>
+                          <td className="px-6 py-3 text-right text-app-text-subtle tabular-nums">—</td>
                         </tr>
                         {expenseVarianceList.slice(0, 8).map((row, i) => {
                           const prevPct = pfs.total_revenue > 0 ? (row.prev / pfs.total_revenue) * 100 : 0;
@@ -1510,22 +1510,22 @@ export default function AnalysisPage() {
                           const shift = currPct - prevPct;
                           return (
                             <tr key={i} className="border-b border-white/3">
-                              <td className="px-6 py-2.5 text-white/60">{row.name}</td>
-                              <td className="px-6 py-2.5 text-right text-white/40 tabular-nums">{prevPct.toFixed(1)}%</td>
-                              <td className="px-6 py-2.5 text-right text-white font-medium tabular-nums">{currPct.toFixed(1)}%</td>
+                              <td className="px-6 py-2.5 text-app-text-muted">{row.name}</td>
+                              <td className="px-6 py-2.5 text-right text-app-text-subtle tabular-nums">{prevPct.toFixed(1)}%</td>
+                              <td className="px-6 py-2.5 text-right text-app-text font-medium tabular-nums">{currPct.toFixed(1)}%</td>
                               <td className={`px-6 py-2.5 text-right font-medium tabular-nums ${shift > 0 ? "text-red-400" : "text-emerald-400"}`}>
                                 {shift >= 0 ? "+" : ""}{shift.toFixed(2)} pp
                               </td>
                             </tr>
                           );
                         })}
-                        <tr className="border-t border-white/10 bg-emerald-500/5">
-                          <td className="px-6 py-3 text-white font-semibold">Net Income</td>
-                          <td className="px-6 py-3 text-right text-white/60 tabular-nums">{(pfs.total_revenue > 0 ? (pfs.net_income / pfs.total_revenue) * 100 : 0).toFixed(1)}%</td>
+                        <tr className="border-t border-app-border-strong bg-emerald-500/5">
+                          <td className="px-6 py-3 text-app-text font-semibold">Net Income</td>
+                          <td className="px-6 py-3 text-right text-app-text-muted tabular-nums">{(pfs.total_revenue > 0 ? (pfs.net_income / pfs.total_revenue) * 100 : 0).toFixed(1)}%</td>
                           <td className={`px-6 py-3 text-right font-bold tabular-nums ${cfs.net_income >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                             {(cfs.total_revenue > 0 ? (cfs.net_income / cfs.total_revenue) * 100 : 0).toFixed(1)}%
                           </td>
-                          <td className="px-6 py-3 text-right text-white/40 tabular-nums">
+                          <td className="px-6 py-3 text-right text-app-text-subtle tabular-nums">
                             {((cfs.total_revenue > 0 ? (cfs.net_income / cfs.total_revenue) * 100 : 0) - (pfs.total_revenue > 0 ? (pfs.net_income / pfs.total_revenue) * 100 : 0)).toFixed(2)} pp
                           </td>
                         </tr>
@@ -1543,20 +1543,20 @@ export default function AnalysisPage() {
           onClick={() => setShowChat(!showChat)}
           className="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/30 flex items-center justify-center hover:scale-105 transition-all z-50"
         >
-          {showChat ? <X className="w-5 h-5 text-white" /> : <MessageCircle className="w-5 h-5 text-white" />}
+          {showChat ? <X className="w-5 h-5 text-app-text" /> : <MessageCircle className="w-5 h-5 text-app-text" />}
         </button>
 
         {/* Ask AI Chat Panel */}
         {showChat && (
-          <div className="fixed bottom-24 right-6 w-[420px] max-h-[520px] bg-[#111] rounded-2xl border border-white/8 shadow-2xl shadow-black/50 flex flex-col z-50 overflow-hidden">
+          <div className="fixed bottom-24 right-6 w-[420px] max-h-[520px] bg-app-card rounded-2xl border border-app-border shadow-2xl shadow-black/50 flex flex-col z-50 overflow-hidden">
             {/* Header */}
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-white/8">
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-app-border">
               <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-white" />
+                <Sparkles className="w-4 h-4 text-app-text" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">Ask CortexCFO AI</p>
-                <p className="text-[10px] text-white/15">Ask anything about your financial analysis</p>
+                <p className="text-sm font-semibold text-app-text">Ask CortexCFO AI</p>
+                <p className="text-[10px] text-app-text/15">Ask anything about your financial analysis</p>
               </div>
             </div>
 
@@ -1565,13 +1565,13 @@ export default function AnalysisPage() {
               {chatMessages.length === 0 && (
                 <div className="text-center py-8">
                   <Sparkles className="w-8 h-8 text-[#e5e5e5] mx-auto mb-3" />
-                  <p className="text-xs text-white/15 mb-4">Try asking:</p>
+                  <p className="text-xs text-app-text/15 mb-4">Try asking:</p>
                   <div className="space-y-2">
                     {["What are my top expenses?", "Explain the suspense account", "How is my financial health?", "Break down employee costs"].map(q => (
                       <button
                         key={q}
                         onClick={() => { setChatInput(q); }}
-                        className="block w-full text-left text-xs text-white/30 hover:text-white/70 bg-[#111] hover:bg-white/[0.06] rounded-lg px-3 py-2 transition-colors"
+                        className="block w-full text-left text-xs text-app-text-subtle hover:text-app-text-muted bg-app-card hover:bg-white/[0.06] rounded-lg px-3 py-2 transition-colors"
                       >
                         {q}
                       </button>
@@ -1584,7 +1584,7 @@ export default function AnalysisPage() {
               ))}
               {chatLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-white/3 rounded-xl px-4 py-3 rounded-bl-none">
+                  <div className="bg-app-canvas rounded-xl px-4 py-3 rounded-bl-none">
                     <div className="flex items-center gap-1.5">
                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "0ms" }} />
                       <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" style={{ animationDelay: "150ms" }} />
@@ -1597,7 +1597,7 @@ export default function AnalysisPage() {
             </div>
 
             {/* Input */}
-            <div className="border-t border-white/8 p-3">
+            <div className="border-t border-app-border p-3">
               {/* Provider selector — compact dropdown (Perplexity-style) */}
               <div className="mb-2">
                 <ModelSelector value={chatProvider} onChange={setChatProvider} />
@@ -1608,14 +1608,14 @@ export default function AnalysisPage() {
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleAskAI()}
                   placeholder="Ask about your financials..."
-                  className="flex-1 bg-white/3 border border-white/8 rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-white/15 outline-none focus:border-emerald-500/50"
+                  className="flex-1 bg-app-canvas border border-app-border rounded-lg px-3 py-2.5 text-sm text-app-text placeholder:text-app-text/15 outline-none focus:border-emerald-500/50"
                 />
                 <button
                   onClick={handleAskAI}
                   disabled={!chatInput.trim() || chatLoading}
                   className="w-10 h-10 rounded-lg bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors disabled:opacity-30"
                 >
-                  <Send className="w-4 h-4 text-white" />
+                  <Send className="w-4 h-4 text-app-text" />
                 </button>
               </div>
             </div>
@@ -1630,8 +1630,8 @@ export default function AnalysisPage() {
   return (
     <div className="p-6 lg:p-8 max-w-[1000px] mx-auto">
       <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-white">Financial Analysis</h1>
-        <p className="text-sm text-white/30 mt-2">
+        <h1 className="text-3xl font-bold text-app-text">Financial Analysis</h1>
+        <p className="text-sm text-app-text-subtle mt-2">
           Upload a Trial Balance, Audited Financials, General Ledger, or MIS — we&apos;ll deliver an instant Ind AS review, AI-powered questions, and detailed ratio analysis
         </p>
       </div>
@@ -1647,7 +1647,7 @@ export default function AnalysisPage() {
           {/* File-type picker — drives both the <input accept="..."> filter
               and the `input_mode` form field sent to the dispatcher. */}
           <div>
-            <p className="text-xs uppercase tracking-wider text-white/40 mb-3">What are you uploading?</p>
+            <p className="text-xs uppercase tracking-wider text-app-text-subtle mb-3">What are you uploading?</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {INPUT_MODE_OPTIONS.map((opt) => {
                 const isActive = inputMode === opt.value;
@@ -1657,12 +1657,12 @@ export default function AnalysisPage() {
                     onClick={() => setInputMode(opt.value)}
                     className={`text-left p-3 rounded-xl border transition-all ${
                       isActive
-                        ? "border-emerald-500/60 bg-emerald-500/10 text-white"
-                        : "border-white/8 bg-[#111] text-white/70 hover:border-white/20 hover:bg-white/5"
+                        ? "border-emerald-500/60 bg-emerald-500/10 text-app-text"
+                        : "border-app-border bg-app-card text-app-text-muted hover:border-white/20 hover:bg-app-card-hover"
                     }`}
                   >
                     <p className="text-sm font-semibold">{opt.label}</p>
-                    <p className="text-xs text-white/40 mt-0.5">{opt.sub}</p>
+                    <p className="text-xs text-app-text-subtle mt-0.5">{opt.sub}</p>
                   </button>
                 );
               })}
@@ -1673,7 +1673,7 @@ export default function AnalysisPage() {
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={onDrop}
-            className="border-2 border-dashed border-white/8 rounded-2xl p-12 text-center hover:border-emerald-500/20 hover:bg-emerald-500/5 transition-all cursor-pointer"
+            className="border-2 border-dashed border-app-border rounded-2xl p-12 text-center hover:border-emerald-500/20 hover:bg-emerald-500/5 transition-all cursor-pointer"
             onClick={() => document.getElementById("file-input")?.click()}
           >
             <input
@@ -1693,12 +1693,12 @@ export default function AnalysisPage() {
             {loading ? (
               <Loader2 className="w-12 h-12 text-emerald-400 mx-auto mb-4 animate-spin" />
             ) : (
-              <Upload className="w-12 h-12 text-white/40 mx-auto mb-4" />
+              <Upload className="w-12 h-12 text-app-text-subtle mx-auto mb-4" />
             )}
-            <p className="text-lg font-medium text-white mb-2">
+            <p className="text-lg font-medium text-app-text mb-2">
               {loading ? "Analyzing..." : `Drop your ${activeMode.label} here`}
             </p>
-            <p className="text-sm text-white/30">
+            <p className="text-sm text-app-text-subtle">
               Accepted formats: {activeMode.accept.replace(/\./g, "").toUpperCase().replace(/,/g, ", ")}
             </p>
             <p className="text-xs text-emerald-400/70 mt-2">
@@ -1711,27 +1711,27 @@ export default function AnalysisPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex-1 h-px bg-white/3" />
-            <span className="text-xs text-white/40">OR</span>
-            <div className="flex-1 h-px bg-white/3" />
+            <div className="flex-1 h-px bg-app-canvas" />
+            <span className="text-xs text-app-text-subtle">OR</span>
+            <div className="flex-1 h-px bg-app-canvas" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => setMode("manual")}
-              className="p-6 rounded-xl border border-white/8 bg-[#111] hover:bg-white/5 hover:border-white/8 transition-all text-left"
+              className="p-6 rounded-xl border border-app-border bg-app-card hover:bg-app-card-hover hover:border-app-border transition-all text-left"
             >
               <FileSpreadsheet className="w-8 h-8 text-emerald-400 mb-3" />
-              <p className="text-sm font-semibold text-white">Enter Manually</p>
-              <p className="text-xs text-white/30 mt-1">Type your Trial Balance line by line</p>
+              <p className="text-sm font-semibold text-app-text">Enter Manually</p>
+              <p className="text-xs text-app-text-subtle mt-1">Type your Trial Balance line by line</p>
             </button>
             <button
               onClick={loadSampleData}
-              className="p-6 rounded-xl border border-white/8 bg-[#111] hover:bg-white/5 hover:border-white/8 transition-all text-left"
+              className="p-6 rounded-xl border border-app-border bg-app-card hover:bg-app-card-hover hover:border-app-border transition-all text-left"
             >
               <Info className="w-8 h-8 text-emerald-500 mb-3" />
-              <p className="text-sm font-semibold text-white">Load Sample Data</p>
-              <p className="text-xs text-white/30 mt-1">Try with a pre-built Indian company TB</p>
+              <p className="text-sm font-semibold text-app-text">Load Sample Data</p>
+              <p className="text-xs text-app-text-subtle mt-1">Try with a pre-built Indian company TB</p>
             </button>
           </div>
         </div>
@@ -1740,9 +1740,9 @@ export default function AnalysisPage() {
       {mode === "manual" && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">Enter Trial Balance</h2>
+            <h2 className="text-lg font-semibold text-app-text">Enter Trial Balance</h2>
             <div className="flex gap-2">
-              <button onClick={() => setMode("upload")} className="text-xs text-white/30 hover:text-white/40 px-3 py-1.5">
+              <button onClick={() => setMode("upload")} className="text-xs text-app-text-subtle hover:text-app-text-subtle px-3 py-1.5">
                 Back
               </button>
               <button onClick={addRow} className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-400 px-3 py-1.5 border border-emerald-500/20 rounded-lg">
@@ -1752,7 +1752,7 @@ export default function AnalysisPage() {
           </div>
 
           {/* Header */}
-          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 text-xs text-white/30 font-medium px-1">
+          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 text-xs text-app-text-subtle font-medium px-1">
             <span>Account Name</span>
             <span className="text-right">Debit (₹)</span>
             <span className="text-right">Credit (₹)</span>
@@ -1767,23 +1767,23 @@ export default function AnalysisPage() {
                   value={row.account_name}
                   onChange={(e) => updateRow(i, "account_name", e.target.value)}
                   placeholder="e.g., Sundry Debtors"
-                  className="bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-emerald-500/50"
+                  className="bg-app-canvas border border-app-border rounded-lg px-3 py-2 text-sm text-app-text placeholder:text-app-text-subtle outline-none focus:border-emerald-500/50"
                 />
                 <input
                   value={row.debit}
                   onChange={(e) => updateRow(i, "debit", e.target.value)}
                   placeholder="0"
                   type="number"
-                  className="bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-white/40 outline-none focus:border-emerald-500/50"
+                  className="bg-app-canvas border border-app-border rounded-lg px-3 py-2 text-sm text-app-text text-right placeholder:text-app-text-subtle outline-none focus:border-emerald-500/50"
                 />
                 <input
                   value={row.credit}
                   onChange={(e) => updateRow(i, "credit", e.target.value)}
                   placeholder="0"
                   type="number"
-                  className="bg-white/3 border border-white/8 rounded-lg px-3 py-2 text-sm text-white text-right placeholder:text-white/40 outline-none focus:border-emerald-500/50"
+                  className="bg-app-canvas border border-app-border rounded-lg px-3 py-2 text-sm text-app-text text-right placeholder:text-app-text-subtle outline-none focus:border-emerald-500/50"
                 />
-                <button onClick={() => removeRow(i)} className="flex items-center justify-center text-white/40 hover:text-red-400 transition-colors">
+                <button onClick={() => removeRow(i)} className="flex items-center justify-center text-app-text-subtle hover:text-red-400 transition-colors">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -1791,12 +1791,12 @@ export default function AnalysisPage() {
           </div>
 
           {/* Totals */}
-          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 border-t border-white/8 pt-3 px-1">
-            <span className="text-sm font-semibold text-white">Total</span>
-            <span className="text-sm font-semibold text-white text-right">
+          <div className="grid grid-cols-[1fr_140px_140px_40px] gap-2 border-t border-app-border pt-3 px-1">
+            <span className="text-sm font-semibold text-app-text">Total</span>
+            <span className="text-sm font-semibold text-app-text text-right">
               {fmt(rows.reduce((s, r) => s + (parseFloat(r.debit) || 0), 0))}
             </span>
-            <span className="text-sm font-semibold text-white text-right">
+            <span className="text-sm font-semibold text-app-text text-right">
               {fmt(rows.reduce((s, r) => s + (parseFloat(r.credit) || 0), 0))}
             </span>
             <span />
@@ -1805,7 +1805,7 @@ export default function AnalysisPage() {
           <button
             onClick={handleManualSubmit}
             disabled={loading}
-            className="w-full bg-[#1a1a1a] text-white font-semibold py-3 rounded-xl hover:bg-[#333] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-[#1a1a1a] text-app-text font-semibold py-3 rounded-xl hover:bg-[#333] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
             {loading ? "Analyzing..." : "Analyze Trial Balance"}
