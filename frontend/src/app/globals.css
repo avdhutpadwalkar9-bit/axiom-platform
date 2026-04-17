@@ -46,6 +46,34 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* ───────────────────────────────────────────────────────────
+     CortexCFO App Theme — dark dashboard surfaces.
+     These tokens are independent of the marketing-site palette
+     (which stays light via :root). Use them ONLY inside (app)/*
+     routes. Every text/bg pair below clears WCAG AA 4.5:1.
+     ─────────────────────────────────────────────────────────── */
+
+  /* Surfaces — distinct luminance stops so edges actually separate */
+  --color-app-canvas: #0A0A0A;        /* page bg */
+  --color-app-card: #161616;          /* card bg */
+  --color-app-card-hover: #1C1C1C;    /* card hover */
+  --color-app-elevated: #1F1F1F;      /* tooltips, popovers, modals */
+  --color-app-border: #2A2A2A;        /* default 1px border, now visible */
+  --color-app-border-strong: #3A3A3A; /* focus, active, elevated borders */
+
+  /* Text — never darker than tertiary on card bg */
+  --color-app-text: #F5F5F5;          /* primary: headings, stat numbers */
+  --color-app-text-muted: #A3A3A3;    /* secondary: body copy, labels */
+  --color-app-text-subtle: #737373;   /* tertiary: metadata, captions */
+  --color-app-text-disabled: #525252; /* disabled states only */
+
+  /* Waterfall / chart fills — brand accents (alongside existing palette) */
+  --color-app-positive: #34D399;      /* emerald-400 — adds, brand, CTAs */
+  --color-app-negative: #F87171;      /* rose-400 — subtractions, destructive */
+  --color-app-warning: #FBBF24;       /* amber-400 — medium-severity flags */
+  --color-app-info: #38BDF8;          /* sky-400 — informational */
+  --color-app-neutral: #6B7280;       /* gray-500 — waterfall anchor bars */
 }
 
 /* ─── Design Tokens ─── */

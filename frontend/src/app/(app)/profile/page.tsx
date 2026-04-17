@@ -2,13 +2,22 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Building2, Save, Globe, Calendar, AlertTriangle, Loader2, X } from "lucide-react";
+import { User, Building2, Save, AlertTriangle, Loader2, X } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
 
 // The exact literal the backend requires. Kept in sync manually with
 // DELETE_ACCOUNT_CONFIRMATION in backend/app/routers/auth.py.
 const DELETE_CONFIRMATION_TEXT = "DELETE MY ACCOUNT";
+
+// Shared field/input class strings. Pulled out so the whole form stays
+// visually consistent and future token tweaks are one-file changes.
+// Tokens are defined in app/globals.css (`--color-app-*`).
+const LABEL_CLS = "block text-xs text-app-text-muted mb-1";
+const INPUT_CLS =
+  "w-full rounded-lg bg-app-canvas border border-app-border px-3 py-2.5 text-sm text-app-text outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/15 transition-colors";
+const INPUT_READONLY_CLS =
+  "w-full rounded-lg bg-app-canvas border border-app-border px-3 py-2.5 text-sm text-app-text-muted cursor-not-allowed";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -55,73 +64,73 @@ export default function ProfilePage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-[900px]">
-      <h1 className="text-2xl font-bold text-white mb-1">Profile & Business Details</h1>
-      <p className="text-sm text-white/30 mb-8">Manage your personal and business information. Changes here improve AI analysis accuracy.</p>
+      <h1 className="text-2xl font-bold text-app-text mb-1">Profile & Business Details</h1>
+      <p className="text-sm text-app-text-muted mb-8">Manage your personal and business information. Changes here improve AI analysis accuracy.</p>
 
       {/* Personal */}
-      <div className="bg-[#111] rounded-xl border border-white/8 p-6 mb-6">
+      <div className="bg-app-card rounded-xl border border-app-border p-6 mb-6">
         <div className="flex items-center gap-2 mb-5">
           <User className="w-4 h-4 text-emerald-400" />
-          <h2 className="text-sm font-semibold text-white">Personal Information</h2>
+          <h2 className="text-sm font-semibold text-app-text">Personal Information</h2>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs text-white/30 mb-1">Full Name</label>
-            <input value={personal.fullName} onChange={(e) => setPersonal({ fullName: e.target.value })} className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50" />
+            <label className={LABEL_CLS}>Full Name</label>
+            <input value={personal.fullName} onChange={(e) => setPersonal({ fullName: e.target.value })} className={INPUT_CLS} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">Phone</label>
-            <input value={personal.phone} onChange={(e) => setPersonal({ phone: e.target.value })} className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50" />
+            <label className={LABEL_CLS}>Phone</label>
+            <input value={personal.phone} onChange={(e) => setPersonal({ phone: e.target.value })} className={INPUT_CLS} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">Role</label>
-            <input value={personal.role} readOnly className="w-full rounded-lg bg-white/5 border border-white/8 px-3 py-2.5 text-sm text-white/60" />
+            <label className={LABEL_CLS}>Role</label>
+            <input value={personal.role} readOnly className={INPUT_READONLY_CLS} />
           </div>
         </div>
       </div>
 
       {/* Business */}
-      <div className="bg-[#111] rounded-xl border border-white/8 p-6 mb-6">
+      <div className="bg-app-card rounded-xl border border-app-border p-6 mb-6">
         <div className="flex items-center gap-2 mb-5">
           <Building2 className="w-4 h-4 text-emerald-400" />
-          <h2 className="text-sm font-semibold text-white">Business Information</h2>
+          <h2 className="text-sm font-semibold text-app-text">Business Information</h2>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs text-white/30 mb-1">Company Name</label>
-            <input value={business.companyName} onChange={(e) => setBusiness({ companyName: e.target.value })} className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50" />
+            <label className={LABEL_CLS}>Company Name</label>
+            <input value={business.companyName} onChange={(e) => setBusiness({ companyName: e.target.value })} className={INPUT_CLS} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">Industry</label>
-            <input value={business.industry} readOnly className="w-full rounded-lg bg-white/5 border border-white/8 px-3 py-2.5 text-sm text-white/60" />
+            <label className={LABEL_CLS}>Industry</label>
+            <input value={business.industry} readOnly className={INPUT_READONLY_CLS} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">Entity Type</label>
-            <input value={business.entityType} readOnly className="w-full rounded-lg bg-white/5 border border-white/8 px-3 py-2.5 text-sm text-white/60" />
+            <label className={LABEL_CLS}>Entity Type</label>
+            <input value={business.entityType} readOnly className={INPUT_READONLY_CLS} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">Year Founded</label>
-            <input value={business.yearFounded} onChange={(e) => setBusiness({ yearFounded: e.target.value })} className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50" />
+            <label className={LABEL_CLS}>Year Founded</label>
+            <input value={business.yearFounded} onChange={(e) => setBusiness({ yearFounded: e.target.value })} className={INPUT_CLS} />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-xs text-white/30 mb-1">Services & Products Description</label>
-            <textarea value={business.servicesDescription} onChange={(e) => setBusiness({ servicesDescription: e.target.value })} rows={3} className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50 resize-none" />
+            <label className={LABEL_CLS}>Services & Products Description</label>
+            <textarea value={business.servicesDescription} onChange={(e) => setBusiness({ servicesDescription: e.target.value })} rows={3} className={`${INPUT_CLS} resize-none`} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">Website</label>
-            <input value={business.websiteUrl} onChange={(e) => setBusiness({ websiteUrl: e.target.value })} className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50" />
+            <label className={LABEL_CLS}>Website</label>
+            <input value={business.websiteUrl} onChange={(e) => setBusiness({ websiteUrl: e.target.value })} className={INPUT_CLS} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">Turnover Range</label>
-            <input value={business.turnoverRange} readOnly className="w-full rounded-lg bg-white/5 border border-white/8 px-3 py-2.5 text-sm text-white/60" />
+            <label className={LABEL_CLS}>Turnover Range</label>
+            <input value={business.turnoverRange} readOnly className={INPUT_READONLY_CLS} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">GSTIN</label>
-            <input value={business.gstin} onChange={(e) => setBusiness({ gstin: e.target.value })} className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50" />
+            <label className={LABEL_CLS}>GSTIN</label>
+            <input value={business.gstin} onChange={(e) => setBusiness({ gstin: e.target.value })} className={INPUT_CLS} />
           </div>
           <div>
-            <label className="block text-xs text-white/30 mb-1">PAN</label>
-            <input value={business.pan} onChange={(e) => setBusiness({ pan: e.target.value })} className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-emerald-500/50" />
+            <label className={LABEL_CLS}>PAN</label>
+            <input value={business.pan} onChange={(e) => setBusiness({ pan: e.target.value })} className={INPUT_CLS} />
           </div>
         </div>
       </div>
@@ -141,12 +150,12 @@ export default function ProfilePage() {
       {/* Danger Zone — destructive actions isolated below the save button
           so they can't be confused with normal edits. Visually red to
           signal irreversibility. */}
-      <div className="mt-12 bg-[#111] rounded-xl border border-red-500/20 p-6">
+      <div className="mt-12 bg-app-card rounded-xl border border-red-500/25 p-6">
         <div className="flex items-center gap-2 mb-2">
           <AlertTriangle className="w-4 h-4 text-red-400" />
           <h2 className="text-sm font-semibold text-red-400">Danger Zone</h2>
         </div>
-        <p className="text-xs text-white/40 mb-5 leading-relaxed">
+        <p className="text-xs text-app-text-subtle mb-5 leading-relaxed">
           Permanently delete your account and every piece of data tied to it —
           profile details, uploaded financials, analysis history, workspaces,
           scenarios and models. This cannot be undone.
@@ -158,7 +167,7 @@ export default function ProfilePage() {
             setDeleteConfirm("");
             setDeleteOpen(true);
           }}
-          className="flex items-center gap-2 border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 font-medium px-4 py-2 rounded-lg transition-colors text-[13px]"
+          className="flex items-center gap-2 border border-red-500/40 text-red-400 hover:bg-red-500/10 hover:border-red-500/60 font-medium px-4 py-2 rounded-lg transition-colors text-[13px]"
         >
           <AlertTriangle className="w-3.5 h-3.5" /> Delete account and all data
         </button>
@@ -170,7 +179,7 @@ export default function ProfilePage() {
           onClick={() => !deleteLoading && setDeleteOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-[#111] border border-red-500/30 p-6 shadow-2xl"
+            className="w-full max-w-md rounded-2xl bg-app-elevated border border-red-500/40 p-6 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
@@ -178,26 +187,26 @@ export default function ProfilePage() {
                 <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
                   <AlertTriangle className="w-4 h-4 text-red-400" />
                 </div>
-                <h3 className="text-base font-semibold text-white">Delete account</h3>
+                <h3 className="text-base font-semibold text-app-text">Delete account</h3>
               </div>
               <button
                 onClick={() => !deleteLoading && setDeleteOpen(false)}
                 disabled={deleteLoading}
-                className="text-white/30 hover:text-white/60 disabled:opacity-30 transition-colors"
+                className="text-app-text-subtle hover:text-app-text-muted disabled:opacity-30 transition-colors"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-[13px] text-white/60 mb-5 leading-relaxed">
+            <p className="text-[13px] text-app-text-muted mb-5 leading-relaxed">
               This wipes your user record, business profile, all workspaces you
               own, every financial model, scenario and analysis result. It
               cannot be undone.
             </p>
 
             <div className="mb-4">
-              <label className="block text-[11px] text-white/40 mb-1.5 font-medium">
+              <label className="block text-[11px] text-app-text-subtle mb-1.5 font-medium">
                 Confirm your password
               </label>
               <input
@@ -206,13 +215,13 @@ export default function ProfilePage() {
                 onChange={(e) => setDeletePassword(e.target.value)}
                 disabled={deleteLoading}
                 placeholder="Current password"
-                className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white outline-none focus:border-red-500/50 disabled:opacity-60"
+                className="w-full rounded-lg bg-app-canvas border border-app-border px-3 py-2.5 text-sm text-app-text outline-none focus:border-red-500/60 focus:ring-2 focus:ring-red-500/15 disabled:opacity-60 transition-colors"
                 autoComplete="current-password"
               />
             </div>
 
             <div className="mb-5">
-              <label className="block text-[11px] text-white/40 mb-1.5 font-medium">
+              <label className="block text-[11px] text-app-text-subtle mb-1.5 font-medium">
                 Type <span className="text-red-400 font-mono">{DELETE_CONFIRMATION_TEXT}</span> to confirm
               </label>
               <input
@@ -221,14 +230,14 @@ export default function ProfilePage() {
                 onChange={(e) => setDeleteConfirm(e.target.value)}
                 disabled={deleteLoading}
                 placeholder={DELETE_CONFIRMATION_TEXT}
-                className="w-full rounded-lg bg-white/3 border border-white/8 px-3 py-2.5 text-sm text-white font-mono outline-none focus:border-red-500/50 disabled:opacity-60"
+                className="w-full rounded-lg bg-app-canvas border border-app-border px-3 py-2.5 text-sm text-app-text font-mono outline-none focus:border-red-500/60 focus:ring-2 focus:ring-red-500/15 disabled:opacity-60 transition-colors"
                 autoComplete="off"
                 spellCheck={false}
               />
             </div>
 
             {deleteError && (
-              <p className="mb-4 text-[12px] text-red-400 bg-red-500/5 border border-red-500/20 rounded-lg px-3 py-2">
+              <p className="mb-4 text-[12px] text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
                 {deleteError}
               </p>
             )}
@@ -237,7 +246,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => setDeleteOpen(false)}
                 disabled={deleteLoading}
-                className="text-[13px] text-white/60 hover:text-white/80 px-4 py-2 disabled:opacity-40 transition-colors"
+                className="text-[13px] text-app-text-muted hover:text-app-text px-4 py-2 disabled:opacity-40 transition-colors"
               >
                 Cancel
               </button>
