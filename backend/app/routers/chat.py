@@ -17,10 +17,12 @@ for analytics; for now the Render log viewer + grep is enough.
 
 from __future__ import annotations
 
+import json
 import logging
-from typing import Literal, Optional
+from typing import AsyncIterator, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -29,7 +31,7 @@ from app.database import get_db
 from app.middleware.auth import get_current_user
 from app.models.chat_feedback import ChatFeedback
 from app.models.user import User
-from app.services.ai_service import chat_with_ai
+from app.services.ai_service import chat_with_ai, stream_deep
 from app.services.faq_service import try_faq_answer
 
 logger = logging.getLogger(__name__)
@@ -139,6 +141,76 @@ async def ask_ai(
     )
 
     return ChatResponse(response=response, source="ai", mode=data.mode)
+
+
+# ─── Streaming Deep mode (Phase 4.5) ────────────────────────────────
+
+def _sse_format(event: str, data: dict) -> str:
+    """Encode a dict as an SSE message. Keeps the wire format in one spot
+    — easier to change to a framed JSON protocol later without touching
+    the service layer."""
+    return f"event: {event}\ndata: {json.dumps(data)}\n\n"
+
+
+@router.post("/ask-stream")
+async def ask_ai_stream(
+    data: ChatRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """Streaming variant of /ask for Deep mode.
+
+    Returns Server-Sent Events so the frontend can render thinking tokens
+    live (latency-as-feature UX — founder SEES the reasoning happen).
+
+    Event types in the stream:
+      thinking  — partial reasoning chunk (Sonnet's extended-thinking
+                  trace). Accumulate into a collapsible "Thinking" pane.
+      response  — partial answer chunk. Append to the main reply bubble.
+      done      — stream finished cleanly. Frontend can close the reader.
+      error     — fatal; frontend should fall back to POST /ask.
+
+    This endpoint is intentionally Deep-only. Quick mode stays on the
+    regular /ask endpoint (JSON, FAQ-first). Mixing streaming into the
+    FAQ path would be pointless — the answer is already local.
+    """
+    if not data.question.strip():
+        raise HTTPException(status_code=400, detail="Question is required")
+    if data.mode != "deep":
+        raise HTTPException(
+            status_code=400,
+            detail="Streaming is only available in Deep mode. Use POST /ask for Quick.",
+        )
+
+    history = [{"role": m.role, "text": m.text} for m in data.conversation_history]
+
+    async def event_stream() -> AsyncIterator[bytes]:
+        try:
+            async for chunk in stream_deep(
+                question=data.question,
+                analysis_result=data.analysis_result,
+                conversation_history=history,
+                business_context=data.business_context,
+                user_answers=data.user_answers,
+            ):
+                evt_type = chunk.get("type", "error")
+                payload: dict = {k: v for k, v in chunk.items() if k != "type"}
+                yield _sse_format(evt_type, payload).encode("utf-8")
+        except Exception as e:
+            logger.exception("ask-stream generator crashed: %s", e)
+            yield _sse_format("error", {"text": "Stream interrupted — please retry."}).encode("utf-8")
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            # Disable buffering at any proxy in front of us (e.g. Vercel
+            # edge, CDN layers) so tokens arrive as emitted, not after
+            # the entire response completes.
+            "Cache-Control": "no-cache, no-transform",
+            "X-Accel-Buffering": "no",
+            "Connection": "keep-alive",
+        },
+    )
 
 
 @router.post("/answer-question")

@@ -14,6 +14,8 @@ import {
   ThumbsUp,
   ThumbsDown,
   CheckCircle2,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import AIChatBubble from "./AIChatBubble";
 import { api } from "@/lib/api";
@@ -41,6 +43,13 @@ interface ChatMessage {
   source?: ChatSource;
   faqId?: string | null;
   mode?: ChatMode;
+  // Deep-mode streaming: Sonnet's extended-thinking trace, accumulated
+  // live as SSE chunks arrive. Rendered in a collapsible panel above
+  // the main answer so founders can see the reasoning if they want.
+  thinking?: string;
+  // Whether this message is still streaming tokens. Only true for the
+  // in-flight Deep-mode bubble — drives the "streaming…" indicator.
+  streaming?: boolean;
 }
 
 // Build a short per-page context so the model knows what's on screen,
@@ -90,6 +99,10 @@ export default function AIChatPanel() {
   // Feedback state — keyed by messageId so the buttons stay sticky
   // per message even as new ones stream in.
   const [feedback, setFeedback] = useState<Record<string, "up" | "down">>({});
+  // Which thinking-panels are currently expanded (keyed by message id).
+  // New Deep-mode messages start expanded during streaming; the user
+  // can collapse them once the reasoning is done.
+  const [thinkingOpen, setThinkingOpen] = useState<Record<string, boolean>>({});
 
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -171,25 +184,85 @@ export default function AIChatPanel() {
 
       setError(null);
       const userMsg: ChatMessage = { id: newId(), role: "user", text: trimmed };
-      const nextMessages = [...messages, userMsg];
-      setMessages(nextMessages);
+      const history = messages.map((m) => ({ role: m.role, text: m.text }));
+      setMessages((prev) => [...prev, userMsg]);
       setInput("");
       setLoading(true);
 
+      // `lastResult` is typed as AnalysisResult with specific field names;
+      // the backend accepts any shape. Widen via unknown so TS lets us
+      // pass it through to the JSON body without fighting the type.
+      const payloadBase = {
+        question: trimmed,
+        analysis_result: (lastResult ?? {}) as unknown as Record<string, unknown>,
+        conversation_history: history,
+        business_context: businessContext,
+        page_context: buildPageContext(pathname),
+      };
+
+      // ── Deep mode: stream thinking + response live ─────────────────
+      if (sendMode === "deep") {
+        const aiId = newId();
+        // Insert a placeholder AI bubble so the streaming tokens have a
+        // target to land in. streaming=true flips the UI into live mode.
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: aiId,
+            role: "ai",
+            text: "",
+            thinking: "",
+            source: "ai",
+            mode: "deep",
+            streaming: true,
+          },
+        ]);
+        setThinkingOpen((prev) => ({ ...prev, [aiId]: true }));
+
+        // Local buffers — concat per-chunk and setState on each delta.
+        const bufs = { thinking: "", response: "" };
+
+        try {
+          await api.chatStream(payloadBase, {
+            onThinking: (chunk) => {
+              bufs.thinking += chunk;
+              setMessages((prev) =>
+                prev.map((m) => (m.id === aiId ? { ...m, thinking: bufs.thinking } : m))
+              );
+            },
+            onResponse: (chunk) => {
+              bufs.response += chunk;
+              setMessages((prev) =>
+                prev.map((m) => (m.id === aiId ? { ...m, text: bufs.response } : m))
+              );
+            },
+            onDone: () => {
+              setMessages((prev) =>
+                prev.map((m) => (m.id === aiId ? { ...m, streaming: false } : m))
+              );
+              // Auto-collapse thinking once the answer finishes — the
+              // founder cares about the answer now, they can expand
+              // reasoning later if they want.
+              setThinkingOpen((prev) => ({ ...prev, [aiId]: false }));
+            },
+            onError: (msg) => {
+              setError(msg || "Stream interrupted — please try again.");
+              setMessages((prev) => prev.filter((m) => m.id !== aiId));
+            },
+          });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : "Stream failed — please try again.";
+          setError(msg);
+          setMessages((prev) => prev.filter((m) => m.id !== aiId));
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+
+      // ── Quick mode: single JSON POST ───────────────────────────────
       try {
-        const history = messages.map((m) => ({ role: m.role, text: m.text }));
-        const data = await api.chat({
-          question: trimmed,
-          // `lastResult` is typed as AnalysisResult with specific field
-          // names (financial_statements, ratios, etc.); the backend
-          // happily accepts any shape. Widen via unknown so TS lets us
-          // pass it through to the JSON body without fighting the type.
-          analysis_result: (lastResult ?? {}) as unknown as Record<string, unknown>,
-          conversation_history: history,
-          business_context: businessContext,
-          page_context: buildPageContext(pathname),
-          mode: sendMode,
-        });
+        const data = await api.chat({ ...payloadBase, mode: sendMode });
         setMessages((prev) => [
           ...prev,
           {
@@ -394,63 +467,120 @@ export default function AIChatPanel() {
           </div>
         )}
 
-        {messages.map((m) => (
-          <div key={m.id} className="space-y-1">
-            <AIChatBubble role={m.role} text={m.text} dark />
-            {m.role === "ai" && (
-              <div className="flex items-center justify-between pl-1 pr-1">
-                <div className="flex items-center gap-1.5">
-                  {m.source === "faq" && (
-                    <span
-                      className="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5"
-                      title="Answer served from our FAQ bank with your live numbers interpolated"
-                    >
-                      <CheckCircle2 className="w-2.5 h-2.5" /> FAQ
+        {messages.map((m) => {
+          const isStreamingDeep = m.role === "ai" && m.streaming;
+          const hasThinking = m.role === "ai" && (m.thinking?.length ?? 0) > 0;
+          const thinkingExpanded = thinkingOpen[m.id] ?? false;
+          return (
+            <div key={m.id} className="space-y-1.5">
+              {/* Live thinking panel — only for Deep-mode AI messages that
+                  received or are receiving thinking tokens. Auto-expanded
+                  while streaming; user can manually toggle after. */}
+              {hasThinking && (
+                <div className="rounded-lg border border-sky-500/25 bg-sky-500/5 overflow-hidden">
+                  <button
+                    onClick={() =>
+                      setThinkingOpen((prev) => ({ ...prev, [m.id]: !thinkingExpanded }))
+                    }
+                    className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-sky-500/10 transition-colors"
+                    aria-expanded={thinkingExpanded}
+                  >
+                    <span className="flex items-center gap-1.5 text-[11px] font-medium text-sky-300">
+                      <Brain className={`w-3 h-3 ${isStreamingDeep ? "animate-pulse" : ""}`} />
+                      {isStreamingDeep ? "Thinking live…" : "Reasoning (click to view)"}
                     </span>
-                  )}
-                  {m.source === "ai" && m.mode === "deep" && (
-                    <span
-                      className="inline-flex items-center gap-1 text-[10px] text-app-text-muted bg-app-card-hover border border-app-border-strong rounded-full px-2 py-0.5"
-                      title="Generated with extended thinking"
-                    >
-                      <Brain className="w-2.5 h-2.5" /> Deep
-                    </span>
+                    {thinkingExpanded ? (
+                      <ChevronDown className="w-3 h-3 text-sky-400" />
+                    ) : (
+                      <ChevronRight className="w-3 h-3 text-sky-400" />
+                    )}
+                  </button>
+                  {thinkingExpanded && (
+                    <div className="px-3 pb-3 pt-1 font-mono text-[11px] leading-relaxed text-app-text-muted whitespace-pre-wrap max-h-64 overflow-y-auto border-t border-sky-500/15">
+                      {m.thinking}
+                      {isStreamingDeep && (
+                        <span className="inline-block w-1.5 h-3 bg-sky-400 ml-0.5 animate-pulse align-middle" />
+                      )}
+                    </div>
                   )}
                 </div>
-                <div className="flex items-center gap-0.5">
-                  <button
-                    onClick={() => recordFeedback(m.id, true)}
-                    disabled={!!feedback[m.id]}
-                    className={`p-1 rounded transition-colors ${
-                      feedback[m.id] === "up"
-                        ? "text-emerald-400 bg-emerald-500/10"
-                        : "text-app-text-subtle hover:text-emerald-400 hover:bg-emerald-500/10"
-                    } disabled:cursor-default`}
-                    aria-label="Helpful"
-                    title="Helpful"
-                  >
-                    <ThumbsUp className="w-3 h-3" />
-                  </button>
-                  <button
-                    onClick={() => recordFeedback(m.id, false)}
-                    disabled={!!feedback[m.id]}
-                    className={`p-1 rounded transition-colors ${
-                      feedback[m.id] === "down"
-                        ? "text-rose-400 bg-rose-500/10"
-                        : "text-app-text-subtle hover:text-rose-400 hover:bg-rose-500/10"
-                    } disabled:cursor-default`}
-                    aria-label="Not helpful"
-                    title="Not helpful"
-                  >
-                    <ThumbsDown className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
 
-        {loading && (
+              {/* The actual answer bubble (or a "streaming…" placeholder
+                  while the response tokens haven't started yet). */}
+              {m.role === "ai" && !m.text && isStreamingDeep ? (
+                <div className="flex justify-start">
+                  <div className="max-w-[90%] rounded-2xl rounded-bl-sm px-4 py-3 bg-app-card-hover border border-app-border flex items-center gap-2">
+                    <Brain className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
+                    <span className="text-[12px] text-app-text-subtle">
+                      Reasoning before drafting…
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <AIChatBubble role={m.role} text={m.text} dark />
+              )}
+
+              {m.role === "ai" && !m.streaming && m.text && (
+                <div className="flex items-center justify-between pl-1 pr-1">
+                  <div className="flex items-center gap-1.5">
+                    {m.source === "faq" && (
+                      <span
+                        className="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5"
+                        title="Answer served from our FAQ bank with your live numbers interpolated"
+                      >
+                        <CheckCircle2 className="w-2.5 h-2.5" /> FAQ
+                      </span>
+                    )}
+                    {m.source === "ai" && m.mode === "deep" && (
+                      <span
+                        className="inline-flex items-center gap-1 text-[10px] text-app-text-muted bg-app-card-hover border border-app-border-strong rounded-full px-2 py-0.5"
+                        title="Generated with extended thinking"
+                      >
+                        <Brain className="w-2.5 h-2.5" /> Deep
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-0.5">
+                    <button
+                      onClick={() => recordFeedback(m.id, true)}
+                      disabled={!!feedback[m.id]}
+                      className={`p-1 rounded transition-colors ${
+                        feedback[m.id] === "up"
+                          ? "text-emerald-400 bg-emerald-500/10"
+                          : "text-app-text-subtle hover:text-emerald-400 hover:bg-emerald-500/10"
+                      } disabled:cursor-default`}
+                      aria-label="Helpful"
+                      title="Helpful"
+                    >
+                      <ThumbsUp className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={() => recordFeedback(m.id, false)}
+                      disabled={!!feedback[m.id]}
+                      className={`p-1 rounded transition-colors ${
+                        feedback[m.id] === "down"
+                          ? "text-rose-400 bg-rose-500/10"
+                          : "text-app-text-subtle hover:text-rose-400 hover:bg-rose-500/10"
+                      } disabled:cursor-default`}
+                      aria-label="Not helpful"
+                      title="Not helpful"
+                    >
+                      <ThumbsDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Generic loading indicator. In Deep mode we usually have a
+            streaming bubble already rendered above (which shows its own
+            live thinking), so only show this generic "thinking…" pill
+            for Quick mode or for the brief gap before Deep streaming
+            starts (no AI message exists yet). */}
+        {loading && !messages.some((m) => m.streaming) && (
           <div className="flex justify-start">
             <div className="max-w-[90%] rounded-2xl rounded-bl-sm px-4 py-3 bg-app-card-hover border border-app-border flex items-center gap-2.5">
               {mode === "deep" ? (
@@ -458,10 +588,10 @@ export default function AIChatPanel() {
                   <Brain className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
                   <div className="flex flex-col">
                     <span className="text-[12px] text-app-text font-medium">
-                      Thinking deeply…
+                      Opening deep-think stream…
                     </span>
                     <span className="text-[10px] text-app-text-subtle">
-                      {elapsed}s elapsed &middot; strategic reasoning in progress
+                      {elapsed}s &middot; Sonnet 4.5 warming up
                     </span>
                   </div>
                 </>

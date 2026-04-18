@@ -21,7 +21,7 @@ three is trivial. One dep (httpx, already present) beats three.
 """
 
 import logging
-from typing import Callable, Optional
+from typing import AsyncIterator, Callable, Optional
 
 import httpx
 
@@ -77,6 +77,18 @@ def _claude_client():
     if not settings.ANTHROPIC_API_KEY or not HAS_ANTHROPIC:
         return None
     return anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+
+def _claude_async_client():
+    """Return a configured AsyncAnthropic client for streaming, or None.
+
+    The streaming Deep mode path uses this — a native async iterator plugs
+    cleanly into FastAPI's async generator / SSE pattern. The sync client
+    above is kept for the non-streaming Quick + Deep fallback path.
+    """
+    if not settings.ANTHROPIC_API_KEY or not HAS_ANTHROPIC:
+        return None
+    return anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
 
 # Kept for backward compatibility with the old import surface.
@@ -514,6 +526,118 @@ async def chat_with_ai(
         last_error,
     )
     return _local_response(question, analysis_result)
+
+
+async def stream_deep(
+    question: str,
+    analysis_result: dict,
+    conversation_history: Optional[list[dict]] = None,
+    business_context: Optional[dict] = None,
+    user_answers: Optional[dict] = None,
+) -> AsyncIterator[dict]:
+    """Stream a Deep-mode Claude response with extended thinking enabled.
+
+    Yields a sequence of event dicts:
+      {"type": "thinking", "text": "<chunk>"}   — partial reasoning token
+      {"type": "response", "text": "<chunk>"}   — partial answer token
+      {"type": "done"}                          — stream finished cleanly
+      {"type": "error", "text": "<msg>"}        — fatal; consumer should
+                                                  fall back to non-stream
+
+    The caller is responsible for format conversion (to SSE or otherwise).
+    This keeps the provider-specific details inside the service and lets
+    the router stay thin.
+
+    Why a generator of dicts (instead of SSE strings directly): we want
+    the router layer to own the wire format (SSE today, could be WebSocket
+    later) and the service to own semantics. Also makes this function
+    unit-testable without parsing strings.
+    """
+    client = _claude_async_client()
+    if client is None:
+        yield {"type": "error", "text": "ANTHROPIC_API_KEY not configured"}
+        return
+
+    # Build system prompt identically to the non-stream path so the model
+    # behaves the same; only the transport differs.
+    financial_context = build_financial_context(analysis_result or {}, business_context)
+    if user_answers:
+        financial_context += "\n### Management Answers to AI Questions\n"
+        for q, a in user_answers.items():
+            financial_context += f"Q: {q}\nA: {a}\n\n"
+    system_prompt = f"{SYSTEM_PROMPT}\n\n{financial_context}"
+
+    messages = _normalize_history(conversation_history, _ROLE_FOR_ANTHROPIC)
+    messages.append({"role": "user", "content": question})
+
+    try:
+        # anthropic.AsyncAnthropic().messages.stream returns an async
+        # context manager yielding a MessageStream object. Iterating the
+        # stream yields raw events (content_block_start / delta / stop).
+        async with client.messages.stream(
+            model=CLAUDE_MODEL_DEEP,
+            max_tokens=DEEP_MAX_TOKENS,
+            thinking={
+                "type": "enabled",
+                "budget_tokens": DEEP_THINKING_BUDGET,
+            },
+            system=system_prompt,
+            messages=messages,
+        ) as stream:
+            async for event in stream:
+                etype = getattr(event, "type", None)
+                if etype != "content_block_delta":
+                    # We only emit on deltas — start/stop events carry
+                    # the block type metadata but not incremental text.
+                    continue
+                delta = getattr(event, "delta", None)
+                if delta is None:
+                    continue
+                dtype = getattr(delta, "type", None)
+                if dtype == "thinking_delta":
+                    text = getattr(delta, "thinking", None) or ""
+                    if text:
+                        yield {"type": "thinking", "text": text}
+                elif dtype == "text_delta":
+                    text = getattr(delta, "text", None) or ""
+                    if text:
+                        yield {"type": "response", "text": text}
+        yield {"type": "done"}
+    except Exception as e:
+        # If the server rejects the thinking param (old SDK / deprecated
+        # model / etc.), retry the stream without thinking. If THAT also
+        # fails we tell the client to fall back to the non-streaming path.
+        err_msg = str(e)
+        if "thinking" in err_msg.lower():
+            logger.warning(
+                "Deep stream rejected thinking parameter (%s); retrying "
+                "without extended thinking.", err_msg
+            )
+            try:
+                async with client.messages.stream(
+                    model=CLAUDE_MODEL_DEEP,
+                    max_tokens=DEEP_MAX_TOKENS,
+                    system=system_prompt,
+                    messages=messages,
+                ) as stream:
+                    async for event in stream:
+                        if getattr(event, "type", None) != "content_block_delta":
+                            continue
+                        delta = getattr(event, "delta", None)
+                        if delta is None:
+                            continue
+                        if getattr(delta, "type", None) == "text_delta":
+                            text = getattr(delta, "text", None) or ""
+                            if text:
+                                yield {"type": "response", "text": text}
+                yield {"type": "done"}
+                return
+            except Exception as e2:
+                logger.exception("Deep stream retry failed: %s", e2)
+                yield {"type": "error", "text": "Deep stream failed — try again."}
+                return
+        logger.exception("Deep stream failed: %s", e)
+        yield {"type": "error", "text": "Deep stream failed — try again."}
 
 
 def _local_response(question: str, analysis_result: dict) -> str:
