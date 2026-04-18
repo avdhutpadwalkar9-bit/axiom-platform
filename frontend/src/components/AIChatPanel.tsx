@@ -20,6 +20,14 @@ import { api } from "@/lib/api";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
+// Model labels shown in the bottom-of-panel badge. Kept in sync with the
+// backend's CLAUDE_MODEL_QUICK / CLAUDE_MODEL_DEEP constants — trust badge
+// that tells the user which tier served their answer.
+const MODEL_LABEL: Record<ChatMode, string> = {
+  quick: "Claude Haiku 4.5",
+  deep: "Claude Sonnet 4.5 · Extended Thinking",
+};
+
 type ChatRole = "user" | "ai";
 type ChatMode = "quick" | "deep";
 type ChatSource = "faq" | "ai";
@@ -66,7 +74,7 @@ function newId(): string {
 
 export default function AIChatPanel() {
   const pathname = usePathname();
-  const { lastResult } = useAnalysisStore();
+  const { lastResult, companyName, analysisDate } = useAnalysisStore();
   const { business } = useOnboardingStore();
 
   const [open, setOpen] = useState(false);
@@ -132,6 +140,29 @@ export default function AIChatPanel() {
       services_description: business.servicesDescription,
     };
   }, [business]);
+
+  // Context tags — surface what the AI is actually looking at. Borrowed
+  // from the Dashboard's (now retired) inline AI Analyst panel. Renders
+  // nothing if the user hasn't completed onboarding or uploaded analysis.
+  const contextTags = useMemo(() => {
+    const tags: Array<{ label: string; tone: "neutral" | "emerald" }> = [];
+    const name = business?.companyName?.trim() || companyName?.trim();
+    if (name) tags.push({ label: name, tone: "neutral" });
+    if (business?.industry) tags.push({ label: business.industry, tone: "neutral" });
+    if (business?.entityType) tags.push({ label: business.entityType, tone: "neutral" });
+    if (analysisDate) {
+      try {
+        const d = new Date(analysisDate);
+        const label = d.toLocaleDateString("en-IN", {
+          day: "numeric", month: "short", year: "numeric",
+        });
+        tags.push({ label, tone: "emerald" });
+      } catch {
+        /* ignore — just skip the date tag if parsing fails */
+      }
+    }
+    return tags;
+  }, [business?.companyName, business?.industry, business?.entityType, companyName, analysisDate]);
 
   const send = useCallback(
     async (question: string, sendMode: ChatMode = mode) => {
@@ -310,6 +341,31 @@ export default function AIChatPanel() {
         />
       </div>
 
+      {/* "Analysing" context tags — shows what the AI can actually see.
+          Only renders when the user has a company profile or uploaded
+          financials; otherwise a new user would get an empty strip. */}
+      {contextTags.length > 0 && (
+        <div className="px-4 py-2.5 border-b border-app-border bg-app-canvas">
+          <p className="text-[9px] text-app-text-subtle uppercase tracking-[0.15em] font-semibold mb-1.5">
+            Analysing
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {contextTags.map((t, i) => (
+              <span
+                key={i}
+                className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                  t.tone === "emerald"
+                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                    : "bg-app-card-hover border-app-border text-app-text-muted"
+                }`}
+              >
+                {t.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Messages */}
       <div
         ref={scrollRef}
@@ -455,9 +511,26 @@ export default function AIChatPanel() {
             <Send className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-[10px] text-app-text-subtle mt-1.5 px-1">
-          Enter to send &middot; Shift+Enter for newline &middot; Esc to close
-        </p>
+        <div className="flex items-center justify-between mt-1.5 px-1">
+          <p className="text-[10px] text-app-text-subtle">
+            Enter to send &middot; Shift+Enter for newline &middot; Esc to close
+          </p>
+          <span
+            className="inline-flex items-center gap-1 text-[10px] text-app-text-subtle"
+            title={
+              mode === "deep"
+                ? "Deep mode uses Claude Sonnet 4.5 with extended thinking enabled — slower, more considered answers."
+                : "Quick mode uses Claude Haiku 4.5 for fast answers; FAQ matches are served instantly from our seed bank."
+            }
+          >
+            {mode === "deep" ? (
+              <Brain className="w-2.5 h-2.5" />
+            ) : (
+              <Zap className="w-2.5 h-2.5" />
+            )}
+            {MODEL_LABEL[mode]}
+          </span>
+        </div>
       </form>
     </div>
   );

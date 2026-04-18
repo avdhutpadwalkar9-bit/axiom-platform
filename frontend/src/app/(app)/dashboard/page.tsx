@@ -1,9 +1,7 @@
 "use client";
 
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import AIChatBubble from "@/components/AIChatBubble";
-import ModelSelector from "@/components/ModelSelector";
 import { FadeIn } from "@/components/Animate";
 import {
   TrendingUp,
@@ -12,13 +10,10 @@ import {
   FileUp,
   Briefcase,
   Sparkles,
-  Send,
-  X,
   ArrowUpRight,
   ChevronDown,
   Calendar,
   FileSpreadsheet,
-  MessageSquare,
   Shield,
   Search,
   SlidersHorizontal,
@@ -38,8 +33,6 @@ import {
 } from "recharts";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /* ------------------------------------------------------------------ */
 /*  Indian currency formatter                                          */
@@ -149,57 +142,11 @@ export default function DashboardPage() {
 
   const stage = useMemo(() => getStage(business.yearFounded), [business.yearFounded]);
 
-  // AI Analyst sidebar state
-  const [showAnalyst, setShowAnalyst] = useState(false);
-  const [chatMessages, setChatMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([]);
-  const [chatInput, setChatInput] = useState("");
-  const [chatLoading, setChatLoading] = useState(false);
-  const [chatProvider, setChatProvider] = useState<"claude" | "gemini" | "groq">("claude");
-  const chatEndRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages, chatLoading]);
-
-  const handleAskAI = async () => {
-    if (!chatInput.trim() || !lastResult) return;
-    const question = chatInput.trim();
-    const updatedHistory: { role: "user" | "ai"; text: string }[] = [
-      ...chatMessages,
-      { role: "user", text: question },
-    ];
-    setChatInput("");
-    setChatMessages(updatedHistory);
-    setChatLoading(true);
-
-    try {
-      const token = localStorage.getItem("access_token");
-      const res = await fetch(`${API_BASE}/api/chat/ask`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          question,
-          analysis_result: lastResult,
-          conversation_history: updatedHistory.slice(-10),
-          provider: chatProvider,
-        }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      setChatMessages((prev) => [
-        ...prev,
-        { role: "ai", text: data.response || data.answer || "I couldn't generate a response." },
-      ]);
-    } catch (err) {
-      const detail = err instanceof Error && err.message ? err.message : "please try again.";
-      setChatMessages((prev) => [
-        ...prev,
-        { role: "ai", text: `Sorry, I couldn't reach the AI service — ${detail}` },
-      ]);
-    } finally {
-      setChatLoading(false);
-    }
-  };
+  // NOTE: The Dashboard's inline AI Analyst sidebar was retired in favour of
+  // the global floating CortexAI widget (see (app)/layout.tsx +
+  // components/AIChatPanel.tsx), which has Quick/Deep mode toggling, FAQ
+  // matching, and thumbs-up/down feedback. One chat experience across the
+  // whole app instead of three duplicated ones.
 
   /* ---- No data state ---- */
   if (!hasData || !lastResult) {
@@ -378,15 +325,6 @@ export default function DashboardPage() {
       onClick: () => router.push("/qoe"),
     },
     {
-      icon: MessageSquare,
-      label: "AI Analyst session",
-      ref: `AI-${refCode}`,
-      date: formattedDate,
-      metric: chatMessages.length > 0 ? `${chatMessages.length} messages` : "Ready",
-      status: chatMessages.length > 0 ? "Active" : "Idle",
-      onClick: () => setShowAnalyst(true),
-    },
-    {
       icon: Sparkles,
       label: "Strategic insights",
       ref: `INS-${refCode}`,
@@ -403,12 +341,10 @@ export default function DashboardPage() {
 
   return (
     <div className="flex w-full">
-      {/* Main content area */}
-      <div
-        className={`flex-1 min-w-0 py-6 pl-6 pr-4 lg:py-8 lg:pl-8 lg:pr-6 space-y-6 transition-all duration-300 ${
-          showAnalyst ? "mr-[400px]" : ""
-        }`}
-      >
+      {/* Main content area. Dashboard used to reserve a 400px right gutter
+          for the inline AI sidebar; that's gone now (global floating widget
+          handles chat everywhere), so the content area spans full width. */}
+      <div className="flex-1 min-w-0 py-6 pl-6 pr-4 lg:py-8 lg:pl-8 lg:pr-6 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between flex-wrap gap-4">
           <div>
@@ -793,119 +729,8 @@ export default function DashboardPage() {
           </div>
         </FadeIn>
       </div>
-
-      {/* ── AI Analyst floating button ── */}
-      {!showAnalyst && (
-        <button
-          onClick={() => setShowAnalyst(true)}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-500 text-app-text shadow-lg shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 text-sm font-medium"
-        >
-          <Sparkles className="w-4 h-4" /> AI Analyst
-        </button>
-      )}
-
-      {/* ── AI Analyst Sidebar ── */}
-      <div
-        className={`fixed top-0 right-0 h-full w-[400px] bg-app-card border-l border-app-border shadow-2xl shadow-black/30 z-40 flex flex-col transition-transform duration-300 ease-out ${
-          showAnalyst ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-app-border">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-app-text" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold text-app-text">AI Analyst</p>
-            <p className="text-[10px] text-app-text-subtle">Ask anything about your financials</p>
-          </div>
-          <button
-            onClick={() => setShowAnalyst(false)}
-            className="w-7 h-7 rounded-lg hover:bg-app-card-hover flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4 text-app-text-subtle" />
-          </button>
-        </div>
-
-        <div className="px-6 py-3 border-b border-app-border/70 bg-app-canvas">
-          <p className="text-[10px] text-app-text-subtle uppercase tracking-wider font-medium mb-2">Analysing</p>
-          <div className="flex flex-wrap gap-1.5">
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-app-card-hover border border-app-border text-app-text-muted">
-              {displayName}
-            </span>
-            {industry && (
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-app-card-hover border border-app-border text-app-text-muted">
-                {industry}
-              </span>
-            )}
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-              {formattedDate}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-5 space-y-4">
-          {chatMessages.length === 0 && (
-            <div className="py-6">
-              <p className="text-xs text-app-text-subtle mb-4">Try asking:</p>
-              <div className="space-y-2">
-                {[
-                  "Summarise my financial health",
-                  "What are the biggest risks?",
-                  "How can I improve profitability?",
-                  "Explain the Ind AS issues",
-                  "Build me a 12-month projection",
-                ].map((q) => (
-                  <button
-                    key={q}
-                    onClick={() => setChatInput(q)}
-                    className="flex w-full items-center gap-2 text-left text-sm text-app-text-subtle hover:text-app-text bg-app-canvas hover:bg-app-card-hover rounded-lg px-3.5 py-2.5 transition-colors border border-transparent hover:border-app-border"
-                  >
-                    <ArrowUpRight className="w-3 h-3 flex-shrink-0 text-app-text/15" />
-                    {q}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-          {chatMessages.map((msg, i) => (
-            <AIChatBubble key={i} role={msg.role} text={msg.text} dark />
-          ))}
-          {chatLoading && (
-            <div className="flex justify-start">
-              <div className="bg-app-card-hover rounded-2xl rounded-bl-sm px-4 py-3">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" style={{ animationDelay: "300ms" }} />
-                </div>
-              </div>
-            </div>
-          )}
-          <div ref={chatEndRef} />
-        </div>
-
-        <div className="border-t border-app-border p-4">
-          <div className="mb-2">
-            <ModelSelector value={chatProvider} onChange={setChatProvider} />
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleAskAI()}
-              placeholder="Ask about your financials..."
-              className="flex-1 bg-app-canvas border border-app-border rounded-xl px-4 py-3 text-sm text-app-text placeholder:text-app-text-subtle outline-none focus:border-emerald-500/30 transition-colors"
-            />
-            <button
-              onClick={handleAskAI}
-              disabled={!chatInput.trim() || chatLoading}
-              className="w-11 h-11 rounded-xl bg-emerald-500 hover:bg-emerald-400 flex items-center justify-center transition-colors disabled:opacity-30"
-            >
-              <Send className="w-4 h-4 text-app-text" />
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Global floating CortexAI widget handles chat. Nothing more to
+          render here. */}
     </div>
   );
 }
