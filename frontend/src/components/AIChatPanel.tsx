@@ -180,7 +180,11 @@ export default function AIChatPanel() {
         const history = messages.map((m) => ({ role: m.role, text: m.text }));
         const data = await api.chat({
           question: trimmed,
-          analysis_result: (lastResult as Record<string, unknown>) ?? {},
+          // `lastResult` is typed as AnalysisResult with specific field
+          // names (financial_statements, ratios, etc.); the backend
+          // happily accepts any shape. Widen via unknown so TS lets us
+          // pass it through to the JSON body without fighting the type.
+          analysis_result: (lastResult ?? {}) as unknown as Record<string, unknown>,
           conversation_history: history,
           business_context: businessContext,
           page_context: buildPageContext(pathname),
