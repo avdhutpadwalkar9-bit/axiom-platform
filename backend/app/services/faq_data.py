@@ -722,6 +722,700 @@ SEED_FAQS: list[dict] = [
             "page to model with real cost-fixity splits."
         ),
     },
+
+    # ─── Phase 4 expansion: tax, HR, operations, banking, working
+    # capital, pricing, customer metrics, valuation. Written for Indian
+    # MSME founders in the ₹10-50 Cr band. Priority on evergreen advice
+    # that doesn't drift with individual quarter numbers. ────────────
+
+    # ─── Tax (TDS, advance tax, GST, LUT) ──────────────────────────
+    {
+        "id": "faq-tds-basics",
+        "category": "tax",
+        "question": "What TDS do I need to deduct?",
+        "alternates": [
+            "TDS rates",
+            "Who do I deduct TDS from",
+            "TDS applicability",
+        ],
+        "keywords": ["tds", "tax deducted at source", "194", "deduct"],
+        "answer_template": (
+            "**Most common TDS obligations for an Indian MSME:**\n\n"
+            "- **194C Contractors/sub-contractors** — 1% (individual/HUF), "
+            "2% (others). Threshold ₹30K single / ₹1 L aggregate per year.\n"
+            "- **194J Professional fees** — 10% (2% for tech/call-centre "
+            "services). Threshold ₹30K per payee per year.\n"
+            "- **194I Rent** — 10% on land/building above ₹2.4 L p.a.\n"
+            "- **194H Commission/brokerage** — 5% above ₹15K.\n"
+            "- **192 Salaries** — per slab, monthly.\n\n"
+            "### Non-negotiables\n\n"
+            "- Deposit by the 7th of the following month (April deadline is the 30th).\n"
+            "- File quarterly TDS returns (Form 24Q, 26Q) by the last day of the following month.\n"
+            "- Issue Form 16 / 16A by the June 15 deadline each year.\n\n"
+            "### So what\n\n"
+            "Short deduction or delayed deposit = disallowance of the "
+            "expense under Section 40(a)(ia), plus interest. Set up a "
+            "monthly calendar now and automate via your accounting tool."
+        ),
+    },
+    {
+        "id": "faq-advance-tax",
+        "category": "tax",
+        "question": "When do I pay advance tax?",
+        "alternates": [
+            "Advance tax schedule",
+            "Quarterly tax payment",
+            "Advance tax dates",
+        ],
+        "keywords": ["advance tax", "quarterly tax", "pay tax", "235c"],
+        "answer_template": (
+            "**If your tax liability will exceed ₹10,000 in a year, advance "
+            "tax is mandatory.** For companies, the schedule is:\n\n"
+            "| Due date | Cumulative % |\n"
+            "| --- | --- |\n"
+            "| 15 June | 15% |\n"
+            "| 15 September | 45% |\n"
+            "| 15 December | 75% |\n"
+            "| 15 March | 100% |\n\n"
+            "Miss a milestone and Section 234B/C interest applies at 1% "
+            "per month on the shortfall.\n\n"
+            "### Pragmatic rule\n\n"
+            "Estimate conservatively in Q1 (last year's tax / 4). Adjust "
+            "upward in September and December based on actual run-rate. "
+            "Shortfall interest is cheaper than overpayment + waiting for "
+            "a refund."
+        ),
+    },
+    {
+        "id": "faq-gstr1-vs-3b",
+        "category": "tax",
+        "question": "What's the difference between GSTR-1 and GSTR-3B?",
+        "alternates": [
+            "GSTR-1 GSTR-3B",
+            "GST return types",
+            "Which GST returns to file",
+        ],
+        "keywords": ["gstr-1", "gstr-3b", "gst return"],
+        "answer_template": (
+            "**GSTR-1 = your outward-supplies return.** Invoice-level detail "
+            "of every sale, due by the 11th of the following month "
+            "(monthly) or 13th (QRMP — quarterly filers under ₹5 Cr).\n\n"
+            "**GSTR-3B = your consolidated tax-payment return.** Summary "
+            "numbers only (output tax, input tax credit, net liability). "
+            "Due by the 20th/22nd/24th depending on state category.\n\n"
+            "### Why both matter\n\n"
+            "GSTR-1 populates your customer's GSTR-2A — their ability to "
+            "claim input credit depends on you filing GSTR-1 correctly and "
+            "on time. GSTR-3B is how you actually pay. The two MUST match "
+            "at year-end reconciliation (GSTR-9); mismatches invite notices.\n\n"
+            "### Next step\n\n"
+            "Reconcile GSTR-1 vs your invoice register monthly, not quarterly."
+        ),
+    },
+    {
+        "id": "faq-lut-export",
+        "category": "tax",
+        "question": "Do I need LUT for exports?",
+        "alternates": [
+            "Letter of Undertaking",
+            "Zero-rated exports",
+            "Export without IGST",
+        ],
+        "keywords": ["lut", "letter of undertaking", "export", "zero-rated"],
+        "answer_template": (
+            "**Yes, if you want to export goods/services without paying "
+            "IGST up front.** The Letter of Undertaking (LUT) lets you "
+            "ship zero-rated without locking up cash in IGST refunds.\n\n"
+            "- Apply annually (Form GST RFD-11) before the new financial year.\n"
+            "- Valid for the full FY; lapses need a fresh application.\n"
+            "- Without LUT, you pay IGST on export and claim refund later — "
+            "typical refund cycle is 60-90 days, a real working-capital hit.\n\n"
+            "### Rule of thumb\n\n"
+            "Any exporter doing >₹25 L p.a. should keep a live LUT. "
+            "The admin cost is a one-time annual filing; the working-capital "
+            "savings compound every month."
+        ),
+    },
+
+    # ─── HR (salaries, ESOP, gratuity, PF/ESI) ─────────────────────
+    {
+        "id": "faq-esop-msme",
+        "category": "hr",
+        "question": "Should I set up an ESOP for my team?",
+        "alternates": [
+            "ESOP scheme",
+            "Employee stock options",
+            "Equity compensation",
+        ],
+        "keywords": ["esop", "stock option", "equity", "employee stock"],
+        "answer_template": (
+            "**ESOPs make sense once you hit ~₹10 Cr revenue and need to "
+            "hire people the salary band won't attract.**\n\n"
+            "### Typical Indian MSME structure\n\n"
+            "- **Pool size**: 5-10% of fully-diluted cap table at first-round\n"
+            "- **Vesting**: 4 years with 1-year cliff\n"
+            "- **Strike price**: FMV as per Rule 11UA (merchant-banker valuation)\n"
+            "- **Exercise window**: 90 days on leaving, 10 years on stay\n\n"
+            "### Tax reality (important)\n\n"
+            "- Taxed at exercise (perquisite, per slab) + at sale (capital gains)\n"
+            "- DPIIT-recognised startups get deferred exercise tax (5 years / exit / sale)\n"
+            "- FMV-at-exercise is how perquisite is measured — get this documented\n\n"
+            "### Next step\n\n"
+            "Don't DIY. A seasoned ESOP lawyer + CA structures this for "
+            "₹1.5-3 L. Worth it vs. the cleanup costs of a sloppy first grant."
+        ),
+    },
+    {
+        "id": "faq-gratuity-provision",
+        "category": "hr",
+        "question": "How do I provision for gratuity?",
+        "alternates": [
+            "Gratuity liability",
+            "Payment of Gratuity Act",
+            "Gratuity fund",
+        ],
+        "keywords": ["gratuity", "payment of gratuity", "retirement benefit"],
+        "answer_template": (
+            "**Payment of Gratuity Act applies to any firm with 10+ "
+            "employees on any day in the preceding 12 months.** Once it "
+            "applies, it applies forever — head-count dropping below 10 "
+            "doesn't exempt you.\n\n"
+            "### Formula\n\n"
+            "Gratuity = (last drawn salary × 15 × years of service) ÷ 26\n\n"
+            "Capped at ₹20 L tax-free. Payable on 5+ years of continuous service.\n\n"
+            "### Ind AS 19 requirement\n\n"
+            "Provision on the balance sheet for the **actuarially-valued** "
+            "liability each year. Get an actuary's certificate; don't "
+            "provision at book-value approximations — auditors reject those.\n\n"
+            "### Smart move\n\n"
+            "Fund it through a Gratuity Trust or LIC Group Gratuity scheme. "
+            "Gives you tax deduction on contributions AND isolates the "
+            "liability from working capital."
+        ),
+    },
+    {
+        "id": "faq-pf-esi-compliance",
+        "category": "hr",
+        "question": "When do PF and ESI become mandatory?",
+        "alternates": [
+            "PF registration threshold",
+            "ESI applicability",
+            "Provident fund compliance",
+        ],
+        "keywords": ["pf", "esi", "provident fund", "esic", "epf"],
+        "answer_template": (
+            "**PF (EPF) becomes mandatory at 20+ employees.** Contribution: "
+            "12% of basic + DA, matched by employer. Wage ceiling ₹15K for "
+            "mandatory cover (optional above).\n\n"
+            "**ESI is mandatory at 10+ employees** earning ≤₹21K/month "
+            "(₹25K for disabled). Contribution: 0.75% employee + 3.25% employer.\n\n"
+            "### Deposit schedule\n\n"
+            "Both due by the 15th of the following month. Late deposit = "
+            "12% p.a. interest + damages up to 100% of contribution.\n\n"
+            "### Audit trap\n\n"
+            "Schedule II of the Companies Act requires both to be deposited "
+            "on time. Missed deposits are a statutory audit qualification "
+            "and CARO reportable — which will kill a QoE multiple."
+        ),
+    },
+
+    # ─── Operations (vendor management, inventory) ──────────────────
+    {
+        "id": "faq-vendor-negotiation",
+        "category": "operations",
+        "question": "How do I negotiate better vendor terms?",
+        "alternates": [
+            "Vendor renegotiation",
+            "Supplier negotiation",
+            "Better payment terms",
+        ],
+        "keywords": ["vendor", "supplier", "negotiate", "terms"],
+        "answer_template": (
+            "**Three levers, in priority order:**\n\n"
+            "1. **Payment terms** — each extra day of credit is ~0.03% of "
+            "the invoice in effective financing. Pushing 30 → 60 days "
+            "frees up ~2.5% of annual spend as working capital.\n"
+            "2. **Price** — show them audited volume data. \"We bought ₹2 "
+            "Cr from you last year; we're budgeting ₹2.6 Cr this year; "
+            "what does that earn us on rate?\"\n"
+            "3. **Rebate/volume discount** — ask for 2-3% annual rebate "
+            "tied to a volume slab. Gives you upside if business grows; "
+            "no downside if it doesn't.\n\n"
+            "### Non-negotiables to lock in\n\n"
+            "- Quality spec (written, testable)\n"
+            "- Lead time commitment with penalty for breach\n"
+            "- Price-hold period (minimum 6 months)\n"
+            "- Exit clause — 30-day notice, no penalty\n\n"
+            "### Cadence\n\n"
+            "Renegotiate top-3 vendors every 12 months. Don't wait for a "
+            "price hike; negotiate from strength, not crisis."
+        ),
+    },
+    {
+        "id": "faq-inventory-turnover",
+        "category": "operations",
+        "question": "What's a good inventory turnover ratio?",
+        "alternates": [
+            "Inventory days",
+            "Stock turn",
+            "Inventory efficiency",
+        ],
+        "keywords": ["inventory turnover", "inventory days", "stock turn"],
+        "answer_template": (
+            "**Rules of thumb for Indian MSME, by sector:**\n\n"
+            "| Sector | Turnover target | Inventory days |\n"
+            "| --- | --- | --- |\n"
+            "| Manufacturing | 6-10x | 36-60 days |\n"
+            "| Wholesale trading | 8-12x | 30-45 days |\n"
+            "| Retail | 8-15x | 24-45 days |\n"
+            "| Services (consumables) | 12x+ | <30 days |\n\n"
+            "### Why it matters\n\n"
+            "Each extra month of inventory = ~2% of revenue trapped as "
+            "cash. On a ₹20 Cr business that's ₹40 L locked up for nothing.\n\n"
+            "### Next 90 days\n\n"
+            "- Age your SKUs: how much sitting >90 days? >180? These are "
+            "candidates for aggressive discount or write-off.\n"
+            "- Switch fast-movers to JIT / kanban with key vendors.\n"
+            "- Monthly inventory review — treat it as a P&L item, not a "
+            "warehouse problem."
+        ),
+    },
+
+    # ─── Working capital (debtor/creditor days, WC cycle) ───────────
+    {
+        "id": "faq-debtor-days",
+        "category": "working_capital",
+        "question": "What's a healthy debtor days number?",
+        "alternates": [
+            "Receivable days",
+            "Collection days",
+            "DSO target",
+        ],
+        "keywords": ["debtor days", "dso", "receivable days", "collection days"],
+        "answer_template": (
+            "**Debtor days = (Receivables / Revenue) × 365.**\n\n"
+            "| Sector | Healthy | Attention | Red |\n"
+            "| --- | --- | --- | --- |\n"
+            "| B2C retail | <15 | 15-30 | >30 |\n"
+            "| Manufacturing B2B | 45-60 | 60-90 | >90 |\n"
+            "| Services B2B | 30-60 | 60-90 | >90 |\n"
+            "| Government contracts | 90-120 | 120-180 | >180 |\n\n"
+            "### Why focus here\n\n"
+            "Every 10 days of debtor reduction = ~2.7% of revenue back as "
+            "cash. Cheaper than any form of external financing.\n\n"
+            "### Collection toolkit\n\n"
+            "- Monthly aging review at founder level (not delegated)\n"
+            "- Auto-reminders at 7 / 15 / 30 days overdue\n"
+            "- Early-payment discount (2/10 net 30) — more effective than chasing\n"
+            "- Credit check before extending new terms on top 20% customers"
+        ),
+    },
+    {
+        "id": "faq-wc-cycle",
+        "category": "working_capital",
+        "question": "What's my working capital cycle?",
+        "alternates": [
+            "Cash conversion cycle",
+            "WC cycle formula",
+            "Operating cycle",
+        ],
+        "keywords": ["working capital cycle", "cash conversion", "operating cycle"],
+        "answer_template": (
+            "**Cash Conversion Cycle (CCC) = Debtor days + Inventory days − Creditor days.**\n\n"
+            "It measures how many days cash is tied up between paying "
+            "suppliers and collecting from customers.\n\n"
+            "### What each lever does\n\n"
+            "- **Debtor days ↓** — collect faster. Every 10 days = ~2.7% of revenue as cash.\n"
+            "- **Inventory days ↓** — hold less stock. Each 10 days = ~1-2% of revenue.\n"
+            "- **Creditor days ↑** — pay suppliers slower. Gains match debtor days.\n\n"
+            "### Benchmarks\n\n"
+            "- Manufacturing MSME: 90-150 days is typical; <90 is excellent\n"
+            "- Trading MSME: 45-90 days\n"
+            "- Services MSME: 30-60 days\n\n"
+            "### Strategic move\n\n"
+            "A 30-day improvement on a ₹20 Cr business is ₹1.6 Cr in "
+            "freed-up cash. That's usually cheaper than raising debt or "
+            "equity. Start with debtor discipline — it's the most controllable."
+        ),
+    },
+
+    # ─── Banking & credit ────────────────────────────────────────────
+    {
+        "id": "faq-od-vs-cc",
+        "category": "banking",
+        "question": "Overdraft vs cash credit — which do I need?",
+        "alternates": [
+            "OD vs CC",
+            "Working capital loan",
+            "Cash credit facility",
+        ],
+        "keywords": ["overdraft", "cash credit", "od", "cc", "working capital loan"],
+        "answer_template": (
+            "**Both are revolving facilities, but they serve different needs:**\n\n"
+            "| Feature | Overdraft (OD) | Cash Credit (CC) |\n"
+            "| --- | --- | --- |\n"
+            "| Security | Property / FD | Stock + Debtors |\n"
+            "| Drawing power | Fixed limit | Changes with stock/debtor value (DP) |\n"
+            "| Interest | On amount drawn | On amount drawn |\n"
+            "| Typical use | Short-term bridging | Ongoing WC needs |\n"
+            "| Stock audit | No | Yes, quarterly |\n\n"
+            "### When to use which\n\n"
+            "- **OD** if you have property/FD to pledge, predictable cash "
+            "needs, and don't want monthly stock statements.\n"
+            "- **CC** if your WC needs fluctuate with stock/debtors — "
+            "the DP growing with business gives natural scaling.\n\n"
+            "### What banks look at\n\n"
+            "Current ratio >1.2, DSCR >1.3, no irregularities in last 6 "
+            "months of account. Keep these tight BEFORE you apply — "
+            "negotiating from strength saves 50-100 bps on rate."
+        ),
+    },
+    {
+        "id": "faq-dscr",
+        "category": "banking",
+        "question": "What DSCR do banks want?",
+        "alternates": [
+            "Debt service coverage",
+            "Term loan DSCR",
+            "Coverage ratio",
+        ],
+        "keywords": ["dscr", "debt service coverage", "coverage ratio"],
+        "answer_template": (
+            "**DSCR = (Net profit + Depreciation + Interest) ÷ (Interest + Loan principal due)**\n\n"
+            "It answers: can the business service its debt from operating cash?\n\n"
+            "### What banks actually use as a bar\n\n"
+            "- **>1.5x** — comfortable, best interest rates\n"
+            "- **1.25-1.5x** — lendable, market rate\n"
+            "- **<1.25x** — red flag, either declined or high premium\n"
+            "- **<1.0x** — loss-making coverage, no chance\n\n"
+            "### Common mistake\n\n"
+            "Founders compute DSCR on current profit and current debt only. "
+            "Banks compute it on **projected profit through the loan tenure "
+            "vs the full debt schedule**. A 3-year loan with big Y3 "
+            "repayments needs Y3 profit, not Y1 profit.\n\n"
+            "### Pragmatic bump\n\n"
+            "If DSCR is borderline, ask for a moratorium (6-12 months "
+            "principal holiday) or a longer tenure. Both improve DSCR on "
+            "paper without changing the business. Works for banks because "
+            "it reduces default risk; works for you because it buys time."
+        ),
+    },
+
+    # ─── Pricing & customer economics ────────────────────────────────
+    {
+        "id": "faq-pricing-strategy",
+        "category": "pricing",
+        "question": "How should I price my product?",
+        "alternates": [
+            "Pricing strategy",
+            "How to set prices",
+            "Value-based pricing",
+        ],
+        "keywords": ["pricing", "price", "set prices"],
+        "answer_template": (
+            "**Three pricing anchors. Most Indian MSMEs use #1 by default "
+            "— it leaves the most money on the table.**\n\n"
+            "1. **Cost-plus** (add margin to COGS). Easy, safe, and leaves "
+            "money on the table. Use this as a FLOOR, not a target.\n"
+            "2. **Competitor-based** (match market). Commoditises you. "
+            "Use this as a REALITY CHECK, not a pricing strategy.\n"
+            "3. **Value-based** (what the outcome is worth to the customer). "
+            "Hardest to implement, biggest upside. This is where the "
+            "margin expansion sits.\n\n"
+            "### Test\n\n"
+            "Ask your top 3 customers: \"If we stopped tomorrow, what "
+            "would it cost you to replace us?\" That number is the upper "
+            "bound on your pricing.\n\n"
+            "### Practical move\n\n"
+            "- Raise prices 3-5% annually as default, no negotiation\n"
+            "- Segment your price list: small customers pay list, strategic "
+            "accounts get volume discount, walk-ins pay premium\n"
+            "- Never discount on price without taking something back "
+            "(volume, tenure, exclusivity, payment terms)"
+        ),
+    },
+    {
+        "id": "faq-cac-ltv",
+        "category": "customer",
+        "question": "What's a good LTV to CAC ratio?",
+        "alternates": [
+            "LTV CAC ratio",
+            "Customer acquisition cost",
+            "Unit economics",
+        ],
+        "keywords": ["ltv", "cac", "customer acquisition", "unit economics"],
+        "answer_template": (
+            "**The industry benchmark is LTV:CAC of 3:1.**\n\n"
+            "- Below 1:1 = you're paying more to acquire than you'll ever earn. Bleeding.\n"
+            "- 1:1 to 3:1 = marginal. Optimise before you scale spend.\n"
+            "- 3:1+ = healthy. Push spend harder.\n"
+            "- 5:1+ = you're probably under-investing in acquisition.\n\n"
+            "### How to compute honestly\n\n"
+            "- **CAC** = all sales + marketing cost ÷ new customers acquired in same period.\n"
+            "  Include founder time at ₹2-3K/hour if they're selling.\n"
+            "- **LTV** = average monthly gross profit per customer × average customer lifetime (months).\n"
+            "  Gross profit, NOT revenue. Revenue LTV flatters the number by the cost you forgot.\n\n"
+            "### Payback ceiling\n\n"
+            "Aim for CAC payback <12 months for B2B and <6 months for B2C. "
+            "Longer payback = more working-capital funding needed between "
+            "spend and return."
+        ),
+    },
+    {
+        "id": "faq-churn-retention",
+        "category": "customer",
+        "question": "How do I calculate customer churn?",
+        "alternates": [
+            "Churn rate",
+            "Customer retention",
+            "Attrition rate",
+        ],
+        "keywords": ["churn", "retention", "attrition"],
+        "answer_template": (
+            "**Annual churn = (customers lost in period ÷ customers at start of period) × 100**\n\n"
+            "Monthly churn = same formula, monthly window. Compounds to "
+            "annual via (1 − monthly churn)^12.\n\n"
+            "### Benchmarks (Indian B2B MSME SaaS/services)\n\n"
+            "- <5% annual — world-class, mostly accounts of your size\n"
+            "- 5-15% annual — healthy\n"
+            "- 15-30% annual — leaky bucket, look hard at onboarding + success\n"
+            "- >30% annual — you're replacing the customer base yearly, growth is an illusion\n\n"
+            "### Critical distinction\n\n"
+            "**Logo churn** (customers leaving) vs **revenue churn** "
+            "(₹ value lost). Revenue churn can be NEGATIVE if remaining "
+            "customers expand spend — that's net-revenue-retention (NRR) "
+            ">100%, which is the gold standard.\n\n"
+            "### Next 90 days\n\n"
+            "Identify your top 5 customers. What's their renewal date? "
+            "Two quarters before that is when expansion conversations "
+            "should start — not two weeks before."
+        ),
+    },
+
+    # ─── Valuation & fundraise ───────────────────────────────────────
+    {
+        "id": "faq-valuation-msme",
+        "category": "valuation",
+        "question": "How is my company valued?",
+        "alternates": [
+            "Company valuation",
+            "Business worth",
+            "Valuation multiples",
+        ],
+        "keywords": ["valuation", "value", "worth", "multiple"],
+        "answer_template": (
+            "**For Indian MSMEs in the ₹10-50 Cr band, three valuation "
+            "methods dominate. Numbers vary by sector.**\n\n"
+            "### 1. EBITDA multiple (most common for profitable businesses)\n\n"
+            "- Services / tech: 6-12x LTM adjusted EBITDA\n"
+            "- Manufacturing: 4-7x LTM adjusted EBITDA\n"
+            "- Distribution / trading: 3-5x LTM adjusted EBITDA\n\n"
+            "Note: these are on **adjusted** (QoE-normalised) EBITDA, "
+            "not reported. A clean QoE workbook earns 1-2x multiple.\n\n"
+            "### 2. Revenue multiple (for high-growth, thin-margin)\n\n"
+            "- SaaS: 3-8x ARR (depends on NRR, growth rate)\n"
+            "- High-growth services: 1-3x revenue\n\n"
+            "### 3. DCF (for anyone with visibility)\n\n"
+            "Discount projected free cash flow at 12-18% (risk-free + "
+            "equity risk + company-specific premium). Most founders skip "
+            "this because the projections are fragile — but it's the only "
+            "method that reflects *what you will actually generate*.\n\n"
+            "### Bottom line\n\n"
+            "Real valuation is whatever a strategic buyer or investor "
+            "believes. These multiples are the starting point for "
+            "conversation, not the destination."
+        ),
+    },
+    {
+        "id": "faq-runway",
+        "category": "fundraise",
+        "question": "How do I calculate my runway?",
+        "alternates": [
+            "Burn rate",
+            "Months of runway",
+            "Cash runway",
+        ],
+        "keywords": ["runway", "burn rate", "burn", "cash runway"],
+        "answer_template": (
+            "**Runway = current cash ÷ monthly net burn.**\n\n"
+            "- **Monthly burn** = monthly expenses − monthly revenue. "
+            "If positive (profitable), runway is infinite at this burn.\n"
+            "- **Monthly cash burn** (distinct from operating burn) "
+            "includes capex + debt repayment + tax payments timed to months.\n\n"
+            "### Benchmarks\n\n"
+            "- <6 months runway — emergency. Raise now, cut deep, or both.\n"
+            "- 6-12 months — planning window. Start fundraise at the 9-month mark.\n"
+            "- 12-18 months — comfortable. Use the space to grow revenue, not raise.\n"
+            "- 18+ months — investors ask why you need the money.\n\n"
+            "### Honest burn, not convenient burn\n\n"
+            "Founders often compute burn on a \"good month\" — revenue "
+            "peak, quiet on capex. Use **trailing-3-month average burn** "
+            "for planning; it smooths noise."
+        ),
+    },
+
+    # ─── Break-even & fundamentals ───────────────────────────────────
+    {
+        "id": "faq-breakeven",
+        "category": "profitability",
+        "question": "What is my break-even revenue?",
+        "alternates": [
+            "Break even point",
+            "BEP calculation",
+            "Revenue needed to break even",
+        ],
+        "keywords": ["break-even", "breakeven", "bep"],
+        "answer_template": (
+            "**Break-even revenue = Fixed costs ÷ Contribution margin %.**\n\n"
+            "Contribution margin % = (Revenue − Variable costs) ÷ Revenue.\n\n"
+            "### Practical split from the TB\n\n"
+            "- **Fixed costs**: salaries (mostly), rent, SaaS, insurance, "
+            "depreciation, interest. Don't change with volume.\n"
+            "- **Variable costs**: materials, logistics, commissions, "
+            "production labour (if hourly/piece-rate). Scale with revenue.\n\n"
+            "### Why it matters\n\n"
+            "Every rupee of revenue above break-even drops almost entirely "
+            "to the bottom line. That's why founders at break-even are "
+            "often one quarter away from a strong margin — if they hold "
+            "fixed costs flat.\n\n"
+            "### Smart move\n\n"
+            "Know your monthly break-even number. Communicate it to the "
+            "team. Cross it by the 20th of the month and celebrate. "
+            "Miss it for two months in a row and review before month three."
+        ),
+    },
+
+    # ─── Fixed vs variable ────────────────────────────────────────────
+    {
+        "id": "faq-fixed-vs-variable",
+        "category": "profitability",
+        "question": "How do I know my fixed vs variable costs?",
+        "alternates": [
+            "Cost classification",
+            "Fixed and variable costs",
+            "Which costs are fixed",
+        ],
+        "keywords": ["fixed cost", "variable cost", "semi-variable", "cost structure"],
+        "answer_template": (
+            "**The two-minute test for each expense line:**\n\n"
+            "1. If revenue dropped to zero tomorrow, would I still pay it next month? → **Fixed.**\n"
+            "2. Does it scale linearly (or near-linearly) with units sold? → **Variable.**\n"
+            "3. Some of both? → **Semi-variable** (e.g. utilities with base + usage).\n\n"
+            "### Typical Indian MSME classification\n\n"
+            "| Line | Usually |\n"
+            "| --- | --- |\n"
+            "| Salaries (permanent) | Fixed |\n"
+            "| Rent, insurance, software, audit fees | Fixed |\n"
+            "| Raw material, packaging, freight | Variable |\n"
+            "| Sales commission | Variable |\n"
+            "| Electricity, telephone | Semi-variable |\n"
+            "| Marketing | Discretionary (treat as variable) |\n\n"
+            "### Why bother\n\n"
+            "Without this split, you can't compute break-even, contribution "
+            "margin, or the incremental profit from a new customer. With "
+            "it, you can answer \"should I take this order at a discount?\" "
+            "in 30 seconds instead of guessing."
+        ),
+    },
+
+    # ─── Seasonality & demand planning ────────────────────────────────
+    {
+        "id": "faq-seasonal-business",
+        "category": "operations",
+        "question": "How do I manage a seasonal business?",
+        "alternates": [
+            "Seasonal demand",
+            "Peak and lean management",
+            "Managing seasonality",
+        ],
+        "keywords": ["seasonal", "seasonality", "peak season", "lean season"],
+        "answer_template": (
+            "**Two disciplines make or break seasonal Indian MSMEs.**\n\n"
+            "### 1. Lean-season working capital\n\n"
+            "- Build cash buffer in peak covering 3-6 months of fixed "
+            "costs. Don't assume next year's peak is guaranteed.\n"
+            "- Negotiate a bank OD/CC line BEFORE you need it. Banks "
+            "price risk higher when you're desperate.\n"
+            "- Cut discretionary spend by 20-30% in lean months — that's "
+            "where the cash comes from, not revenue growth.\n\n"
+            "### 2. Peak-season readiness\n\n"
+            "- Inventory build-up 60-90 days ahead\n"
+            "- Contract temp labour / overtime policy 30 days ahead\n"
+            "- Extend credit terms with suppliers before the rush\n\n"
+            "### Accounting implication\n\n"
+            "QoE acquirers normalise seasonal earnings. A profitable peak "
+            "offset by a loss-making lean doesn't count twice — buyers "
+            "average it. Don't claim peak numbers as \"run-rate\" in your "
+            "pitch; it erodes credibility."
+        ),
+    },
+
+    # ─── Export/import forex ──────────────────────────────────────────
+    {
+        "id": "faq-forex-hedging",
+        "category": "operations",
+        "question": "Should I hedge my forex exposure?",
+        "alternates": [
+            "Forex hedging",
+            "Currency risk",
+            "Foreign exchange exposure",
+        ],
+        "keywords": ["forex", "fx", "hedging", "hedge", "currency risk"],
+        "answer_template": (
+            "**Rule of thumb: hedge if forex is >10% of revenue or costs, "
+            "don't bother if <5%.**\n\n"
+            "### Why hedge\n\n"
+            "A 5% INR move against USD on a ₹5 Cr export business = "
+            "₹25 L — often bigger than the year's profit. That's business "
+            "risk, not market opportunism.\n\n"
+            "### Instruments Indian MSMEs actually use\n\n"
+            "- **Forward contracts** — lock the rate for a future date. "
+            "Simplest, cheapest. Covers 90%+ of MSME needs.\n"
+            "- **Currency options** — pay premium, keep upside. Worth it "
+            "only if you have a view.\n"
+            "- **Natural hedge** — match receivables in a currency with "
+            "payables in the same. Free, but only works if you have both.\n\n"
+            "### Don't\n\n"
+            "- Don't hedge 100% — keep 30-40% unhedged to participate in "
+            "favourable moves.\n"
+            "- Don't treat hedging as speculation. Lock the margin on a "
+            "known order; don't trade views on the rupee."
+        ),
+    },
+
+    # ─── Margin of safety / decision discipline ──────────────────────
+    {
+        "id": "faq-when-to-hire",
+        "category": "hr",
+        "question": "When should I hire my next employee?",
+        "alternates": [
+            "Hiring decision",
+            "When to hire",
+            "Next hire",
+        ],
+        "keywords": ["hire", "hiring", "new employee", "next hire"],
+        "answer_template": (
+            "**Hire when the role pays for itself within 12 months, and not a day before.**\n\n"
+            "### The 12-month rule\n\n"
+            "If a new sales hire costs ₹12 L annual CTC, they need to "
+            "generate ₹1 L/month of incremental gross profit within their "
+            "first year. If the honest answer is \"maybe in 18 months,\" "
+            "the hire is premature.\n\n"
+            "### Founder mistakes to avoid\n\n"
+            "1. **Hiring out of overwhelm.** Fatigue isn't a business "
+            "case. First try: kill the low-value tasks, automate, or "
+            "delegate to an existing underutilised person.\n"
+            "2. **Hiring before process.** A new person without documented "
+            "process = 2 months of you training + their confusion. Write "
+            "the SOP first, then hire.\n"
+            "3. **Over-hiring in revenue functions.** Two average salespeople "
+            "rarely beat one great one. Promote scarcity.\n\n"
+            "### Smart sequence for MSMEs\n\n"
+            "First 5 hires: ops lead, accountant, best salesperson you can "
+            "afford, finance partner (fractional CFO beats full-time), "
+            "and your second-in-command. Everything else scales from there."
+        ),
+    },
 ]
 
 
