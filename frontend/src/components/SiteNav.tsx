@@ -257,9 +257,13 @@ export default function SiteNav() {
               </div>
             ) : (
               <>
+                {/* Two paired CTAs — Log in reads as an actual choice
+                    alongside Get started, not a whisper next to a button.
+                    Stitch audit flagged the previous text-link version as
+                    sparse navigation; this is the paired-button fix. */}
                 <Link
                   href="/login"
-                  className="hidden sm:inline-block text-[13px] text-white/50 hover:text-white transition-colors"
+                  className="hidden sm:inline-flex items-center gap-2 text-[13px] font-medium text-white/80 hover:text-white border border-white/[0.12] hover:border-white/[0.24] hover:bg-white/[0.04] px-4 py-2 rounded-xl transition-all"
                 >
                   Log in
                 </Link>

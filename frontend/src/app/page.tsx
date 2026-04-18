@@ -236,7 +236,7 @@ function EssentialMockup({ index }: { index: number }) {
     case 0: // Continuous QoE engine — EBITDA bridge + add-backs
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-4">
-          <div className="flex items-center justify-between text-[11px] text-white/40">
+          <div className="flex items-center justify-between text-[11px] text-white/60">
             <span className="font-medium uppercase tracking-wider">EBITDA bridge</span>
             <span className="text-emerald-400 font-semibold">+₹48.2L adjusted</span>
           </div>
@@ -250,7 +250,7 @@ function EssentialMockup({ index }: { index: number }) {
             ].map((b) => (
               <div key={b.label} className="flex-1 flex flex-col items-center gap-1">
                 <div className={`w-full ${b.color} rounded-t-sm`} style={{ height: `${b.v}%` }} />
-                <span className="text-[9px] text-white/40 leading-tight text-center">{b.label}</span>
+                <span className="text-[9px] text-white/60 leading-tight text-center">{b.label}</span>
               </div>
             ))}
           </div>
@@ -282,7 +282,7 @@ function EssentialMockup({ index }: { index: number }) {
     case 1: // Audit-ready Ind AS books
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
-          <div className="flex items-center gap-2 text-[11px] text-white/40 uppercase tracking-wider font-medium">
+          <div className="flex items-center gap-2 text-[11px] text-white/60 uppercase tracking-wider font-medium">
             <span>P&amp;L · year ended 31 Mar 2026</span>
             <span className="ml-auto text-emerald-400 normal-case tracking-normal text-[10px] font-normal">
               ✓ Ind AS compliant
@@ -319,7 +319,7 @@ function EssentialMockup({ index }: { index: number }) {
     case 2: // Strategic scenario planning
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
-          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+          <div className="flex items-center justify-between text-[11px] text-white/60 font-medium uppercase tracking-wider">
             <span>Scenario comparison</span>
             <span className="text-emerald-400 normal-case tracking-normal text-[10px]">3 models</span>
           </div>
@@ -344,10 +344,10 @@ function EssentialMockup({ index }: { index: number }) {
                 </span>
               </div>
               <div className="flex items-center gap-4 text-[10px]">
-                <span className="text-white/40">
+                <span className="text-white/60">
                   EBITDA <span className="text-white tabular-nums ml-1">{s.ebitda}</span>
                 </span>
-                <span className="text-white/40">
+                <span className="text-white/60">
                   Cash <span className="text-white tabular-nums ml-1">{s.cash}</span>
                 </span>
               </div>
@@ -358,7 +358,7 @@ function EssentialMockup({ index }: { index: number }) {
     case 3: // Common-size & ratio benchmarking
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
-          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+          <div className="flex items-center justify-between text-[11px] text-white/60 font-medium uppercase tracking-wider">
             <span>You vs. peers · auto-component</span>
             <span className="text-emerald-400 normal-case tracking-normal text-[10px]">MSME ₹10–50 Cr</span>
           </div>
@@ -403,7 +403,7 @@ function EssentialMockup({ index }: { index: number }) {
               { label: "DIO", value: "74d", delta: "+12d" },
             ].map((k) => (
               <div key={k.label} className="bg-white/3 border border-white/5 rounded-lg p-2.5">
-                <p className="text-[9px] text-white/40 uppercase tracking-wider">{k.label}</p>
+                <p className="text-[9px] text-white/60 uppercase tracking-wider">{k.label}</p>
                 <p className="text-[18px] font-bold text-white tabular-nums">{k.value}</p>
                 <p className="text-[10px] text-amber-400 tabular-nums">{k.delta}</p>
               </div>
@@ -421,7 +421,7 @@ function EssentialMockup({ index }: { index: number }) {
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-white/40 font-medium uppercase tracking-wider">13-week cash forecast</span>
+            <span className="text-white/60 font-medium uppercase tracking-wider">13-week cash forecast</span>
             <span className="text-amber-400 text-[10px] normal-case tracking-normal">Shortfall W-9</span>
           </div>
           <div className="flex items-end gap-1 h-24">
@@ -433,7 +433,7 @@ function EssentialMockup({ index }: { index: number }) {
               />
             ))}
           </div>
-          <div className="flex items-center justify-between text-[10px] text-white/40">
+          <div className="flex items-center justify-between text-[10px] text-white/60">
             <span>W-1</span>
             <span>W-7</span>
             <span>W-13</span>
@@ -443,7 +443,7 @@ function EssentialMockup({ index }: { index: number }) {
     case 6: // Variance analysis
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-2">
-          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider mb-1">
+          <div className="flex items-center justify-between text-[11px] text-white/60 font-medium uppercase tracking-wider mb-1">
             <span>Top variances · vs. budget</span>
             <span className="text-emerald-400 normal-case tracking-normal text-[10px]">5 flagged</span>
           </div>
@@ -466,7 +466,7 @@ function EssentialMockup({ index }: { index: number }) {
     case 7: // Monthly close in one click
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-2.5">
-          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+          <div className="flex items-center justify-between text-[11px] text-white/60 font-medium uppercase tracking-wider">
             <span>Close checklist · Mar 2026</span>
             <span className="text-emerald-400 normal-case tracking-normal text-[10px]">8 / 8 complete</span>
           </div>
@@ -492,7 +492,7 @@ function EssentialMockup({ index }: { index: number }) {
     case 8: // Growth SOPs, not dashboards
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
-          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+          <div className="flex items-center justify-between text-[11px] text-white/60 font-medium uppercase tracking-wider">
             <span>Strategy memo · April 2026</span>
             <span className="text-emerald-400 normal-case tracking-normal text-[10px]">3 actions</span>
           </div>
@@ -509,7 +509,7 @@ function EssentialMockup({ index }: { index: number }) {
                 <p className="text-[12px] text-white font-medium leading-tight">{m.action}</p>
                 <div className="flex items-center gap-3 mt-1 text-[10px]">
                   <span className="text-emerald-400 tabular-nums font-semibold">{m.impact}</span>
-                  <span className="text-white/40">{m.horizon}</span>
+                  <span className="text-white/60">{m.horizon}</span>
                 </div>
               </div>
             </div>
@@ -519,7 +519,7 @@ function EssentialMockup({ index }: { index: number }) {
     case 9: // Native Tally + Zoho integrations
       return (
         <div className="bg-white/5 rounded-xl p-5 border border-white/5 space-y-3">
-          <div className="flex items-center justify-between text-[11px] text-white/40 font-medium uppercase tracking-wider">
+          <div className="flex items-center justify-between text-[11px] text-white/60 font-medium uppercase tracking-wider">
             <span>Connected feeds</span>
             <span className="text-emerald-400 normal-case tracking-normal text-[10px]">6 live</span>
           </div>
@@ -538,7 +538,7 @@ function EssentialMockup({ index }: { index: number }) {
               </div>
             ))}
           </div>
-          <p className="text-[10px] text-white/40 leading-relaxed pt-1">
+          <p className="text-[10px] text-white/60 leading-relaxed pt-1">
             Two-way OAuth sync. No CSV exports, no IT ticket, no break-glass.
           </p>
         </div>
@@ -672,16 +672,28 @@ export default function LandingPage() {
                   What Big-4 charges you &#8377;6&ndash;15 Lakh for, every time you raise capital. We ship it every month, for &#8377;25K. Powered by Claude, reviewed by a qualified CA.
                 </p>
 
-                <div className="flex flex-wrap gap-3 mb-6">
+                <div className="flex flex-wrap gap-3 mb-4">
                   <Link href="/signup" className="btn-accent">
                     Start your 14-day trial
                   </Link>
-                  <Link href="/contact" className="inline-flex items-center gap-2 text-white/70 hover:text-white px-5 py-3 rounded-xl border border-white/10 hover:border-white/20 text-sm font-medium transition-all">
+                  <Link href="/contact" className="inline-flex items-center gap-2 text-white/80 hover:text-white px-5 py-3 rounded-xl border border-white/[0.14] hover:border-white/[0.28] hover:bg-white/[0.03] text-sm font-medium transition-all">
                     Book a QoE walkthrough
                   </Link>
                 </div>
 
-                <p className="text-[13px] text-white/35 mb-8 flex items-center gap-2">
+                {/* Early-funnel CTA — for visitors not ready to sign up
+                    but curious what the output looks like. Added per
+                    Stitch audit recommendation for CTA variety. */}
+                <Link
+                  href="/contact?intent=sample-report"
+                  className="inline-flex items-center gap-1.5 text-[13px] text-emerald-400 hover:text-emerald-300 font-medium mb-6 group"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  See a sample QoE report
+                  <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+
+                <p className="text-[13px] text-white/55 mb-8 flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
                   No card required &middot; Tally &amp; Zoho sync in 5 minutes &middot; Every report CA-signed
                 </p>
@@ -713,7 +725,7 @@ export default function LandingPage() {
               >
                 <div className="product-card">
                   {/* Breadcrumb bar */}
-                  <div className="bg-[#161616] border-b border-white/5 px-4 py-2.5 flex items-center gap-2 text-[12px] text-white/40">
+                  <div className="bg-[#161616] border-b border-white/5 px-4 py-2.5 flex items-center gap-2 text-[12px] text-white/60">
                     <span>🏠 Overview</span>
                     <ChevronRight className="w-3 h-3" />
                     <span className="text-white/60 font-medium">
@@ -737,16 +749,16 @@ export default function LandingPage() {
                       <table className="w-full text-[12px]">
                         <thead>
                           <tr className="border-b border-white/5">
-                            <th className="text-left py-2.5 px-3 font-medium text-white/40">
+                            <th className="text-left py-2.5 px-3 font-medium text-white/60">
                               Driver
                             </th>
-                            <th className="text-right py-2.5 px-3 font-medium text-white/40">
+                            <th className="text-right py-2.5 px-3 font-medium text-white/60">
                               ✱ Reported
                             </th>
-                            <th className="text-right py-2.5 px-3 font-medium text-white/40">
+                            <th className="text-right py-2.5 px-3 font-medium text-white/60">
                               ✱ Adjusted
                             </th>
-                            <th className="text-right py-2.5 px-3 font-medium text-white/40">
+                            <th className="text-right py-2.5 px-3 font-medium text-white/60">
                               Add-back
                             </th>
                           </tr>
@@ -854,7 +866,7 @@ export default function LandingPage() {
                         <input
                           type="text"
                           placeholder="Ask anything"
-                          className="flex-1 text-[12px] text-white/40 bg-transparent outline-none placeholder:text-white/25"
+                          className="flex-1 text-[12px] text-white/60 bg-transparent outline-none placeholder:text-white/25"
                           readOnly
                         />
                         <div className="flex items-center gap-1.5">
@@ -880,7 +892,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════════════════ */}
       <section className="py-10 px-6 border-y border-white/5 bg-[#0a0a0a]">
         <div className="max-w-[1200px] mx-auto">
-          <p className="text-center text-[11px] font-semibold text-white/35 uppercase tracking-[0.2em] mb-6">
+          <p className="text-center text-[11px] font-semibold text-white/55 uppercase tracking-[0.2em] mb-6">
             Built on trust. Backed by standards.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
@@ -903,6 +915,129 @@ export default function LandingPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      {/*  WHO IT'S FOR                                                  */}
+      {/*  Added per Stitch audit (April 2026): a visitor without FP&A   */}
+      {/*  vocabulary couldn't tell if they were in the right place.     */}
+      {/*  Three personas, explicit about whose problem CortexCFO solves.*/}
+      {/* ═══════════════════════════════════════════════════════════════ */}
+      <section className="py-20 px-6 bg-[#0d0d0d] border-t border-white/5">
+        <div className="max-w-[1200px] mx-auto">
+          <FadeIn className="text-center mb-14">
+            <p className="text-[11px] font-semibold text-emerald-400 uppercase tracking-[0.2em] mb-3">
+              Who it&apos;s for
+            </p>
+            <h2 className="text-[32px] md:text-[42px] font-serif-heading font-bold text-white leading-[1.15] mb-4">
+              Built for the people who actually own the number
+            </h2>
+            <p className="text-base text-white/55 max-w-[640px] mx-auto">
+              CortexCFO is the FP&amp;A engine Indian MSMEs in the ₹10&ndash;50 Cr
+              band use before they can afford a full-time CFO&nbsp;&mdash; and
+              before every investor call asks &ldquo;what&rsquo;s your normalised EBITDA?&rdquo;
+            </p>
+          </FadeIn>
+
+          <div className="grid md:grid-cols-3 gap-5">
+            {/* Founder */}
+            <FadeIn delay={80}>
+              <div className="h-full rounded-2xl bg-[#111] border border-white/8 p-6 hover:border-emerald-500/30 hover:bg-[#141414] transition-all group">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 transition-colors">
+                  <TrendingUp className="w-5 h-5 text-emerald-400" />
+                </div>
+                <p className="text-[11px] font-semibold text-emerald-300 uppercase tracking-[0.15em] mb-2">
+                  Founder &middot; Promoter
+                </p>
+                <h3 className="text-[17px] font-semibold text-white mb-2 leading-tight">
+                  Scaling past ₹10 Cr without a real CFO
+                </h3>
+                <p className="text-[13px] text-white/55 leading-relaxed mb-5">
+                  You&rsquo;re hitting the ceiling where Excel and your CA aren&rsquo;t
+                  enough anymore. You need investor-ready numbers, scenario
+                  planning, and a board pack that doesn&rsquo;t take a week to
+                  prepare.
+                </p>
+                <ul className="space-y-2">
+                  {[
+                    "Adjusted EBITDA with full add-back schedule",
+                    "3-year projections, not just last-year-plus",
+                    "One place your CA, banker and investor all trust",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-[12px] text-white/65">
+                      <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </FadeIn>
+
+            {/* Controller / part-time CFO */}
+            <FadeIn delay={160}>
+              <div className="h-full rounded-2xl bg-[#111] border border-white/8 p-6 hover:border-emerald-500/30 hover:bg-[#141414] transition-all group">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 transition-colors">
+                  <BarChart3 className="w-5 h-5 text-emerald-400" />
+                </div>
+                <p className="text-[11px] font-semibold text-emerald-300 uppercase tracking-[0.15em] mb-2">
+                  Controller &middot; Fractional CFO
+                </p>
+                <h3 className="text-[17px] font-semibold text-white mb-2 leading-tight">
+                  Tired of spreadsheets and reconciliation loops
+                </h3>
+                <p className="text-[13px] text-white/55 leading-relaxed mb-5">
+                  You&rsquo;ve been rebuilding the same monthly pack for years.
+                  Every board cycle is a week of Excel, Tally exports, and
+                  defending numbers by hand. There&rsquo;s a better way.
+                </p>
+                <ul className="space-y-2">
+                  {[
+                    "Ind AS flags + GST/TDS reconciliation built in",
+                    "Variance analysis in minutes, not a weekend",
+                    "Ledger-level traceability for every number",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-[12px] text-white/65">
+                      <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </FadeIn>
+
+            {/* Investor / Banker / Advisor */}
+            <FadeIn delay={240}>
+              <div className="h-full rounded-2xl bg-[#111] border border-white/8 p-6 hover:border-emerald-500/30 hover:bg-[#141414] transition-all group">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center mb-4 group-hover:bg-emerald-500/20 transition-colors">
+                  <Shield className="w-5 h-5 text-emerald-400" />
+                </div>
+                <p className="text-[11px] font-semibold text-emerald-300 uppercase tracking-[0.15em] mb-2">
+                  Investor &middot; Lender &middot; Advisor
+                </p>
+                <h3 className="text-[17px] font-semibold text-white mb-2 leading-tight">
+                  Needs diligence-grade numbers, fast
+                </h3>
+                <p className="text-[13px] text-white/55 leading-relaxed mb-5">
+                  Before a term sheet or working-capital line, you need a
+                  clean QoE workbook, not an Excel file with hand-keyed
+                  adjustments the founder can&rsquo;t defend line by line.
+                </p>
+                <ul className="space-y-2">
+                  {[
+                    "CA-reviewed QoE ready for share-with-investor",
+                    "Customer concentration + related-party flagged",
+                    "UDIN-captured PDF export for audit trail",
+                  ].map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-[12px] text-white/65">
+                      <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 flex-shrink-0" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </FadeIn>
           </div>
         </div>
       </section>
@@ -998,7 +1133,7 @@ export default function LandingPage() {
             <h2 className="text-[36px] md:text-[48px] font-serif-heading font-bold leading-[1.1] tracking-tight text-white mb-4">
               A monthly Quality of Earnings report
             </h2>
-            <p className="text-[14px] text-white/40 mb-6 italic">
+            <p className="text-[14px] text-white/60 mb-6 italic">
               Quality of Earnings (QoE) = your real operating profit, with one-time
               items stripped out. It&apos;s the number every investor, lender, and
               acquirer asks for.
@@ -1066,7 +1201,7 @@ export default function LandingPage() {
           <FadeIn delay={300}>
             <div className="bg-[#0d0d0d] rounded-2xl border border-white/8 p-8 grid md:grid-cols-3 gap-6 items-center">
               <div className="md:col-span-1">
-                <p className="text-[12px] font-semibold text-white/40 uppercase tracking-wider mb-2">
+                <p className="text-[12px] font-semibold text-white/60 uppercase tracking-wider mb-2">
                   The old way
                 </p>
                 <p className="text-[14px] text-white/50 leading-relaxed">
@@ -1183,7 +1318,7 @@ export default function LandingPage() {
                               key={m.label}
                               className="bg-[#111] rounded-xl border border-white/8 p-3"
                             >
-                              <p className="text-[10px] text-white/35 mb-1">
+                              <p className="text-[10px] text-white/55 mb-1">
                                 {m.label}
                               </p>
                               <p className="text-[16px] font-semibold tabular-nums">
@@ -1323,14 +1458,14 @@ export default function LandingPage() {
                             </div>
                           </div>
                           <div className="mt-4 p-3 bg-white/5 rounded-xl">
-                            <p className="text-[11px] text-white/40 mb-2">Impact Preview</p>
+                            <p className="text-[11px] text-white/60 mb-2">Impact Preview</p>
                             <div className="grid grid-cols-2 gap-2 text-[12px]">
                               <div className="flex justify-between">
-                                <span className="text-white/40">Free cash flow</span>
+                                <span className="text-white/60">Free cash flow</span>
                                 <span className="font-semibold text-emerald-500">+&#8377;42 L/qtr</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-white/40">Working capital</span>
+                                <span className="text-white/60">Working capital</span>
                                 <span className="font-semibold text-emerald-500">-16 days</span>
                               </div>
                             </div>
@@ -1353,11 +1488,11 @@ export default function LandingPage() {
         <div className="max-w-[1200px] mx-auto">
           <FadeIn className="mb-16">
             <h2 className="text-[42px] md:text-[56px] font-serif-heading font-bold leading-[1.1] tracking-tight text-white mb-6">
-              One brain across
+              Synchronise your entire
               <br />
-              every function
+              financial operation
             </h2>
-            <p className="text-[16px] text-white/45 max-w-xl leading-relaxed">
+            <p className="text-[16px] text-white/60 max-w-xl leading-relaxed">
               Sales pipeline, marketing spend, headcount, and inventory&mdash;all
               normalised against your books. The strategy memo your CA never had
               the bandwidth to write.
@@ -1407,7 +1542,7 @@ export default function LandingPage() {
                             {tab.pills.map((pill) => (
                               <span
                                 key={pill}
-                                className="text-[11px] font-medium text-white/40 bg-white/5 px-2.5 py-1 rounded-full"
+                                className="text-[11px] font-medium text-white/60 bg-white/5 px-2.5 py-1 rounded-full"
                               >
                                 {pill}
                               </span>
@@ -1428,7 +1563,7 @@ export default function LandingPage() {
                   <div className="bg-[#161616] border-b border-white/5 px-4 py-2.5 flex items-center gap-3 text-[12px]">
                     <span className="text-white/30">🔲 FY26 Base ▾</span>
                   </div>
-                  <div className="bg-[#161616] border-b border-white/5 px-4 py-2 flex items-center gap-2 text-[12px] text-white/40">
+                  <div className="bg-[#161616] border-b border-white/5 px-4 py-2 flex items-center gap-2 text-[12px] text-white/60">
                     <span>🏠 GTM</span>
                     <ChevronRight className="w-3 h-3" />
                     <span>✱ Cross-functional</span>
@@ -1460,7 +1595,7 @@ export default function LandingPage() {
                               { label: "Collected", width: "20%", color: "bg-emerald-500" },
                             ].map((bar) => (
                               <div key={bar.label} className="flex items-center gap-3">
-                                <span className="text-[10px] text-white/35 w-20 text-right">{bar.label}</span>
+                                <span className="text-[10px] text-white/55 w-20 text-right">{bar.label}</span>
                                 <div className="flex-1 h-4 bg-white/5 rounded-full overflow-hidden">
                                   <div
                                     className={`h-full rounded-full ${bar.color}`}
@@ -1601,7 +1736,7 @@ export default function LandingPage() {
             <h2 className="text-[32px] md:text-[40px] font-serif-heading font-bold text-white mb-2">
               Honest reviews from Indian MSME founders
             </h2>
-            <p className="text-[14px] text-white/40 max-w-xl">
+            <p className="text-[14px] text-white/60 max-w-xl">
               The good, the constructive, and the things we&apos;re still
               fixing&mdash;straight from the promoters and CFOs running the businesses.
             </p>
@@ -1705,7 +1840,7 @@ export default function LandingPage() {
                       className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 border ${
                         i === activeEssential
                           ? "bg-emerald-500/10 border-emerald-500/30 text-white"
-                          : "border-transparent text-white/35 hover:text-white/60 hover:bg-white/5"
+                          : "border-transparent text-white/55 hover:text-white/60 hover:bg-white/5"
                       }`}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0" />
@@ -1860,7 +1995,7 @@ export default function LandingPage() {
       <section className="px-6 py-10 bg-[#0a0a0a] border-t border-white/5">
         <FadeIn>
           <div className="max-w-3xl mx-auto text-center">
-            <p className="text-[12px] text-white/35 leading-relaxed">
+            <p className="text-[12px] text-white/55 leading-relaxed">
               <span className="text-white/55 font-medium">Advisory, not audit.</span>{" "}
               CortexCFO produces investor-grade financial analysis reviewed by a qualified
               Indian Chartered Accountant. Outputs are not a substitute for a statutory
