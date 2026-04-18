@@ -6,10 +6,14 @@ import {
   Sparkles,
   Send,
   X,
-  MessageSquare,
   Loader2,
   AlertCircle,
   RefreshCcw,
+  Zap,
+  Brain,
+  ThumbsUp,
+  ThumbsDown,
+  CheckCircle2,
 } from "lucide-react";
 import AIChatBubble from "./AIChatBubble";
 import { api } from "@/lib/api";
@@ -17,112 +21,43 @@ import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
 type ChatRole = "user" | "ai";
+type ChatMode = "quick" | "deep";
+type ChatSource = "faq" | "ai";
 
 interface ChatMessage {
+  id: string;
   role: ChatRole;
   text: string;
-  // Stable id so React doesn't rekey bubbles on re-render.
-  id: string;
+  // Only populated on AI messages. Lets the UI render a subtle source
+  // badge + feedback buttons correctly.
+  source?: ChatSource;
+  faqId?: string | null;
+  mode?: ChatMode;
 }
 
-// Route-aware suggested prompts. The prefix match catches sub-routes
-// (e.g. /analysis/abcd123 → analysis prompts). Leftmost match wins.
-const PROMPTS: Array<{ prefix: string; prompts: string[] }> = [
-  {
-    prefix: "/qoe",
-    prompts: [
-      "What's driving the biggest add-back this year?",
-      "Which items on this page would a PE buyer challenge first?",
-      "How does our adjusted EBITDA compare to industry benchmarks?",
-    ],
-  },
-  {
-    prefix: "/dashboard",
-    prompts: [
-      "Summarize my financial health in 3 bullets",
-      "What's the most urgent risk I should address?",
-      "Project next year's net income under conservative and aggressive cases",
-    ],
-  },
-  {
-    prefix: "/analysis",
-    prompts: [
-      "Walk me through the top 3 expense reductions with ₹ savings",
-      "What does my working capital position tell you?",
-      "Which Ind AS observations need a CA conversation this quarter?",
-    ],
-  },
-  {
-    prefix: "/scenarios",
-    prompts: [
-      "Build a conservative / base / aggressive scenario for next year",
-      "What happens to my margins if revenue grows 20% but costs grow 15%?",
-      "Which single lever has the biggest impact on net income?",
-    ],
-  },
-  {
-    prefix: "/industries",
-    prompts: [
-      "What's a good gross margin for my industry at our revenue band?",
-      "How should I compare my working capital cycle to peers?",
-      "Which Ind AS standards matter most for my sector?",
-    ],
-  },
-  {
-    prefix: "/profile",
-    prompts: [
-      "What details matter most for better AI analysis accuracy?",
-      "How do you use my business information in recommendations?",
-      "What's the next thing I should add to my profile?",
-    ],
-  },
-  {
-    prefix: "/uploads",
-    prompts: [
-      "What file formats give the best analysis quality?",
-      "How do you handle related-party adjustments in the ledger?",
-      "What should I clean up in my trial balance before uploading?",
-    ],
-  },
-];
-
-const DEFAULT_PROMPTS = [
-  "What's my biggest growth opportunity this year?",
-  "Where is my money actually going?",
-  "Give me a priority list for this quarter",
-];
-
-function promptsForRoute(pathname: string | null): string[] {
-  if (!pathname) return DEFAULT_PROMPTS;
-  const match = PROMPTS.find((p) => pathname.startsWith(p.prefix));
-  return match?.prompts ?? DEFAULT_PROMPTS;
-}
-
-// Build a short per-page context string so the AI can answer questions
-// about what's actually on screen, not just the TB analysis blob.
-// Kept deliberately small (<1 KB) — model gets the full analysis via the
-// separate `analysis_result` field.
+// Build a short per-page context so the model knows what's on screen,
+// not just the TB analysis blob. Prepended (bracketed) to the user's
+// question server-side.
 function buildPageContext(pathname: string | null): string {
   if (!pathname) return "";
   if (pathname.startsWith("/qoe")) {
-    return "The user is viewing the Quality of Earnings page. It shows the EBITDA bridge (reported → adjusted), an add-back schedule broken out into Related-party / One-time / Revenue / Accounting categories with Ind AS references, customer concentration from the GL upload, and a continuous compliance matrix (GST / TDS / MCA). Questions on this page are usually about specific add-back items, red flags on concentration, or whether an adjustment would survive PE diligence.";
+    return "The user is viewing the Quality of Earnings page. It shows the EBITDA bridge (reported → adjusted), an add-back schedule broken out into Related-party / One-time / Revenue / Accounting categories with Ind AS references, customer concentration from the GL upload, and a continuous compliance matrix (GST / TDS / MCA). Questions here are usually about specific add-back items, red flags on concentration, or whether an adjustment would survive PE diligence.";
   }
   if (pathname.startsWith("/dashboard")) {
-    return "The user is viewing the main dashboard — high-level revenue, expense, margin, and health-score cards. Questions here are usually strategic and broad: 'what should I focus on', 'am I healthy', 'what's next'.";
+    return "The user is viewing the main dashboard — high-level revenue, expense, margin, and health cards. Questions here are usually strategic and broad.";
   }
   if (pathname.startsWith("/analysis")) {
-    return "The user is viewing the TB/GL analysis output — income statement, balance sheet, ratios, classified account breakdowns, warnings, and Ind AS observations. Questions here are usually about specific ratios, expense heads, or what a specific line item means.";
+    return "The user is viewing the TB/GL analysis output — income statement, balance sheet, ratios, classified accounts, warnings, and Ind AS observations.";
   }
   if (pathname.startsWith("/scenarios")) {
-    return "The user is on the scenario modeling page. Questions here are usually about projections, sensitivity, and what-if cases.";
+    return "The user is on the scenario modeling page. Projections, sensitivity, what-if cases.";
   }
   if (pathname.startsWith("/industries")) {
-    return "The user is viewing industry expertise / benchmarks. Questions here are usually about how their numbers compare to peers in their sector.";
+    return "The user is viewing industry expertise / benchmarks.";
   }
   return `The user is on ${pathname}.`;
 }
 
-// Generate stable message ids without pulling in a uuid dep.
 let _idSeq = 0;
 function newId(): string {
   _idSeq += 1;
@@ -135,26 +70,28 @@ export default function AIChatPanel() {
   const { business } = useOnboardingStore();
 
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<ChatMode>("quick");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Elapsed time during a Deep-mode call — lets us show a counter so
+  // the wait feels intentional. Kept in its own state so it only
+  // re-renders the thinking pill, not every bubble.
+  const [elapsed, setElapsed] = useState(0);
+  // Feedback state — keyed by messageId so the buttons stay sticky
+  // per message even as new ones stream in.
+  const [feedback, setFeedback] = useState<Record<string, "up" | "down">>({});
 
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  const suggestedPrompts = useMemo(() => promptsForRoute(pathname), [pathname]);
-
-  // Auto-scroll to the latest message whenever the list grows or loading
-  // spinner appears.
+  // Auto-scroll on new content.
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) {
-      el.scrollTop = el.scrollHeight;
-    }
-  }, [messages.length, loading]);
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages.length, loading, elapsed]);
 
-  // Focus the input when we open — lets the user start typing immediately.
   useEffect(() => {
     if (open) {
       const t = setTimeout(() => inputRef.current?.focus(), 50);
@@ -162,8 +99,6 @@ export default function AIChatPanel() {
     }
   }, [open]);
 
-  // Esc closes the panel. Attach on document so it works even when the
-  // user's focus is inside the textarea.
   useEffect(() => {
     if (!open) return;
     function handler(e: KeyboardEvent) {
@@ -172,6 +107,20 @@ export default function AIChatPanel() {
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [open]);
+
+  // Elapsed-time ticker — only runs while loading. Cleared on response
+  // so the counter doesn't stick after a successful reply.
+  useEffect(() => {
+    if (!loading) {
+      setElapsed(0);
+      return;
+    }
+    const start = Date.now();
+    const tick = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - start) / 1000));
+    }, 250);
+    return () => clearInterval(tick);
+  }, [loading]);
 
   const businessContext = useMemo(() => {
     if (!business) return undefined;
@@ -185,7 +134,7 @@ export default function AIChatPanel() {
   }, [business]);
 
   const send = useCallback(
-    async (question: string) => {
+    async (question: string, sendMode: ChatMode = mode) => {
       const trimmed = question.trim();
       if (!trimmed || loading) return;
 
@@ -197,8 +146,6 @@ export default function AIChatPanel() {
       setLoading(true);
 
       try {
-        // Send only history PRIOR to this question — the backend appends
-        // the question itself on top of the returned history.
         const history = messages.map((m) => ({ role: m.role, text: m.text }));
         const data = await api.chat({
           question: trimmed,
@@ -206,15 +153,21 @@ export default function AIChatPanel() {
           conversation_history: history,
           business_context: businessContext,
           page_context: buildPageContext(pathname),
+          mode: sendMode,
         });
         setMessages((prev) => [
           ...prev,
-          { id: newId(), role: "ai", text: data.response },
+          {
+            id: newId(),
+            role: "ai",
+            text: data.response,
+            source: data.source,
+            faqId: data.faq_id ?? null,
+            mode: data.mode,
+          },
         ]);
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Chat failed — please try again.";
-        // api.ts throws the raw text; backend errors are usually JSON with
-        // a `detail` field. Try to surface that.
         let friendly = "Could not reach CortexAI. Please try again.";
         try {
           const parsed = JSON.parse(msg);
@@ -227,7 +180,7 @@ export default function AIChatPanel() {
         setLoading(false);
       }
     },
-    [loading, messages, lastResult, businessContext, pathname]
+    [loading, messages, lastResult, businessContext, pathname, mode]
   );
 
   const onSubmit = useCallback(
@@ -240,7 +193,6 @@ export default function AIChatPanel() {
 
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      // Enter sends; Shift+Enter inserts newline. Standard chat UX.
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         send(input);
@@ -253,9 +205,38 @@ export default function AIChatPanel() {
     setMessages([]);
     setError(null);
     setInput("");
+    setFeedback({});
   }, []);
 
-  // --- Collapsed floating button ------------------------------------------
+  const recordFeedback = useCallback(
+    async (msgId: string, helpful: boolean) => {
+      if (feedback[msgId]) return;
+      setFeedback((prev) => ({ ...prev, [msgId]: helpful ? "up" : "down" }));
+      const msg = messages.find((m) => m.id === msgId);
+      if (!msg) return;
+      // Find the preceding user question — the feedback log ties both
+      // together so we can see what was asked vs what was answered.
+      const idx = messages.findIndex((m) => m.id === msgId);
+      const userQ = idx > 0 ? messages[idx - 1].text : "";
+      try {
+        await api.sendChatFeedback({
+          question: userQ,
+          response: msg.text,
+          helpful,
+          source: msg.source,
+          faq_id: msg.faqId ?? null,
+          mode: msg.mode,
+          page: pathname ?? undefined,
+        });
+      } catch {
+        // Never surface feedback errors to the user — logging is
+        // best-effort and doesn't change what they see on screen.
+      }
+    },
+    [feedback, messages, pathname]
+  );
+
+  // ── Collapsed floating button ─────────────────────────────────────────
   if (!open) {
     return (
       <button
@@ -272,12 +253,12 @@ export default function AIChatPanel() {
     );
   }
 
-  // --- Expanded panel -----------------------------------------------------
+  // ── Expanded panel ───────────────────────────────────────────────────
   return (
     <div
       role="dialog"
       aria-label="CortexAI chat"
-      className="fixed bottom-6 right-6 z-50 w-[min(420px,calc(100vw-2rem))] h-[min(640px,calc(100vh-3rem))] flex flex-col bg-app-elevated border border-app-border-strong rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] overflow-hidden"
+      className="fixed bottom-6 right-6 z-50 w-[min(440px,calc(100vw-2rem))] h-[min(680px,calc(100vh-3rem))] flex flex-col bg-app-elevated border border-app-border-strong rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-app-border bg-app-card">
@@ -311,58 +292,127 @@ export default function AIChatPanel() {
         </div>
       </div>
 
+      {/* Mode toggle */}
+      <div className="flex items-center gap-1 px-3 py-2 border-b border-app-border bg-app-card/50">
+        <ModeButton
+          active={mode === "quick"}
+          icon={<Zap className="w-3 h-3" />}
+          label="Quick answer"
+          hint="Fast (~2s)"
+          onClick={() => setMode("quick")}
+        />
+        <ModeButton
+          active={mode === "deep"}
+          icon={<Brain className="w-3 h-3" />}
+          label="Think deeper"
+          hint="Strategic (~15-30s)"
+          onClick={() => setMode("deep")}
+        />
+      </div>
+
       {/* Messages */}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-4 py-4 space-y-3 scroll-smooth"
       >
-        {messages.length === 0 && (
-          <div className="flex flex-col h-full">
-            <div className="flex items-start gap-2.5 mb-4">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-[13px] text-app-text leading-relaxed">
-                  Ask me anything about the numbers on this page, your overall
-                  FP&amp;A, or general CFO-level strategy for your business.
-                </p>
-                <p className="text-[11px] text-app-text-subtle mt-1.5">
-                  I see what you see — your trial balance, ratios, adjustments and
-                  business context.
-                </p>
-              </div>
+        {messages.length === 0 && !loading && (
+          <div className="flex flex-col items-start gap-2.5 pt-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-emerald-400" />
             </div>
-
-            <div className="mt-auto">
-              <p className="text-[10px] uppercase tracking-[0.15em] text-app-text-subtle font-semibold mb-2">
-                Suggested
+            <div>
+              <p className="text-[13px] text-app-text leading-relaxed">
+                Ask me anything about the numbers on this page, your FP&amp;A,
+                or general CFO-level strategy for your business.
               </p>
-              <div className="space-y-1.5">
-                {suggestedPrompts.map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => send(p)}
-                    disabled={loading}
-                    className="w-full text-left text-[12px] text-app-text-muted bg-app-card hover:bg-app-card-hover border border-app-border hover:border-emerald-500/40 hover:text-app-text rounded-lg px-3 py-2 transition-colors disabled:opacity-50"
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
+              <p className="text-[11px] text-app-text-subtle mt-1.5 leading-relaxed">
+                I read your trial balance, ratios, adjustments, and company context
+                live. Use <span className="text-app-text-muted font-medium">Think deeper</span>{" "}
+                when you want strategic reasoning over a quick answer.
+              </p>
             </div>
           </div>
         )}
 
         {messages.map((m) => (
-          <AIChatBubble key={m.id} role={m.role} text={m.text} dark />
+          <div key={m.id} className="space-y-1">
+            <AIChatBubble role={m.role} text={m.text} dark />
+            {m.role === "ai" && (
+              <div className="flex items-center justify-between pl-1 pr-1">
+                <div className="flex items-center gap-1.5">
+                  {m.source === "faq" && (
+                    <span
+                      className="inline-flex items-center gap-1 text-[10px] text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded-full px-2 py-0.5"
+                      title="Answer served from our FAQ bank with your live numbers interpolated"
+                    >
+                      <CheckCircle2 className="w-2.5 h-2.5" /> FAQ
+                    </span>
+                  )}
+                  {m.source === "ai" && m.mode === "deep" && (
+                    <span
+                      className="inline-flex items-center gap-1 text-[10px] text-app-text-muted bg-app-card-hover border border-app-border-strong rounded-full px-2 py-0.5"
+                      title="Generated with extended thinking"
+                    >
+                      <Brain className="w-2.5 h-2.5" /> Deep
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    onClick={() => recordFeedback(m.id, true)}
+                    disabled={!!feedback[m.id]}
+                    className={`p-1 rounded transition-colors ${
+                      feedback[m.id] === "up"
+                        ? "text-emerald-400 bg-emerald-500/10"
+                        : "text-app-text-subtle hover:text-emerald-400 hover:bg-emerald-500/10"
+                    } disabled:cursor-default`}
+                    aria-label="Helpful"
+                    title="Helpful"
+                  >
+                    <ThumbsUp className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={() => recordFeedback(m.id, false)}
+                    disabled={!!feedback[m.id]}
+                    className={`p-1 rounded transition-colors ${
+                      feedback[m.id] === "down"
+                        ? "text-rose-400 bg-rose-500/10"
+                        : "text-app-text-subtle hover:text-rose-400 hover:bg-rose-500/10"
+                    } disabled:cursor-default`}
+                    aria-label="Not helpful"
+                    title="Not helpful"
+                  >
+                    <ThumbsDown className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         ))}
 
         {loading && (
           <div className="flex justify-start">
-            <div className="max-w-[90%] rounded-2xl rounded-bl-sm px-4 py-3 bg-app-card-hover flex items-center gap-2">
-              <Loader2 className="w-3.5 h-3.5 text-emerald-400 animate-spin" />
-              <span className="text-[12px] text-app-text-subtle">CortexAI is thinking…</span>
+            <div className="max-w-[90%] rounded-2xl rounded-bl-sm px-4 py-3 bg-app-card-hover border border-app-border flex items-center gap-2.5">
+              {mode === "deep" ? (
+                <>
+                  <Brain className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+                  <div className="flex flex-col">
+                    <span className="text-[12px] text-app-text font-medium">
+                      Thinking deeply…
+                    </span>
+                    <span className="text-[10px] text-app-text-subtle">
+                      {elapsed}s elapsed &middot; strategic reasoning in progress
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 text-emerald-400 animate-spin" />
+                  <span className="text-[12px] text-app-text-subtle">
+                    CortexAI is thinking…
+                  </span>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -386,7 +436,11 @@ export default function AIChatPanel() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={onKeyDown}
-            placeholder="Ask about this page, your analysis, or anything FP&A…"
+            placeholder={
+              mode === "deep"
+                ? "Ask a strategic question — I'll think it through…"
+                : "Ask anything about your financials or this page…"
+            }
             rows={1}
             disabled={loading}
             className="flex-1 resize-none bg-app-canvas border border-app-border rounded-lg px-3 py-2 text-[13px] text-app-text placeholder:text-app-text-subtle outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/15 disabled:opacity-60 max-h-32 transition-colors"
@@ -406,5 +460,42 @@ export default function AIChatPanel() {
         </p>
       </form>
     </div>
+  );
+}
+
+// Small helper for the mode pill. Extracted so the two pills are
+// pixel-identical without inline duplication.
+function ModeButton({
+  active,
+  icon,
+  label,
+  hint,
+  onClick,
+}: {
+  active: boolean;
+  icon: React.ReactNode;
+  label: string;
+  hint: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-medium transition-all ${
+        active
+          ? "bg-emerald-500/15 border border-emerald-500/40 text-emerald-300"
+          : "text-app-text-subtle hover:text-app-text-muted hover:bg-app-card-hover border border-transparent"
+      }`}
+    >
+      {icon}
+      <span>{label}</span>
+      <span
+        className={`text-[9px] ${
+          active ? "text-emerald-400/70" : "text-app-text-subtle"
+        }`}
+      >
+        {hint}
+      </span>
+    </button>
   );
 }

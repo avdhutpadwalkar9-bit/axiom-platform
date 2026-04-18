@@ -40,9 +40,28 @@ except ImportError:
     HAS_ANTHROPIC = False
 
 
-CLAUDE_MODEL = "claude-sonnet-4-20250514"
+# Model tiers:
+#   quick  — cheap + fast (<3s typical). Used for the snappy default
+#            chat experience and as the fallback path for Deep mode.
+#   deep   — top-quality model with extended thinking enabled. Latency
+#            is a feature here — the user explicitly opted in and sees
+#            a "thinking" indicator while it works (~10-30s).
+CLAUDE_MODEL_QUICK = "claude-haiku-4-5"
+CLAUDE_MODEL_DEEP = "claude-sonnet-4-5"
+# Legacy alias — kept for backward compatibility with any caller that
+# still references CLAUDE_MODEL directly. Points to the deep tier since
+# that was the historical behaviour.
+CLAUDE_MODEL = CLAUDE_MODEL_DEEP
+
 GEMINI_MODEL = "gemini-2.0-flash"
 GROQ_MODEL = "llama-3.3-70b-versatile"
+
+# Extended-thinking budget for Deep mode. 8k tokens is enough for the
+# model to work through a multi-step CFO-level reasoning chain without
+# runaway cost. max_tokens must be greater than this + the answer.
+DEEP_THINKING_BUDGET = 8000
+DEEP_MAX_TOKENS = 12000  # thinking + answer
+QUICK_MAX_TOKENS = 1500  # snappy mode — tight answer ceiling keeps latency low
 
 # Map the frontend's role vocabulary ("user" | "ai") onto each provider's
 # expected vocabulary. Anthropic and Groq want "assistant"; Gemini wants
@@ -233,8 +252,19 @@ def _normalize_history(
 
 
 def _call_claude(
-    question: str, history: Optional[list[dict]], system_prompt: str
+    question: str,
+    history: Optional[list[dict]],
+    system_prompt: str,
+    mode: str = "quick",
 ) -> str:
+    """Call Claude with mode-specific model + extended-thinking settings.
+
+    Quick mode: Haiku 3.5, 1.5k tokens, no thinking. Fast (~2s).
+    Deep mode: Sonnet 4 with extended thinking enabled, 8k thinking
+    budget + 12k total tokens. Slower (~15-30s) but the output reflects
+    real multi-step reasoning, which is the point — the user explicitly
+    opted in and sees a "thinking" indicator during the wait.
+    """
     client = _claude_client()
     if client is None:
         raise RuntimeError("ANTHROPIC_API_KEY not configured")
@@ -242,15 +272,52 @@ def _call_claude(
     messages = _normalize_history(history, _ROLE_FOR_ANTHROPIC)
     messages.append({"role": "user", "content": question})
 
-    response = client.messages.create(
-        model=CLAUDE_MODEL,
-        # 2048 so 3-year projection tables + Next 90 days list can fit
-        # without being cut off mid-sentence.
-        max_tokens=2048,
-        system=system_prompt,
-        messages=messages,
-    )
-    return response.content[0].text
+    is_deep = mode == "deep"
+    model = CLAUDE_MODEL_DEEP if is_deep else CLAUDE_MODEL_QUICK
+    max_tokens = DEEP_MAX_TOKENS if is_deep else QUICK_MAX_TOKENS
+
+    kwargs: dict = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "system": system_prompt,
+        "messages": messages,
+    }
+
+    # Extended thinking — only supported on newer Sonnet models. Wrap in
+    # try/except-style fallback: if the server rejects the thinking
+    # parameter (old SDK, model deprecation, etc.) we retry without it
+    # so Deep mode still works, just without the explicit reasoning step.
+    if is_deep:
+        kwargs["thinking"] = {
+            "type": "enabled",
+            "budget_tokens": DEEP_THINKING_BUDGET,
+        }
+
+    try:
+        response = client.messages.create(**kwargs)
+    except Exception as e:
+        if is_deep and "thinking" in str(e).lower():
+            logger.warning(
+                "Extended thinking rejected (%s); retrying Deep mode "
+                "without thinking parameter", e
+            )
+            kwargs.pop("thinking", None)
+            response = client.messages.create(**kwargs)
+        else:
+            raise
+
+    # Responses can mix thinking + text blocks. We only surface the text
+    # to the caller — thinking tokens are internal reasoning and not
+    # shown to the end user in this iteration.
+    for block in response.content:
+        if getattr(block, "type", None) == "text":
+            return block.text
+    # Fall back to whatever the first block yields if none are marked
+    # "text" (shouldn't happen, but defensive).
+    first = response.content[0] if response.content else None
+    if first is not None:
+        return getattr(first, "text", "") or ""
+    return ""
 
 
 async def _call_gemini(
@@ -354,13 +421,23 @@ def _provider_is_configured(name: str) -> bool:
 
 
 async def _invoke_provider(
-    name: str, question: str, history: Optional[list[dict]], system_prompt: str
+    name: str,
+    question: str,
+    history: Optional[list[dict]],
+    system_prompt: str,
+    mode: str = "quick",
 ) -> str:
     if name in _SYNC_PROVIDERS:
         # anthropic SDK is sync; run it in a thread so we don't block the
-        # event loop for the full round-trip.
+        # event loop for the full round-trip. Claude is the only provider
+        # that currently uses `mode` (for extended thinking); Gemini / Groq
+        # don't expose an equivalent knob.
         import asyncio
 
+        if name == "claude":
+            return await asyncio.to_thread(
+                _call_claude, question, history, system_prompt, mode
+            )
         return await asyncio.to_thread(
             _SYNC_PROVIDERS[name], question, history, system_prompt
         )
@@ -376,6 +453,7 @@ async def chat_with_ai(
     business_context: dict = None,
     user_answers: dict = None,
     provider: Optional[str] = None,
+    mode: str = "quick",
 ) -> str:
     """Send a financial-analysis chat message and return the assistant's text.
 
@@ -417,7 +495,7 @@ async def chat_with_ai(
     for p in chain:
         try:
             text = await _invoke_provider(
-                p, question, conversation_history, system_prompt
+                p, question, conversation_history, system_prompt, mode
             )
             if text and text.strip():
                 return text

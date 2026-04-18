@@ -120,18 +120,23 @@ class ApiClient {
     });
   }
 
-  // Chat — sends a question to the backend CortexAI advisor. Backend runs
-  // the Claude/Gemini/Groq fallback chain and returns a single markdown
-  // string. `analysis_result` and `business_context` give the model the
-  // numbers + company details it needs to stay grounded; `page_context`
-  // is a free-form blob pages can use to surface what's on screen right
-  // now (e.g. the add-back schedule on /qoe).
+  // Chat — sends a question to the backend CortexAI advisor.
+  //
+  // Pipeline (server-side):
+  //   1. mode="quick" → FAQ matcher tries first. Good match → canned
+  //      answer interpolated with user's own numbers, no LLM call.
+  //   2. Anything else → LLM. Quick uses Haiku (~2s), Deep uses
+  //      Sonnet 4 with extended thinking enabled (~15-30s).
+  //
+  // Response carries a `source` so the UI can badge "FAQ" vs "AI" for
+  // trust + tuning visibility.
   async chat(payload: {
     question: string;
     analysis_result?: Record<string, unknown>;
     conversation_history?: Array<{ role: "user" | "ai"; text: string }>;
     business_context?: Record<string, unknown>;
     page_context?: string;
+    mode?: "quick" | "deep";
   }) {
     // Backend's build_financial_context() reads specific keys from
     // analysis_result (financial_statements, ratios, classified_accounts,
@@ -141,14 +146,39 @@ class ApiClient {
     const composedQuestion = payload.page_context
       ? `[Context about the page the user is viewing]\n${payload.page_context}\n\n[User's question]\n${payload.question}`
       : payload.question;
-    return this.request<{ response: string }>("/api/chat/ask", {
+    return this.request<{
+      response: string;
+      source: "faq" | "ai";
+      faq_id: string | null;
+      mode: "quick" | "deep";
+    }>("/api/chat/ask", {
       method: "POST",
       body: JSON.stringify({
         question: composedQuestion,
         analysis_result: payload.analysis_result ?? {},
         conversation_history: payload.conversation_history ?? [],
         business_context: payload.business_context ?? null,
+        mode: payload.mode ?? "quick",
       }),
+    });
+  }
+
+  // Thumbs up/down on a single AI response. Currently log-only on the
+  // server (stdout -> Render log viewer) — persisting to a table is
+  // Phase 3.5 once we see volume worth charting.
+  async sendChatFeedback(payload: {
+    question: string;
+    response: string;
+    helpful: boolean;
+    notes?: string;
+    source?: "faq" | "ai";
+    faq_id?: string | null;
+    mode?: "quick" | "deep";
+    page?: string;
+  }) {
+    return this.request<{ ok: boolean }>("/api/chat/feedback", {
+      method: "POST",
+      body: JSON.stringify(payload),
     });
   }
 
