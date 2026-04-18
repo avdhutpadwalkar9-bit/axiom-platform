@@ -163,9 +163,9 @@ class ApiClient {
     });
   }
 
-  // Thumbs up/down on a single AI response. Currently log-only on the
-  // server (stdout -> Render log viewer) — persisting to a table is
-  // Phase 3.5 once we see volume worth charting.
+  // Thumbs up/down on a single AI response. Phase 3.5 — persists to
+  // the chat_feedback table so the admin feedback dashboard can chart
+  // real patterns (which FAQs fail, which modes underperform, etc.).
   async sendChatFeedback(payload: {
     question: string;
     response: string;
@@ -180,6 +180,36 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify(payload),
     });
+  }
+
+  // Aggregate feedback stats. `scope="mine"` (default) returns just the
+  // current user's votes; `scope="all"` returns platform-wide. Backend
+  // will gate scope=all on admin role once we have multi-tenant.
+  async getFeedbackStats(scope: "mine" | "all" = "mine") {
+    return this.request<{
+      total: number;
+      helpful_count: number;
+      unhelpful_count: number;
+      helpful_rate_pct: number;
+      by_mode: Record<
+        string,
+        { total: number; helpful: number; unhelpful: number; helpful_rate_pct: number }
+      >;
+      by_source: Record<
+        string,
+        { total: number; helpful: number; unhelpful: number; helpful_rate_pct: number }
+      >;
+      top_downvoted_faqs: Array<{ faq_id: string; downvote_count: number }>;
+      recent_downvotes: Array<{
+        created_at: string;
+        question: string;
+        response_snippet: string;
+        source: string | null;
+        mode: string | null;
+        page: string | null;
+        faq_id: string | null;
+      }>;
+    }>(`/api/chat/feedback/stats?scope=${scope}`);
   }
 
   // Models

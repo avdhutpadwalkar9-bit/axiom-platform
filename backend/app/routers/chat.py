@@ -22,8 +22,12 @@ from typing import Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy import desc, func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.database import get_db
 from app.middleware.auth import get_current_user
+from app.models.chat_feedback import ChatFeedback
 from app.models.user import User
 from app.services.ai_service import chat_with_ai
 from app.services.faq_service import try_faq_answer
@@ -179,13 +183,14 @@ Be specific and reference actual numbers from the data."""
 async def submit_feedback(
     data: FeedbackRequest,
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     """Record a thumbs-up/down on an AI response.
 
-    v1: log-based. Dumps a structured line to stdout so it shows up in
-    Render's log viewer; we can grep/aggregate for weekly FAQ reviews.
-    A future iteration will persist to a `chat_feedback` table once we
-    have volume that's worth charting.
+    Phase 3.5: persists to the `chat_feedback` table so we can power
+    the admin dashboard and drive FAQ corpus expansion from real user
+    pain points. We keep the structured log line too — if the DB write
+    fails we still want forensic evidence of the vote.
     """
     verdict = "helpful" if data.helpful else "NOT helpful"
     logger.info(
@@ -200,4 +205,233 @@ async def submit_feedback(
         (data.question or "")[:500],
         (data.notes or "")[:500],
     )
+
+    row = ChatFeedback(
+        user_id=current_user.id,
+        question=data.question,
+        response=data.response,
+        helpful=data.helpful,
+        notes=data.notes,
+        source=data.source,
+        faq_id=data.faq_id,
+        mode=data.mode,
+        page=data.page,
+    )
+    db.add(row)
+    try:
+        await db.commit()
+    except Exception as e:
+        # Never surface a DB commit failure to the user — the vote was
+        # logged to stdout above; losing the row is fine for v1.
+        logger.exception("Failed to persist chat_feedback: %s", e)
+        await db.rollback()
+
     return {"ok": True}
+
+
+# ─── Stats (Phase 3.5 dashboard) ────────────────────────────────────
+
+
+class FeedbackStats(BaseModel):
+    total: int
+    helpful_count: int
+    unhelpful_count: int
+    # Helpful-rate as a 0-100 integer (percent). Returned pre-computed so
+    # the frontend doesn't divide-by-zero on an empty corpus.
+    helpful_rate_pct: int
+    # Split by mode + source so we can see "is Deep mode earning its
+    # ~10x latency?" and "are FAQ hits better-received than AI?"
+    by_mode: dict[str, "FeedbackBreakdown"]
+    by_source: dict[str, "FeedbackBreakdown"]
+    # Top N downvoted FAQ ids — direct list of "templates to rework".
+    top_downvoted_faqs: list["DownvotedFaq"]
+    # Recent downvote samples (question text + short response snippet).
+    # Capped at 20. Useful for curating new FAQs.
+    recent_downvotes: list["DownvoteSample"]
+
+
+class FeedbackBreakdown(BaseModel):
+    total: int
+    helpful: int
+    unhelpful: int
+    helpful_rate_pct: int
+
+
+class DownvotedFaq(BaseModel):
+    faq_id: str
+    downvote_count: int
+
+
+class DownvoteSample(BaseModel):
+    created_at: str
+    question: str
+    response_snippet: str
+    source: str | None
+    mode: str | None
+    page: str | None
+    faq_id: str | None
+
+
+def _rate(total: int, helpful: int) -> int:
+    if total <= 0:
+        return 0
+    return round((helpful / total) * 100)
+
+
+@router.get("/feedback/stats", response_model=FeedbackStats)
+async def feedback_stats(
+    scope: Literal["mine", "all"] = "mine",
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return aggregate feedback stats.
+
+    `scope=mine` (default): just the current user's feedback. Safe for
+    any authenticated user to call — privacy-preserving.
+
+    `scope=all`: platform-wide. Currently also allowed for any
+    authenticated user since we're single-tenant / founder-mode. When
+    we add roles we'll gate this on `current_user.is_admin` or similar.
+    """
+    q = select(ChatFeedback)
+    if scope == "mine":
+        q = q.where(ChatFeedback.user_id == current_user.id)
+
+    # Totals + helpful/unhelpful split in one query each. Two queries
+    # beats loading every row into memory.
+    total_q = select(func.count()).select_from(q.subquery())
+    helpful_q = select(func.count()).select_from(
+        q.where(ChatFeedback.helpful.is_(True)).subquery()
+    )
+    unhelpful_q = select(func.count()).select_from(
+        q.where(ChatFeedback.helpful.is_(False)).subquery()
+    )
+
+    total = (await db.execute(total_q)).scalar_one() or 0
+    helpful = (await db.execute(helpful_q)).scalar_one() or 0
+    unhelpful = (await db.execute(unhelpful_q)).scalar_one() or 0
+
+    # Breakdown by mode
+    by_mode_rows = (
+        await db.execute(
+            select(
+                ChatFeedback.mode,
+                ChatFeedback.helpful,
+                func.count().label("cnt"),
+            )
+            .where(
+                ChatFeedback.user_id == current_user.id
+                if scope == "mine"
+                else True  # trivially True for scope=all
+            )
+            .group_by(ChatFeedback.mode, ChatFeedback.helpful)
+        )
+    ).all()
+
+    by_mode: dict[str, FeedbackBreakdown] = {}
+    for mode_val, is_helpful, cnt in by_mode_rows:
+        key = mode_val or "unknown"
+        slot = by_mode.setdefault(
+            key, FeedbackBreakdown(total=0, helpful=0, unhelpful=0, helpful_rate_pct=0)
+        )
+        slot.total += cnt
+        if is_helpful:
+            slot.helpful += cnt
+        else:
+            slot.unhelpful += cnt
+    for slot in by_mode.values():
+        slot.helpful_rate_pct = _rate(slot.total, slot.helpful)
+
+    # Breakdown by source
+    by_source_rows = (
+        await db.execute(
+            select(
+                ChatFeedback.source,
+                ChatFeedback.helpful,
+                func.count().label("cnt"),
+            )
+            .where(
+                ChatFeedback.user_id == current_user.id
+                if scope == "mine"
+                else True
+            )
+            .group_by(ChatFeedback.source, ChatFeedback.helpful)
+        )
+    ).all()
+
+    by_source: dict[str, FeedbackBreakdown] = {}
+    for source_val, is_helpful, cnt in by_source_rows:
+        key = source_val or "unknown"
+        slot = by_source.setdefault(
+            key, FeedbackBreakdown(total=0, helpful=0, unhelpful=0, helpful_rate_pct=0)
+        )
+        slot.total += cnt
+        if is_helpful:
+            slot.helpful += cnt
+        else:
+            slot.unhelpful += cnt
+    for slot in by_source.values():
+        slot.helpful_rate_pct = _rate(slot.total, slot.helpful)
+
+    # Top 10 downvoted FAQs (faq_id IS NOT NULL, helpful = False)
+    top_faqs_rows = (
+        await db.execute(
+            select(
+                ChatFeedback.faq_id,
+                func.count().label("cnt"),
+            )
+            .where(
+                ChatFeedback.faq_id.isnot(None),
+                ChatFeedback.helpful.is_(False),
+                ChatFeedback.user_id == current_user.id
+                if scope == "mine"
+                else True,
+            )
+            .group_by(ChatFeedback.faq_id)
+            .order_by(desc("cnt"))
+            .limit(10)
+        )
+    ).all()
+    top_downvoted_faqs = [
+        DownvotedFaq(faq_id=faq_id or "unknown", downvote_count=cnt)
+        for faq_id, cnt in top_faqs_rows
+    ]
+
+    # Recent downvotes (sample for FAQ curation)
+    recent_rows = (
+        await db.execute(
+            select(ChatFeedback)
+            .where(
+                ChatFeedback.helpful.is_(False),
+                ChatFeedback.user_id == current_user.id
+                if scope == "mine"
+                else True,
+            )
+            .order_by(desc(ChatFeedback.created_at))
+            .limit(20)
+        )
+    ).scalars().all()
+
+    recent_downvotes = [
+        DownvoteSample(
+            created_at=r.created_at.isoformat() if r.created_at else "",
+            question=r.question,
+            response_snippet=(r.response[:280] + "…") if len(r.response) > 280 else r.response,
+            source=r.source,
+            mode=r.mode,
+            page=r.page,
+            faq_id=r.faq_id,
+        )
+        for r in recent_rows
+    ]
+
+    return FeedbackStats(
+        total=total,
+        helpful_count=helpful,
+        unhelpful_count=unhelpful,
+        helpful_rate_pct=_rate(total, helpful),
+        by_mode=by_mode,
+        by_source=by_source,
+        top_downvoted_faqs=top_downvoted_faqs,
+        recent_downvotes=recent_downvotes,
+    )

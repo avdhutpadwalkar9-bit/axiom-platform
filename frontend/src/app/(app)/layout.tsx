@@ -18,6 +18,7 @@ import {
   Loader2,
   Sparkles,
   ArrowRight,
+  MessageSquare,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
@@ -29,6 +30,7 @@ const navItems = [
   { label: "Industry Expertise", href: "/industries", icon: TrendingUp },
   { label: "Scenarios", href: "/scenarios", icon: GitBranch },
   { label: "QoE Center", href: "/qoe", icon: Shield },
+  { label: "AI Feedback", href: "/feedback", icon: MessageSquare },
   { label: "Integrations", href: "/integrations", icon: Plug },
 ];
 
