@@ -14,7 +14,7 @@ const features = [
   {
     tag: "Instant Analysis",
     title: "From raw data to boardroom-ready analysis",
-    desc: "Upload a Trial Balance from Tally, Zoho, or Excel. CortexCFO auto-classifies 100+ account types, builds your P&L, Balance Sheet, and Cash Flow indicators. No manual mapping. No templates.",
+    desc: "Upload a Trial Balance from QuickBooks, Xero, or Excel. CortexCFO auto-classifies 100+ account types, builds your P&L, Balance Sheet, and Cash Flow indicators. No manual mapping. No templates.",
     img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=85",
     icon: Upload,
   },
@@ -26,9 +26,9 @@ const features = [
     icon: Brain,
   },
   {
-    tag: "Ind AS Compliance",
+    tag: "GAAP Compliance",
     title: "Compliance checks that never sleep",
-    desc: "Every upload is reviewed against AS 12, 15, 16, 19, 24, and 37. Deferred tax gaps, employee benefit provisions, related party disclosures, and revenue recognition under Ind AS 115 are all covered.",
+    desc: "Every upload is reviewed against AS 12, 15, 16, 19, 24, and 37. Deferred tax gaps, employee benefit provisions, related party disclosures, and revenue recognition under ASC 606 (Revenue) are all covered.",
     img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=85",
     icon: Shield,
   },
@@ -56,8 +56,8 @@ const useCases = [
 /*  FAQ                                                                 */
 /* ------------------------------------------------------------------ */
 const faqs = [
-  { q: "What file formats does CortexCFO support?", a: "CSV, Excel (.xlsx), and JSON files exported from Tally, Zoho Books, QuickBooks, or any accounting software that produces a Trial Balance." },
-  { q: "How does the AI know about Indian accounting standards?", a: "Our AI is configured with deep knowledge of Ind AS standards (12, 15, 16, 19, 24, 37, 115), GST compliance, TDS regulations, and MSME-specific financial patterns. It references your actual data, not generic information." },
+  { q: "What file formats does CortexCFO support?", a: "CSV, Excel (.xlsx), and JSON files exported from QuickBooks, Xero, QuickBooks, or any accounting software that produces a Trial Balance." },
+  { q: "How does the AI know about Indian accounting standards?", a: "Our AI is configured with deep knowledge of GAAP standards (12, 15, 16, 19, 24, 37, 115), sales tax compliance, withholding tax regulations, and SMB-specific financial patterns. It references your actual data, not generic information." },
   { q: "Is my financial data secure?", a: "Yes. All data is encrypted with 256-bit encryption at rest and in transit. We never use your data to train AI models. You can request deletion at any time. Data residency is in India." },
   { q: "Can I use this for multiple companies?", a: "Yes. Each workspace holds a different company. CA firms and PE funds use this to manage portfolios from a single account." },
 ];
@@ -82,7 +82,7 @@ export default function ProductPage() {
             </h1>
             <p className="text-lg text-white/40 leading-relaxed max-w-2xl mx-auto mb-10">
               Skip the spreadsheets. Skip the manual analysis. CortexCFO reads your Trial Balance
-              and delivers real-time dashboards, AI-generated narratives, and Ind AS compliance
+              and delivers real-time dashboards, AI-generated narratives, and GAAP compliance
               checks that update as your data changes.
             </p>
             <div className="flex flex-wrap justify-center gap-4 mb-10">
@@ -200,11 +200,11 @@ export default function ProductPage() {
                 <div className="p-6 space-y-4">
                   <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">
                     <p className="text-[11px] text-emerald-400 font-semibold uppercase tracking-wider mb-2">Executive Summary</p>
-                    <p className="text-sm text-white/50 leading-relaxed">Revenue came in at <strong className="text-white">Rs 4.78 Cr</strong> against a target of Rs 4.2 Cr, a <strong className="text-emerald-400">+13.8%</strong> beat driven by Q4 enterprise deals...</p>
+                    <p className="text-sm text-white/50 leading-relaxed">Revenue came in at <strong className="text-white">$575KM</strong> against a target of Rs 4.2M, a <strong className="text-emerald-400">+13.8%</strong> beat driven by Q4 enterprise deals...</p>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
                     {[
-                      { label: "Revenue", value: "Rs 4.78 Cr", change: "+13.8%", up: true },
+                      { label: "Revenue", value: "$575K", change: "+13.8%", up: true },
                       { label: "Net Margin", value: "18.2%", change: "+2.1%", up: true },
                       { label: "Burn Rate", value: "Rs 6.4L/mo", change: "-5.2%", up: true },
                     ].map((kpi) => (
@@ -252,7 +252,7 @@ export default function ProductPage() {
               { value: "60s", label: "Upload to insight" },
               { value: "95%+", label: "Classification accuracy" },
               { value: "11", label: "Industries benchmarked" },
-              { value: "6", label: "Ind AS standards checked" },
+              { value: "6", label: "GAAP standards checked" },
             ].map((s) => (
               <div key={s.label}>
                 <p className="text-3xl font-bold">{s.value}</p>

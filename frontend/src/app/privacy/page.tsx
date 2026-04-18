@@ -33,7 +33,7 @@ export default function PrivacyPage() {
     },
     {
       title: "7. Third-Party Services",
-      content: "We integrate with accounting platforms (Tally, Zoho), payment processors, and cloud infrastructure providers. These integrations are governed by their respective privacy policies. We share only the minimum data necessary for each integration to function. A full list of sub-processors is available upon request."
+      content: "We integrate with accounting platforms (QuickBooks, Xero), payment processors, and cloud infrastructure providers. These integrations are governed by their respective privacy policies. We share only the minimum data necessary for each integration to function. A full list of sub-processors is available upon request."
     },
     {
       title: "8. Contact Us",

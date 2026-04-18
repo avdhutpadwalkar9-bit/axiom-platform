@@ -22,15 +22,15 @@ function LinkedinIcon({ className }: { className?: string }) {
 export default function AboutPage() {
 
   const values = [
-    { icon: Globe, title: "India-first", desc: "Built for Indian accounting standards, Indian tax codes, and Indian business realities. Ind AS, GST, TDS native from day one." },
+    { icon: Globe, title: "global", desc: "Built for Indian accounting standards, Indian tax codes, and Indian business realities. GAAP, sales tax, withholding tax native from day one." },
     { icon: Brain, title: "AI-native", desc: "Every workflow, every insight, every recommendation is powered by AI trained on Indian financial data patterns." },
     { icon: Shield, title: "Privacy by design", desc: "Your financial data never trains our models. 256-bit encryption, and full data residency in India." },
     { icon: Users, title: "Open by default", desc: "Open APIs, open integrations, open export. Your data is yours. Easy to connect, easy to leave, easy to trust." },
   ];
 
   const milestones = [
-    { year: "2024", title: "The idea", desc: "Founded with a vision to democratize financial intelligence for Indian MSMEs." },
-    { year: "2025", title: "First product", desc: "Launched Trial Balance analyzer with AI-powered insights and Ind AS compliance." },
+    { year: "2024", title: "The idea", desc: "Founded with a vision to democratize financial intelligence for SMBs." },
+    { year: "2025", title: "First product", desc: "Launched Trial Balance analyzer with AI-powered insights and GAAP compliance." },
     { year: "2026", title: "Scaling up", desc: "11 industry verticals, Claude AI integration, and 200+ businesses onboarded." },
     { year: "Next", title: "The future", desc: "Real-time accounting integrations, predictive analytics, and white-label for CA firms." },
   ];
@@ -69,7 +69,7 @@ export default function AboutPage() {
               </h2>
               <p className="text-white/40 leading-relaxed text-[15px]">
                 CortexCFO exists because we believe AI can close the gap between what Fortune 500 companies
-                have access to and what Indian MSMEs and startups can afford. We are building the tools that
+                have access to and what SMBs and startups can afford. We are building the tools that
                 give every founder, CFO, and investor the caliber of financial insight that was previously
                 reserved for those who could afford top-tier consulting firms.
               </p>
@@ -112,7 +112,7 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold">The people behind the product</h2>
             <p className="text-white/40 text-[15px] leading-relaxed max-w-xl mx-auto mt-4">
               Built by two management consultants on a mission to arm every
-              ambitious Indian MSME with the financial intelligence layer their
+              ambitious SMB with the financial intelligence layer their
               growth deserves.
             </p>
           </FadeIn>
@@ -137,7 +137,7 @@ export default function AboutPage() {
                 <div className="space-y-3 text-[14px] text-white/55 leading-relaxed flex-1">
                   <p>
                     A management consultant by training and an operator by
-                    practice. Avdhut has spent his career inside Indian MSMEs
+                    practice. Avdhut has spent his career inside SMBs
                     &mdash; helping promoters tighten their books, pressure-test
                     their numbers, and roll out the accounting, ERP and
                     reporting software stacks that turn messy operations into
@@ -212,14 +212,14 @@ export default function AboutPage() {
                   <p>
                     At CortexCFO he owns growth, go-to-market and the
                     automation spine that lets a small team punch far above
-                    its weight. His bet: the Indian MSMEs that win the next
+                    its weight. His bet: the SMBs that win the next
                     decade will be the ones that wire AI and automation into
                     every function &mdash; not just into the marketing deck.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-6">
-                  {["Management Consulting", "AI & Automation", "Process Design", "Go-to-Market", "Indian MSMEs"].map((tag) => (
+                  {["Management Consulting", "AI & Automation", "Process Design", "Go-to-Market", "SMBs"].map((tag) => (
                     <span
                       key={tag}
                       className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
@@ -257,7 +257,7 @@ export default function AboutPage() {
                 <span className="text-emerald-400 font-semibold">Building the team.</span>{" "}
                 We&apos;re hiring founding engineers, CAs and a founding GTM
                 associate to build the financial intelligence layer for Indian
-                MSMEs.{" "}
+                SMBs.{" "}
                 <Link href="/careers" className="text-emerald-400 hover:underline font-medium">
                   See open roles &rarr;
                 </Link>
@@ -297,7 +297,7 @@ export default function AboutPage() {
             {[
               { value: "200+", label: "Businesses analyzed" },
               { value: "11", label: "Industries covered" },
-              { value: "6", label: "Ind AS standards" },
+              { value: "6", label: "GAAP standards" },
               { value: "60s", label: "Time to insight" },
             ].map((s) => (
               <div key={s.label}>

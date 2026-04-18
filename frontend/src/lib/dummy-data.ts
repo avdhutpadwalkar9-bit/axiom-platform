@@ -81,16 +81,16 @@ export const aiInsights = [
     id: 3,
     severity: "info",
     title: "Revenue Recognition Adjustment",
-    description: "₹2.1L in deferred revenue from annual contracts should be recognized this quarter. 3 contracts meet ASC 606 criteria for recognition.",
+    description: "$2.5K in deferred revenue from annual contracts should be recognized this quarter. 3 contracts meet ASC 606 criteria for recognition.",
     action: "Review Contracts",
     timestamp: "1 day ago",
   },
   {
     id: 4,
     severity: "warning",
-    title: "GST Input Credit Blocked",
-    description: "₹4.8L in input tax credits are blocked due to vendor non-compliance on GSTR-2A. Working capital impact: 2.1% of monthly burn.",
-    action: "View GST Health",
+    title: "Sales Tax Input Credit Blocked",
+    description: "$48K in input tax credits are blocked due to vendor non-compliance. Working capital impact: 2.1% of monthly burn.",
+    action: "View Sales Tax Health",
     timestamp: "1 day ago",
   },
   {
@@ -199,24 +199,28 @@ export const qoeAdjustments = [
   {
     category: "Compliance",
     items: [
-      { description: "GSTR-1 vs GSTR-3B mismatch (Q3)", amount: 0, type: "compliance", status: "flagged" },
+      { description: "sales tax invoices vs sales tax return mismatch (Q3)", amount: 0, type: "compliance", status: "flagged" },
       { description: "TDS short deduction on professional fees", amount: 12000, type: "compliance", status: "pending" },
       { description: "PF/ESI late deposit penalty risk", amount: 8500, type: "compliance", status: "flagged" },
     ],
   },
 ];
 
+// Integration list — rebalanced to international accounting + banking +
+// payments stack. India-only legacy names (Tally, Zoho Books, Razorpay, GSTN,
+// Chase/Wells Fargo, MCA Portal, Income Tax India) moved out; QuickBooks / Xero /
+// NetSuite lead, with Plaid/Stripe/Chase as the cash + payments rail.
 export const integrations = [
-  { name: "Tally Prime", logo: "T", category: "Accounting", status: "connected", lastSync: "2 min ago", color: "#ef4444" },
-  { name: "Zoho Books", logo: "Z", category: "Accounting", status: "available", lastSync: null, color: "#f59e0b" },
-  { name: "Razorpay", logo: "R", category: "Payments", status: "connected", lastSync: "5 min ago", color: "#3b82f6" },
-  { name: "GSTN Portal", logo: "G", category: "Compliance", status: "connected", lastSync: "1 hour ago", color: "#22c55e" },
-  { name: "ICICI Bank", logo: "I", category: "Banking", status: "connected", lastSync: "30 min ago", color: "#f59e0b" },
-  { name: "HDFC Bank", logo: "H", category: "Banking", status: "available", lastSync: null, color: "#0ea5e9" },
-  { name: "QuickBooks", logo: "Q", category: "Accounting", status: "available", lastSync: null, color: "#22c55e" },
-  { name: "Stripe", logo: "S", category: "Payments", status: "available", lastSync: null, color: "#6772e5" },
-  { name: "Chargebee", logo: "C", category: "Billing", status: "available", lastSync: null, color: "#ef4444" },
-  { name: "Cashfree", logo: "CF", category: "Payments", status: "available", lastSync: null, color: "#10b981" },
-  { name: "MCA Portal", logo: "M", category: "Compliance", status: "available", lastSync: null, color: "#f97316" },
-  { name: "Income Tax", logo: "IT", category: "Compliance", status: "connected", lastSync: "1 day ago", color: "#14b8a6" },
+  { name: "QuickBooks", logo: "Q", category: "Accounting", status: "connected", lastSync: "2 min ago", color: "#22c55e" },
+  { name: "Xero", logo: "X", category: "Accounting", status: "available", lastSync: null, color: "#0ea5e9" },
+  { name: "NetSuite", logo: "N", category: "Accounting", status: "available", lastSync: null, color: "#f59e0b" },
+  { name: "Stripe", logo: "S", category: "Payments", status: "connected", lastSync: "5 min ago", color: "#6772e5" },
+  { name: "Plaid", logo: "P", category: "Banking", status: "connected", lastSync: "30 min ago", color: "#3b82f6" },
+  { name: "Chase", logo: "C", category: "Banking", status: "available", lastSync: null, color: "#1e3a8a" },
+  { name: "Wells Fargo", logo: "W", category: "Banking", status: "available", lastSync: null, color: "#dc2626" },
+  { name: "Chargebee", logo: "CB", category: "Billing", status: "available", lastSync: null, color: "#ef4444" },
+  { name: "Square", logo: "Sq", category: "Payments", status: "available", lastSync: null, color: "#10b981" },
+  { name: "ADP", logo: "A", category: "Payroll", status: "available", lastSync: null, color: "#f97316" },
+  { name: "Gusto", logo: "G", category: "Payroll", status: "connected", lastSync: "1 hour ago", color: "#22c55e" },
+  { name: "IRS e-Services", logo: "IRS", category: "Compliance", status: "connected", lastSync: "1 day ago", color: "#14b8a6" },
 ];

@@ -20,17 +20,17 @@ const faqData: { category: Category; q: string; a: string }[] = [
   {
     category: "General",
     q: "What is CortexCFO?",
-    a: "CortexCFO is an AI-powered financial intelligence platform built for Indian businesses. It transforms raw financial data like Trial Balances into boardroom-ready analysis, Ind AS compliance reviews, ratio analysis, and strategic insights in under 60 seconds.",
+    a: "CortexCFO is an AI-powered financial intelligence platform built for Indian businesses. It transforms raw financial data like Trial Balances into boardroom-ready analysis, GAAP compliance reviews, ratio analysis, and strategic insights in under 60 seconds.",
   },
   {
     category: "General",
     q: "How does CortexCFO work?",
-    a: "Upload your Trial Balance in Excel or CSV format from any accounting software such as Tally, Zoho Books, or QuickBooks. CortexCFO automatically classifies your accounts, calculates financial ratios, checks Ind AS compliance, and generates a detailed analysis report. You can then ask our AI consultant follow-up questions about your data.",
+    a: "Upload your Trial Balance in Excel or CSV format from any accounting software such as QuickBooks, Xero, or QuickBooks. CortexCFO automatically classifies your accounts, calculates financial ratios, checks GAAP compliance, and generates a detailed analysis report. You can then ask our AI consultant follow-up questions about your data.",
   },
   {
     category: "General",
     q: "What file formats does CortexCFO accept?",
-    a: "CortexCFO accepts Trial Balance data in .xlsx, .xls, and .csv formats. The system is designed to work with exports from popular Indian accounting software including Tally Prime, Tally ERP 9, Zoho Books, QuickBooks, Busy, and Marg. You can also use our standard template for manual uploads.",
+    a: "CortexCFO accepts Trial Balance data in .xlsx, .xls, and .csv formats. The system is designed to work with exports from popular accounting software including QuickBooks Online, QuickBooks Desktop, Xero, QuickBooks, Sage, and FreshBooks. You can also use our standard template for manual uploads.",
   },
   {
     category: "General",
@@ -39,8 +39,8 @@ const faqData: { category: Category; q: string; a: string }[] = [
   },
   {
     category: "General",
-    q: "Which Ind AS standards does CortexCFO cover?",
-    a: "CortexCFO currently reviews compliance against six key Indian Accounting Standards: Ind AS 12 (Income Taxes / Deferred Tax), Ind AS 15 (Employee Benefits), Ind AS 16 (Property, Plant and Equipment), Ind AS 19 (Provisions and Contingencies), Ind AS 24 (Related Party Disclosures), and Ind AS 37 (Revenue Recognition). Each review includes severity levels and specific remediation steps.",
+    q: "Which GAAP standards does CortexCFO cover?",
+    a: "CortexCFO currently reviews compliance against six key Indian Accounting Standards: GAAP 12 (Income Taxes / Deferred Tax), GAAP 15 (Employee Benefits), GAAP 16 (Property, Plant and Equipment), ASC 715 (Retirement Benefits) (Provisions and Contingencies), ASC 850 (Related Party) (Related Party Disclosures), and ASC 450 (Contingencies) (Revenue Recognition). Each review includes severity levels and specific remediation steps.",
   },
   {
     category: "Pricing",
@@ -69,8 +69,8 @@ const faqData: { category: Category; q: string; a: string }[] = [
   },
   {
     category: "Technical",
-    q: "Does CortexCFO integrate with Tally and Zoho?",
-    a: "Currently, CortexCFO works with exported Trial Balance files from Tally and Zoho. Direct API integrations with Tally Prime, Zoho Books, and other popular accounting software are on our roadmap and expected within the next quarter. This will enable automatic syncing and real-time analysis.",
+    q: "Does CortexCFO integrate with QuickBooks and Xero?",
+    a: "Currently, CortexCFO works with exported Trial Balance files from QuickBooks and Xero. Direct API integrations with QuickBooks Online, Xero, and other popular accounting software are on our roadmap and expected within the next quarter. This will enable automatic syncing and real-time analysis.",
   },
   {
     category: "Technical",

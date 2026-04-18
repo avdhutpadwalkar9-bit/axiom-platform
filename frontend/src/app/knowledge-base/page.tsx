@@ -39,7 +39,7 @@ const categories: { label: Category; icon: React.ElementType; desc: string }[] =
   {
     label: "Core Concepts",
     icon: Brain,
-    desc: "The building blocks of modern FP&A, translated for Indian MSMEs.",
+    desc: "The building blocks of modern FP&A, translated for SMBs.",
   },
   {
     label: "Playbooks",
@@ -49,7 +49,7 @@ const categories: { label: Category; icon: React.ElementType; desc: string }[] =
   {
     label: "Compliance & Standards",
     icon: Shield,
-    desc: "Ind AS, Schedule III, GST and TDS — explained without jargon.",
+    desc: "GAAP, Schedule III, sales tax and withholding tax — explained without jargon.",
   },
   {
     label: "Integrations & Data",
@@ -62,33 +62,33 @@ const articles: Article[] = [
   // ---------------- Core Concepts ----------------
   {
     slug: "why-financial-analysis-matters-msmes",
-    title: "Why financial analysis matters for MSMEs",
+    title: "Why financial analysis matters for SMBs",
     category: "Core Concepts",
     readMin: 6,
     featured: true,
     summary:
-      "MSMEs power a third of Indian GDP, yet most run on instinct and quarterly GST deadlines. Financial analysis is what turns raw bookkeeping into the decisions that compound into scale.",
+      "SMBs power a third of Indian GDP, yet most run on instinct and quarterly sales tax deadlines. Financial analysis is what turns raw bookkeeping into the decisions that compound into scale.",
     body: [
-      "India's 63 million MSMEs contribute close to a third of GDP and nearly 40% of exports. Yet the gap between the best-run and the median MSME is enormous — and almost always traced to one thing: how well the promoter can read their own numbers.",
+      "India's 63 million SMBs contribute close to a third of GDP and nearly 40% of exports. Yet the gap between the best-run and the median SMB is enormous — and almost always traced to one thing: how well the promoter can read their own numbers.",
       "Bookkeeping tells you what happened. Financial analysis tells you what it means. Without it, every price change is a guess, every hire is a risk, and every bank conversation is defensive.",
       "Four questions a basic analysis pack answers every month — which products or customers are actually profitable after overhead, where cash is trapped in the working-capital cycle, whether gross margin is holding or slipping, and whether the business is earning above its real cost of capital.",
-      "The MSME-specific stakes are bigger than they look. Thin margins mean a 2% leak compounds into survival risk. Family ownership mixes personal and business flows, hiding the real picture. Bank dependence means weak numbers cost you interest points every year.",
+      "The SMB-specific stakes are bigger than they look. Thin margins mean a 2% leak compounds into survival risk. Family ownership mixes personal and business flows, hiding the real picture. Bank dependence means weak numbers cost you interest points every year.",
       "The cost of not doing it is never an invoice. It shows up as a vendor you could not negotiate harder with, a banker who charged you 80 bps more, an investor who walked away, a product line you kept alive two years too long. Financial analysis is how you stop paying that tax.",
     ],
   },
   {
     slug: "budgeting-for-msmes",
-    title: "Budgeting for MSMEs: from spreadsheet to strategy",
+    title: "Budgeting for SMBs: from spreadsheet to strategy",
     category: "Core Concepts",
     readMin: 5,
     featured: true,
     summary:
-      "A budget is not a forecast. It is a commitment to a plan — and the ritual of comparing it to reality every month is how disciplined MSMEs outgrow their peers.",
+      "A budget is not a forecast. It is a commitment to a plan — and the ritual of comparing it to reality every month is how disciplined SMBs outgrow their peers.",
     body: [
-      "Most MSMEs skip budgeting because \"we are too small\" or \"things change too fast\". Neither is true. The smallest promoter-led business benefits more from a budget than a ₹500 Cr enterprise — because cash is tighter and every rupee has to earn its keep.",
-      "A working MSME budget has five parts: revenue targets split by segment, product or customer; a fixed-versus-variable cost split; a capex plan tied to growth milestones; a month-by-month cash plan; and at minimum two scenarios — base and downside — with trigger points that swap you from one to the other.",
+      "Most SMBs skip budgeting because \"we are too small\" or \"things change too fast\". Neither is true. The smallest promoter-led business benefits more from a budget than a $500M enterprise — because cash is tighter and every rupee has to earn its keep.",
+      "A working SMB budget has five parts: revenue targets split by segment, product or customer; a fixed-versus-variable cost split; a capex plan tied to growth milestones; a month-by-month cash plan; and at minimum two scenarios — base and downside — with trigger points that swap you from one to the other.",
       "The monthly variance ritual is where budgeting becomes leadership. Sit with the numbers on the fifth working day. Flag any line where actuals deviate more than 10% from budget. Ask why. The answer is always either a lesson (the budget was wrong) or an action (something in the business needs fixing).",
-      "Rolling budgets beat annual budgets for MSMEs. A 12-month rolling view, refreshed every quarter, reflects reality. An annual budget frozen in March stops being useful by June.",
+      "Rolling budgets beat annual budgets for SMBs. A 12-month rolling view, refreshed every quarter, reflects reality. An annual budget frozen in March stops being useful by June.",
       "The payoff is compounding. With a budget, pricing decisions have anchors. Hiring conversations have limits. Bankers and investors see a promoter who runs the business, not one who hopes it runs itself.",
     ],
   },
@@ -103,20 +103,20 @@ const articles: Article[] = [
     body: [
       "QoE is the lens investors apply to a P&L before they write a cheque. It asks one question: if we acquire this business, how much of the profit shown here is likely to repeat next year?",
       "A QoE teardown normalises for one-time items (asset sales, insurance claims, government grants), strips non-operating income out of EBITDA, and pulls working-capital leakage into view.",
-      "For Indian MSMEs three issues repeat: promoter-salary distortion, related-party transactions parked at non-market prices, and inventory or receivable build-ups that hide margin leaks.",
+      "For SMBs three issues repeat: promoter-salary distortion, related-party transactions parked at non-market prices, and inventory or receivable build-ups that hide margin leaks.",
       "A continuous QoE — run every month instead of only during diligence — means the first time an investor asks is not the first time you answer. That is the core bet behind CortexCFO.",
     ],
   },
   {
     slug: "fpna-101",
-    title: "FP&A 101: Why MSMEs need it",
+    title: "FP&A 101: Why SMBs need it",
     category: "Core Concepts",
     readMin: 4,
     summary:
       "FP&A turns bookkeeping into a decision-making muscle — the gap between reporting what happened and shaping what happens next.",
     body: [
       "Financial Planning & Analysis sits between the accounting team and the CEO. Where accounting closes the books, FP&A reads them: variance to budget, lead indicators, scenario plans, unit economics.",
-      "MSMEs often skip FP&A because the team is small. That is the mistake. FP&A is what lets a ₹15 Cr business spend like a ₹50 Cr business without blowing its cash runway.",
+      "SMBs often skip FP&A because the team is small. That is the mistake. FP&A is what lets a $15M business spend like a $50M business without blowing its cash runway.",
       "A working FP&A function produces three outputs every month: a variance dashboard against plan, a rolling 12-month cash forecast, and a scenario model for the next strategic decision — a price increase, a new geography, a senior hire.",
       "You do not need a five-person FP&A team to get there. You need consistent data, a driver-based model, and someone who owns the number.",
     ],
@@ -132,7 +132,7 @@ const articles: Article[] = [
       "Line-item models project every row from historical averages. They are easy to build and useless when the business actually changes.",
       "Driver-based models identify the two-to-five inputs that shape your business — units sold, ASP, gross margin, customer churn, field-force productivity — and compute everything else from those.",
       "The payoff is leverage. Change one driver and the whole P&L and cash flow move. You can pressure-test a price cut, a new salary band or a geographic expansion in minutes instead of days.",
-      "For an auto-component MSME, typical drivers are tonnes shipped × realisation per tonne, raw-material yield and DPO stretch. For a B2B services firm: billable headcount × utilisation × bill rate, and DSO. Different industries, same principle.",
+      "For an industrial parts SMB, typical drivers are tonnes shipped × realisation per tonne, raw-material yield and DPO stretch. For a B2B services firm: billable headcount × utilisation × bill rate, and DSO. Different industries, same principle.",
     ],
   },
   {
@@ -141,7 +141,7 @@ const articles: Article[] = [
     category: "Core Concepts",
     readMin: 3,
     summary:
-      "The best-run MSMEs do not wait until the year-end audit to know their numbers. They close every month — and in the best cases, every week.",
+      "The best-run SMBs do not wait until the year-end audit to know their numbers. They close every month — and in the best cases, every week.",
     body: [
       "A continuous close is the discipline of keeping your books in audit-ready shape all year, not just in March. Each month ends with a variance review, a reconciled bank and a fresh cash forecast.",
       "The payoff is speed. Investor diligence that used to take eight weeks becomes a two-day exchange. Bankers who ask for provisional numbers get them the same week. Your own decisions get better because the data behind them is fresh.",
@@ -161,7 +161,7 @@ const articles: Article[] = [
       "Start with the P&L. Rebuild the last 36 months under Schedule III format. Any line that is not Ind-AS-aligned gets reclassified or flagged. Related-party transactions move into a separate schedule.",
       "Reconstruct EBITDA from reported profit. Strip out one-time gains (government grants, asset sales, insurance claims), promoter-salary adjustments and non-operating income. What you are left with is the number an investor will model.",
       "Pull together a customer concentration schedule (top 10 and top 20, by revenue and gross margin), a vendor concentration schedule, and a month-on-month working-capital schedule (DSO, DIO, DPO).",
-      "Finally, a data room: GST returns, income-tax returns, bank statements, MOA and AOA, customer and vendor contracts, and the last three years of audited financials. Everything tagged, everything indexed.",
+      "Finally, a data room: sales tax returns, income-tax returns, bank statements, MOA and AOA, customer and vendor contracts, and the last three years of audited financials. Everything tagged, everything indexed.",
     ],
   },
   {
@@ -172,8 +172,8 @@ const articles: Article[] = [
     summary:
       "The same P&L that looks healthy on your dashboard can look alarming to an investor. Learning to see it their way is a competitive advantage.",
     body: [
-      "Investors read gross margin first, not revenue. A 40% gross-margin business at ₹10 Cr is more valuable than a 15% business at ₹25 Cr. Margin shows product-market fit and pricing power; revenue alone does not.",
-      "Next they look at operating leverage — how fast do fixed costs grow relative to revenue? A business where every ₹1 of new revenue flows 50 paise to EBITDA scales beautifully. One where it flows 10 paise does not.",
+      "Investors read gross margin first, not revenue. A 40% gross-margin business at $1M is more valuable than a 15% business at $25M. Margin shows product-market fit and pricing power; revenue alone does not.",
+      "Next they look at operating leverage — how fast do fixed costs grow relative to revenue? A business where every $1 of new revenue flows 50 paise to EBITDA scales beautifully. One where it flows 10 paise does not.",
       "Working capital is the third lens. Revenue growth is meaningless if it is funded by stretched payables and a ballooning receivable book. The cash conversion cycle tells the real story.",
       "Finally, quality. Which lines are recurring, which are one-time? Which are tied to contracts, which to handshakes? A well-structured P&L answers these if you look at it long enough — or CortexCFO will answer them for you in seconds.",
     ],
@@ -189,7 +189,7 @@ const articles: Article[] = [
       "Day 1 — Bank reconciliation. Pull all statements, match to books, resolve exceptions before anything else touches the ledger.",
       "Day 2 — AR and AP. Age the receivables, post invoices that were raised but not recorded, and reconcile vendor ledgers against your books.",
       "Day 3 — Inventory and fixed assets. Close the inventory count, run depreciation and capitalise work-in-progress that went live.",
-      "Day 4 — Accruals, prepayments, payroll, TDS and GST entries. This is where most months fall apart — build a checklist and never miss a line.",
+      "Day 4 — Accruals, prepayments, payroll, withholding tax and sales tax entries. This is where most months fall apart — build a checklist and never miss a line.",
       "Day 5 — Management P&L, balance sheet, cash-flow statement and variance pack. Sign off and publish. By the fifth working day of the new month, you are done.",
     ],
   },
@@ -197,19 +197,19 @@ const articles: Article[] = [
   // ---------------- Compliance & Standards ----------------
   {
     slug: "ind-as-115-revenue",
-    title: "Ind AS 115 — Revenue recognition in five steps",
+    title: "ASC 606 (Revenue) — Revenue recognition in five steps",
     category: "Compliance & Standards",
     readMin: 6,
     featured: true,
     summary:
-      "Ind AS 115 replaced a patchwork of older rules with one five-step model. Getting it right protects your revenue from both auditors and investors.",
+      "ASC 606 (Revenue) replaced a patchwork of older rules with one five-step model. Getting it right protects your revenue from both auditors and investors.",
     body: [
       "Step 1 — Identify the contract. Oral understandings can count, but you need enforceability. Document scope, price and payment terms.",
       "Step 2 — Identify performance obligations. A software licence plus annual support is two obligations, not one. A sale-with-installation can also be two.",
       "Step 3 — Determine the transaction price. Strip out variable consideration (discounts, rebates, penalties) and estimate it separately.",
       "Step 4 — Allocate the price to each obligation. Use standalone selling prices; where those do not exist, build a cost-plus or residual estimate.",
       "Step 5 — Recognise revenue when — or as — each obligation is satisfied. Point-in-time for goods that transfer on delivery, over-time for services or long-term contracts.",
-      "Two places where MSMEs trip: AMCs recognised on billing date instead of pro-rata over the contract period, and project milestones billed but not earned. Both understate liability and overstate EBITDA.",
+      "Two places where SMBs trip: AMCs recognised on billing date instead of pro-rata over the contract period, and project milestones billed but not earned. Both understate liability and overstate EBITDA.",
     ],
   },
   {
@@ -222,7 +222,7 @@ const articles: Article[] = [
     body: [
       "Schedule III prescribes the order and classification of every line in your P&L and balance sheet. Revenue from operations sits above Other income. Expenses are grouped under specific heads: cost of materials consumed, employee benefits, finance costs, depreciation & amortisation and other expenses.",
       "Done right, the Schedule III P&L lets an investor compute EBITDA in under a minute. Done wrong — with revenue buried under Other income, finance costs bundled into Other expenses, or related-party flows lumped in — it triggers diligence flags.",
-      "The most common MSME slip is the \"Other expenses\" bucket. It should be a catch-all, not a hiding place. Anything above 5% of total expenses deserves its own line or a disclosure note.",
+      "The most common SMB slip is the \"Other expenses\" bucket. It should be a catch-all, not a hiding place. Anything above 5% of total expenses deserves its own line or a disclosure note.",
     ],
   },
   {
@@ -231,24 +231,24 @@ const articles: Article[] = [
     category: "Compliance & Standards",
     readMin: 5,
     summary:
-      "Your books, your GSTR-1 and your GSTR-3B should tell the same story every month. When they drift, the next GST notice is already being written.",
+      "Your books, your Sales tax invoices and your Sales tax return should tell the same story every month. When they drift, the next sales tax notice is already being written.",
     body: [
-      "There are three GST numbers that must match: revenue recognised in your books, output liability in GSTR-1, and net tax paid in GSTR-3B. A gap of even 2-3% across months compounds into a meaningful assessment risk.",
-      "Build a monthly reconciliation with four rows: revenue per books, revenue per GSTR-1, taxable value in GSTR-3B, and the net differences with reasons. Typical causes of gap: credit notes posted in the wrong month, advances received, export invoices without LUT, and free-of-cost supplies.",
-      "Input tax credit is the other leg. Your purchase register should match GSTR-2B. Any vendor invoice missing from GSTR-2B is an ITC your supplier has not paid — and therefore an ITC you will lose.",
+      "There are three sales tax numbers that must match: revenue recognised in your books, output liability in Sales tax invoices, and net tax paid in Sales tax return. A gap of even 2-3% across months compounds into a meaningful assessment risk.",
+      "Build a monthly reconciliation with four rows: revenue per books, revenue per Sales tax invoices, taxable value in Sales tax return, and the net differences with reasons. Typical causes of gap: credit notes posted in the wrong month, advances received, export invoices without LUT, and free-of-cost supplies.",
+      "Input tax credit is the other leg. Your purchase register should match input tax reports. Any vendor invoice missing from input tax reports is an ITC your supplier has not paid — and therefore an ITC you will lose.",
     ],
   },
 
   // ---------------- Integrations & Data ----------------
   {
     slug: "export-trial-balance-tally",
-    title: "Exporting Trial Balance from Tally Prime",
+    title: "Exporting Trial Balance from QuickBooks Online",
     category: "Integrations & Data",
     readMin: 2,
     summary:
-      "CortexCFO reads any Trial Balance. Tally Prime exports one in four clicks — here is the clean way to do it.",
+      "CortexCFO reads any Trial Balance. QuickBooks Online exports one in four clicks — here is the clean way to do it.",
     body: [
-      "Open Tally Prime and select the company. From Gateway of Tally, go to Display More Reports > Trial Balance.",
+      "Open QuickBooks Online and select the company. From Gateway of QuickBooks, go to Display More Reports > Trial Balance.",
       "Press F2 to set the period (the last closed month is the usual choice) and F5 for a detailed, account-level view.",
       "Press Ctrl+E to export. In the export window choose Excel (.xlsx) as the format, set \"Show vouchers\" to No and \"Closing balance only\" to Yes.",
       "Save the file and upload it to CortexCFO. We classify every account, run the ratio pack and generate the QoE lens automatically. The round-trip takes under a minute.",
@@ -260,10 +260,10 @@ const articles: Article[] = [
     category: "Integrations & Data",
     readMin: 4,
     summary:
-      "A messy chart of accounts is the single biggest silent tax on decision speed in an Indian MSME. Cleaning it up pays dividends every month.",
+      "A messy chart of accounts is the single biggest silent tax on decision speed in an SMB. Cleaning it up pays dividends every month.",
     body: [
       "A clean chart of accounts has three properties: every account maps to exactly one Schedule III line, related-party accounts are named rather than hidden inside regular vendor groups, and one-time or non-operating items have their own accounts so they can be stripped for EBITDA at will.",
-      "Typical rot in an MSME chart: a \"Miscellaneous expenses\" account that absorbs five years of unclassified charges; a single \"Bank charges\" account that mixes forex losses with actual bank fees; promoter personal expenses posted to business accounts.",
+      "Typical rot in an SMB chart: a \"Miscellaneous expenses\" account that absorbs five years of unclassified charges; a single \"Bank charges\" account that mixes forex losses with actual bank fees; promoter personal expenses posted to business accounts.",
       "The fix is mechanical but unglamorous. Run an exception list of any account with more than six distinct transaction types in a year. Reclassify or split. Then freeze the chart and document the rules. CortexCFO can generate this exception list from your trial balance in seconds.",
     ],
   },
@@ -318,7 +318,7 @@ export default function KnowledgeBasePage() {
             </div>
             <p className="text-lg text-white/45 max-w-2xl leading-relaxed mb-8">
               A growing library of field notes, playbooks and compliance
-              explainers for finance teams inside Indian MSMEs &mdash;
+              explainers for finance teams inside SMBs &mdash;
               written by operators who have run these cycles many times over.
             </p>
             <div className="relative max-w-lg">
@@ -520,7 +520,7 @@ export default function KnowledgeBasePage() {
             </h2>
             <p className="text-white/40 mb-8 max-w-xl mx-auto">
               Upload a trial balance and CortexCFO will produce a
-              boardroom-ready analysis &mdash; QoE lens, ratio pack, Ind AS
+              boardroom-ready analysis &mdash; QoE lens, ratio pack, GAAP
               flags and an AI consultant ready to answer your follow-ups.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">

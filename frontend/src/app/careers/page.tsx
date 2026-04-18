@@ -25,7 +25,7 @@ const openRoles = [
     stack: "TypeScript · Next.js · FastAPI · PostgreSQL",
     location: "Remote (India) · Hybrid Pune/Mumbai",
     blurb:
-      "Own end-to-end product surfaces from Trial Balance upload to the QoE report PDF. You care about finance, not just code — you'll be reading Ind AS 115 alongside React components.",
+      "Own end-to-end product surfaces from Trial Balance upload to the QoE report PDF. You care about finance, not just code — you'll be reading ASC 606 (Revenue) alongside React components.",
   },
   {
     title: "Founding Engineer — AI / LLM evals",
@@ -38,18 +38,18 @@ const openRoles = [
   {
     title: "Founding CA — Financial Analyst",
     team: "Finance / Product",
-    stack: "CA · Ind AS · QoE · MSME audit experience",
+    stack: "CA · GAAP · QoE · SMB audit experience",
     location: "Remote (India) · Hybrid Pune/Mumbai",
     blurb:
-      "Sit between product and customer. Review model output, author the Ind AS rule base, sign off QoE reports, and translate what you see in books into product backlog.",
+      "Sit between product and customer. Review model output, author the GAAP rule base, sign off QoE reports, and translate what you see in books into product backlog.",
   },
   {
     title: "Founding GTM Lead",
     team: "Go-to-market",
-    stack: "B2B SaaS · MSME distribution · CA channel partners",
+    stack: "B2B SaaS · SMB distribution · CA channel partners",
     location: "Remote (India) · Hybrid Pune/Mumbai",
     blurb:
-      "Take CortexCFO to the ₹10–50 Cr Indian MSME segment. Build the CA partner channel, run founder-led sales, and tell our story to banks, PE, and acquirers.",
+      "Take CortexCFO to the $1-10M SMB segment. Build the CPA partner channel, run founder-led sales, and tell our story to banks, PE, and acquirers.",
   },
 ];
 
@@ -57,12 +57,12 @@ const whyJoin = [
   {
     icon: Rocket,
     title: "Real problem, real urgency",
-    desc: "63 million Indian SMEs, most running on spreadsheets, most paying ₹6–15 Lakh for a Big-4 QoE they can't afford. We're closing that gap every month.",
+    desc: "63 million Indian SMEs, most running on spreadsheets, most paying $10-25K for a Big-4 QoE they can't afford. We're closing that gap every month.",
   },
   {
     icon: Shield,
     title: "Defensible product moat",
-    desc: "Ind AS coverage, QoE add-back library, and CA sign-off workflow compound with every engagement. No competitor in India has this stack today.",
+    desc: "GAAP coverage, QoE add-back library, and CA sign-off workflow compound with every engagement. No competitor in India has this stack today.",
   },
   {
     icon: Users,
@@ -72,7 +72,7 @@ const whyJoin = [
   {
     icon: IndianRupee,
     title: "Meaningful equity",
-    desc: "Real founding-team equity with a transparent cap table. You benefit when Indian MSMEs benefit. We'll walk you through the numbers on our first call.",
+    desc: "Real founding-team equity with a transparent cap table. You benefit when SMBs benefit. We'll walk you through the numbers on our first call.",
   },
 ];
 
@@ -97,10 +97,10 @@ export default function CareersPage() {
               <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
                 intelligence layer
               </span>
-              <br />for Indian MSMEs
+              <br />for SMBs
             </h1>
             <p className="text-lg text-white/40 leading-relaxed max-w-xl mx-auto">
-              CortexCFO is a small founding team, shipping weekly, serving ₹10–50 Cr
+              CortexCFO is a small founding team, shipping weekly, serving $1-10M
               Indian businesses. If the mission speaks to you, we&apos;d love to chat.
             </p>
             <div className="mt-8">

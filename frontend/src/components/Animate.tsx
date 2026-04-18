@@ -162,7 +162,7 @@ export function CountUp({
 
   return (
     <span ref={ref} className={className}>
-      {prefix}{count.toLocaleString("en-IN")}{suffix}
+      {prefix}{count.toLocaleString("en-US")}{suffix}
     </span>
   );
 }

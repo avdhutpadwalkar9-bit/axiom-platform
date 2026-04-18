@@ -6,7 +6,7 @@
  *
  * Two exports:
  *  - exportAnalysisPdf → the main TB analysis report (cover, grouped P&L,
- *    grouped balance sheet, ratios, Ind AS, insights, optional variance).
+ *    grouped balance sheet, ratios, GAAP, insights, optional variance).
  *  - exportQoEPdf → the Quality of Earnings workbook (reported vs adjusted
  *    EBITDA, add-back schedule, compliance matrix, sign-off workflow).
  *
@@ -89,18 +89,21 @@ function renderRatio(
 }
 
 // ── Number + currency helpers ──────────────────────────────────────────────
+// Switched from INR (Cr/L) to USD (M/K) for the international audience.
+// The raw `value` arriving here is still a number in the base currency
+// configured elsewhere; at display time we format it as USD so every
+// export PDF the user shares reads as dollars.
 function fmt(value: number, compact = false): string {
   if (compact) {
     const abs = Math.abs(value);
     const sign = value < 0 ? "-" : "";
-    if (abs >= 10000000) return `${sign}Rs.${(abs / 10000000).toFixed(2)} Cr`;
-    if (abs >= 100000) return `${sign}Rs.${(abs / 100000).toFixed(2)} L`;
-    if (abs >= 1000) return `${sign}Rs.${(abs / 1000).toFixed(1)}K`;
-    return `${sign}Rs.${abs.toFixed(0)}`;
+    if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(2)}M`;
+    if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(1)}K`;
+    return `${sign}$${abs.toFixed(0)}`;
   }
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency", currency: "INR", maximumFractionDigits: 0,
-  }).format(value).replace("₹", "Rs.");
+  return new Intl.NumberFormat("en-US", {
+    style: "currency", currency: "USD", maximumFractionDigits: 0,
+  }).format(value);
 }
 
 function pct(num: number, denom: number): string {
@@ -266,9 +269,9 @@ export function exportAnalysisPdf(
   y += 8;
   doc.setFontSize(9);
   doc.setTextColor(...MUTED);
-  doc.text(`Generated: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}`, margin, y);
+  doc.text(`Generated: ${new Date().toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}`, margin, y);
   y += 4;
-  doc.text("Ind AS Compliant Review  |  AI-Powered Insights", margin, y);
+  doc.text("GAAP Compliant Review  |  AI-Powered Insights", margin, y);
 
   // Summary cards
   y += 18;
@@ -425,7 +428,7 @@ export function exportAnalysisPdf(
   pageBg();
   y = 14;
 
-  sectionHeader("Balance Sheet", "Current / Non-Current split per Ind AS presentation");
+  sectionHeader("Balance Sheet", "Current / Non-Current split per GAAP presentation");
 
   const bsRows: (string | number)[][] = [];
   const renderBsSection = (
@@ -579,7 +582,7 @@ export function exportAnalysisPdf(
   y = (doc as any).lastAutoTable.finalY + 10;
 
   if (ind_as_observations.length > 0) {
-    sectionHeader("Ind AS Compliance Observations");
+    sectionHeader("GAAP Compliance Observations");
     const indRows = ind_as_observations.map(obs => [obs.standard, obs.observation, obs.severity.toUpperCase()]);
     autoTable(doc, {
       startY: y,
@@ -867,7 +870,7 @@ export function exportQoEPdf(
   doc.setTextColor(...WHITE);
   doc.text("CortexCFO", margin + 14, 22);
 
-  // CA-reviewed pill
+  // CPA-reviewed pill
   doc.setFillColor(16, 185, 129, 0.15 * 255);
   doc.setDrawColor(...EMERALD);
   doc.setTextColor(...EMERALD);
@@ -887,9 +890,9 @@ export function exportQoEPdf(
   y += 8;
   doc.setFontSize(9);
   doc.setTextColor(...MUTED);
-  doc.text(`Generated: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}`, margin, y);
+  doc.text(`Generated: ${new Date().toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}`, margin, y);
   y += 4;
-  doc.text("Continuous audit-readiness  |  Adjusted EBITDA with full add-back schedule  |  Ind AS aligned", margin, y);
+  doc.text("Continuous audit-readiness  |  Adjusted EBITDA with full add-back schedule  |  GAAP aligned", margin, y);
 
   // KPI cards
   y += 18;
@@ -984,7 +987,7 @@ export function exportQoEPdf(
   pageBg();
   y = 14;
 
-  sectionHeader("Add-back Schedule", `Every adjustment, with rationale and Ind AS reference${pendingAddbacks !== 0 ? `  |  ${fmt(pendingAddbacks, true)} pending review` : ""}`);
+  sectionHeader("Add-back Schedule", `Every adjustment, with rationale and GAAP reference${pendingAddbacks !== 0 ? `  |  ${fmt(pendingAddbacks, true)} pending review` : ""}`);
 
   const grouped: Record<string, QoEAddBack[]> = {};
   for (const a of addbacks) {
@@ -1010,7 +1013,7 @@ export function exportQoEPdf(
 
   autoTable(doc, {
     startY: y,
-    head: [["Description", "Ind AS", "Amount", "Status"]],
+    head: [["Description", "GAAP", "Amount", "Status"]],
     body: abRows,
     margin: { left: margin, right: margin },
     theme: "plain",
@@ -1056,7 +1059,7 @@ export function exportQoEPdf(
   pageBg();
   y = 14;
 
-  sectionHeader("Compliance & Regulatory Health", "Continuous GST, TDS and MCA reconciliations");
+  sectionHeader("Compliance & Regulatory Health", "Continuous GST, withholding tax and MCA reconciliations");
 
   const compRows = complianceChecks.map(c => [
     c.status === "ok" ? "OK" : "WARN",
@@ -1094,8 +1097,8 @@ export function exportQoEPdf(
   const approvedCount = addbacks.filter(a => a.status === "approved").length;
   const pendingCount = addbacks.filter(a => a.status === "pending").length;
   const workflowRows = [
-    ["1", "AI prepares first draft", "Add-back candidates surfaced, rationale drafted, Ind AS tags applied", "Done"],
-    ["2", "Preparer confirms ledger tie-out", "Each line item back-linked to Tally / Zoho transaction ID", "Done"],
+    ["1", "AI prepares first draft", "Add-back candidates surfaced, rationale drafted, GAAP tags applied", "Done"],
+    ["2", "Preparer confirms ledger tie-out", "Each line item back-linked to QuickBooks / Xero transaction ID", "Done"],
     ["3", "CA reviews & approves add-backs", `${approvedCount} approved · ${pendingCount} pending`, pendingCount > 0 ? "In progress" : "Done"],
     ["4", "UDIN captured, PDF signed", "Report exported with CA's UDIN, firm seal, advisory disclaimer", "Pending"],
   ];

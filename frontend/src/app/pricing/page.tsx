@@ -15,7 +15,7 @@ const plans = [
     features: [
       "One full QoE report",
       "Adjusted EBITDA with add-back schedule",
-      "Ind AS-aligned P&L, BS, CFS",
+      "GAAP-aligned P&L, BS, CFS",
       "CA sign-off on every report",
       "30-day access to underlying dashboard",
       "Delivered in 48 hours",
@@ -27,12 +27,12 @@ const plans = [
     name: "Growth",
     price: "\u20B924,999",
     period: "/month",
-    desc: "For MSMEs at \u20B910\u201350 Cr revenue",
+    desc: "For SMBs at \u20B910\u201350M revenue",
     features: [
       "Everything in Diligence Report, monthly",
-      "Unlimited Tally/Zoho syncs",
+      "Unlimited QuickBooks/Xero syncs",
       "Continuous QoE engine",
-      "Multi-year Ind AS reports",
+      "Multi-year GAAP reports",
       "Unlimited AI chat",
       "Industry benchmarks",
       "Monthly growth SOPs",
@@ -68,7 +68,7 @@ const plans = [
       "SSO + role-based access",
       "Audit trail + compliance controls",
       "99.9% SLA + dedicated CSM",
-      "Ind AS, IFRS, US GAAP",
+      "GAAP, IFRS, US GAAP",
     ],
     highlighted: false,
     cta: "Contact sales",
@@ -85,12 +85,12 @@ export default function PricingPage() {
           <FadeIn className="text-center mb-6">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Pricing</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Big-4 charges &#8377;6&ndash;15 Lakh per QoE.
+              Big-4 charges $10-25K per QoE.
               <br />
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">We ship one every month for &#8377;25K.</span>
+              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">We ship one every month for $299.</span>
             </h1>
             <p className="text-white/45 text-lg max-w-2xl mx-auto">
-              Every report is CA-signed. No per-seat surprises. Cancel anytime.
+              Every report is CPA-signed. No per-seat surprises. Cancel anytime.
             </p>
           </FadeIn>
 
@@ -99,13 +99,13 @@ export default function PricingPage() {
             <div className="max-w-3xl mx-auto mb-14 bg-white/[0.02] border border-white/8 rounded-2xl p-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[13px]">
               <div className="flex items-center gap-2">
                 <span className="text-white/40">Big-4 QoE engagement</span>
-                <span className="text-white/60 font-semibold tabular-nums">&#8377;6&ndash;15 L</span>
-                <span className="text-white/30">&middot; 6&ndash;8 weeks</span>
+                <span className="text-white/60 font-semibold tabular-nums">$6–15 L</span>
+                <span className="text-white/30">&middot; 6–8 weeks</span>
               </div>
               <span className="text-white/20">vs.</span>
               <div className="flex items-center gap-2">
                 <span className="text-emerald-400 font-semibold">CortexCFO Growth</span>
-                <span className="text-white tabular-nums">&#8377;25K/mo</span>
+                <span className="text-white tabular-nums">$299/mo</span>
                 <span className="text-white/30">&middot; continuous</span>
               </div>
             </div>
@@ -154,7 +154,7 @@ export default function PricingPage() {
           <FadeIn delay={200}>
             <div className="mt-20">
               <h2 className="text-2xl font-bold text-center mb-3">Compare plans</h2>
-              <p className="text-center text-white/40 text-sm mb-10">Every tier, every report, reviewed and signed off by a qualified Indian CA.</p>
+              <p className="text-center text-white/40 text-sm mb-10">Every tier, every report, reviewed and signed off by a qualified licensed CPA.</p>
               <div className="bg-[#111] rounded-2xl border border-white/8 overflow-x-auto">
                 <table className="w-full text-sm min-w-[720px]">
                   <thead>
@@ -171,8 +171,8 @@ export default function PricingPage() {
                       { feature: "QoE reports", diligence: "1 report", growth: "Monthly", portfolio: "Monthly x all cos", enterprise: "Unlimited" },
                       { feature: "CA sign-off on every report", diligence: true, growth: true, portfolio: true, enterprise: true },
                       { feature: "Adjusted EBITDA + add-back schedule", diligence: true, growth: true, portfolio: true, enterprise: true },
-                      { feature: "Tally / Zoho sync", diligence: "One-time", growth: "Continuous", portfolio: "Continuous", enterprise: "Continuous" },
-                      { feature: "Ind AS-aligned P&L, BS, CFS", diligence: true, growth: true, portfolio: true, enterprise: true },
+                      { feature: "QuickBooks / Xero sync", diligence: "One-time", growth: "Continuous", portfolio: "Continuous", enterprise: "Continuous" },
+                      { feature: "GAAP-aligned P&L, BS, CFS", diligence: true, growth: true, portfolio: true, enterprise: true },
                       { feature: "Industry benchmarks", diligence: false, growth: true, portfolio: true, enterprise: true },
                       { feature: "Multi-year analysis", diligence: false, growth: true, portfolio: true, enterprise: true },
                       { feature: "AI chat on your ledger", diligence: "30-day access", growth: "Unlimited", portfolio: "Unlimited", enterprise: "Unlimited" },
@@ -223,7 +223,7 @@ export default function PricingPage() {
           <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/8 rounded-2xl p-6 text-center">
             <p className="text-[13px] text-white/45 leading-relaxed">
               <span className="text-white/70 font-medium">Advisory, not audit.</span>{" "}
-              CortexCFO produces investor-grade financial analysis reviewed by a qualified Indian Chartered Accountant.
+              CortexCFO produces investor-grade financial analysis reviewed by a qualified licensed CPA.
               Reports are not a substitute for a statutory audit opinion, a Big-4 Quality-of-Earnings engagement,
               or independent legal/tax counsel. All outputs are advisory in nature and carry our standard disclaimer and E&amp;O cover.
             </p>
@@ -236,7 +236,7 @@ export default function PricingPage() {
         <FadeIn>
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl font-bold mb-4">Not sure which tier fits?</h2>
-            <p className="text-white/40 mb-8">Start with a one-time Diligence Report for &#8377;49K. Upgrade to Growth anytime and we&rsquo;ll credit it toward your first month.</p>
+            <p className="text-white/40 mb-8">Start with a one-time Diligence Report for $49K. Upgrade to Growth anytime and we&rsquo;ll credit it toward your first month.</p>
             <div className="flex flex-wrap justify-center gap-3">
               <Link href="/signup" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-xl btn-magnetic text-sm font-semibold">
                 Start 14-day trial <ArrowRight className="w-4 h-4" />

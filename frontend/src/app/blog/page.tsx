@@ -14,7 +14,7 @@ import SiteFooter from "@/components/SiteFooter";
 const articles = [
   {
     category: "Compliance",
-    title: "Understanding Ind AS 115 for MSMEs",
+    title: "Understanding ASC 606 (Revenue) for SMBs",
     description: "A practical breakdown of the revenue recognition standard and what it means for small and medium enterprises navigating compliance for the first time.",
     readTime: "8 min read",
     date: "Mar 28, 2026",
@@ -38,7 +38,7 @@ const articles = [
   },
   {
     category: "Cash Flow",
-    title: "Cash Flow Management for Manufacturing MSMEs",
+    title: "Cash Flow Management for Manufacturing SMBs",
     description: "Manufacturing businesses face unique working capital challenges. Discover strategies for managing receivables, inventory, and seasonal cash cycles.",
     readTime: "7 min read",
     date: "Mar 7, 2026",
@@ -80,7 +80,7 @@ export default function BlogPage() {
               Resources &amp; Insights
             </h1>
             <p className="text-lg text-white/50 max-w-xl mx-auto mb-8">
-              Deep dives into financial analysis, Ind AS compliance, AI in finance,
+              Deep dives into financial analysis, GAAP compliance, AI in finance,
               and strategies for growing Indian businesses.
             </p>
             <Link

@@ -33,7 +33,7 @@ const INDUSTRIES = ["Manufacturing", "SaaS", "Services", "Trading", "E-commerce"
 const ENTITY_TYPES = ["Proprietorship", "Partnership", "LLP", "Pvt Ltd", "Public Ltd", "One Person Company", "HUF", "Trust"];
 const TURNOVER_RANGES = ["Below ₹40 Lakhs", "₹40L - ₹1.5 Crore", "₹1.5Cr - ₹5 Crore", "₹5Cr - ₹25 Crore", "₹25Cr - ₹100 Crore", "Above ₹100 Crore"];
 const ROLES = ["Founder / CEO", "CFO / Finance Head", "CA / Accountant", "Investor / PE", "Consultant", "Other"];
-const ACCOUNTING_SOFTWARE = ["Tally Prime", "Tally ERP 9", "Zoho Books", "QuickBooks", "Busy", "Marg", "Excel / Sheets", "Other"];
+const ACCOUNTING_SOFTWARE = ["QuickBooks", "QuickBooks Desktop", "Xero", "QuickBooks", "Busy", "Marg", "Excel / Sheets", "Other"];
 const FINANCIAL_YEARS = ["FY 2023-24", "FY 2024-25", "FY 2025-26"];
 
 export default function OnboardingPage() {
@@ -632,7 +632,7 @@ function getSampleTB() {
   return [
     { account_name: "Share Capital", debit: 0, credit: 5000000 },
     { account_name: "Reserves & Surplus", debit: 0, credit: 1200000 },
-    { account_name: "Secured Loan - HDFC Bank", debit: 0, credit: 3000000 },
+    { account_name: "Secured Loan - Wells Fargo", debit: 0, credit: 3000000 },
     { account_name: "Sundry Creditors", debit: 0, credit: 850000 },
     { account_name: "GST Output Payable", debit: 0, credit: 180000 },
     { account_name: "TDS Payable", debit: 0, credit: 45000 },

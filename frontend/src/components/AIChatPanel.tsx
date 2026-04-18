@@ -58,13 +58,13 @@ interface ChatMessage {
 function buildPageContext(pathname: string | null): string {
   if (!pathname) return "";
   if (pathname.startsWith("/qoe")) {
-    return "The user is viewing the Quality of Earnings page. It shows the EBITDA bridge (reported → adjusted), an add-back schedule broken out into Related-party / One-time / Revenue / Accounting categories with Ind AS references, customer concentration from the GL upload, and a continuous compliance matrix (GST / TDS / MCA). Questions here are usually about specific add-back items, red flags on concentration, or whether an adjustment would survive PE diligence.";
+    return "The user is viewing the Quality of Earnings page. It shows the EBITDA bridge (reported → adjusted), an add-back schedule broken out into Related-party / One-time / Revenue / Accounting categories with GAAP references, customer concentration from the GL upload, and a continuous compliance matrix (Sales / Withholding tax / MCA). Questions here are usually about specific add-back items, red flags on concentration, or whether an adjustment would survive PE diligence.";
   }
   if (pathname.startsWith("/dashboard")) {
     return "The user is viewing the main dashboard — high-level revenue, expense, margin, and health cards. Questions here are usually strategic and broad.";
   }
   if (pathname.startsWith("/analysis")) {
-    return "The user is viewing the TB/GL analysis output — income statement, balance sheet, ratios, classified accounts, warnings, and Ind AS observations.";
+    return "The user is viewing the TB/GL analysis output — income statement, balance sheet, ratios, classified accounts, warnings, and GAAP observations.";
   }
   if (pathname.startsWith("/scenarios")) {
     return "The user is on the scenario modeling page. Projections, sensitivity, what-if cases.";
@@ -166,7 +166,7 @@ export default function AIChatPanel() {
     if (analysisDate) {
       try {
         const d = new Date(analysisDate);
-        const label = d.toLocaleDateString("en-IN", {
+        const label = d.toLocaleDateString("en-US", {
           day: "numeric", month: "short", year: "numeric",
         });
         tags.push({ label, tone: "emerald" });
