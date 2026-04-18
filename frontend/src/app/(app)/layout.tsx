@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
+import AIChatPanel from "@/components/AIChatPanel";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: BarChart3 },
@@ -227,6 +228,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 overflow-y-auto page-enter bg-app-canvas">
         {children}
       </main>
+
+      {/* Floating CFO advisor — visible on every authenticated page.
+          The widget manages its own open/collapsed state and uses the
+          live onboarding + analysis stores so it always sees what the
+          user sees. */}
+      <AIChatPanel />
     </div>
   );
 }

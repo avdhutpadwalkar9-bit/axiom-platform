@@ -120,6 +120,38 @@ class ApiClient {
     });
   }
 
+  // Chat — sends a question to the backend CortexAI advisor. Backend runs
+  // the Claude/Gemini/Groq fallback chain and returns a single markdown
+  // string. `analysis_result` and `business_context` give the model the
+  // numbers + company details it needs to stay grounded; `page_context`
+  // is a free-form blob pages can use to surface what's on screen right
+  // now (e.g. the add-back schedule on /qoe).
+  async chat(payload: {
+    question: string;
+    analysis_result?: Record<string, unknown>;
+    conversation_history?: Array<{ role: "user" | "ai"; text: string }>;
+    business_context?: Record<string, unknown>;
+    page_context?: string;
+  }) {
+    // Backend's build_financial_context() reads specific keys from
+    // analysis_result (financial_statements, ratios, classified_accounts,
+    // etc.) — arbitrary new keys get dropped. To make page_context visible
+    // to the model we prepend it onto the question itself, bracketed so
+    // the LLM can tell it apart from the user's actual words.
+    const composedQuestion = payload.page_context
+      ? `[Context about the page the user is viewing]\n${payload.page_context}\n\n[User's question]\n${payload.question}`
+      : payload.question;
+    return this.request<{ response: string }>("/api/chat/ask", {
+      method: "POST",
+      body: JSON.stringify({
+        question: composedQuestion,
+        analysis_result: payload.analysis_result ?? {},
+        conversation_history: payload.conversation_history ?? [],
+        business_context: payload.business_context ?? null,
+      }),
+    });
+  }
+
   // Models
   async listModels() {
     return this.request<
