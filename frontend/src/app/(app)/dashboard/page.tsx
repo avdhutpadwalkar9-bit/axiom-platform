@@ -37,8 +37,19 @@ import { asCurrency } from "@/lib/currency";
 import { useFormat } from "@/hooks/useFormat";
 import ForexStrip from "@/components/ForexStrip";
 
+/** Format a RAW decimal as a percentage (0.47 → "47.0%").
+ *  Use for ratios computed client-side from raw numbers, e.g.
+ *  `cogs / total_revenue`, `liabilities / assets`. */
 function pct(n: number): string {
   return `${(n * 100).toFixed(1)}%`;
+}
+
+/** Format an ALREADY-percentage value from the backend (4.76 → "4.8%").
+ *  tb_analyzer.py stores gross_margin / net_margin / return_on_equity
+ *  as percent values (e.g. `net_income / revenue * 100`). Piping those
+ *  through pct() double-scales — 4.76 → "476.0%". Use this instead. */
+function pctFromPercent(n: number): string {
+  return `${n.toFixed(1)}%`;
 }
 
 /* ------------------------------------------------------------------ */
@@ -109,16 +120,16 @@ function getIndustryKPIs(
     return { label: "COGS Ratio", value: fs.total_revenue ? pct(cogs / fs.total_revenue) : "N/A" };
   }
   if (lower.includes("saas") || lower.includes("software") || lower.includes("technology")) {
-    return { label: "Gross Margin", value: pct(ratios.gross_margin) };
+    return { label: "Gross Margin", value: pctFromPercent(ratios.gross_margin) };
   }
   if (lower.includes("service") || lower.includes("consult")) {
     const empRatio = fs.total_revenue ? empCost / fs.total_revenue : 0;
     return { label: "Employee Cost %", value: pct(empRatio) };
   }
   if (lower.includes("trad") || lower.includes("retail") || lower.includes("ecommerce") || lower.includes("e-commerce")) {
-    return { label: "Gross Margin", value: pct(ratios.gross_margin) };
+    return { label: "Gross Margin", value: pctFromPercent(ratios.gross_margin) };
   }
-  return { label: "Net Margin", value: pct(ratios.net_margin) };
+  return { label: "Net Margin", value: pctFromPercent(ratios.net_margin) };
   // empCountNum intentionally referenced to avoid an unused-var complaint on the unused services-branch revPerEmp.
   void empCountNum;
 }
@@ -254,15 +265,18 @@ export default function DashboardPage() {
       "gross_margin",
       "Gross Margin",
       "Profitability",
-      (v) => pct(v),
-      (v) => (v >= 0.35 ? "Healthy" : v >= 0.2 ? "Adequate" : "Attention"),
+      // `v` arrives already as a percentage (backend: revenue-cogs over
+      // revenue × 100). Format without re-scaling; thresholds in
+      // percent units (35 / 20, not 0.35 / 0.2).
+      (v) => pctFromPercent(v),
+      (v) => (v >= 35 ? "Healthy" : v >= 20 ? "Adequate" : "Attention"),
     ),
     readMetric(
       "net_margin",
       "Net Margin",
       "Bottom-line",
-      (v) => pct(v),
-      (v) => (v >= 0.1 ? "Healthy" : v >= 0.03 ? "Adequate" : "Attention"),
+      (v) => pctFromPercent(v),
+      (v) => (v >= 10 ? "Healthy" : v >= 3 ? "Adequate" : "Attention"),
     ),
   ];
   const completeness = lastResult.completeness;
@@ -283,7 +297,7 @@ export default function DashboardPage() {
       icon: Activity,
       value: fmt(fs.net_income),
       active: false,
-      deltaText: pct(ratios.net_margin),
+      deltaText: pctFromPercent(ratios.net_margin),
     },
     {
       label: industryKpi.label,
