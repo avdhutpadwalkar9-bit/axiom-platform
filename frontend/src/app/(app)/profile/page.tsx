@@ -96,6 +96,32 @@ export default function ProfilePage() {
           <h2 className="text-sm font-semibold text-app-text">Business Information</h2>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
+          <div className="md:col-span-2">
+            {/* Region toggle — drives currency symbol, AI voice, FAQ
+                filtering, and which compliance framework CortexCFO
+                speaks. Isolated at the top of the business card so
+                it's obvious it's a GLOBAL knob, not per-section. */}
+            <label className={LABEL_CLS}>Region &amp; currency</label>
+            <div className="flex items-center gap-2">
+              <RegionButton
+                active={business.region === "US"}
+                label="United States"
+                sub="USD · US GAAP"
+                onClick={() => setBusiness({ region: "US" })}
+              />
+              <RegionButton
+                active={business.region === "IN"}
+                label="India"
+                sub="INR · Ind AS"
+                onClick={() => setBusiness({ region: "IN" })}
+              />
+            </div>
+            <p className="text-[10px] text-app-text-subtle mt-1.5">
+              Changes currency formatting across every page, the AI
+              advisor voice, and which regulatory framework (GAAP vs
+              Ind AS) we reference.
+            </p>
+          </div>
           <div>
             <label className={LABEL_CLS}>Company Name</label>
             <input value={business.companyName} onChange={(e) => setBusiness({ companyName: e.target.value })} className={INPUT_CLS} />
@@ -124,14 +150,18 @@ export default function ProfilePage() {
             <label className={LABEL_CLS}>Turnover Range</label>
             <input value={business.turnoverRange} readOnly className={INPUT_READONLY_CLS} />
           </div>
-          <div>
-            <label className={LABEL_CLS}>GSTIN</label>
-            <input value={business.gstin} onChange={(e) => setBusiness({ gstin: e.target.value })} className={INPUT_CLS} />
-          </div>
-          <div>
-            <label className={LABEL_CLS}>PAN</label>
-            <input value={business.pan} onChange={(e) => setBusiness({ pan: e.target.value })} className={INPUT_CLS} />
-          </div>
+          {business.region === "IN" && (
+            <>
+              <div>
+                <label className={LABEL_CLS}>GSTIN</label>
+                <input value={business.gstin} onChange={(e) => setBusiness({ gstin: e.target.value })} className={INPUT_CLS} />
+              </div>
+              <div>
+                <label className={LABEL_CLS}>PAN</label>
+                <input value={business.pan} onChange={(e) => setBusiness({ pan: e.target.value })} className={INPUT_CLS} />
+              </div>
+            </>
+          )}
         </div>
       </div>
 
@@ -268,5 +298,34 @@ export default function ProfilePage() {
         </div>
       )}
     </div>
+  );
+}
+
+// Region toggle pill — used in the Business Information card. Kept as a
+// small helper so each region option is pixel-identical.
+function RegionButton({
+  active,
+  label,
+  sub,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  sub: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex-1 flex flex-col items-start gap-0.5 px-3.5 py-2.5 rounded-lg border text-left transition-all ${
+        active
+          ? "border-emerald-500/40 bg-emerald-500/10 text-app-text"
+          : "border-app-border bg-app-card-hover text-app-text-muted hover:text-app-text hover:border-app-border-strong"
+      }`}
+    >
+      <span className="text-[13px] font-medium">{label}</span>
+      <span className={`text-[10px] ${active ? "text-emerald-400/80" : "text-app-text-subtle"}`}>{sub}</span>
+    </button>
   );
 }

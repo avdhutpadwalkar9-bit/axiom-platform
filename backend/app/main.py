@@ -52,12 +52,33 @@ async def _normalize_user_emails(conn) -> None:
         print(f"[STARTUP] Normalized email for user {user_id}: {original!r} -> {normalized!r}")
 
 
+async def _ensure_region_column(conn) -> None:
+    """Idempotent: add business_profiles.region if it's missing.
+
+    Base.metadata.create_all creates tables but doesn't ALTER existing ones,
+    so deployments predating the `region` column need this bridge. Postgres
+    ``ADD COLUMN IF NOT EXISTS`` is the clean primitive; SQLite ignores the
+    attempt gracefully (we only run Postgres in production, but dev can
+    still boot).
+    """
+    try:
+        await conn.execute(
+            text(
+                "ALTER TABLE business_profiles "
+                "ADD COLUMN IF NOT EXISTS region VARCHAR(4) DEFAULT 'US'"
+            )
+        )
+    except Exception as e:  # pragma: no cover — SQLite / missing table
+        print(f"[STARTUP] Region column ensure skipped: {e}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Create tables on startup (use alembic in production)
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         await _normalize_user_emails(conn)
+        await _ensure_region_column(conn)
     yield
     await engine.dispose()
 

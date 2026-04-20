@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { Region } from "@/lib/currency";
 
 export interface PersonalProfile {
   fullName: string;
@@ -9,6 +10,9 @@ export interface PersonalProfile {
 
 export interface BusinessProfile {
   companyName: string;
+  // Region drives currency formatting, AI voice, FAQ bank, compliance
+  // references. Default "US"; user can flip to "IN" in /profile.
+  region: Region;
   gstin: string;
   pan: string;
   cin: string;
@@ -53,6 +57,7 @@ const defaultPersonal: PersonalProfile = {
 
 const defaultBusiness: BusinessProfile = {
   companyName: "",
+  region: "US",
   gstin: "",
   pan: "",
   cin: "",
@@ -100,6 +105,24 @@ export const useOnboardingStore = create<OnboardingState>()(
           upload: { ...defaultUpload },
         }),
     }),
-    { name: "cortexcfo-onboarding" }
+    {
+      name: "cortexcfo-onboarding",
+      version: 2,
+      // Deep merge on rehydrate: existing users in localStorage have the
+      // old shape (no `region`, etc). Shallow merge would leave the gap
+      // and `business.region` would be undefined at runtime. Explicit
+      // merge guarantees every field in defaultBusiness has a value
+      // even if the persisted blob predates the field.
+      merge: (persisted, current) => {
+        const p = (persisted as Partial<OnboardingState>) ?? {};
+        return {
+          ...current,
+          ...p,
+          personal: { ...current.personal, ...(p.personal ?? {}) },
+          business: { ...current.business, ...(p.business ?? {}) },
+          upload: { ...current.upload, ...(p.upload ?? {}) },
+        };
+      },
+    }
   )
 );
