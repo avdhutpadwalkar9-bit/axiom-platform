@@ -130,6 +130,10 @@ export const useOnboardingStore = create<OnboardingState>()(
           upload: { ...current.upload, ...(p.upload ?? {}) },
         };
       },
+      // Keep persisted state regardless of stored version — merge above
+      // fills defaults from the current shape, so users don't lose their
+      // onboarding when we bump the schema version.
+      migrate: (persisted) => persisted as OnboardingState,
     }
   )
 );

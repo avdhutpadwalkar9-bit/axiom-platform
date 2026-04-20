@@ -198,6 +198,20 @@ export default function RootLayout({
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* Legacy-key rename: the persist keys were renamed from
+            `axiom-*` to `cortexcfo-*` in an earlier release and
+            existing users' data got stranded under the old key,
+            showing "No Financial Data Yet" on dashboard. This runs
+            synchronously before any JS module imports so Zustand's
+            persist middleware reads from the correct key on first
+            hydrate. Safe if either key already exists — we never
+            overwrite a populated target. */}
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `try{var m=[['axiom-analysis','cortexcfo-analysis'],['axiom-onboarding','cortexcfo-onboarding']];for(var i=0;i<m.length;i++){var k1=m[i][0],k2=m[i][1];if(!localStorage.getItem(k2)){var v=localStorage.getItem(k1);if(v)localStorage.setItem(k2,v);}}}catch(e){}`,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>

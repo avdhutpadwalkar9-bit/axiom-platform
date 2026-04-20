@@ -193,6 +193,12 @@ export const useAnalysisStore = create<AnalysisState>()(
         ...current,
         ...(persisted as Partial<AnalysisState>),
       }),
+      // Accept persisted state from ANY earlier version — we only ever
+      // added fields (sourceCurrency, exchangeRates) and `merge` above
+      // fills the gaps from current defaults. Without this, Zustand
+      // drops state on version mismatch and users lose their last
+      // analysis silently.
+      migrate: (persisted) => persisted as AnalysisState,
     }
   )
 );
