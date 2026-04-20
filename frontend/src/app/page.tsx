@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, ReactNode } from "react";
 import Link from "next/link";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
+import RegionPicker from "@/components/RegionPicker";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -639,6 +640,10 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <SiteNav />
+      {/* First-visit nudge for US-timezone visitors — routes them to
+          /us, which carries the M&A-Readiness positioning + USD pricing.
+          Silent for non-US timezones (default audience unaffected). */}
+      <RegionPicker />
 
       {/* ═══════════════════════════════════════════════════════════════ */}
       {/*  HERO SECTION                                                  */}

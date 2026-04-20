@@ -17,9 +17,34 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+// Canonical production URL — used as the base for hreflang alternates
+// below. When we split to cortexcfo.com later, swap this one string.
+const SITE_URL = "https://axiom-platform.vercel.app";
+
 export const metadata: Metadata = {
   title: "CortexCFO — The FP&A Platform for High-Growth Teams",
-  description: "CortexCFO is the FP&A platform for high-growth teams. Build flexible financial models, collaborate across departments, and turn data into confident decisions.",
+  description:
+    "CortexCFO is the FP&A platform for high-growth teams. Build flexible financial models, collaborate across departments, and turn data into confident decisions.",
+  // Hreflang alternates tell Google which version to serve to which
+  // locale. "en-US" → /us (M&A-Readiness positioning, USD pricing).
+  // "x-default" points to / (the regionally-neutral landing) so
+  // everyone else lands there by default. Adding "/in" later is one
+  // more line — and the SEO accrues to the single domain either way.
+  alternates: {
+    canonical: SITE_URL,
+    languages: {
+      "en-US": `${SITE_URL}/us`,
+      "x-default": SITE_URL,
+    },
+  },
+  openGraph: {
+    title: "CortexCFO — The FP&A Platform for High-Growth Teams",
+    description:
+      "AI FP&A for $1M-$10M SMBs. GAAP-clean financials, QoE-ready reports, strategic CFO advisor on call.",
+    url: SITE_URL,
+    siteName: "CortexCFO",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
