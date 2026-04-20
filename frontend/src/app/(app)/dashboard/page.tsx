@@ -129,7 +129,18 @@ function getIndustryKPIs(
 export default function DashboardPage() {
   const router = useRouter();
   const { lastResult, companyName, analysisDate, hasData } = useAnalysisStore();
-  const { business } = useOnboardingStore();
+  const { business, setBusiness } = useOnboardingStore();
+  // Region pill — flips the app between US GAAP voice (currency USD)
+  // and Indian voice (currency INR). Downstream consumers (AI advisor,
+  // FAQ bank, formatter) all read from business.currency/region so
+  // this single write swaps the entire mode. No backend migration
+  // needed; the analysis + FX data stays the same, only display +
+  // voice change.
+  const activeRegion = business?.region === "IN" ? "IN" : "US";
+  const switchRegion = (r: "US" | "IN") => {
+    if (r === activeRegion) return;
+    setBusiness({ region: r, currency: r === "IN" ? "INR" : "USD" });
+  };
   const currency = asCurrency(business.currency);
   // Unified formatter: handles source→display FX conversion + currency
   // symbol + locale grouping. Replaces the old local makeFmt closure so
@@ -313,11 +324,15 @@ export default function DashboardPage() {
     },
     {
       icon: Shield,
-      label: "Ind AS compliance review",
-      ref: `INDAS-${refCode}`,
+      // Compliance review is being rebuilt per-region (GAAP / Ind AS)
+      // with expert sign-off; the dashboard surface stays neutral until
+      // that engine is reviewer-approved. Underlying observations keep
+      // flowing into the analysis store.
+      label: "Compliance review",
+      ref: `COMP-${refCode}`,
       date: formattedDate,
-      metric: indAS && indAS.length > 0 ? `${indAS.length} observations` : "Clean",
-      status: "Completed",
+      metric: "Coming soon",
+      status: "In review",
       onClick: () => router.push("/qoe"),
     },
     {
@@ -371,7 +386,35 @@ export default function DashboardPage() {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Region pill — swaps the reporting voice (US GAAP vs
+                Ind AS) and reporting currency in one click. */}
+            <div
+              className="inline-flex items-center bg-app-canvas border border-app-border rounded-lg p-0.5"
+              role="tablist"
+              aria-label="Reporting region"
+            >
+              {(["US", "IN"] as const).map((r) => (
+                <button
+                  key={r}
+                  role="tab"
+                  aria-selected={activeRegion === r}
+                  onClick={() => switchRegion(r)}
+                  className={`px-2.5 py-1.5 rounded-md text-[11px] font-semibold tracking-wider uppercase transition-colors ${
+                    activeRegion === r
+                      ? "bg-emerald-500/15 text-emerald-400"
+                      : "text-app-text-subtle hover:text-app-text-muted"
+                  }`}
+                  title={
+                    r === "US"
+                      ? "US GAAP reporting voice · USD"
+                      : "Ind AS reporting voice · INR"
+                  }
+                >
+                  {r === "US" ? "US" : "India"}
+                </button>
+              ))}
+            </div>
             <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-app-border bg-app-canvas hover:bg-app-card-hover text-[12px] text-app-text-muted transition-colors">
               <Calendar className="w-3.5 h-3.5" />
               {formattedDate || "Latest"}

@@ -21,12 +21,24 @@ from openpyxl import load_workbook
 
 # Header synonym maps. Keys are lower-cased, stripped of non-alphanumerics
 # so "Account Name" matches "account_name" matches "AccountName".
+#
+# `name` / `credittotal` / `debittotal` added for Zoho Books "Chart of
+# Accounts" exports — those are single-row-per-account aggregated
+# balances rather than transaction-level lines. The parser's
+# per-account accumulation logic handles them correctly out of the box
+# (one contribution per account vs many).
 _ACCOUNT_NAME_KEYS = {
     "accountname", "account", "ledger", "ledgername", "particulars",
-    "glaccount", "accountdescription",
+    "glaccount", "accountdescription", "name",
 }
-_DEBIT_KEYS = {"debit", "debitamount", "dr", "netdebit", "debitvalue"}
-_CREDIT_KEYS = {"credit", "creditamount", "cr", "netcredit", "creditvalue"}
+_DEBIT_KEYS = {
+    "debit", "debitamount", "dr", "netdebit", "debitvalue",
+    "debittotal", "totaldebit",
+}
+_CREDIT_KEYS = {
+    "credit", "creditamount", "cr", "netcredit", "creditvalue",
+    "credittotal", "totalcredit",
+}
 _CONTACT_KEYS = {
     "transactiondetails", "contactname", "party", "partyname",
     "customer", "vendor", "supplier", "description", "narration",
@@ -286,9 +298,18 @@ def parse_gl_excel(content: bytes) -> GLParseResult:
 def _detect_format(normalized_headers: list[str]) -> str:
     """Best-effort detection of which accounting system produced the file."""
     header_set = set(normalized_headers)
-    # Zoho Books GL has this very specific combo
+    # Zoho Books GL (transaction-level) has this specific combo
     if "transactiondetails" in header_set and "netamount" in header_set:
         return "zoho_books"
+    # Zoho Books "Chart of Accounts" summary — already aggregated per
+    # account (name / debit_total / credit_total / balance / is_debit).
+    # We treat every row as a single "transaction" whose totals get
+    # collapsed one-to-one into a TB entry.
+    if (
+        "name" in header_set
+        and ("debittotal" in header_set or "credittotal" in header_set)
+    ):
+        return "zoho_coa_summary"
     if "vouchertype" in header_set or "voucher" in header_set:
         return "tally"
     if "transactiontype" in header_set and "reference" in header_set:

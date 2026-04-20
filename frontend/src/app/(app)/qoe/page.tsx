@@ -629,23 +629,25 @@ export default function QoEPage() {
 
       {/* Compliance matrix + workflow */}
       <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-app-card rounded-xl border border-app-border p-6">
-          <h3 className="text-sm font-semibold text-app-text mb-1">Compliance &amp; regulatory health</h3>
-          <p className="text-xs text-app-text-subtle mb-5">Continuous GST, TDS and MCA reconciliations</p>
-          <div className="space-y-2.5">
-            {COMPLIANCE_CHECKS.map((c) => (
-              <div key={c.label} className="flex items-start gap-3 p-3 rounded-lg border border-app-border/70 bg-app-canvas">
-                {c.status === "ok" ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                ) : (
-                  <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-app-text">{c.label}</p>
-                  <p className="text-[11px] text-app-text-subtle mt-0.5">{c.detail}</p>
-                </div>
-              </div>
-            ))}
+        <div className="bg-app-card rounded-xl border border-amber-500/20 p-6">
+          <h3 className="text-sm font-semibold text-app-text mb-1">Compliance review</h3>
+          <p className="text-xs text-app-text-subtle mb-5">Per-region regulatory engine &middot; expert-reviewed</p>
+          <div className="flex items-start gap-3 p-5 rounded-lg border border-amber-500/25 bg-amber-500/5">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center flex-shrink-0">
+              <Shield className="w-4 h-4 text-amber-400" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-app-text mb-1">
+                Compliance review &mdash; coming soon
+              </p>
+              <p className="text-xs text-app-text-subtle leading-relaxed">
+                GST / TDS / ITC / MCA reconciliations (India) and IRS /
+                ASC 606 / Schedule-level checks (US) are being validated
+                by our in-house experts before enablement. Underlying
+                algorithms continue to run on your uploaded data so
+                results are ready the moment the engine goes live.
+              </p>
+            </div>
           </div>
         </div>
 

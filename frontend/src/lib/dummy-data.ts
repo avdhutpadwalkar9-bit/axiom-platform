@@ -210,17 +210,47 @@ export const qoeAdjustments = [
 // payments stack. India-only legacy names (Tally, Zoho Books, Razorpay, GSTN,
 // Chase/Wells Fargo, MCA Portal, Income Tax India) moved out; QuickBooks / Xero /
 // NetSuite lead, with Plaid/Stripe/Chase as the cash + payments rail.
-export const integrations = [
-  { name: "QuickBooks", logo: "Q", category: "Accounting", status: "connected", lastSync: "2 min ago", color: "#22c55e" },
-  { name: "Xero", logo: "X", category: "Accounting", status: "available", lastSync: null, color: "#0ea5e9" },
-  { name: "NetSuite", logo: "N", category: "Accounting", status: "available", lastSync: null, color: "#f59e0b" },
-  { name: "Stripe", logo: "S", category: "Payments", status: "connected", lastSync: "5 min ago", color: "#6772e5" },
-  { name: "Plaid", logo: "P", category: "Banking", status: "connected", lastSync: "30 min ago", color: "#3b82f6" },
-  { name: "Chase", logo: "C", category: "Banking", status: "available", lastSync: null, color: "#1e3a8a" },
-  { name: "Wells Fargo", logo: "W", category: "Banking", status: "available", lastSync: null, color: "#dc2626" },
-  { name: "Chargebee", logo: "CB", category: "Billing", status: "available", lastSync: null, color: "#ef4444" },
-  { name: "Square", logo: "Sq", category: "Payments", status: "available", lastSync: null, color: "#10b981" },
-  { name: "ADP", logo: "A", category: "Payroll", status: "available", lastSync: null, color: "#f97316" },
-  { name: "Gusto", logo: "G", category: "Payroll", status: "connected", lastSync: "1 hour ago", color: "#22c55e" },
-  { name: "IRS e-Services", logo: "IRS", category: "Compliance", status: "connected", lastSync: "1 day ago", color: "#14b8a6" },
+// Integrations catalogue. Tagged by `region` so the /integrations page
+// can show US-only, India-only, or All based on what the user picked.
+// "all" = available everywhere (generic services: Stripe, Plaid, etc.)
+export interface Integration {
+  name: string;
+  logo: string;
+  category: "Accounting" | "Banking" | "Payments" | "Billing" | "Payroll" | "Compliance";
+  region: "US" | "IN" | "all";
+  status: "connected" | "available";
+  lastSync: string | null;
+  color: string;
+}
+
+export const integrations: Integration[] = [
+  // ── US accounting + banking + payroll ──
+  { name: "QuickBooks",    logo: "Q",   category: "Accounting", region: "US", status: "connected", lastSync: "2 min ago", color: "#22c55e" },
+  { name: "Xero",          logo: "X",   category: "Accounting", region: "US", status: "available", lastSync: null,        color: "#0ea5e9" },
+  { name: "NetSuite",      logo: "N",   category: "Accounting", region: "US", status: "available", lastSync: null,        color: "#f59e0b" },
+  { name: "Chase",         logo: "C",   category: "Banking",    region: "US", status: "available", lastSync: null,        color: "#1e3a8a" },
+  { name: "Wells Fargo",   logo: "W",   category: "Banking",    region: "US", status: "available", lastSync: null,        color: "#dc2626" },
+  { name: "Chargebee",     logo: "CB",  category: "Billing",    region: "US", status: "available", lastSync: null,        color: "#ef4444" },
+  { name: "Square",        logo: "Sq",  category: "Payments",   region: "US", status: "available", lastSync: null,        color: "#10b981" },
+  { name: "ADP",           logo: "A",   category: "Payroll",    region: "US", status: "available", lastSync: null,        color: "#f97316" },
+  { name: "Gusto",         logo: "G",   category: "Payroll",    region: "US", status: "connected", lastSync: "1 hour ago", color: "#22c55e" },
+  { name: "IRS e-Services", logo: "IRS", category: "Compliance", region: "US", status: "available", lastSync: null,       color: "#14b8a6" },
+
+  // ── India-only accounting + banking + payments + compliance ──
+  { name: "Tally Prime",   logo: "T",   category: "Accounting", region: "IN", status: "available", lastSync: null,        color: "#facc15" },
+  { name: "Zoho Books",    logo: "Z",   category: "Accounting", region: "IN", status: "connected", lastSync: "10 min ago", color: "#ef4444" },
+  { name: "Busy",          logo: "By",  category: "Accounting", region: "IN", status: "available", lastSync: null,        color: "#0ea5e9" },
+  { name: "Marg ERP",      logo: "M",   category: "Accounting", region: "IN", status: "available", lastSync: null,        color: "#a855f7" },
+  { name: "HDFC Bank",     logo: "H",   category: "Banking",    region: "IN", status: "available", lastSync: null,        color: "#1e40af" },
+  { name: "ICICI Bank",    logo: "IC",  category: "Banking",    region: "IN", status: "available", lastSync: null,        color: "#f97316" },
+  { name: "SBI",           logo: "SB",  category: "Banking",    region: "IN", status: "available", lastSync: null,        color: "#0891b2" },
+  { name: "Razorpay",      logo: "R",   category: "Payments",   region: "IN", status: "connected", lastSync: "15 min ago", color: "#3b82f6" },
+  { name: "PayU",          logo: "Pu",  category: "Payments",   region: "IN", status: "available", lastSync: null,        color: "#10b981" },
+  { name: "GSTN",          logo: "GST", category: "Compliance", region: "IN", status: "available", lastSync: null,        color: "#14b8a6" },
+  { name: "Income Tax (ITR)", logo: "IT", category: "Compliance", region: "IN", status: "available", lastSync: null,      color: "#f43f5e" },
+  { name: "MCA Portal",    logo: "MCA", category: "Compliance", region: "IN", status: "available", lastSync: null,        color: "#6366f1" },
+
+  // ── Region-agnostic (works everywhere) ──
+  { name: "Stripe",        logo: "S",   category: "Payments",   region: "all", status: "connected", lastSync: "5 min ago", color: "#6772e5" },
+  { name: "Plaid",         logo: "P",   category: "Banking",    region: "all", status: "connected", lastSync: "30 min ago", color: "#3b82f6" },
 ];

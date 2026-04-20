@@ -156,7 +156,7 @@ const INPUT_MODE_OPTIONS: {
 ];
 
 export default function AnalysisPage() {
-  const { setResult: saveToStore } = useAnalysisStore();
+  const { setResult: saveToStore, lastResult: storedResult, companyName: storedCompanyName } = useAnalysisStore();
   const { business } = useOnboardingStore();
   // `currency` stays in scope because the upload handlers below stamp
   // it onto the new analysis as its source currency.
@@ -170,9 +170,17 @@ export default function AnalysisPage() {
   const { fmt: fmtConv, fmtFull: fmtFullConv } = useFormat();
   const fmt = (value: number, compact = false): string =>
     compact ? fmtConv(value) : fmtFullConv(value);
-  const [mode, setMode] = useState<"upload" | "manual" | "results">("upload");
+  // Initialize from the persisted analysis store — so navigating back to
+  // this tab shows the last analysis instead of a fresh upload zone.
+  // If the user wants to run a new analysis, the "New Analysis" button
+  // in the results header resets this back to upload mode.
+  const [mode, setMode] = useState<"upload" | "manual" | "results">(
+    storedResult ? "results" : "upload",
+  );
   const [rows, setRows] = useState<TBRow[]>([{ account_name: "", debit: "", credit: "" }]);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const [result, setResult] = useState<AnalysisResult | null>(
+    (storedResult as AnalysisResult | null) ?? null,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   // Which input kind the user is uploading. Drives both the Accept filter
@@ -181,7 +189,9 @@ export default function AnalysisPage() {
   const [inputMode, setInputMode] = useState<InputMode>("TB");
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(["summary", "questions", "insights", "indas"]));
   const [activeTab, setActiveTab] = useState("overview");
-  const [companyLabel, setCompanyLabel] = useState<string>("Your Company");
+  const [companyLabel, setCompanyLabel] = useState<string>(
+    storedCompanyName || "Your Company",
+  );
 
   // Real company name for exports — prefer onboarding profile, fall back to
   // filename-derived companyLabel, then a safe generic.
@@ -454,7 +464,7 @@ export default function AnalysisPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-app-text">Financial Analysis Report</h1>
-            <p className="text-sm text-app-text-subtle mt-1">Ind AS compliant review &middot; AI-powered insights</p>
+            <p className="text-sm text-app-text-subtle mt-1">Financial review &middot; AI-powered insights</p>
           </div>
           <div className="flex gap-3">
             <button onClick={() => { setMode("upload"); setResult(null); setPriorResult(null); }} className="px-4 py-2 bg-app-canvas border border-app-border rounded-lg text-xs text-app-text-subtle hover:bg-app-card-hover transition-colors">
@@ -807,34 +817,31 @@ export default function AnalysisPage() {
         {/* Deep Dive Tab — collapsible accordion for all 3 sections */}
         {activeTab === "deepdive" && (
           <div className="space-y-4">
-            {/* Section 1: Ind AS Review */}
-            <div className="bg-app-card rounded-xl border border-app-border overflow-hidden">
-              <button
-                onClick={() => toggleSection("indas")}
-                className="w-full flex items-center justify-between px-6 py-4 hover:bg-app-canvas transition-colors"
-              >
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-emerald-400" />
-                  <h3 className="text-sm font-semibold text-app-text">Ind AS Compliance Review</h3>
-                  <span className="text-[10px] text-app-text-subtle ml-1">{ind_as_observations.length} observations</span>
+            {/* Compliance placeholder. The underlying ind_as_observations
+                data is still computed + stored — we just hide the
+                surface until our in-house experts complete the
+                region-specific compliance engine (US GAAP + Ind AS +
+                tax authority reconciliation). Keeps the promise
+                honest without discarding backend work. */}
+            <div className="bg-app-card rounded-xl border border-amber-500/20 overflow-hidden">
+              <div className="px-6 py-5 flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-center flex-shrink-0">
+                  <Shield className="w-4 h-4 text-amber-400" />
                 </div>
-                <ChevronDown className={`w-4 h-4 text-app-text-subtle transition-transform ${expandedSections.has("indas") ? "rotate-180" : ""}`} />
-              </button>
-              {expandedSections.has("indas") && (
-                <div className="px-6 pb-5 space-y-3">
-                  {ind_as_observations.map((obs, i) => (
-                    <div key={i} className={`p-4 rounded-xl border ${obs.severity === "high" ? "bg-red-500/5 border-red-500/20" : obs.severity === "medium" ? "bg-amber-500/5 border-amber-500/20" : "bg-emerald-500/10 border-emerald-500/20"}`}>
-                      <div className="flex items-start gap-3">
-                        {obs.severity === "high" ? <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" /> : obs.severity === "medium" ? <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />}
-                        <div>
-                          <p className="text-xs font-semibold text-app-text mb-1">{obs.standard}</p>
-                          <p className="text-sm text-app-text-subtle leading-relaxed">{obs.observation}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-app-text mb-1">
+                    Compliance review &mdash; coming soon
+                  </p>
+                  <p className="text-xs text-app-text-subtle leading-relaxed">
+                    Regulatory callouts (Ind AS / US GAAP, GST, TDS, ITC,
+                    IRS, Schedule III, ASC 606) will be reviewed by our
+                    in-house experts before publication. Your analysis is
+                    captured and versioned; we&rsquo;ll surface the
+                    per-region compliance panel here once it&rsquo;s
+                    reviewer-approved.
+                  </p>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Section 2: Insights & Actions */}
