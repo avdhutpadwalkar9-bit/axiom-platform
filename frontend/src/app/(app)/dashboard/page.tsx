@@ -134,7 +134,7 @@ export default function DashboardPage() {
   // Unified formatter: handles source→display FX conversion + currency
   // symbol + locale grouping. Replaces the old local makeFmt closure so
   // we don't duplicate formatting logic per page.
-  const { fmt, isConverting, sourceCurrency } = useFormat();
+  const { fmt, isConverting, sourceCurrency, isFxLocked, fxLockedDate } = useFormat();
 
   const stage = useMemo(() => getStage(business.yearFounded), [business.yearFounded]);
 
@@ -358,9 +358,15 @@ export default function DashboardPage() {
               {isConverting && (
                 <p
                   className="text-[10px] text-app-text-subtle"
-                  title={`Raw values are in ${sourceCurrency}; displayed after FX conversion to ${currency}.`}
+                  title={
+                    isFxLocked
+                      ? `Values are converted from ${sourceCurrency} to ${currency} at the rate locked at upload on ${fxLockedDate}.`
+                      : `Raw values are in ${sourceCurrency}; displayed after live FX conversion to ${currency}.`
+                  }
                 >
-                  &middot; numbers converted from {sourceCurrency} at live rate
+                  {isFxLocked
+                    ? `· numbers converted from ${sourceCurrency} at upload-date rate (${fxLockedDate})`
+                    : `· numbers converted from ${sourceCurrency} at live rate`}
                 </p>
               )}
             </div>

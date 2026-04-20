@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { Currency } from "@/lib/currency";
+import type { FxRates } from "@/lib/fx";
 
 interface FinancialStatements {
   total_assets: number;
@@ -131,11 +132,18 @@ interface AnalysisState {
   // flipping the reporting currency afterwards runs proper FX
   // conversion rather than just swapping the symbol.
   sourceCurrency: Currency | null;
+  // FX rate snapshot captured at upload time. Locks the conversion for
+  // THIS analysis so switching display currency a week later doesn't
+  // give different numbers than switching it yesterday — reproducible
+  // reporting is non-negotiable for investor/board-facing QoE reports.
+  // Null means "use live rates" (legacy analyses, or demo mode).
+  exchangeRates: FxRates | null;
 
   setResult: (
     result: AnalysisResult,
     companyName?: string,
     sourceCurrency?: Currency,
+    exchangeRates?: FxRates | null,
   ) => void;
   clearResult: () => void;
 }
@@ -148,8 +156,9 @@ export const useAnalysisStore = create<AnalysisState>()(
       analysisDate: null,
       hasData: false,
       sourceCurrency: null,
+      exchangeRates: null,
 
-      setResult: (result, companyName, sourceCurrency) =>
+      setResult: (result, companyName, sourceCurrency, exchangeRates) =>
         set({
           lastResult: result,
           companyName: companyName || "Your Company",
@@ -158,6 +167,11 @@ export const useAnalysisStore = create<AnalysisState>()(
           // Fallback to null (= interpret as current display currency)
           // if caller didn't pass it. Every upload site should pass it.
           sourceCurrency: sourceCurrency ?? null,
+          // Null when caller didn't pass a snapshot — consumer falls
+          // back to live rates in that case. Every new upload should
+          // pass the current FxContext rates so reporting stays
+          // reproducible independent of when the report is re-opened.
+          exchangeRates: exchangeRates ?? null,
         }),
 
       clearResult: () =>
@@ -167,6 +181,7 @@ export const useAnalysisStore = create<AnalysisState>()(
           analysisDate: null,
           hasData: false,
           sourceCurrency: null,
+          exchangeRates: null,
         }),
     }),
     {

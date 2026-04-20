@@ -38,6 +38,7 @@ import {
   type Region,
 } from "@/lib/currency";
 import { useFx } from "@/context/FxContext";
+import { convertAmount } from "@/lib/fx";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
@@ -50,11 +51,17 @@ export interface UseFormatResult {
   fmtNum: (value: number | null | undefined, opts?: { fractionDigits?: number }) => string;
   /** Raw converter — returns the numeric amount in display currency. */
   convert: (value: number) => number;
-  /** True if source !== display AND live rates are loaded. Useful for
+  /** True if source !== display AND rates are available. Useful for
    * showing a subtle "converted from X" indicator. */
   isConverting: boolean;
   /** True while live rates are still loading on first paint. */
   fxLoading: boolean;
+  /** True when the current analysis has FX rates snapshotted at upload
+   * time — conversion uses those, not live. Drives a "FX locked at
+   * upload" indicator on the Dashboard. */
+  isFxLocked: boolean;
+  /** ISO date the snapshotted rates were taken from, when locked. */
+  fxLockedDate: string | null;
   sourceCurrency: Currency;
   displayCurrency: Currency;
   /** Internal region ("US" | "IN") derived from display currency. */
@@ -65,7 +72,8 @@ export interface UseFormatResult {
 export function useFormat(): UseFormatResult {
   const { business } = useOnboardingStore();
   const source = useAnalysisStore((s) => s.sourceCurrency);
-  const { convertSafe, loading: fxLoading, rates } = useFx();
+  const lockedRates = useAnalysisStore((s) => s.exchangeRates);
+  const { convertSafe, loading: fxLoading, rates: liveRates } = useFx();
 
   const displayCurrency = asCurrency(business?.currency);
   // If the analysis store doesn't know the source currency (fresh install,
@@ -73,9 +81,22 @@ export function useFormat(): UseFormatResult {
   // currently-displayed currency — no conversion needed, just formatting.
   const sourceCurrency = asCurrency(source ?? displayCurrency);
 
+  // Lock precedence: use the snapshot captured at upload time when we
+  // have one. Falls back to live rates for legacy analyses and the
+  // no-data state. Gives reproducible reporting — opening the same
+  // analysis next week doesn't yield different numbers because FX moved.
+  const effectiveRates = lockedRates ?? liveRates;
+  const isFxLocked = lockedRates !== null && lockedRates !== undefined;
+
   const convert = useCallback(
-    (value: number) => convertSafe(value, sourceCurrency, displayCurrency),
-    [convertSafe, sourceCurrency, displayCurrency],
+    (value: number) => {
+      if (isFxLocked) {
+        const out = convertAmount(value, sourceCurrency, displayCurrency, effectiveRates);
+        return Number.isFinite(out) ? out : value;
+      }
+      return convertSafe(value, sourceCurrency, displayCurrency);
+    },
+    [convertSafe, sourceCurrency, displayCurrency, effectiveRates, isFxLocked],
   );
 
   const fmt = useCallback(
@@ -108,13 +129,26 @@ export function useFormat(): UseFormatResult {
       fmtFull,
       fmtNum,
       convert,
-      isConverting: sourceCurrency !== displayCurrency && rates !== null,
+      isConverting: sourceCurrency !== displayCurrency && effectiveRates !== null,
       fxLoading,
+      isFxLocked,
+      fxLockedDate: lockedRates?.asOf ?? null,
       sourceCurrency,
       displayCurrency,
       region: regionFromCurrency(displayCurrency),
       currencySymbol: currencySymbol(displayCurrency),
     }),
-    [fmt, fmtFull, fmtNum, convert, sourceCurrency, displayCurrency, fxLoading, rates],
+    [
+      fmt,
+      fmtFull,
+      fmtNum,
+      convert,
+      sourceCurrency,
+      displayCurrency,
+      fxLoading,
+      effectiveRates,
+      isFxLocked,
+      lockedRates,
+    ],
   );
 }

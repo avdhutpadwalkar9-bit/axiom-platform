@@ -8,6 +8,7 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 import { exportAnalysisPdf } from "@/lib/exportPdf";
 import { asCurrency } from "@/lib/currency";
 import { useFormat } from "@/hooks/useFormat";
+import { useFx } from "@/context/FxContext";
 import {
   Upload,
   FileSpreadsheet,
@@ -160,6 +161,9 @@ export default function AnalysisPage() {
   // `currency` stays in scope because the upload handlers below stamp
   // it onto the new analysis as its source currency.
   const currency = asCurrency(business?.currency);
+  // Snapshot rates at upload time so the analysis locks to the FX rate
+  // on the day it was uploaded. Reproducible reporting.
+  const { rates: liveRates } = useFx();
   // Unified formatter: converts source → display currency + formats.
   // Uniform-adapter API so the existing `fmt(value, compact)` call sites
   // keep working.
@@ -322,9 +326,9 @@ export default function AnalysisPage() {
       const label = file.name.replace(/\.\w+$/, "");
       setCompanyLabel(label);
       // Stamp the user's CURRENT reporting currency as the source
-      // currency of this analysis. Later conversions to a different
-      // display currency use this as the "from" side.
-      saveToStore(data, label, currency);
+      // currency AND snapshot the live FX rate table so the analysis
+      // locks to today's rate — reproducible across sessions.
+      saveToStore(data, label, currency, liveRates);
       setMode("results");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -379,8 +383,8 @@ export default function AnalysisPage() {
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setResult(data);
-      // Same source-currency stamp as the upload path.
-      saveToStore(data, "Manual Entry", currency);
+      // Same source-currency + FX snapshot as the upload path.
+      saveToStore(data, "Manual Entry", currency, liveRates);
       setMode("results");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Analysis failed");
@@ -541,7 +545,7 @@ export default function AnalysisPage() {
               <input
                 id="prior-file-input"
                 type="file"
-                accept=".csv,.json,.xlsx,.xls"
+                accept=".csv,.tsv,.json,.xlsx,.xls,.xlsm,.pdf"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];

@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { useAnalysisStore } from "@/stores/analysisStore";
+import { asCurrency } from "@/lib/currency";
+import { fetchLiveRates, type FxRates } from "@/lib/fx";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -108,6 +110,17 @@ export default function OnboardingPage() {
     try {
       const token = localStorage.getItem("access_token");
 
+      // Snapshot the FX rate table at upload time. If the fetch fails
+      // (offline, frankfurter hiccup) we save with null — consumers
+      // fall back to live rates for this analysis. Not blocking.
+      const uploadCurrency = asCurrency(business?.currency);
+      let snapshotRates: FxRates | null = null;
+      try {
+        snapshotRates = await fetchLiveRates();
+      } catch {
+        /* best-effort; live rates take over */
+      }
+
       if (demo) {
         // Load sample TB and analyze
         const sampleEntries = getSampleTB();
@@ -118,7 +131,7 @@ export default function OnboardingPage() {
         });
         if (!res.ok) throw new Error("Analysis failed");
         const data = await res.json();
-        saveAnalysis(data, "Acme Tech Pvt Ltd (Demo)");
+        saveAnalysis(data, "Acme Tech Pvt Ltd (Demo)", uploadCurrency, snapshotRates);
       } else if (uploadedFile) {
         const formData = new FormData();
         formData.append("file", uploadedFile);
@@ -129,7 +142,12 @@ export default function OnboardingPage() {
         });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
-        saveAnalysis(data, business.companyName || "Your Company");
+        saveAnalysis(
+          data,
+          business.companyName || "Your Company",
+          uploadCurrency,
+          snapshotRates,
+        );
       }
 
       // Save profile — try POST first, fall back to PUT if already exists
@@ -552,7 +570,12 @@ export default function OnboardingPage() {
                 <input
                   id="onboarding-file-input"
                   type="file"
-                  accept=".csv,.json,.xlsx"
+                  // Broadened to cover the common formats finance people
+                  // actually hand us: Excel (new + legacy), CSV, JSON,
+                  // plus audited-statement PDFs. Backend parsers handle
+                  // each format; tagging them here stops the native file
+                  // picker from hiding legitimate files.
+                  accept=".csv,.tsv,.json,.xlsx,.xls,.xlsm,.pdf"
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
@@ -568,8 +591,8 @@ export default function OnboardingPage() {
                 ) : (
                   <>
                     <Upload className="w-10 h-10 text-app-text/15 mx-auto mb-3" />
-                    <p className="text-sm text-app-text-muted mb-1">Drop your Trial Balance or GL here</p>
-                    <p className="text-xs text-app-text/15">CSV, JSON, or Excel files accepted</p>
+                    <p className="text-sm text-app-text-muted mb-1">Drop your Trial Balance, GL, or audited statements here</p>
+                    <p className="text-xs text-app-text-subtle">Excel (.xlsx / .xls / .xlsm) &middot; CSV &middot; TSV &middot; JSON &middot; PDF</p>
                   </>
                 )}
               </div>
@@ -614,7 +637,7 @@ export default function OnboardingPage() {
               <button
                 onClick={handleNext}
                 disabled={!canProceed()}
-                className="flex items-center gap-2 bg-app-card text-[#0a0a0f] font-semibold px-8 py-3 rounded-full hover:bg-app-card-hover transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm"
+                className="flex items-center gap-2 bg-emerald-500 text-white font-semibold px-8 py-3 rounded-full hover:bg-emerald-400 transition-all disabled:opacity-30 disabled:cursor-not-allowed text-sm shadow-[0_4px_20px_rgba(52,211,153,0.25)]"
               >
                 {currentStep === 2 ? "Analyze Now" : "Continue"}
                 <ChevronRight className="w-4 h-4" />
