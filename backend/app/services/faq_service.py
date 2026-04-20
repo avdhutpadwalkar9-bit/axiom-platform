@@ -38,25 +38,44 @@ MATCH_THRESHOLD = 0.55
 
 # ─── Formatting helpers ────────────────────────────────────────────────
 
-def fmt_inr(val: float | int | None) -> str:
-    """Indian-format currency: Cr for >=1Cr, L for >=1L, else ₹ with commas."""
+def fmt_money(val: float | int | None, region: str = "US") -> str:
+    """Region-aware compact currency.
+
+    US: $<n>M / $<n>K / $<n>
+    IN: ₹<n> Cr / ₹<n> L / ₹<n>K / ₹<n>
+    """
     if val is None:
         return "—"
     try:
         v = float(val)
     except (TypeError, ValueError):
         return "—"
-    if v == 0:
-        return "₹0"
     sign = "-" if v < 0 else ""
     a = abs(v)
-    if a >= 10_000_000:
-        return f"{sign}₹{a / 10_000_000:.2f} Cr"
-    if a >= 100_000:
-        return f"{sign}₹{a / 100_000:.2f} L"
+    if (region or "").upper() == "IN":
+        if a == 0:
+            return "₹0"
+        if a >= 10_000_000:
+            return f"{sign}₹{a / 10_000_000:.2f} Cr"
+        if a >= 100_000:
+            return f"{sign}₹{a / 100_000:.2f} L"
+        if a >= 1_000:
+            return f"{sign}₹{a / 1_000:.1f}K"
+        return f"{sign}₹{a:,.0f}"
+    # US / default
+    if a == 0:
+        return "$0"
+    if a >= 1_000_000:
+        return f"{sign}${a / 1_000_000:.2f}M"
     if a >= 1_000:
-        return f"{sign}₹{a / 1_000:.1f}K"
-    return f"{sign}₹{a:,.0f}"
+        return f"{sign}${a / 1_000:.1f}K"
+    return f"{sign}${a:,.0f}"
+
+
+# Legacy alias — kept as fmt_inr for any callers still importing by the
+# old name. Defaults to Indian formatting for backwards-compatibility.
+def fmt_inr(val: float | int | None) -> str:
+    return fmt_money(val, region="IN")
 
 
 def _pct(a: float, b: float) -> float:
@@ -68,7 +87,9 @@ def _pct(a: float, b: float) -> float:
 # ─── Placeholder derivation ────────────────────────────────────────────
 
 def build_placeholders(
-    analysis_result: dict, business_context: Optional[dict] = None
+    analysis_result: dict,
+    business_context: Optional[dict] = None,
+    region: str = "US",
 ) -> dict[str, str]:
     """Read the live analysis data and produce a flat dict of template
     values. Missing data produces empty strings so the FAQ still renders
@@ -87,13 +108,13 @@ def build_placeholders(
     liabilities = float(fs.get("total_liabilities") or 0)
     equity = float(fs.get("total_equity") or 0)
 
-    ph["revenue_fmt"] = fmt_inr(revenue)
-    ph["expenses_fmt"] = fmt_inr(expenses)
-    ph["net_income_fmt"] = fmt_inr(net_income)
-    ph["abs_net_income_fmt"] = fmt_inr(abs(net_income))
-    ph["assets_fmt"] = fmt_inr(assets)
-    ph["liabilities_fmt"] = fmt_inr(liabilities)
-    ph["equity_fmt"] = fmt_inr(equity)
+    ph["revenue_fmt"] = fmt_money(revenue, region=region)
+    ph["expenses_fmt"] = fmt_money(expenses, region=region)
+    ph["net_income_fmt"] = fmt_money(net_income, region=region)
+    ph["abs_net_income_fmt"] = fmt_money(abs(net_income))
+    ph["assets_fmt"] = fmt_money(assets, region=region)
+    ph["liabilities_fmt"] = fmt_money(liabilities, region=region)
+    ph["equity_fmt"] = fmt_money(equity, region=region)
 
     # Ratios
     gm = ratios.get("gross_margin", 0) or 0
@@ -103,7 +124,7 @@ def build_placeholders(
     ph["current_ratio"] = str(ratios.get("current_ratio", 0) or 0)
     ph["debt_to_equity"] = str(ratios.get("debt_to_equity", 0) or 0)
     wc = float(ratios.get("working_capital") or 0)
-    ph["working_capital_fmt"] = fmt_inr(wc)
+    ph["working_capital_fmt"] = fmt_money(wc, region=region)
 
     # Revenue breakdown
     rev_items = ca.get("revenue", [])
@@ -111,11 +132,11 @@ def build_placeholders(
         top = max(rev_items, key=lambda x: max(x.get("credit", 0), x.get("debit", 0)))
         ph["top_revenue_name"] = top.get("name", "—")
         top_val = top.get("credit", 0) or top.get("debit", 0)
-        ph["top_revenue_amount_fmt"] = fmt_inr(top_val)
+        ph["top_revenue_amount_fmt"] = fmt_money(top_val, region=region)
         rev_lines = []
         for r in rev_items[:5]:
             v = r.get("credit", 0) or r.get("debit", 0)
-            rev_lines.append(f"- **{r.get('name', '—')}**: {fmt_inr(v)}")
+            rev_lines.append(f"- **{r.get('name', '—')}**: {fmt_money(v, region=region)}")
         ph["revenue_breakdown_md"] = "\n".join(rev_lines) if rev_lines else "- No revenue line items found"
     else:
         ph["top_revenue_name"] = "—"
@@ -132,15 +153,15 @@ def build_placeholders(
         top_exp = exp_items[0]
         ph["top_expense_name"] = top_exp.get("name", "—")
         te_val = abs(top_exp.get("net", 0) or 0)
-        ph["top_expense_fmt"] = fmt_inr(te_val)
+        ph["top_expense_fmt"] = fmt_money(te_val, region=region)
         ph["top_expense_pct"] = str(_pct(te_val, expenses))
-        ph["top_expense_5pct_fmt"] = fmt_inr(te_val * 0.05)
-        ph["eight_pct_vendor_fmt"] = fmt_inr(te_val * 0.08)
+        ph["top_expense_5pct_fmt"] = fmt_money(te_val * 0.05, region=region)
+        ph["eight_pct_vendor_fmt"] = fmt_money(te_val * 0.08, region=region)
 
         if len(exp_items) >= 2:
             s = exp_items[1]
             ph["second_expense_name"] = s.get("name", "—")
-            ph["second_expense_fmt"] = fmt_inr(abs(s.get("net", 0) or 0))
+            ph["second_expense_fmt"] = fmt_money(abs(s.get("net", 0) or 0))
         else:
             ph["second_expense_name"] = "—"
             ph["second_expense_fmt"] = "—"
@@ -151,12 +172,12 @@ def build_placeholders(
             v = abs(e.get("net", 0) or 0)
             top3_total += v
             top3_rows.append(
-                f"{i}. **{e.get('name', '—')}** — {fmt_inr(v)} "
+                f"{i}. **{e.get('name', '—')}** — {fmt_money(v, region=region)} "
                 f"({_pct(v, expenses)}% of spend)"
             )
         ph["top_3_expenses_md"] = "\n".join(top3_rows)
         ph["top_3_pct"] = str(_pct(top3_total, expenses))
-        ph["top_3_savings_fmt"] = fmt_inr(top3_total * 0.05)
+        ph["top_3_savings_fmt"] = fmt_money(top3_total * 0.05, region=region)
     else:
         for k in [
             "top_expense_name", "top_expense_fmt", "top_expense_pct",
@@ -173,11 +194,11 @@ def build_placeholders(
                for w in ["salary", "wage", "payroll", "staff", "pf", "esi", "gratuity"])
     ]
     payroll_total = sum(abs(e.get("net", 0) or 0) for e in payroll_items)
-    ph["payroll_fmt"] = fmt_inr(payroll_total)
+    ph["payroll_fmt"] = fmt_money(payroll_total, region=region)
     ph["payroll_pct"] = str(_pct(payroll_total, expenses))
     if payroll_items:
         ph["payroll_breakdown_md"] = "\n".join(
-            f"- {e.get('name', '—')}: {fmt_inr(abs(e.get('net', 0) or 0))}"
+            f"- {e.get('name', '—')}: {fmt_money(abs(e.get('net', 0) or 0))}"
             for e in payroll_items
         )
     else:
@@ -190,7 +211,7 @@ def build_placeholders(
                for w in ["receiv", "debtor"])
     ]
     rec_total = sum(abs(a.get("net", 0) or 0) for a in rec_items)
-    ph["receivables_fmt"] = fmt_inr(rec_total)
+    ph["receivables_fmt"] = fmt_money(rec_total, region=region)
     ph["receivables_pct_of_rev"] = str(_pct(rec_total, revenue))
     if revenue and rec_total / revenue > 0.3:
         ph["receivables_verdict"] = (
@@ -215,11 +236,11 @@ def build_placeholders(
         key=lambda x: abs(x.get("net", 0) or 0), reverse=True,
     )[:5]
     ph["top_assets_md"] = "\n".join(
-        f"- {a.get('name', '—')}: {fmt_inr(abs(a.get('net', 0) or 0))}"
+        f"- {a.get('name', '—')}: {fmt_money(abs(a.get('net', 0) or 0))}"
         for a in asset_items
     ) or "- No asset items found"
     ph["top_liabilities_md"] = "\n".join(
-        f"- {l.get('name', '—')}: {fmt_inr(abs(l.get('net', 0) or 0))}"
+        f"- {l.get('name', '—')}: {fmt_money(abs(l.get('net', 0) or 0))}"
         for l in liab_items
     ) or "- No liability items found"
 
@@ -231,8 +252,8 @@ def build_placeholders(
     if susp:
         total_susp = sum(abs(e.get("net", 0) or 0) for e in susp)
         ph["suspense_md"] = (
-            f"{fmt_inr(total_susp)} across {len(susp)} accounts: "
-            + ", ".join(f"**{e['name']}** ({fmt_inr(abs(e.get('net', 0) or 0))})" for e in susp)
+            f"{fmt_money(total_susp, region=region)} across {len(susp)} accounts: "
+            + ", ".join(f"**{e['name']}** ({fmt_money(abs(e.get('net', 0) or 0))})" for e in susp)
         )
     else:
         ph["suspense_md"] = (
@@ -244,7 +265,7 @@ def build_placeholders(
     def _proj(rev_g: float, exp_g: float) -> tuple[str, str, str]:
         pr = revenue * (1 + rev_g)
         pe = expenses * (1 + exp_g)
-        return fmt_inr(pr), fmt_inr(pe), fmt_inr(pr - pe)
+        return fmt_money(pr, region=region), fmt_money(pe, region=region), fmt_money(pr - pe, region=region)
 
     pc_r, pc_e, pc_n = _proj(0.05, 0.03)
     pb_r, pb_e, pb_n = _proj(0.15, 0.08)
@@ -266,9 +287,9 @@ def build_placeholders(
     ph["proj_net_20pct_fmt"] = p20_n
 
     # Growth levers
-    ph["one_pct_margin_fmt"] = fmt_inr(revenue * 0.01)
-    ph["rev_10pct_impact_fmt"] = fmt_inr(revenue * 0.10 * (nm / 100 if nm else 0.05))
-    ph["five_pct_price_fmt"] = fmt_inr(revenue * 0.05)
+    ph["one_pct_margin_fmt"] = fmt_money(revenue * 0.01, region=region)
+    ph["rev_10pct_impact_fmt"] = fmt_money(revenue * 0.10 * (nm / 100 if nm else 0.05))
+    ph["five_pct_price_fmt"] = fmt_money(revenue * 0.05, region=region)
 
     # Margin verdict
     if nm < 0:
@@ -322,18 +343,18 @@ def build_placeholders(
     # Working capital sign verdict
     if wc < 0:
         ph["wc_sign_verdict"] = (
-            f"**Negative working capital of {fmt_inr(wc)}** — short-term "
+            f"**Negative working capital of {fmt_money(wc, region=region)}** — short-term "
             "liabilities exceed short-term assets. You're funding operations "
             "with supplier credit; any supplier tightening becomes a crisis."
         )
     elif wc > revenue * 0.5:
         ph["wc_sign_verdict"] = (
-            f"Working capital of {fmt_inr(wc)} is cushiony. Could deploy "
+            f"Working capital of {fmt_money(wc, region=region)} is cushiony. Could deploy "
             "some into growth rather than letting it sit."
         )
     else:
         ph["wc_sign_verdict"] = (
-            f"Working capital of {fmt_inr(wc)} is within normal MSME range."
+            f"Working capital of {fmt_money(wc, region=region)} is within normal MSME range."
         )
 
     if wc < 0:
@@ -371,17 +392,17 @@ def build_placeholders(
     priorities = []
     if susp:
         priorities.append(
-            f"1. **Clear suspense balances** ({fmt_inr(sum(abs(e.get('net', 0) or 0) for e in susp))}). "
+            f"1. **Clear suspense balances** ({fmt_money(sum(abs(e.get('net', 0) or 0) for e in susp))}). "
             "Distorts every ratio. Audit blocker."
         )
     if net_income < 0:
         priorities.append(
-            f"2. **Address the {fmt_inr(abs(net_income))} loss**. Start with "
+            f"2. **Address the {fmt_money(abs(net_income))} loss**. Start with "
             f"{ph['top_expense_name']} — biggest line."
         )
     if wc < 0:
         priorities.append(
-            f"3. **Fix working capital** (currently {fmt_inr(wc)}). Negotiate supplier terms."
+            f"3. **Fix working capital** (currently {fmt_money(wc, region=region)}). Negotiate supplier terms."
         )
     if len(priorities) < 3:
         priorities.append(
@@ -397,13 +418,13 @@ def build_placeholders(
     risks = []
     if net_income < 0:
         risks.append(
-            f"🔴 **Operating loss** of {fmt_inr(abs(net_income))} ({abs(nm)}% negative margin). "
+            f"🔴 **Operating loss** of {fmt_money(abs(net_income))} ({abs(nm)}% negative margin). "
             "Cash is bleeding every month."
         )
     if susp:
         risks.append(
             f"🔴 **Suspense balance** of "
-            f"{fmt_inr(sum(abs(e.get('net', 0) or 0) for e in susp))} "
+            f"{fmt_money(sum(abs(e.get('net', 0) or 0) for e in susp))} "
             "could mask real liabilities. Reconcile before audit."
         )
     if ratios.get("current_ratio", 0) < 1:
@@ -413,7 +434,7 @@ def build_placeholders(
         )
     if rec_total and revenue and rec_total / revenue > 0.3:
         risks.append(
-            f"🟡 **Collection risk** — receivables {fmt_inr(rec_total)} = "
+            f"🟡 **Collection risk** — receivables {fmt_money(rec_total, region=region)} = "
             f"{_pct(rec_total, revenue)}% of revenue. Some of this is stuck."
         )
     if not risks:
@@ -491,12 +512,32 @@ def _score_faq(question: str, faq: dict) -> float:
     return score
 
 
-def find_best_faq(question: str) -> Optional[tuple[dict, float]]:
+def find_best_faq(question: str, region: str = "US") -> Optional[tuple[dict, float]]:
     """Return (faq, score) for the top match, or None if nothing clears
-    the confidence threshold."""
+    the confidence threshold.
+
+    Filters FAQs by region: each FAQ carries a `region` tag ("US" | "IN")
+    OR a `regions` list. An FAQ with no region is treated as universal
+    (matches any region). This lets us keep generic financial-literacy
+    FAQs in the shared pool while region-specific ones (TDS, GSTR,
+    federal withholding) stay scoped.
+    """
     if not question or not question.strip():
         return None
-    scored = [(faq, _score_faq(question, faq)) for faq in SEED_FAQS]
+    target = (region or "US").upper()
+
+    def _matches_region(faq: dict) -> bool:
+        regions = faq.get("regions")
+        if regions:
+            return target in [str(r).upper() for r in regions]
+        single = faq.get("region")
+        if single is None:
+            # No region tag → universal FAQ, matches any region.
+            return True
+        return str(single).upper() == target
+
+    candidates = [faq for faq in SEED_FAQS if _matches_region(faq)]
+    scored = [(faq, _score_faq(question, faq)) for faq in candidates]
     scored.sort(key=lambda x: x[1], reverse=True)
     top = scored[0] if scored else None
     if not top or top[1] < MATCH_THRESHOLD:
@@ -541,9 +582,13 @@ def try_faq_answer(
     question: str,
     analysis_result: dict,
     business_context: Optional[dict] = None,
+    region: str = "US",
 ) -> Optional[dict]:
     """End-to-end helper: match + render. Returns a dict with the answer
     + metadata, or None if no match cleared the threshold.
+
+    Region filters which FAQs are in the candidate pool AND controls
+    currency formatting in the interpolated answer.
 
     Returned shape (also used by the /ask endpoint to attach source info):
         {
@@ -552,11 +597,11 @@ def try_faq_answer(
           "score": 0.72,
         }
     """
-    match = find_best_faq(question)
+    match = find_best_faq(question, region=region)
     if not match:
         return None
     faq, score = match
-    placeholders = build_placeholders(analysis_result or {}, business_context)
+    placeholders = build_placeholders(analysis_result or {}, business_context, region=region)
     rendered = render_answer(faq, placeholders)
     if not rendered:
         # Template was somehow empty after substitution — don't return a

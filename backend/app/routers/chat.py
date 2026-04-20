@@ -57,6 +57,11 @@ class ChatRequest(BaseModel):
     # thinking, slower but reflects real reasoning. Default quick so new
     # callers keep the fast UX without opting in.
     mode: Literal["quick", "deep"] = "quick"
+    # Region drives currency formatting ($/K/M vs ₹/L/Cr), the CFO voice
+    # in the system prompt (US SMB vs Indian SMB), and which regulatory
+    # framework (GAAP vs Ind AS) the model references. Falls back to
+    # business_context.region, ultimately to "US" when neither is set.
+    region: Literal["US", "IN"] | None = None
 
 
 class ChatResponse(BaseModel):
@@ -108,6 +113,13 @@ async def ask_ai(
     if not data.question.strip():
         raise HTTPException(status_code=400, detail="Question is required")
 
+    # Resolve region once — FAQ filter + AI voice both key off it.
+    region = (
+        data.region
+        or (data.business_context or {}).get("region")
+        or "US"
+    ).upper()
+
     # Phase 2: FAQ-first for Quick mode only. Deep mode callers are
     # explicitly asking for thinking — don't intercept with a template.
     if data.mode == "quick":
@@ -115,11 +127,12 @@ async def ask_ai(
             question=data.question,
             analysis_result=data.analysis_result,
             business_context=data.business_context,
+            region=region,
         )
         if match:
             logger.info(
-                "FAQ hit user=%s faq_id=%s score=%s mode=%s",
-                current_user.id, match["faq_id"], match["score"], data.mode,
+                "FAQ hit user=%s faq_id=%s score=%s mode=%s region=%s",
+                current_user.id, match["faq_id"], match["score"], data.mode, region,
             )
             return ChatResponse(
                 response=match["answer"],
@@ -138,6 +151,7 @@ async def ask_ai(
         user_answers=data.user_answers,
         provider=data.provider,
         mode=data.mode,
+        region=region,
     )
 
     return ChatResponse(response=response, source="ai", mode=data.mode)
@@ -182,6 +196,11 @@ async def ask_ai_stream(
         )
 
     history = [{"role": m.role, "text": m.text} for m in data.conversation_history]
+    region = (
+        data.region
+        or (data.business_context or {}).get("region")
+        or "US"
+    ).upper()
 
     async def event_stream() -> AsyncIterator[bytes]:
         try:
@@ -191,6 +210,7 @@ async def ask_ai_stream(
                 conversation_history=history,
                 business_context=data.business_context,
                 user_answers=data.user_answers,
+                region=region,
             ):
                 evt_type = chunk.get("type", "error")
                 payload: dict = {k: v for k, v in chunk.items() if k != "type"}

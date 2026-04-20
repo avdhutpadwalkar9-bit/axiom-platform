@@ -27,6 +27,7 @@ SEED_FAQS: list[dict] = [
     # ─── Revenue & Top-Line ─────────────────────────────────────────────
     {
         "id": "faq-revenue-total",
+        "region": "IN",
         "category": "revenue",
         "question": "What is my total revenue?",
         "alternates": [
@@ -50,6 +51,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-revenue-breakdown",
+        "region": "IN",
         "category": "revenue",
         "question": "Break down my revenue by source",
         "alternates": [
@@ -71,6 +73,7 @@ SEED_FAQS: list[dict] = [
     # ─── Expenses & Cost Cutting ───────────────────────────────────────
     {
         "id": "faq-top-expenses",
+        "region": "IN",
         "category": "expenses",
         "question": "What are my top expenses?",
         "alternates": [
@@ -93,6 +96,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-reduce-costs",
+        "region": "IN",
         "category": "expenses",
         "question": "How can I reduce my costs?",
         "alternates": [
@@ -123,6 +127,7 @@ SEED_FAQS: list[dict] = [
     # ─── Financial Health & Ratios ─────────────────────────────────────
     {
         "id": "faq-financial-health",
+        "region": "IN",
         "category": "ratios",
         "question": "How is my financial health?",
         "alternates": [
@@ -147,6 +152,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-working-capital",
+        "region": "IN",
         "category": "ratios",
         "question": "Is my working capital healthy?",
         "alternates": [
@@ -168,6 +174,7 @@ SEED_FAQS: list[dict] = [
     # ─── Risks & Red Flags ─────────────────────────────────────────────
     {
         "id": "faq-top-risks",
+        "region": "IN",
         "category": "risk",
         "question": "What are my biggest risks?",
         "alternates": [
@@ -187,6 +194,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-concentration-risk",
+        "region": "IN",
         "category": "risk",
         "question": "Do I have customer concentration risk?",
         "alternates": [
@@ -212,6 +220,7 @@ SEED_FAQS: list[dict] = [
     # ─── Projections & Forecasts ───────────────────────────────────────
     {
         "id": "faq-project-next-year",
+        "region": "IN",
         "category": "projection",
         "question": "What will my financials look like next year?",
         "alternates": [
@@ -246,6 +255,7 @@ SEED_FAQS: list[dict] = [
     # ─── Employee Costs ────────────────────────────────────────────────
     {
         "id": "faq-employee-costs",
+        "region": "IN",
         "category": "payroll",
         "question": "How much am I spending on employees?",
         "alternates": [
@@ -268,6 +278,7 @@ SEED_FAQS: list[dict] = [
     # ─── Compliance ─────────────────────────────────────────────────────
     {
         "id": "faq-compliance-check",
+        "region": "IN",
         "category": "compliance",
         "question": "Am I compliance-ready for audit?",
         "alternates": [
@@ -290,6 +301,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-suspense-account",
+        "region": "IN",
         "category": "compliance",
         "question": "What is in my suspense account?",
         "alternates": [
@@ -312,6 +324,7 @@ SEED_FAQS: list[dict] = [
     # ─── QoE & Add-backs (page-specific) ────────────────────────────────
     {
         "id": "faq-qoe-addbacks",
+        "region": "IN",
         "category": "qoe",
         "question": "What are typical QoE add-backs?",
         "alternates": [
@@ -341,6 +354,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-qoe-what-is",
+        "region": "IN",
         "category": "qoe",
         "question": "What is a Quality of Earnings report?",
         "alternates": [
@@ -371,6 +385,7 @@ SEED_FAQS: list[dict] = [
     # ─── Industry & Benchmarks ─────────────────────────────────────────
     {
         "id": "faq-industry-benchmark",
+        "region": "IN",
         "category": "benchmark",
         "question": "How do my numbers compare to my industry?",
         "alternates": [
@@ -391,6 +406,7 @@ SEED_FAQS: list[dict] = [
     # ─── Growth & Strategy ─────────────────────────────────────────────
     {
         "id": "faq-growth-lever",
+        "region": "IN",
         "category": "strategy",
         "question": "What's my biggest growth opportunity?",
         "alternates": [
@@ -418,6 +434,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-priority-quarter",
+        "region": "IN",
         "category": "strategy",
         "question": "What should I focus on this quarter?",
         "alternates": [
@@ -440,6 +457,7 @@ SEED_FAQS: list[dict] = [
     # ─── Balance Sheet ─────────────────────────────────────────────────
     {
         "id": "faq-balance-sheet",
+        "region": "IN",
         "category": "balance_sheet",
         "question": "What's on my balance sheet?",
         "alternates": [
@@ -464,6 +482,7 @@ SEED_FAQS: list[dict] = [
     # ─── Receivables ───────────────────────────────────────────────────
     {
         "id": "faq-receivables",
+        "region": "IN",
         "category": "balance_sheet",
         "question": "How much am I owed by customers?",
         "alternates": [
@@ -488,6 +507,7 @@ SEED_FAQS: list[dict] = [
     # ─── Profitability Deep Dive ───────────────────────────────────────
     {
         "id": "faq-loss-making",
+        "region": "IN",
         "category": "profitability",
         "question": "Why am I losing money?",
         "alternates": [
@@ -515,6 +535,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-improve-margin",
+        "region": "IN",
         "category": "profitability",
         "question": "How can I improve my margin?",
         "alternates": [
@@ -541,6 +562,7 @@ SEED_FAQS: list[dict] = [
     # ─── Ind AS ────────────────────────────────────────────────────────
     {
         "id": "faq-ind-as-24",
+        "region": "IN",
         "category": "ind_as",
         "question": "What is Ind AS 24 related-party?",
         "alternates": [
@@ -565,6 +587,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-ind-as-115",
+        "region": "IN",
         "category": "ind_as",
         "question": "What is Ind AS 115 revenue recognition?",
         "alternates": [
@@ -593,6 +616,7 @@ SEED_FAQS: list[dict] = [
     # ─── Product / Platform Help ───────────────────────────────────────
     {
         "id": "faq-upload-format",
+        "region": "IN",
         "category": "product",
         "question": "What file format should I upload?",
         "alternates": [
@@ -616,6 +640,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-what-is-cortex",
+        "region": "IN",
         "category": "product",
         "question": "What does CortexCFO do?",
         "alternates": [
@@ -643,6 +668,7 @@ SEED_FAQS: list[dict] = [
     # ─── Fundraise / Diligence ─────────────────────────────────────────
     {
         "id": "faq-fundraise-ready",
+        "region": "IN",
         "category": "fundraise",
         "question": "Am I ready to raise?",
         "alternates": [
@@ -672,6 +698,7 @@ SEED_FAQS: list[dict] = [
     # ─── Tax & GST ─────────────────────────────────────────────────────
     {
         "id": "faq-gst-reconcile",
+        "region": "IN",
         "category": "tax",
         "question": "How do I reconcile GST with my books?",
         "alternates": [
@@ -699,6 +726,7 @@ SEED_FAQS: list[dict] = [
     # ─── Scenario / What-if ────────────────────────────────────────────
     {
         "id": "faq-what-if-revenue",
+        "region": "IN",
         "category": "scenario",
         "question": "What if my revenue grows 20%?",
         "alternates": [
@@ -731,6 +759,7 @@ SEED_FAQS: list[dict] = [
     # ─── Tax (TDS, advance tax, GST, LUT) ──────────────────────────
     {
         "id": "faq-tds-basics",
+        "region": "IN",
         "category": "tax",
         "question": "What TDS do I need to deduct?",
         "alternates": [
@@ -760,6 +789,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-advance-tax",
+        "region": "IN",
         "category": "tax",
         "question": "When do I pay advance tax?",
         "alternates": [
@@ -788,6 +818,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-gstr1-vs-3b",
+        "region": "IN",
         "category": "tax",
         "question": "What's the difference between GSTR-1 and GSTR-3B?",
         "alternates": [
@@ -814,6 +845,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-lut-export",
+        "region": "IN",
         "category": "tax",
         "question": "Do I need LUT for exports?",
         "alternates": [
@@ -840,6 +872,7 @@ SEED_FAQS: list[dict] = [
     # ─── HR (salaries, ESOP, gratuity, PF/ESI) ─────────────────────
     {
         "id": "faq-esop-msme",
+        "region": "IN",
         "category": "hr",
         "question": "Should I set up an ESOP for my team?",
         "alternates": [
@@ -867,6 +900,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-gratuity-provision",
+        "region": "IN",
         "category": "hr",
         "question": "How do I provision for gratuity?",
         "alternates": [
@@ -895,6 +929,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-pf-esi-compliance",
+        "region": "IN",
         "category": "hr",
         "question": "When do PF and ESI become mandatory?",
         "alternates": [
@@ -922,6 +957,7 @@ SEED_FAQS: list[dict] = [
     # ─── Operations (vendor management, inventory) ──────────────────
     {
         "id": "faq-vendor-negotiation",
+        "region": "IN",
         "category": "operations",
         "question": "How do I negotiate better vendor terms?",
         "alternates": [
@@ -953,6 +989,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-inventory-turnover",
+        "region": "IN",
         "category": "operations",
         "question": "What's a good inventory turnover ratio?",
         "alternates": [
@@ -984,6 +1021,7 @@ SEED_FAQS: list[dict] = [
     # ─── Working capital (debtor/creditor days, WC cycle) ───────────
     {
         "id": "faq-debtor-days",
+        "region": "IN",
         "category": "working_capital",
         "question": "What's a healthy debtor days number?",
         "alternates": [
@@ -1012,6 +1050,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-wc-cycle",
+        "region": "IN",
         "category": "working_capital",
         "question": "What's my working capital cycle?",
         "alternates": [
@@ -1042,6 +1081,7 @@ SEED_FAQS: list[dict] = [
     # ─── Banking & credit ────────────────────────────────────────────
     {
         "id": "faq-od-vs-cc",
+        "region": "IN",
         "category": "banking",
         "question": "Overdraft vs cash credit — which do I need?",
         "alternates": [
@@ -1072,6 +1112,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-dscr",
+        "region": "IN",
         "category": "banking",
         "question": "What DSCR do banks want?",
         "alternates": [
@@ -1104,6 +1145,7 @@ SEED_FAQS: list[dict] = [
     # ─── Pricing & customer economics ────────────────────────────────
     {
         "id": "faq-pricing-strategy",
+        "region": "IN",
         "category": "pricing",
         "question": "How should I price my product?",
         "alternates": [
@@ -1136,6 +1178,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-cac-ltv",
+        "region": "IN",
         "category": "customer",
         "question": "What's a good LTV to CAC ratio?",
         "alternates": [
@@ -1163,6 +1206,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-churn-retention",
+        "region": "IN",
         "category": "customer",
         "question": "How do I calculate customer churn?",
         "alternates": [
@@ -1195,6 +1239,7 @@ SEED_FAQS: list[dict] = [
     # ─── Valuation & fundraise ───────────────────────────────────────
     {
         "id": "faq-valuation-msme",
+        "region": "IN",
         "category": "valuation",
         "question": "How is my company valued?",
         "alternates": [
@@ -1228,6 +1273,7 @@ SEED_FAQS: list[dict] = [
     },
     {
         "id": "faq-runway",
+        "region": "IN",
         "category": "fundraise",
         "question": "How do I calculate my runway?",
         "alternates": [
@@ -1257,6 +1303,7 @@ SEED_FAQS: list[dict] = [
     # ─── Break-even & fundamentals ───────────────────────────────────
     {
         "id": "faq-breakeven",
+        "region": "IN",
         "category": "profitability",
         "question": "What is my break-even revenue?",
         "alternates": [
@@ -1288,6 +1335,7 @@ SEED_FAQS: list[dict] = [
     # ─── Fixed vs variable ────────────────────────────────────────────
     {
         "id": "faq-fixed-vs-variable",
+        "region": "IN",
         "category": "profitability",
         "question": "How do I know my fixed vs variable costs?",
         "alternates": [
@@ -1321,6 +1369,7 @@ SEED_FAQS: list[dict] = [
     # ─── Seasonality & demand planning ────────────────────────────────
     {
         "id": "faq-seasonal-business",
+        "region": "IN",
         "category": "operations",
         "question": "How do I manage a seasonal business?",
         "alternates": [
@@ -1353,6 +1402,7 @@ SEED_FAQS: list[dict] = [
     # ─── Export/import forex ──────────────────────────────────────────
     {
         "id": "faq-forex-hedging",
+        "region": "IN",
         "category": "operations",
         "question": "Should I hedge my forex exposure?",
         "alternates": [
@@ -1386,6 +1436,7 @@ SEED_FAQS: list[dict] = [
     # ─── Margin of safety / decision discipline ──────────────────────
     {
         "id": "faq-when-to-hire",
+        "region": "IN",
         "category": "hr",
         "question": "When should I hire my next employee?",
         "alternates": [
@@ -1410,10 +1461,481 @@ SEED_FAQS: list[dict] = [
             "the SOP first, then hire.\n"
             "3. **Over-hiring in revenue functions.** Two average salespeople "
             "rarely beat one great one. Promote scarcity.\n\n"
-            "### Smart sequence for MSMEs\n\n"
+            "### Smart sequence for SMBs\n\n"
             "First 5 hires: ops lead, accountant, best salesperson you can "
             "afford, finance partner (fractional CFO beats full-time), "
             "and your second-in-command. Everything else scales from there."
+        ),
+    },
+
+    # ═══════════════════════════════════════════════════════════════════
+    # US REGION FAQs (region="US") — served to US founders whose Profile
+    # region is set to "US". Templates use USD ($K/$M), US regulatory
+    # framework (GAAP / ASC), and US tax vocabulary. A subset of the
+    # Indian FAQ bank, prioritising the highest-frequency founder
+    # questions + US-specific topics that don't exist in the Indian set.
+    # ═══════════════════════════════════════════════════════════════════
+
+    # ─── Revenue ────────────────────────────────────────────────────────
+    {
+        "id": "faq-us-revenue-total",
+        "region": "US",
+        "category": "revenue",
+        "question": "What is my total revenue?",
+        "alternates": [
+            "How much revenue did we make",
+            "Show me the top line",
+            "What's the total sales number",
+            "Revenue summary",
+        ],
+        "keywords": ["revenue", "sales", "top line", "turnover"],
+        "answer_template": (
+            "**Total revenue: {revenue_fmt}.**\n\n"
+            "- Net income: **{net_income_fmt}** "
+            "({net_margin}% margin — {margin_verdict})\n"
+            "- Total expenses: {expenses_fmt}\n"
+            "- Biggest revenue line: **{top_revenue_name}** "
+            "at {top_revenue_amount_fmt}\n\n"
+            "### So what\n\n"
+            "Your headline margin is {net_margin}%. "
+            "{margin_action}"
+        ),
+    },
+
+    # ─── Expenses ───────────────────────────────────────────────────────
+    {
+        "id": "faq-us-top-expenses",
+        "region": "US",
+        "category": "expenses",
+        "question": "What are my top expenses?",
+        "alternates": [
+            "Where is my money going",
+            "Biggest cost centers",
+            "What am I spending on",
+            "Where do I spend the most",
+        ],
+        "keywords": ["expense", "cost", "spend", "top", "biggest"],
+        "answer_template": (
+            "**{top_expense_name} is your biggest line at {top_expense_fmt} "
+            "— {top_expense_pct}% of total spend.**\n\n"
+            "Top three cost centers:\n\n"
+            "{top_3_expenses_md}\n\n"
+            "### So what\n\n"
+            "These three lines together are {top_3_pct}% of total expenses. "
+            "Any cost-reduction program should start here — a 5% trim across "
+            "just the top three saves **{top_3_savings_fmt}** a year."
+        ),
+    },
+    {
+        "id": "faq-us-reduce-costs",
+        "region": "US",
+        "category": "expenses",
+        "question": "How can I reduce my costs?",
+        "alternates": [
+            "How to cut expenses",
+            "Where can I save money",
+            "Cost reduction ideas",
+            "How to improve profitability",
+        ],
+        "keywords": ["reduce", "cut", "save", "lower", "optimize", "trim"],
+        "answer_template": (
+            "**Three levers, ranked by impact on your books:**\n\n"
+            "1. **{top_expense_name}** ({top_expense_fmt}, "
+            "{top_expense_pct}% of total). Even a 5% renegotiation with "
+            "your top vendor saves **{top_expense_5pct_fmt}** a year.\n"
+            "2. **{second_expense_name}** ({second_expense_fmt}). Often "
+            "discretionary — ask what's actually driving it, not what "
+            "the ledger says.\n"
+            "3. **Working capital tightening** — current WC is "
+            "{working_capital_fmt}. "
+            "{wc_action}\n\n"
+            "### Next 90 days\n\n"
+            "- Week 1-2: RFP your top-3 vendor contracts\n"
+            "- Week 3-4: Freeze hiring in non-revenue functions\n"
+            "- Month 2-3: Rebuild the budget bottom-up, not last-year-plus-inflation"
+        ),
+    },
+
+    # ─── Financial health ───────────────────────────────────────────────
+    {
+        "id": "faq-us-financial-health",
+        "region": "US",
+        "category": "ratios",
+        "question": "How is my financial health?",
+        "alternates": [
+            "Am I healthy",
+            "Give me a health check",
+            "Financial position summary",
+            "Key ratios",
+        ],
+        "keywords": ["health", "ratio", "position", "liquidity", "solvency"],
+        "answer_template": (
+            "**Headline: {health_verdict}.**\n\n"
+            "| Metric | Your value | Benchmark |\n"
+            "| --- | --- | --- |\n"
+            "| Current ratio | {current_ratio}x | 1.5-2.0x |\n"
+            "| Debt-to-equity | {debt_to_equity}x | < 1.5x |\n"
+            "| Gross margin | {gross_margin}% | 30%+ |\n"
+            "| Net margin | {net_margin}% | 10%+ |\n"
+            "| Working capital | {working_capital_fmt} | Positive |\n\n"
+            "### So what\n\n"
+            "{health_action}"
+        ),
+    },
+
+    # ─── Risk ────────────────────────────────────────────────────────────
+    {
+        "id": "faq-us-top-risks",
+        "region": "US",
+        "category": "risk",
+        "question": "What are my biggest risks?",
+        "alternates": [
+            "Red flags in my business",
+            "What should I worry about",
+            "Where is the risk",
+            "Top risks",
+        ],
+        "keywords": ["risk", "danger", "threat", "worry", "concern", "red flag"],
+        "answer_template": (
+            "**Ranked by how badly they'd hit cash if left alone:**\n\n"
+            "{risks_md}\n\n"
+            "### Next 90 days\n\n"
+            "Pick the top 1-2 and treat them as quarterly board agenda items. "
+            "Everything else can wait."
+        ),
+    },
+
+    # ─── Projection ──────────────────────────────────────────────────────
+    {
+        "id": "faq-us-project-next-year",
+        "region": "US",
+        "category": "projection",
+        "question": "What will my financials look like next year?",
+        "alternates": [
+            "Project next year",
+            "Forecast for next year",
+            "What will we make next year",
+            "FY projection",
+        ],
+        "keywords": ["project", "forecast", "next year", "next fy", "predict"],
+        "answer_template": (
+            "**Simple 3-scenario projection from today's books:**\n\n"
+            "| Scenario | Revenue | Expenses | Net |\n"
+            "| --- | --- | --- | --- |\n"
+            "| Conservative (+5% rev, +3% cost) | {proj_conservative_rev_fmt} | "
+            "{proj_conservative_exp_fmt} | {proj_conservative_net_fmt} |\n"
+            "| Base (+15% rev, +8% cost) | {proj_base_rev_fmt} | "
+            "{proj_base_exp_fmt} | {proj_base_net_fmt} |\n"
+            "| Aggressive (+25% rev, +13% cost) | {proj_aggressive_rev_fmt} | "
+            "{proj_aggressive_exp_fmt} | {proj_aggressive_net_fmt} |\n\n"
+            "### Caveats\n\n"
+            "This is extrapolation from a single TB. For an investor-grade "
+            "forecast I'd need monthly data, seasonality, and your planned "
+            "capex. If you have those, upload on the Analysis page and "
+            "we'll redo this with real drivers.\n\n"
+            "### Next 90 days\n\n"
+            "Pick the scenario you think is realistic. Commit to a month-end "
+            "where you hit the run-rate implied by that scenario. Review "
+            "variance monthly."
+        ),
+    },
+
+    # ─── Working capital ─────────────────────────────────────────────────
+    {
+        "id": "faq-us-wc-cycle",
+        "region": "US",
+        "category": "working_capital",
+        "question": "What's my working capital cycle?",
+        "alternates": [
+            "Cash conversion cycle",
+            "WC cycle formula",
+            "Operating cycle",
+            "DSO DPO DIO",
+        ],
+        "keywords": ["working capital cycle", "cash conversion", "operating cycle", "dso", "dpo"],
+        "answer_template": (
+            "**Cash Conversion Cycle (CCC) = DSO + DIO − DPO.**\n\n"
+            "It measures how many days cash is tied up between paying "
+            "suppliers and collecting from customers.\n\n"
+            "### What each lever does\n\n"
+            "- **DSO ↓** — collect faster. Every 10 days = ~2.7% of revenue as cash.\n"
+            "- **DIO ↓** — hold less inventory. Each 10 days = ~1-2% of revenue.\n"
+            "- **DPO ↑** — pay suppliers slower. Gains match DSO days.\n\n"
+            "### Benchmarks for US SMB\n\n"
+            "- Manufacturing / distribution: 60-120 days\n"
+            "- B2B services: 30-60 days\n"
+            "- SaaS / subscription: 15-45 days\n\n"
+            "### Strategic move\n\n"
+            "A 30-day improvement on a $5M business is $400K in freed-up "
+            "cash. Usually cheaper than a credit line or equity raise. "
+            "Start with DSO discipline — it's the most controllable lever."
+        ),
+    },
+
+    # ─── Pricing ────────────────────────────────────────────────────────
+    {
+        "id": "faq-us-pricing-strategy",
+        "region": "US",
+        "category": "pricing",
+        "question": "How should I price my product?",
+        "alternates": [
+            "Pricing strategy",
+            "How to set prices",
+            "Value-based pricing",
+        ],
+        "keywords": ["pricing", "price", "set prices"],
+        "answer_template": (
+            "**Three pricing anchors, in priority order for margin expansion:**\n\n"
+            "1. **Value-based** (what the outcome is worth to the customer). "
+            "Biggest upside. Hardest to implement. Test: ask your top 3 "
+            "customers *\"If we stopped tomorrow, what would it cost you "
+            "to replace us?\"* That number is your pricing ceiling.\n"
+            "2. **Competitor-based** (match market). Commoditizes you. "
+            "Use as reality check, not strategy.\n"
+            "3. **Cost-plus** (add margin to COGS). Safe, leaves money "
+            "on the table. Use as FLOOR, not target.\n\n"
+            "### Practical moves\n\n"
+            "- Raise prices 3-5% annually as default, no negotiation\n"
+            "- Segment: small customers pay list, strategic accounts get "
+            "volume discount, walk-ins pay premium\n"
+            "- Never discount on price without taking something back "
+            "(volume commit, tenure, payment terms)"
+        ),
+    },
+
+    # ─── Unit economics ─────────────────────────────────────────────────
+    {
+        "id": "faq-us-cac-ltv",
+        "region": "US",
+        "category": "customer",
+        "question": "What's a good LTV to CAC ratio?",
+        "alternates": [
+            "LTV CAC ratio",
+            "Customer acquisition cost",
+            "Unit economics",
+            "CAC payback",
+        ],
+        "keywords": ["ltv", "cac", "customer acquisition", "unit economics"],
+        "answer_template": (
+            "**Industry benchmark: LTV:CAC of 3:1.**\n\n"
+            "- Below 1:1 = you pay more to acquire than you earn. Bleeding.\n"
+            "- 1:1 to 3:1 = marginal. Optimize before you scale spend.\n"
+            "- 3:1+ = healthy. Push spend harder.\n"
+            "- 5:1+ = likely under-investing in acquisition.\n\n"
+            "### How to compute honestly\n\n"
+            "- **CAC** = all S&M cost ÷ new customers acquired in the same period. "
+            "Include founder time at $300-500/hour if they sell.\n"
+            "- **LTV** = avg monthly gross profit per customer × avg lifetime "
+            "(months). Gross profit, NOT revenue. Revenue LTV flatters.\n\n"
+            "### Payback ceiling\n\n"
+            "Aim for CAC payback <12 months for B2B, <6 months for B2C."
+        ),
+    },
+
+    # ─── Valuation ──────────────────────────────────────────────────────
+    {
+        "id": "faq-us-valuation",
+        "region": "US",
+        "category": "valuation",
+        "question": "How is my company valued?",
+        "alternates": [
+            "Company valuation",
+            "Business worth",
+            "Valuation multiples",
+            "What multiple do we trade at",
+        ],
+        "keywords": ["valuation", "value", "worth", "multiple"],
+        "answer_template": (
+            "**For US SMBs in the $1-10M revenue band, three valuation "
+            "methods dominate. Multiples vary by sector.**\n\n"
+            "### 1. EBITDA multiple (most common for profitable)\n\n"
+            "- Tech / SaaS: 8-15x adjusted EBITDA\n"
+            "- Services: 5-10x adjusted EBITDA\n"
+            "- Manufacturing / distribution: 4-7x adjusted EBITDA\n\n"
+            "Note: these are on **adjusted** (QoE-normalized) EBITDA, "
+            "not reported. A clean QoE workbook earns 1-2x multiple.\n\n"
+            "### 2. Revenue multiple (for growth / thin margin)\n\n"
+            "- SaaS: 3-8x ARR (depends on NRR + growth rate)\n"
+            "- High-growth services: 1-3x revenue\n\n"
+            "### 3. DCF (for anyone with visibility)\n\n"
+            "Discount projected free cash flow at 10-15% (risk-free + "
+            "equity risk + company-specific premium).\n\n"
+            "### Bottom line\n\n"
+            "Real valuation is what a strategic buyer or investor believes. "
+            "These multiples anchor the conversation, not the destination."
+        ),
+    },
+
+    # ─── Runway ─────────────────────────────────────────────────────────
+    {
+        "id": "faq-us-runway",
+        "region": "US",
+        "category": "fundraise",
+        "question": "How do I calculate my runway?",
+        "alternates": [
+            "Burn rate",
+            "Months of runway",
+            "Cash runway",
+        ],
+        "keywords": ["runway", "burn rate", "burn", "cash runway"],
+        "answer_template": (
+            "**Runway = current cash ÷ monthly net burn.**\n\n"
+            "- **Monthly burn** = monthly expenses − monthly revenue. "
+            "Positive (profitable) means infinite runway at this burn.\n"
+            "- **Cash burn** (distinct from operating burn) includes capex "
+            "+ debt service + estimated tax payments timed to months.\n\n"
+            "### Benchmarks\n\n"
+            "- <6 months runway — emergency. Raise now, cut deep, or both.\n"
+            "- 6-12 months — planning window. Start fundraise by month 9.\n"
+            "- 12-18 months — comfortable. Use the space to grow ARR, not raise.\n"
+            "- 18+ months — investors ask why you need the money.\n\n"
+            "### Honest burn\n\n"
+            "Use **trailing-3-month average** for planning. A good month "
+            "isn't the baseline — it's an outlier."
+        ),
+    },
+
+    # ─── US-specific regulatory ─────────────────────────────────────────
+    {
+        "id": "faq-us-withholding-basics",
+        "region": "US",
+        "category": "tax",
+        "question": "What withholding taxes do I need to handle?",
+        "alternates": [
+            "Payroll tax withholding",
+            "Employer tax obligations",
+            "1099 vs W-2 withholding",
+            "Federal employment tax",
+        ],
+        "keywords": ["withholding", "payroll tax", "employment tax", "941", "w-2", "w2", "1099"],
+        "answer_template": (
+            "**Federal withholding obligations for US employers:**\n\n"
+            "- **W-2 employees**: withhold federal income tax (per W-4), "
+            "Social Security (6.2% up to wage base), Medicare (1.45%), "
+            "plus employer match on FICA.\n"
+            "- **FUTA**: 6% on first $7K wages per employee (usually "
+            "offset by state credit to 0.6% effective).\n"
+            "- **State income tax**: per state rules — some have none (TX, FL, WA), "
+            "others up to ~13% top marginal (CA).\n"
+            "- **1099 contractors**: no withholding required from you, "
+            "BUT issue 1099-NEC if you pay any single contractor ≥$600/year.\n\n"
+            "### Deposit calendar\n\n"
+            "- Monthly depositors: 15th of following month\n"
+            "- Semi-weekly depositors: Wed/Fri depending on payday\n"
+            "- Quarterly Form 941 filing\n"
+            "- Annual Form 940 (FUTA) + W-2 / 1099 by Jan 31\n\n"
+            "### Non-negotiables\n\n"
+            "Trust-fund taxes (withheld but not deposited) carry a 100% "
+            "penalty personally assessable to officers. Never late on these."
+        ),
+    },
+    {
+        "id": "faq-us-estimated-tax",
+        "region": "US",
+        "category": "tax",
+        "question": "When do I pay estimated taxes?",
+        "alternates": [
+            "Quarterly estimated tax",
+            "Estimated tax deadlines",
+            "Form 1040-ES",
+            "1120-W",
+        ],
+        "keywords": ["estimated tax", "quarterly tax", "1040-es", "1120-w"],
+        "answer_template": (
+            "**If federal tax liability will exceed $500 for a corp "
+            "(or $1,000 for a founder on individual basis), estimated "
+            "taxes are mandatory.**\n\n"
+            "### Quarterly deadlines (federal)\n\n"
+            "| Due date | Covers |\n"
+            "| --- | --- |\n"
+            "| April 15 | Jan 1 – Mar 31 |\n"
+            "| June 15 | Apr 1 – May 31 |\n"
+            "| September 15 | Jun 1 – Aug 31 |\n"
+            "| January 15 (next year) | Sep 1 – Dec 31 |\n\n"
+            "### Safe harbor\n\n"
+            "Pay the LESSER of:\n"
+            "- 100% of last year's tax (110% if AGI > $150K), OR\n"
+            "- 90% of current year's tax\n\n"
+            "Miss the safe harbor and IRS charges underpayment penalty "
+            "(short-term federal rate + 3%, updated quarterly).\n\n"
+            "### State\n\n"
+            "Most states mirror the federal calendar with their own "
+            "quarterlies. CA adds a June 15 \"prepayment\" quirk. "
+            "Check your state's Department of Revenue."
+        ),
+    },
+    {
+        "id": "faq-us-rd-credit",
+        "region": "US",
+        "category": "tax",
+        "question": "Can I claim the R&D tax credit?",
+        "alternates": [
+            "R&D credit",
+            "Research and development tax credit",
+            "Section 174",
+            "Payroll tax offset",
+        ],
+        "keywords": ["r&d credit", "research credit", "section 174", "section 41"],
+        "answer_template": (
+            "**Section 41 R&D credit — usually yes if you're writing software, "
+            "engineering product, or doing experimental development.**\n\n"
+            "### Qualifying activities\n\n"
+            "- Software development (product, not internal IT)\n"
+            "- Engineering design & prototyping\n"
+            "- Formula / process improvement\n"
+            "- Technical uncertainty resolution\n\n"
+            "### Qualifying costs\n\n"
+            "- W-2 wages of people doing QRE (qualified research expense) work\n"
+            "- 65% of contractor costs on qualifying work\n"
+            "- Supplies consumed in research\n"
+            "- Cloud compute (under recent IRS guidance)\n\n"
+            "### Payroll offset (big for early-stage)\n\n"
+            "If under $5M gross receipts AND less than 5 years old, you "
+            "can offset up to $500K of the R&D credit against PAYROLL tax "
+            "(Social Security employer portion) instead of waiting to "
+            "profit. Cash-positive immediately.\n\n"
+            "### Section 174 warning (2022+)\n\n"
+            "TCJA requires amortizing R&D expenses over 5 years (15 for "
+            "foreign work). This HURTS cash taxes. Plan for this if your "
+            "R&D spend is material; it can push a tech company into a "
+            "tax bill even while accounting losses.\n\n"
+            "### Next step\n\n"
+            "Get a credit-specialist CPA to quantify. Studies typically "
+            "cost $5-15K and recover 10-50x in credit value for a company "
+            "with $500K+ qualifying spend."
+        ),
+    },
+    {
+        "id": "faq-us-c-corp-vs-llc",
+        "region": "US",
+        "category": "legal",
+        "question": "Should I be a C-Corp or LLC?",
+        "alternates": [
+            "C-corp vs LLC",
+            "Entity structure",
+            "Delaware C-Corp",
+            "S-Corp vs LLC",
+        ],
+        "keywords": ["c-corp", "c corp", "llc", "s-corp", "s corp", "delaware", "entity"],
+        "answer_template": (
+            "**The right answer depends on what you want from your business:**\n\n"
+            "### C-Corp (usually Delaware)\n\n"
+            "- **Fundraising**: VCs require it. They can't easily invest in LLCs.\n"
+            "- **QSBS benefit**: hold 5+ years and up to $10M of gain can be "
+            "federal-tax-free under Section 1202. Huge for founders at exit.\n"
+            "- **Employee equity**: clean ISO/NSO stock option grants.\n"
+            "- **Cost**: double taxation on profits (corp level + dividend), "
+            "so bad for cash-distributing businesses. Franchise tax in DE.\n\n"
+            "### LLC (taxed as partnership or S-corp)\n\n"
+            "- **Pass-through taxation**: profits taxed once at the owner level\n"
+            "- **Flexibility**: customizable operating agreement, no board required\n"
+            "- **Distribute cash freely**: no double tax\n"
+            "- **Downsides**: can't take VC money cleanly, phantom income on "
+            "undistributed profits, less standard for M&A\n\n"
+            "### Rule of thumb for SMBs\n\n"
+            "- Bootstrapping a profitable services business → **LLC taxed as S-corp**\n"
+            "- Raising venture → **Delaware C-Corp** from day one\n"
+            "- Need to convert later? Doable but costs $10-30K in legal + tax work"
         ),
     },
 ]

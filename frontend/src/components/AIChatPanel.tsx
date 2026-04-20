@@ -198,6 +198,10 @@ export default function AIChatPanel() {
         conversation_history: history,
         business_context: businessContext,
         page_context: buildPageContext(pathname),
+        // Region drives currency formatting + CFO voice + FAQ filter on
+        // the backend. Default "US" if the user hasn't been through the
+        // new onboarding or hasn't set it in /profile yet.
+        region: business?.region ?? "US",
       };
 
       // ── Deep mode: stream thinking + response live ─────────────────

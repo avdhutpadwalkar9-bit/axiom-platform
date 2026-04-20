@@ -96,8 +96,17 @@ def get_client():
     return _claude_client()
 
 
-def build_financial_context(analysis_result: dict, business_context: dict = None) -> str:
-    """Build a rich context string from analysis data for the AI."""
+def build_financial_context(
+    analysis_result: dict,
+    business_context: dict = None,
+    region: str = "US",
+) -> str:
+    """Build a rich context string from analysis data for the AI.
+
+    `region` controls currency formatting (USD K/M vs INR L/Cr) — keeps
+    the numbers the AI references in the same denomination the founder
+    is seeing in the UI, so cross-references stay consistent.
+    """
     fs = analysis_result.get("financial_statements", {})
     ratios = analysis_result.get("ratios", {})
     ca = analysis_result.get("classified_accounts", {})
@@ -107,11 +116,27 @@ def build_financial_context(analysis_result: dict, business_context: dict = None
     ai_questions = analysis_result.get("ai_questions", [])
 
     def fmt_inr(val):
-        if abs(val) >= 10000000:
-            return f"₹{val/10000000:.2f} Cr"
-        if abs(val) >= 100000:
-            return f"₹{val/100000:.2f} L"
-        return f"₹{val:,.0f}"
+        """Compact currency formatting. Name kept for backwards-compat
+        with a few call-sites inside this file; the implementation now
+        branches on region."""
+        if val is None:
+            return "—"
+        try:
+            v = float(val)
+        except (TypeError, ValueError):
+            return "—"
+        if (region or "").upper() == "IN":
+            if abs(v) >= 10_000_000:
+                return f"₹{v/10_000_000:.2f} Cr"
+            if abs(v) >= 100_000:
+                return f"₹{v/100_000:.2f} L"
+            return f"₹{v:,.0f}"
+        # Default = US
+        if abs(v) >= 1_000_000:
+            return f"${v/1_000_000:.2f}M"
+        if abs(v) >= 1_000:
+            return f"${v/1_000:.1f}K"
+        return f"${v:,.0f}"
 
     ctx = f"""## Financial Analysis Data
 
@@ -187,10 +212,52 @@ def build_financial_context(analysis_result: dict, business_context: dict = None
     return ctx
 
 
-SYSTEM_PROMPT = """You are CortexCFO AI — a strategic CFO advisor for Indian MSME founders. You are NOT a data summarizer. You think forward, quantify, and recommend.
+def _region_profile(region: str) -> dict:
+    """Return the region-specific chunks that slot into SYSTEM_PROMPT.
+
+    Isolating these makes it one-edit to add a third region (EU/GB).
+    Every key below MUST be present — the template below references all
+    of them. Unknown regions fall back to "US".
+    """
+    if (region or "").upper() == "IN":
+        return {
+            "audience": "Indian SMB founders in the ₹10–50 Cr revenue band",
+            "advisor_type": "seasoned CA-turned-CFO",
+            "currency_rule": "Indian Rupee formatting always: Lakhs (L) and Crores (Cr), never dollars or generic 'k/M'",
+            "regulatory": "Ind AS (24, 115, 109, 37, etc.) for accounting flags; GSTR-3B/2B, TDS, PF/ESI for tax & payroll",
+            "currency_symbol": "₹",
+            "vendor_example": "At 8% reduction on ₹4.5 Cr spend, that's ₹36 L back in cash by March",
+            "margin_example": "Gross margin 12% — healthy service firms run 35-50%, so there's a clear efficiency gap worth ₹X crores",
+            "projection_example": "Assuming 15% YoY revenue growth and 7% cost inflation, FY27 net income lands at ₹X Cr",
+            "reduction_realism": "realistic for Indian SMBs",
+            "currency_savings": "annual ₹ savings",
+        }
+    # Default = US.
+    return {
+        "audience": "US SMB founders in the $1M–$10M revenue band",
+        "advisor_type": "seasoned CPA-turned-CFO",
+        "currency_rule": "US Dollar formatting always: K for thousands, M for millions (e.g., $250K, $4.5M). Never use Lakhs, Crores, or ₹",
+        "regulatory": "US GAAP (ASC 606, 842, 718, 326, 850) for accounting flags; federal/state withholding tax, payroll tax deposits, sales tax returns",
+        "currency_symbol": "$",
+        "vendor_example": "At 8% reduction on $4.5M spend, that's $360K back in cash by year-end",
+        "margin_example": "Gross margin 12% — healthy service firms run 35-50%, so there's a clear efficiency gap worth $X million",
+        "projection_example": "Assuming 15% YoY revenue growth and 7% cost inflation, FY27 net income lands at $X M",
+        "reduction_realism": "realistic for US SMBs",
+        "currency_savings": "annual $ savings",
+    }
+
+
+def build_system_prompt(region: str = "US") -> str:
+    """Assemble the system prompt for a given region. Called per request
+    rather than cached — cheap enough (pure string concatenation) and
+    lets a user flip region in /profile and see the change immediately
+    on the very next chat turn.
+    """
+    p = _region_profile(region)
+    return f"""You are CortexCFO AI — a strategic CFO advisor for {p['audience']}. You are NOT a data summarizer. You think forward, quantify, and recommend.
 
 ## YOUR ROLE
-You are the CFO sitting across from the founder on a board call. They can't afford a real CFO yet, so they come to you for the same clarity a seasoned CA-turned-CFO would bring: read the numbers, move past them, and tell them what to do. Be decisive where the data supports it, and honestly uncertain where it doesn't.
+You are the CFO sitting across from the founder on a board call. They can't afford a real CFO yet, so they come to you for the same clarity a {p['advisor_type']} would bring: read the numbers, move past them, and tell them what to do. Be decisive where the data supports it, and honestly uncertain where it doesn't.
 
 ## HOW YOU THINK (apply these to every answer)
 
@@ -198,17 +265,21 @@ You are the CFO sitting across from the founder on a board call. They can't affo
 
 **2. Find the lever.** When asked to save money, cut costs, or improve profit, identify the top 3 specific levers. Generic advice is banned. Each lever must have:
 - The exact line item and current amount from the data
-- A realistic reduction percentage (cite why it's realistic for Indian MSMEs)
-- The annual ₹ savings that delivers
+- A realistic reduction percentage (cite why it's {p['reduction_realism']})
+- The {p['currency_savings']} that delivers
 - How to execute (vendor renegotiation, process change, headcount freeze, etc.)
 
-**3. Compare to benchmarks.** When you cite a ratio or margin, tell the founder what good looks like for their industry. "Gross margin 12%" alone is useless. "Gross margin 12% — healthy service firms run 35-50%, so there's a clear efficiency gap worth ₹X crores" is a CFO answer.
+**3. Compare to benchmarks.** When you cite a ratio or margin, tell the founder what good looks like for their industry. "Gross margin 12%" alone is useless. "{p['margin_example']}" is a CFO answer.
 
 **4. Prioritize ruthlessly.** When there are many issues, rank them. "Fix this first because the cash impact is largest / the risk is highest / it's blocking the next step" beats a list of equals.
 
-**5. Be decisive.** Weak: "You could consider renegotiating your top vendor." Strong: "Renegotiate your top vendor contract this quarter. At 8% reduction on ₹4.5 Cr spend, that's ₹36 L back in cash by March."
+**5. Be decisive.** Weak: "You could consider renegotiating your top vendor." Strong: "Renegotiate your top vendor contract this quarter. {p['vendor_example']}."
 
 **6. Own the gaps.** If the TB doesn't contain what you'd need (monthly trend, headcount, unit economics, segment mix, AR aging), name the one thing you'd want to see next. But don't hide behind missing data — reason from what you have, flag the gap, and still give a useful answer.
+
+## REGULATORY FRAMEWORK
+
+Reference {p['regulatory']} when flagging accounting or compliance issues. Do not mix frameworks (don't reference Ind AS for a US founder, or ASC 606 for an Indian founder).
 
 ## FORMATTING
 
@@ -222,7 +293,7 @@ You are the CFO sitting across from the founder on a board call. They can't affo
 
 ## AUDIENCE & VOICE
 
-Indian MSME founders. Not finance professionals. Plain English. Short sentences. If you use a financial term, explain it in one parenthetical (e.g., "current ratio (short-term assets divided by short-term liabilities)"). Indian Rupee formatting always: Lakhs (L) and Crores (Cr), never dollars or generic "k/M". Warm but authoritative.
+{p['audience']}. Not finance professionals. Plain English. Short sentences. If you use a financial term, explain it in one parenthetical (e.g., "current ratio (short-term assets divided by short-term liabilities)"). {p['currency_rule']}. Warm but authoritative.
 
 ## LENGTH
 
@@ -232,8 +303,15 @@ Indian MSME founders. Not finance professionals. Plain English. Short sentences.
 ## INTEGRITY
 
 - Never invent numbers. Only use what's in the data, or what you derive with transparent math.
-- When you estimate, show the math: "Assuming 15% YoY revenue growth and 7% cost inflation, FY27 net income lands at ₹X Cr."
+- When you estimate, show the math: "{p['projection_example']}."
 - Cite real account names from the data, not generic placeholders."""
+
+
+# Legacy constant: some callers still import SYSTEM_PROMPT directly.
+# Default to US voice so new deployments ship with the international
+# version. Callers that need Indian voice must route through chat_with_ai
+# or stream_deep with region="IN".
+SYSTEM_PROMPT = build_system_prompt("US")
 
 
 # ---------------------------------------------------------------------------
@@ -466,6 +544,7 @@ async def chat_with_ai(
     user_answers: dict = None,
     provider: Optional[str] = None,
     mode: str = "quick",
+    region: str = "US",
 ) -> str:
     """Send a financial-analysis chat message and return the assistant's text.
 
@@ -476,14 +555,20 @@ async def chat_with_ai(
     Every provider error is logged with traceback, so a "why is my AI not
     working" debug session is one `grep ai_service` away.
     """
-    financial_context = build_financial_context(analysis_result, business_context)
+    # Region controls currency formatting inside the financial context AND
+    # which CFO voice the system prompt speaks. Prefer an explicit region
+    # arg; fall back to business_context.region; ultimately default US.
+    effective_region = (region or (business_context or {}).get("region") or "US").upper()
+    financial_context = build_financial_context(
+        analysis_result, business_context, region=effective_region
+    )
 
     if user_answers:
         financial_context += "\n### Management Answers to AI Questions\n"
         for q, a in user_answers.items():
             financial_context += f"Q: {q}\nA: {a}\n\n"
 
-    system_prompt = f"{SYSTEM_PROMPT}\n\n{financial_context}"
+    system_prompt = f"{build_system_prompt(effective_region)}\n\n{financial_context}"
 
     # Build the ordered chain: requested provider first, then every other
     # provider in DEFAULT_FALLBACK_CHAIN. Skip any that aren't configured so
@@ -534,6 +619,7 @@ async def stream_deep(
     conversation_history: Optional[list[dict]] = None,
     business_context: Optional[dict] = None,
     user_answers: Optional[dict] = None,
+    region: str = "US",
 ) -> AsyncIterator[dict]:
     """Stream a Deep-mode Claude response with extended thinking enabled.
 
@@ -560,12 +646,15 @@ async def stream_deep(
 
     # Build system prompt identically to the non-stream path so the model
     # behaves the same; only the transport differs.
-    financial_context = build_financial_context(analysis_result or {}, business_context)
+    effective_region = (region or (business_context or {}).get("region") or "US").upper()
+    financial_context = build_financial_context(
+        analysis_result or {}, business_context, region=effective_region
+    )
     if user_answers:
         financial_context += "\n### Management Answers to AI Questions\n"
         for q, a in user_answers.items():
             financial_context += f"Q: {q}\nA: {a}\n\n"
-    system_prompt = f"{SYSTEM_PROMPT}\n\n{financial_context}"
+    system_prompt = f"{build_system_prompt(effective_region)}\n\n{financial_context}"
 
     messages = _normalize_history(conversation_history, _ROLE_FOR_ANTHROPIC)
     messages.append({"role": "user", "content": question})

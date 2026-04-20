@@ -137,6 +137,7 @@ class ApiClient {
     business_context?: Record<string, unknown>;
     page_context?: string;
     mode?: "quick" | "deep";
+    region?: "US" | "IN";
   }) {
     // Backend's build_financial_context() reads specific keys from
     // analysis_result (financial_statements, ratios, classified_accounts,
@@ -159,6 +160,7 @@ class ApiClient {
         conversation_history: payload.conversation_history ?? [],
         business_context: payload.business_context ?? null,
         mode: payload.mode ?? "quick",
+        region: payload.region ?? "US",
       }),
     });
   }
@@ -205,6 +207,7 @@ class ApiClient {
       conversation_history?: Array<{ role: "user" | "ai"; text: string }>;
       business_context?: Record<string, unknown>;
       page_context?: string;
+      region?: "US" | "IN";
     },
     handlers: {
       onThinking?: (chunk: string) => void;
@@ -232,6 +235,7 @@ class ApiClient {
         conversation_history: payload.conversation_history ?? [],
         business_context: payload.business_context ?? null,
         mode: "deep",
+        region: payload.region ?? "US",
       }),
       signal: handlers.signal,
     });
