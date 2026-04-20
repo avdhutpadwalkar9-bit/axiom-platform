@@ -34,6 +34,7 @@ import {
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { exportQoEPdf } from "@/lib/exportPdf";
+import { fmt as fmtRegional, asRegion } from "@/lib/currency";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -52,13 +53,11 @@ interface GLUploadMeta {
   file_name?: string;
 }
 
-function fmt(value: number): string {
-  const abs = Math.abs(value);
-  const sign = value < 0 ? "-" : "";
-  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
-  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(2)} L`;
-  if (abs >= 1000) return `${sign}₹${(abs / 1000).toFixed(1)}K`;
-  return `${sign}₹${abs.toFixed(0)}`;
+// Region-aware formatter. Rebuilt inside the component via
+// `useMemo(() => makeFmt(region), [region])` so flipping region in
+// /profile updates every ₹/L/Cr on the QoE page to $/K/M.
+function makeFmt(region: "US" | "IN") {
+  return (value: number): string => fmtRegional(value, region);
 }
 
 type Status = "approved" | "flagged" | "pending";
@@ -153,6 +152,8 @@ export default function QoEPage() {
   const { lastResult } = useAnalysisStore();
   const { business } = useOnboardingStore();
   const qoeCompanyName = business?.companyName?.trim() || "Your Company";
+  const region = asRegion(business?.region);
+  const fmt = useMemo(() => makeFmt(region), [region]);
 
   const derived = useMemo(() => {
     const fs = lastResult?.financial_statements;

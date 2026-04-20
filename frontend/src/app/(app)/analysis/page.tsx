@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import AIChatBubble from "@/components/AIChatBubble";
 import ModelSelector from "@/components/ModelSelector";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { exportAnalysisPdf } from "@/lib/exportPdf";
+import { fmt as fmtRegional, fmtFull as fmtFullRegional, asRegion } from "@/lib/currency";
 import {
   Upload,
   FileSpreadsheet,
@@ -128,13 +129,14 @@ const SAMPLE_TB: TBRow[] = [
   { account_name: "Miscellaneous Expense", debit: "45000", credit: "" },
 ];
 
-function fmt(value: number, compact = false): string {
-  if (compact) {
-    if (Math.abs(value) >= 10000000) return `₹${(value / 10000000).toFixed(2)} Cr`;
-    if (Math.abs(value) >= 100000) return `₹${(value / 100000).toFixed(2)} L`;
-    if (Math.abs(value) >= 1000) return `₹${(value / 1000).toFixed(1)}K`;
-  }
-  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
+// Region-aware currency formatter. Delegates to @/lib/currency so
+// flipping region in /profile updates this whole page. `makeFmt` is
+// instantiated once per render from the user's current business.region.
+function makeFmt(region: "US" | "IN") {
+  return (value: number, compact = false): string => {
+    if (compact) return fmtRegional(value, region);
+    return fmtFullRegional(value, region);
+  };
 }
 
 const PIE_COLORS = ["#10b981", "#14b8a6", "#22c55e", "#34d399", "#2dd4bf", "#06b6d4"];
@@ -163,6 +165,8 @@ const INPUT_MODE_OPTIONS: {
 export default function AnalysisPage() {
   const { setResult: saveToStore } = useAnalysisStore();
   const { business } = useOnboardingStore();
+  const region = asRegion(business?.region);
+  const fmt = useMemo(() => makeFmt(region), [region]);
   const [mode, setMode] = useState<"upload" | "manual" | "results">("upload");
   const [rows, setRows] = useState<TBRow[]>([{ account_name: "", debit: "", credit: "" }]);
   const [result, setResult] = useState<AnalysisResult | null>(null);

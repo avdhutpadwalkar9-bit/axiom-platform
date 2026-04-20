@@ -33,17 +33,15 @@ import {
 } from "recharts";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { fmt as fmtRegional, asRegion } from "@/lib/currency";
 
 /* ------------------------------------------------------------------ */
-/*  Indian currency formatter                                          */
+/*  Region-aware currency formatter                                    */
+/*  Delegates to @/lib/currency so changing region in /profile flips   */
+/*  USD ($K/$M) vs INR (₹ Cr / ₹ L) everywhere on the dashboard.       */
 /* ------------------------------------------------------------------ */
-function fmt(value: number): string {
-  const abs = Math.abs(value);
-  const sign = value < 0 ? "-" : "";
-  if (abs >= 1_00_00_000) return `${sign}\u20B9${(abs / 1_00_00_000).toFixed(2)} Cr`;
-  if (abs >= 1_00_000) return `${sign}\u20B9${(abs / 1_00_000).toFixed(2)} L`;
-  if (abs >= 1_000) return `${sign}\u20B9${(abs / 1_000).toFixed(1)}K`;
-  return `${sign}\u20B9${abs.toFixed(0)}`;
+function makeFmt(region: "US" | "IN") {
+  return (value: number): string => fmtRegional(value, region);
 }
 
 function pct(n: number): string {
@@ -139,6 +137,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const { lastResult, companyName, analysisDate, hasData } = useAnalysisStore();
   const { business } = useOnboardingStore();
+  const region = asRegion(business.region);
+  const fmt = useMemo(() => makeFmt(region), [region]);
 
   const stage = useMemo(() => getStage(business.yearFounded), [business.yearFounded]);
 
