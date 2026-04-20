@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { Region } from "@/lib/currency";
+import type { Currency, Region } from "@/lib/currency";
 
 export interface PersonalProfile {
   fullName: string;
@@ -10,8 +10,14 @@ export interface PersonalProfile {
 
 export interface BusinessProfile {
   companyName: string;
-  // Region drives currency formatting, AI voice, FAQ bank, compliance
-  // references. Default "US"; user can flip to "IN" in /profile.
+  // User picks from five common currencies in /profile:
+  //   USD · EUR · GBP · INR · JPY
+  // Currency drives symbol + number formatting + live FX strip on
+  // the dashboard.
+  currency: Currency;
+  // Region is derived internally from currency (INR → IN, else US)
+  // to drive the backend AI voice + FAQ bank. Kept on the store for
+  // back-compat; the source of truth is currency.
   region: Region;
   gstin: string;
   pan: string;
@@ -57,6 +63,7 @@ const defaultPersonal: PersonalProfile = {
 
 const defaultBusiness: BusinessProfile = {
   companyName: "",
+  currency: "USD",
   region: "US",
   gstin: "",
   pan: "",
@@ -107,7 +114,7 @@ export const useOnboardingStore = create<OnboardingState>()(
     }),
     {
       name: "cortexcfo-onboarding",
-      version: 2,
+      version: 3,
       // Deep merge on rehydrate: existing users in localStorage have the
       // old shape (no `region`, etc). Shallow merge would leave the gap
       // and `business.region` would be undefined at runtime. Explicit

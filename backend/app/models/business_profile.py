@@ -20,11 +20,14 @@ class BusinessProfile(Base):
 
     # Business info
     company_name: Mapped[str] = mapped_column(String(255), nullable=False)
-    # Region drives currency formatting, AI voice, FAQ filtering, and the
-    # compliance framework CortexCFO speaks. Default "US" — single-letter
-    # country code pair ("US", "IN") keeps future expansion cheap. Nullable
-    # so rows inserted before this column existed don't block on migration.
+    # Region drives AI voice + FAQ filter ("US" | "IN"). Today derived
+    # from `currency` (INR → IN, else US) but kept as its own column so
+    # we can decouple once we author EU/UK/JP regulatory FAQs.
     region: Mapped[str | None] = mapped_column(String(4), nullable=True, default="US")
+    # User-selected reporting currency — one of USD, EUR, GBP, INR, JPY.
+    # Drives currency symbol, number formatting, live FX strip on the
+    # dashboard, and (via derived region) the AI voice. ISO-4217 3-letter.
+    currency: Mapped[str | None] = mapped_column(String(3), nullable=True, default="USD")
     gstin: Mapped[str | None] = mapped_column(String(15), nullable=True)
     pan: Mapped[str | None] = mapped_column(String(10), nullable=True)
     cin: Mapped[str | None] = mapped_column(String(21), nullable=True)

@@ -33,15 +33,17 @@ import {
 } from "recharts";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { fmt as fmtRegional, asRegion } from "@/lib/currency";
+import { fmt as fmtCurrency, asCurrency, type Currency } from "@/lib/currency";
+import ForexStrip from "@/components/ForexStrip";
 
 /* ------------------------------------------------------------------ */
-/*  Region-aware currency formatter                                    */
-/*  Delegates to @/lib/currency so changing region in /profile flips   */
-/*  USD ($K/$M) vs INR (₹ Cr / ₹ L) everywhere on the dashboard.       */
+/*  Currency-aware formatter                                           */
+/*  Delegates to @/lib/currency so changing the reporting currency in  */
+/*  /profile flips USD / EUR / GBP / INR / JPY formatting across the   */
+/*  whole dashboard without touching any call site.                    */
 /* ------------------------------------------------------------------ */
-function makeFmt(region: "US" | "IN") {
-  return (value: number): string => fmtRegional(value, region);
+function makeFmt(currency: Currency) {
+  return (value: number): string => fmtCurrency(value, currency);
 }
 
 function pct(n: number): string {
@@ -137,8 +139,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const { lastResult, companyName, analysisDate, hasData } = useAnalysisStore();
   const { business } = useOnboardingStore();
-  const region = asRegion(business.region);
-  const fmt = useMemo(() => makeFmt(region), [region]);
+  const currency = asCurrency(business.currency);
+  const fmt = useMemo(() => makeFmt(currency), [currency]);
 
   const stage = useMemo(() => getStage(business.yearFounded), [business.yearFounded]);
 
@@ -353,6 +355,12 @@ export default function DashboardPage() {
               Summary of {displayName ? <span className="text-app-text-muted">{displayName}</span> : "your"} financial position
               {formattedDate && <span className="text-app-text-subtle"> &middot; as of {formattedDate}</span>}
             </p>
+            {/* Live FX strip — shows the current reporting currency and
+                live rates against the other four supported currencies.
+                ECB-sourced via frankfurter.app, cached 10 min in-session. */}
+            <div className="mt-3">
+              <ForexStrip base={currency} />
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-app-border bg-app-canvas hover:bg-app-card-hover text-[12px] text-app-text-muted transition-colors">

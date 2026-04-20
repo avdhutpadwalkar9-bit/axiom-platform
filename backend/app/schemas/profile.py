@@ -12,10 +12,12 @@ class ProfileCreate(BaseModel):
 
     # Business
     company_name: str
-    # ISO-3166-ish country code controlling currency + AI voice + FAQ filter.
-    # "US" (default) | "IN". Defaults on the server so old clients continue to
-    # work without passing this field.
+    # ISO-3166-ish country code controlling AI voice + FAQ filter.
+    # "US" (default) | "IN".
     region: str | None = "US"
+    # ISO-4217 reporting currency. One of USD, EUR, GBP, INR, JPY.
+    # Defaults to USD server-side.
+    currency: str | None = "USD"
     gstin: str | None = None
     pan: str | None = None
     cin: str | None = None
@@ -44,6 +46,7 @@ class ProfileUpdate(BaseModel):
 
     company_name: str | None = None
     region: str | None = None
+    currency: str | None = None
     gstin: str | None = None
     pan: str | None = None
     cin: str | None = None
@@ -74,6 +77,7 @@ class ProfileResponse(BaseModel):
 
     company_name: str
     region: str | None = "US"
+    currency: str | None = "USD"
     gstin: str | None
     pan: str | None
     cin: str | None

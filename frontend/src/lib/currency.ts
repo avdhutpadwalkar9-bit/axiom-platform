@@ -1,113 +1,171 @@
 /**
- * Region-aware currency + number formatting.
+ * Currency + region helpers.
  *
- * CortexCFO serves two regions today:
- *   - US (default): USD, $, M/K compact suffix, "en-US" locale
- *   - IN: INR, ₹, Cr/L compact suffix, "en-IN" locale
+ * CortexCFO now supports five currencies chosen during profile setup:
+ *   USD · EUR · GBP · INR · JPY
+ * These cover ~90% of global SMB transaction volume. Adding a sixth
+ * (CAD / AUD / CHF / CNY) is one entry in CURRENCIES below + one
+ * entry in the locale / fmt maps.
  *
- * Every component that displays a number should go through `fmt()` here
- * so we have a single switch-point when we add another region (EU/GB
- * are the natural next candidates). Hardcoding "$" or "₹" in a
- * component locks that component to one region.
- *
- * Contract:
- *   - `fmt(value, region)` returns a human-friendly short form.
- *     "$4.5M", "₹4.2 Cr", "$25K", "₹45 L", "$999", "₹12,500".
- *   - `fmtFull(value, region)` returns the non-compact form via
- *     Intl.NumberFormat — proper thousands separators + currency symbol.
- *   - `symbol(region)` returns just the currency symbol.
- *   - `locale(region)` returns the BCP-47 locale tag.
- *
- * The `region` argument is typed narrow so TypeScript catches typos.
- * Callers that don't have a region yet (e.g. during SSR or on an
- * unauthenticated surface) should default to "US".
+ * The broader `Region` axis ("US" | "IN") stays — it drives the AI
+ * voice, FAQ filtering and regulatory framework. Currency is UI-only.
+ * Today we derive region from currency:
+ *   INR → IN   (Indian founder, Ind AS, Lakh/Crore voice)
+ *   other → US (US SMB, GAAP, $K/$M voice)
+ * Once we author EU / UK / JP regulatory FAQs we split region further.
  */
 
+export type Currency = "USD" | "EUR" | "GBP" | "INR" | "JPY";
 export type Region = "US" | "IN";
 
+export const DEFAULT_CURRENCY: Currency = "USD";
 export const DEFAULT_REGION: Region = "US";
 
-export function locale(region: Region): string {
-  return region === "IN" ? "en-IN" : "en-US";
+// Ordered list for UI pickers. The first entry is the default pick.
+export const CURRENCIES: Array<{
+  code: Currency;
+  symbol: string;
+  name: string;
+  country: string;
+  // Natural locale string to hand to Intl.NumberFormat.
+  locale: string;
+}> = [
+  { code: "USD", symbol: "$", name: "US Dollar", country: "United States", locale: "en-US" },
+  { code: "EUR", symbol: "€", name: "Euro", country: "Eurozone", locale: "de-DE" },
+  { code: "GBP", symbol: "£", name: "British Pound", country: "United Kingdom", locale: "en-GB" },
+  { code: "INR", symbol: "₹", name: "Indian Rupee", country: "India", locale: "en-IN" },
+  { code: "JPY", symbol: "¥", name: "Japanese Yen", country: "Japan", locale: "ja-JP" },
+];
+
+const BY_CODE: Record<Currency, (typeof CURRENCIES)[number]> = CURRENCIES.reduce(
+  (acc, c) => {
+    acc[c.code] = c;
+    return acc;
+  },
+  {} as Record<Currency, (typeof CURRENCIES)[number]>,
+);
+
+export function symbol(currency: Currency = DEFAULT_CURRENCY): string {
+  return BY_CODE[currency]?.symbol ?? "$";
 }
 
-export function symbol(region: Region): string {
-  return region === "IN" ? "₹" : "$";
+export function locale(currency: Currency = DEFAULT_CURRENCY): string {
+  return BY_CODE[currency]?.locale ?? "en-US";
 }
 
-export function currencyCode(region: Region): "INR" | "USD" {
-  return region === "IN" ? "INR" : "USD";
+export function currencyName(currency: Currency = DEFAULT_CURRENCY): string {
+  return BY_CODE[currency]?.name ?? currency;
+}
+
+/**
+ * Convert a Currency back to the backend's Region vocabulary.
+ *   INR → IN   (Indian AI voice, Indian FAQ bank)
+ *   others → US (default voice, US FAQ bank)
+ */
+export function regionFromCurrency(currency: Currency | undefined | null): Region {
+  return currency === "INR" ? "IN" : "US";
+}
+
+/**
+ * Narrow a loose string to Currency. API responses / store hydration
+ * paths go through this so a stale or malformed value collapses to
+ * the default rather than propagating as `undefined`.
+ */
+export function asCurrency(value: string | null | undefined): Currency {
+  switch (value) {
+    case "USD":
+    case "EUR":
+    case "GBP":
+    case "INR":
+    case "JPY":
+      return value;
+    default:
+      return DEFAULT_CURRENCY;
+  }
+}
+
+/**
+ * Kept for back-compat with old `region`-based callers. Takes a region
+ * and returns the natural currency for that region.
+ */
+export function asRegion(value: string | null | undefined): Region {
+  return value === "IN" ? "IN" : "US";
 }
 
 /**
  * Compact short-form currency. Business-friendly sizing:
- *   IN:   ≥1 Cr → "x.xx Cr"; ≥1 L → "x.xx L"; ≥1 K → "x.xK"; else raw
- *   US:   ≥1 M → "$x.xxM"; ≥1 K → "$x.xK"; else "$<n>"
+ *   USD / EUR / GBP / JPY — ≥1M → "$1.50M", ≥1K → "$1.5K", else "$999"
+ *   INR — ≥1 Cr → "₹1.50 Cr", ≥1 L → "₹1.50 L", ≥1 K → "₹1.5K"
  *
  * Negative values render with a leading "-" before the symbol.
+ * Passing `Region` instead of `Currency` is supported for migration
+ * ergonomics — the old call sites still work.
  */
-export function fmt(value: number | null | undefined, region: Region = DEFAULT_REGION): string {
+export function fmt(
+  value: number | null | undefined,
+  currencyOrRegion: Currency | Region | undefined | null = DEFAULT_CURRENCY,
+): string {
   if (value == null || Number.isNaN(value)) return "—";
+  const currency = _toCurrency(currencyOrRegion);
   const abs = Math.abs(value);
   const sign = value < 0 ? "-" : "";
-  const sym = symbol(region);
+  const sym = symbol(currency);
 
-  if (region === "IN") {
+  if (currency === "INR") {
     if (abs >= 10_000_000) return `${sign}${sym}${(abs / 10_000_000).toFixed(2)} Cr`;
     if (abs >= 100_000) return `${sign}${sym}${(abs / 100_000).toFixed(2)} L`;
     if (abs >= 1_000) return `${sign}${sym}${(abs / 1_000).toFixed(1)}K`;
     return `${sign}${sym}${abs.toFixed(0)}`;
   }
 
-  // US / default
+  // JPY is traditionally rendered without decimals even at small amounts.
+  if (currency === "JPY") {
+    if (abs >= 1_000_000) return `${sign}${sym}${(abs / 1_000_000).toFixed(2)}M`;
+    if (abs >= 1_000) return `${sign}${sym}${(abs / 1_000).toFixed(1)}K`;
+    return `${sign}${sym}${Math.round(abs).toLocaleString("ja-JP")}`;
+  }
+
+  // USD / EUR / GBP share the same M/K convention.
   if (abs >= 1_000_000) return `${sign}${sym}${(abs / 1_000_000).toFixed(2)}M`;
   if (abs >= 1_000) return `${sign}${sym}${(abs / 1_000).toFixed(1)}K`;
   return `${sign}${sym}${abs.toFixed(0)}`;
 }
 
-/**
- * Full-form currency via Intl. For tables and places where the reader
- * benefits from exact numbers with thousands separators.
- *
- *   fmtFull(4250000, "US") → "$4,250,000"
- *   fmtFull(4250000, "IN") → "₹42,50,000"  (Indian lakh grouping)
- */
+/** Intl-based full-form currency for tables + exports. */
 export function fmtFull(
   value: number | null | undefined,
-  region: Region = DEFAULT_REGION,
+  currencyOrRegion: Currency | Region | undefined | null = DEFAULT_CURRENCY,
   opts: { fractionDigits?: number } = {},
 ): string {
   if (value == null || Number.isNaN(value)) return "—";
-  const { fractionDigits = 0 } = opts;
+  const currency = _toCurrency(currencyOrRegion);
+  // JPY conventionally has no decimals. Everyone else defaults to 0 for
+  // dashboards; callers that want cents pass fractionDigits: 2.
+  const defaultFrac = currency === "JPY" ? 0 : 0;
+  const { fractionDigits = defaultFrac } = opts;
   try {
-    return new Intl.NumberFormat(locale(region), {
+    return new Intl.NumberFormat(locale(currency), {
       style: "currency",
-      currency: currencyCode(region),
+      currency,
       maximumFractionDigits: fractionDigits,
       minimumFractionDigits: fractionDigits,
     }).format(value);
   } catch {
-    // Fallback if the runtime rejects the locale (shouldn't happen on
-    // modern browsers but we've seen edge cases with older Node during
-    // SSR). Produce something readable rather than crashing.
-    return `${symbol(region)}${value.toFixed(fractionDigits)}`;
+    return `${symbol(currency)}${value.toFixed(fractionDigits)}`;
   }
 }
 
-/**
- * Plain number formatting with region-appropriate grouping.
- *   fmtNum(1234567, "US") → "1,234,567"
- *   fmtNum(1234567, "IN") → "12,34,567"
- */
+/** Plain number with region-appropriate grouping. */
 export function fmtNum(
   value: number | null | undefined,
-  region: Region = DEFAULT_REGION,
+  currencyOrRegion: Currency | Region | undefined | null = DEFAULT_CURRENCY,
   opts: { fractionDigits?: number } = {},
 ): string {
   if (value == null || Number.isNaN(value)) return "—";
+  const currency = _toCurrency(currencyOrRegion);
   const { fractionDigits = 0 } = opts;
   try {
-    return new Intl.NumberFormat(locale(region), {
+    return new Intl.NumberFormat(locale(currency), {
       maximumFractionDigits: fractionDigits,
       minimumFractionDigits: fractionDigits,
     }).format(value);
@@ -116,13 +174,25 @@ export function fmtNum(
   }
 }
 
-/**
- * Narrow a loose string to Region. Lets API responses that stringly-type
- * region survive without forcing every caller to do the check.
- */
-export function asRegion(value: string | null | undefined): Region {
-  if (value === "IN") return "IN";
-  // Everything else, including "US", null, undefined, or malformed, collapses
-  // to the default. Prevents an unexpected region string from propagating.
-  return "US";
+// Internal: accept either a Currency code or a legacy Region tag so
+// every existing `fmt(value, "US")` call site keeps working.
+function _toCurrency(value: Currency | Region | undefined | null): Currency {
+  if (value === "IN") return "INR";
+  if (value === "US") return "USD";
+  switch (value) {
+    case "USD":
+    case "EUR":
+    case "GBP":
+    case "INR":
+    case "JPY":
+      return value;
+    default:
+      return DEFAULT_CURRENCY;
+  }
+}
+
+export { _toCurrency as toCurrency };
+
+export function currencyCode(currency: Currency = DEFAULT_CURRENCY): Currency {
+  return currency;
 }

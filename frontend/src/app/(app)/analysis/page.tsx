@@ -6,7 +6,7 @@ import ModelSelector from "@/components/ModelSelector";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { exportAnalysisPdf } from "@/lib/exportPdf";
-import { fmt as fmtRegional, fmtFull as fmtFullRegional, asRegion } from "@/lib/currency";
+import { fmt as fmtCurrency, fmtFull as fmtFullCurrency, asCurrency, type Currency } from "@/lib/currency";
 import {
   Upload,
   FileSpreadsheet,
@@ -129,13 +129,12 @@ const SAMPLE_TB: TBRow[] = [
   { account_name: "Miscellaneous Expense", debit: "45000", credit: "" },
 ];
 
-// Region-aware currency formatter. Delegates to @/lib/currency so
-// flipping region in /profile updates this whole page. `makeFmt` is
-// instantiated once per render from the user's current business.region.
-function makeFmt(region: "US" | "IN") {
+// Currency-aware formatter. Delegates to @/lib/currency so changing
+// the reporting currency in /profile updates this whole page.
+function makeFmt(currency: Currency) {
   return (value: number, compact = false): string => {
-    if (compact) return fmtRegional(value, region);
-    return fmtFullRegional(value, region);
+    if (compact) return fmtCurrency(value, currency);
+    return fmtFullCurrency(value, currency);
   };
 }
 
@@ -165,8 +164,8 @@ const INPUT_MODE_OPTIONS: {
 export default function AnalysisPage() {
   const { setResult: saveToStore } = useAnalysisStore();
   const { business } = useOnboardingStore();
-  const region = asRegion(business?.region);
-  const fmt = useMemo(() => makeFmt(region), [region]);
+  const currency = asCurrency(business?.currency);
+  const fmt = useMemo(() => makeFmt(currency), [currency]);
   const [mode, setMode] = useState<"upload" | "manual" | "results">("upload");
   const [rows, setRows] = useState<TBRow[]>([{ account_name: "", debit: "", credit: "" }]);
   const [result, setResult] = useState<AnalysisResult | null>(null);

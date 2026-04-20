@@ -21,6 +21,7 @@ import AIChatBubble from "./AIChatBubble";
 import { api } from "@/lib/api";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { asCurrency, regionFromCurrency } from "@/lib/currency";
 
 // Model labels shown in the bottom-of-panel badge. Kept in sync with the
 // backend's CLAUDE_MODEL_QUICK / CLAUDE_MODEL_DEEP constants — trust badge
@@ -198,10 +199,10 @@ export default function AIChatPanel() {
         conversation_history: history,
         business_context: businessContext,
         page_context: buildPageContext(pathname),
-        // Region drives currency formatting + CFO voice + FAQ filter on
-        // the backend. Default "US" if the user hasn't been through the
-        // new onboarding or hasn't set it in /profile yet.
-        region: business?.region ?? "US",
+        // Backend region is derived from the user's reporting currency:
+        // INR → IN (Indian CFO voice + Indian FAQ bank); anything else
+        // → US (default voice + US FAQ bank). Keeps one knob in /profile.
+        region: regionFromCurrency(asCurrency(business?.currency)),
       };
 
       // ── Deep mode: stream thinking + response live ─────────────────

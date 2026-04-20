@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { User, Building2, Save, AlertTriangle, Loader2, X } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
+import { CURRENCIES, regionFromCurrency, type Currency } from "@/lib/currency";
 
 // The exact literal the backend requires. Kept in sync manually with
 // DELETE_ACCOUNT_CONFIRMATION in backend/app/routers/auth.py.
@@ -97,29 +98,44 @@ export default function ProfilePage() {
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
-            {/* Region toggle — drives currency symbol, AI voice, FAQ
-                filtering, and which compliance framework CortexCFO
-                speaks. Isolated at the top of the business card so
-                it's obvious it's a GLOBAL knob, not per-section. */}
-            <label className={LABEL_CLS}>Region &amp; currency</label>
-            <div className="flex items-center gap-2">
-              <RegionButton
-                active={business.region === "US"}
-                label="United States"
-                sub="USD · US GAAP"
-                onClick={() => setBusiness({ region: "US" })}
-              />
-              <RegionButton
-                active={business.region === "IN"}
-                label="India"
-                sub="INR · Ind AS"
-                onClick={() => setBusiness({ region: "IN" })}
-              />
+            {/* Currency selector — drives:
+                - Symbol + number formatting everywhere
+                - Live FX strip on the dashboard
+                - AI voice (INR routes to Indian CFO, others to US SMB)
+                - FAQ bank filter (INR routes to Indian FAQs)
+                Sits at the top of the business card because it's a
+                global knob, not per-section. */}
+            <label className={LABEL_CLS}>Reporting currency</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+              {CURRENCIES.map((c) => {
+                const active = (business.currency ?? "USD") === c.code;
+                return (
+                  <CurrencyButton
+                    key={c.code}
+                    active={active}
+                    code={c.code}
+                    symbol={c.symbol}
+                    name={c.name}
+                    country={c.country}
+                    onClick={() => {
+                      // Currency is the user-facing field; region is
+                      // derived so the backend AI voice + FAQ filter
+                      // follow along automatically.
+                      setBusiness({
+                        currency: c.code,
+                        region: regionFromCurrency(c.code),
+                      });
+                    }}
+                  />
+                );
+              })}
             </div>
             <p className="text-[10px] text-app-text-subtle mt-1.5">
-              Changes currency formatting across every page, the AI
-              advisor voice, and which regulatory framework (GAAP vs
-              Ind AS) we reference.
+              Switches currency symbol and number formatting across every
+              page. Dashboard shows live FX rates between your chosen
+              currency and the other four. Selecting INR also switches
+              the AI to Indian CFO voice with Ind AS references;
+              everything else uses US SMB voice with GAAP.
             </p>
           </div>
           <div>
@@ -150,7 +166,7 @@ export default function ProfilePage() {
             <label className={LABEL_CLS}>Turnover Range</label>
             <input value={business.turnoverRange} readOnly className={INPUT_READONLY_CLS} />
           </div>
-          {business.region === "IN" && (
+          {business.currency === "INR" && (
             <>
               <div>
                 <label className={LABEL_CLS}>GSTIN</label>
@@ -301,31 +317,48 @@ export default function ProfilePage() {
   );
 }
 
-// Region toggle pill — used in the Business Information card. Kept as a
-// small helper so each region option is pixel-identical.
-function RegionButton({
+// Currency tile — used in the Business Information card. Each tile
+// shows the symbol, ISO code, full name, and country so users can
+// pick without needing to know the 3-letter code from memory.
+function CurrencyButton({
   active,
-  label,
-  sub,
+  code,
+  symbol,
+  name,
+  country,
   onClick,
 }: {
   active: boolean;
-  label: string;
-  sub: string;
+  code: Currency;
+  symbol: string;
+  name: string;
+  country: string;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex-1 flex flex-col items-start gap-0.5 px-3.5 py-2.5 rounded-lg border text-left transition-all ${
+      className={`flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-lg border text-left transition-all ${
         active
-          ? "border-emerald-500/40 bg-emerald-500/10 text-app-text"
+          ? "border-emerald-500/50 bg-emerald-500/10 text-app-text shadow-[0_0_0_1px_rgba(52,211,153,0.25)]"
           : "border-app-border bg-app-card-hover text-app-text-muted hover:text-app-text hover:border-app-border-strong"
       }`}
+      aria-pressed={active}
     >
-      <span className="text-[13px] font-medium">{label}</span>
-      <span className={`text-[10px] ${active ? "text-emerald-400/80" : "text-app-text-subtle"}`}>{sub}</span>
+      <span className="flex items-center gap-1.5">
+        <span
+          className={`text-[15px] font-bold leading-none ${
+            active ? "text-emerald-400" : "text-app-text"
+          }`}
+        >
+          {symbol}
+        </span>
+        <span className="text-[12px] font-semibold font-mono tabular-nums">{code}</span>
+      </span>
+      <span className="text-[10px] text-app-text-subtle truncate w-full" title={`${name} — ${country}`}>
+        {name}
+      </span>
     </button>
   );
 }
