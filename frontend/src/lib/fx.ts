@@ -66,16 +66,21 @@ export function safeConvert(
 }
 
 /**
- * Fetch live rates from api.frankfurter.app (ECB reference rates,
- * free, no API key, no CORS). Returns a normalized USD-base table.
+ * Fetch live rates from api.frankfurter.dev (ECB reference rates,
+ * free, no API key, CORS-enabled). Returns a normalized USD-base table.
  *
  * We always request base=USD so the resulting table is directly
  * triangulatable. Timeout at 5s; on failure caller should decide
  * whether to fall back to cached data or render "FX unavailable".
+ *
+ * Host migration note: the service moved from frankfurter.app to
+ * frankfurter.dev in early 2025 and the old host now 301-redirects —
+ * but the redirect response lacks CORS headers, so browsers silently
+ * fail with "Failed to fetch". Always hit the new host directly.
  */
 export async function fetchLiveRates(signal?: AbortSignal): Promise<FxRates> {
   const targets = CURRENCIES.map((c) => c.code).filter((c) => c !== "USD");
-  const url = `https://api.frankfurter.app/latest?base=USD&symbols=${targets.join(",")}`;
+  const url = `https://api.frankfurter.dev/v1/latest?base=USD&symbols=${targets.join(",")}`;
   const res = await fetch(url, {
     signal: signal ?? AbortSignal.timeout(5000),
   });

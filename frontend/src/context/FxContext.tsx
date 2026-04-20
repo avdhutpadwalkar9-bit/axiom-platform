@@ -3,7 +3,7 @@
 /**
  * FxProvider — single source of FX rates for the whole authenticated app.
  *
- * Architecture decision: we fetch ONCE per session from api.frankfurter.app
+ * Architecture decision: we fetch ONCE per session from api.frankfurter.dev
  * (USD base, all supported currencies) and hold the result in React context.
  * Every component that needs conversion or formatting reads from this
  * context via `useFx()`. This kills three classes of bug that existed
