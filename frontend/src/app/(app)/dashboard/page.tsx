@@ -33,18 +33,9 @@ import {
 } from "recharts";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { fmt as fmtCurrency, asCurrency, type Currency } from "@/lib/currency";
+import { asCurrency } from "@/lib/currency";
+import { useFormat } from "@/hooks/useFormat";
 import ForexStrip from "@/components/ForexStrip";
-
-/* ------------------------------------------------------------------ */
-/*  Currency-aware formatter                                           */
-/*  Delegates to @/lib/currency so changing the reporting currency in  */
-/*  /profile flips USD / EUR / GBP / INR / JPY formatting across the   */
-/*  whole dashboard without touching any call site.                    */
-/* ------------------------------------------------------------------ */
-function makeFmt(currency: Currency) {
-  return (value: number): string => fmtCurrency(value, currency);
-}
 
 function pct(n: number): string {
   return `${(n * 100).toFixed(1)}%`;
@@ -140,7 +131,10 @@ export default function DashboardPage() {
   const { lastResult, companyName, analysisDate, hasData } = useAnalysisStore();
   const { business } = useOnboardingStore();
   const currency = asCurrency(business.currency);
-  const fmt = useMemo(() => makeFmt(currency), [currency]);
+  // Unified formatter: handles source→display FX conversion + currency
+  // symbol + locale grouping. Replaces the old local makeFmt closure so
+  // we don't duplicate formatting logic per page.
+  const { fmt, isConverting, sourceCurrency } = useFormat();
 
   const stage = useMemo(() => getStage(business.yearFounded), [business.yearFounded]);
 
@@ -357,9 +351,18 @@ export default function DashboardPage() {
             </p>
             {/* Live FX strip — shows the current reporting currency and
                 live rates against the other four supported currencies.
-                ECB-sourced via frankfurter.app, cached 10 min in-session. */}
-            <div className="mt-3">
+                Reads from the shared FxContext so every page sees the
+                same rates fetched once per session. */}
+            <div className="mt-3 flex flex-col gap-1">
               <ForexStrip base={currency} />
+              {isConverting && (
+                <p
+                  className="text-[10px] text-app-text-subtle"
+                  title={`Raw values are in ${sourceCurrency}; displayed after FX conversion to ${currency}.`}
+                >
+                  &middot; numbers converted from {sourceCurrency} at live rate
+                </p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">

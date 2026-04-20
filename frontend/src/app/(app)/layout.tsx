@@ -23,6 +23,7 @@ import {
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
 import AIChatPanel from "@/components/AIChatPanel";
+import { FxProvider } from "@/context/FxContext";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: BarChart3 },
@@ -93,6 +94,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const wsActive = pathname === "/profile" || pathname === "/uploads";
 
   return (
+    <FxProvider>
     <div className="flex h-screen bg-app-canvas text-app-text overflow-hidden">
       {/* Dark sidebar */}
       <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-app-border/70 bg-app-card">
@@ -237,5 +239,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           user sees. */}
       <AIChatPanel />
     </div>
+    </FxProvider>
   );
 }

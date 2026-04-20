@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { Currency } from "@/lib/currency";
 
 interface FinancialStatements {
   total_assets: number;
@@ -123,8 +124,19 @@ interface AnalysisState {
   companyName: string;
   analysisDate: string | null;
   hasData: boolean;
+  // The currency the raw numbers in `lastResult` are denominated in.
+  // Stamped at upload time from the user's then-current reporting
+  // currency. When null, consumers treat the data as being in the
+  // user's CURRENT reporting currency (no conversion). Stored so
+  // flipping the reporting currency afterwards runs proper FX
+  // conversion rather than just swapping the symbol.
+  sourceCurrency: Currency | null;
 
-  setResult: (result: AnalysisResult, companyName?: string) => void;
+  setResult: (
+    result: AnalysisResult,
+    companyName?: string,
+    sourceCurrency?: Currency,
+  ) => void;
   clearResult: () => void;
 }
 
@@ -135,13 +147,17 @@ export const useAnalysisStore = create<AnalysisState>()(
       companyName: "Your Company",
       analysisDate: null,
       hasData: false,
+      sourceCurrency: null,
 
-      setResult: (result, companyName) =>
+      setResult: (result, companyName, sourceCurrency) =>
         set({
           lastResult: result,
           companyName: companyName || "Your Company",
           analysisDate: new Date().toISOString(),
           hasData: true,
+          // Fallback to null (= interpret as current display currency)
+          // if caller didn't pass it. Every upload site should pass it.
+          sourceCurrency: sourceCurrency ?? null,
         }),
 
       clearResult: () =>
@@ -150,10 +166,18 @@ export const useAnalysisStore = create<AnalysisState>()(
           companyName: "Your Company",
           analysisDate: null,
           hasData: false,
+          sourceCurrency: null,
         }),
     }),
     {
       name: "cortexcfo-analysis",
+      version: 2,
+      // Deep merge so old persisted blobs without sourceCurrency get
+      // it as null (which the hook treats as "no conversion needed").
+      merge: (persisted, current) => ({
+        ...current,
+        ...(persisted as Partial<AnalysisState>),
+      }),
     }
   )
 );

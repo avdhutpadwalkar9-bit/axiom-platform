@@ -22,6 +22,8 @@ import { api } from "@/lib/api";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { asCurrency, regionFromCurrency } from "@/lib/currency";
+import { useFx } from "@/context/FxContext";
+import { convertAnalysisResult } from "@/lib/fx";
 
 // Model labels shown in the bottom-of-panel badge. Kept in sync with the
 // backend's CLAUDE_MODEL_QUICK / CLAUDE_MODEL_DEEP constants — trust badge
@@ -84,8 +86,9 @@ function newId(): string {
 
 export default function AIChatPanel() {
   const pathname = usePathname();
-  const { lastResult, companyName, analysisDate } = useAnalysisStore();
+  const { lastResult, companyName, analysisDate, sourceCurrency } = useAnalysisStore();
   const { business } = useOnboardingStore();
+  const { convertSafe, rates } = useFx();
 
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<ChatMode>("quick");
@@ -152,6 +155,10 @@ export default function AIChatPanel() {
       entity_type: business.entityType,
       year_founded: business.yearFounded,
       services_description: business.servicesDescription,
+      currency: business.currency,
+      // Region is the backend axis for AI voice / FAQ filter; derived
+      // from currency (INR → IN, else US) so one UI knob drives both.
+      region: regionFromCurrency(asCurrency(business.currency)),
     };
   }, [business]);
 
@@ -190,19 +197,36 @@ export default function AIChatPanel() {
       setInput("");
       setLoading(true);
 
-      // `lastResult` is typed as AnalysisResult with specific field names;
-      // the backend accepts any shape. Widen via unknown so TS lets us
-      // pass it through to the JSON body without fighting the type.
+      // Deep-convert analysis_result currency-valued fields from the
+      // source currency (what was uploaded) to the display currency
+      // (what the user is looking at). Without this, the AI would
+      // report "revenue $15M" when the UI shows "$180K" — a confident
+      // wrong answer. `convertAnalysisResult` no-ops when source ==
+      // display OR when rates aren't loaded (graceful fallback).
+      const displayCurrency = asCurrency(business?.currency);
+      const srcCurrency = asCurrency(sourceCurrency ?? displayCurrency);
+      // AnalysisResult has a sealed interface (specific field names, no
+      // index signature). convertAnalysisResult takes a permissive shape.
+      // Cast through unknown to let TS accept the payload.
+      const convertedResult = lastResult
+        ? convertAnalysisResult(
+            lastResult as unknown as Parameters<typeof convertAnalysisResult>[0],
+            srcCurrency,
+            displayCurrency,
+            rates,
+          )
+        : {};
+
       const payloadBase = {
         question: trimmed,
-        analysis_result: (lastResult ?? {}) as unknown as Record<string, unknown>,
+        analysis_result: convertedResult as unknown as Record<string, unknown>,
         conversation_history: history,
         business_context: businessContext,
         page_context: buildPageContext(pathname),
         // Backend region is derived from the user's reporting currency:
         // INR → IN (Indian CFO voice + Indian FAQ bank); anything else
         // → US (default voice + US FAQ bank). Keeps one knob in /profile.
-        region: regionFromCurrency(asCurrency(business?.currency)),
+        region: regionFromCurrency(displayCurrency),
       };
 
       // ── Deep mode: stream thinking + response live ─────────────────
@@ -293,7 +317,7 @@ export default function AIChatPanel() {
         setLoading(false);
       }
     },
-    [loading, messages, lastResult, businessContext, pathname, mode]
+    [loading, messages, lastResult, businessContext, pathname, mode, sourceCurrency, rates, business?.currency]
   );
 
   const onSubmit = useCallback(

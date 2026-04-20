@@ -6,7 +6,8 @@ import ModelSelector from "@/components/ModelSelector";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { exportAnalysisPdf } from "@/lib/exportPdf";
-import { fmt as fmtCurrency, fmtFull as fmtFullCurrency, asCurrency, type Currency } from "@/lib/currency";
+import { asCurrency } from "@/lib/currency";
+import { useFormat } from "@/hooks/useFormat";
 import {
   Upload,
   FileSpreadsheet,
@@ -129,14 +130,6 @@ const SAMPLE_TB: TBRow[] = [
   { account_name: "Miscellaneous Expense", debit: "45000", credit: "" },
 ];
 
-// Currency-aware formatter. Delegates to @/lib/currency so changing
-// the reporting currency in /profile updates this whole page.
-function makeFmt(currency: Currency) {
-  return (value: number, compact = false): string => {
-    if (compact) return fmtCurrency(value, currency);
-    return fmtFullCurrency(value, currency);
-  };
-}
 
 const PIE_COLORS = ["#10b981", "#14b8a6", "#22c55e", "#34d399", "#2dd4bf", "#06b6d4"];
 
@@ -164,8 +157,15 @@ const INPUT_MODE_OPTIONS: {
 export default function AnalysisPage() {
   const { setResult: saveToStore } = useAnalysisStore();
   const { business } = useOnboardingStore();
+  // `currency` stays in scope because the upload handlers below stamp
+  // it onto the new analysis as its source currency.
   const currency = asCurrency(business?.currency);
-  const fmt = useMemo(() => makeFmt(currency), [currency]);
+  // Unified formatter: converts source → display currency + formats.
+  // Uniform-adapter API so the existing `fmt(value, compact)` call sites
+  // keep working.
+  const { fmt: fmtConv, fmtFull: fmtFullConv } = useFormat();
+  const fmt = (value: number, compact = false): string =>
+    compact ? fmtConv(value) : fmtFullConv(value);
   const [mode, setMode] = useState<"upload" | "manual" | "results">("upload");
   const [rows, setRows] = useState<TBRow[]>([{ account_name: "", debit: "", credit: "" }]);
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -321,7 +321,10 @@ export default function AnalysisPage() {
       setResult(data);
       const label = file.name.replace(/\.\w+$/, "");
       setCompanyLabel(label);
-      saveToStore(data, label);
+      // Stamp the user's CURRENT reporting currency as the source
+      // currency of this analysis. Later conversions to a different
+      // display currency use this as the "from" side.
+      saveToStore(data, label, currency);
       setMode("results");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Upload failed");
@@ -376,7 +379,8 @@ export default function AnalysisPage() {
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       setResult(data);
-      saveToStore(data, "Manual Entry");
+      // Same source-currency stamp as the upload path.
+      saveToStore(data, "Manual Entry", currency);
       setMode("results");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Analysis failed");
