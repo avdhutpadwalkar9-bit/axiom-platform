@@ -1,15 +1,17 @@
 "use client";
 
 /**
- * RegionPicker — first-visit soft modal offering a US-specific version.
+ * RegionPicker — first-visit soft modal offering a region-specific page.
  *
  * Philosophy: we don't GATE the site behind a picker. The default `/`
- * landing serves everyone; the picker just nudges US visitors to the
- * US-tailored page at /us (M&A Readiness positioning, USD pricing,
- * ASC/GAAP language). Indian visitors keep using the default as-is.
+ * landing serves everyone; the picker just nudges recognised visitors
+ * to the regionally-tailored page:
+ *   - America/* timezones  → /us (M&A positioning, USD pricing)
+ *   - Asia/Kolkata         → /in (PE positioning, INR pricing, Ind AS)
+ *   - everyone else        → no prompt (use default)
  *
- * Storage: the user's choice (dismiss OR "take me to US") lands in
- * localStorage so we don't ask again. 3-month TTL — if someone's
+ * Storage: the user's choice (dismiss OR "take me to X") lands in
+ * localStorage so we don't ask again. 90-day TTL — if someone's
  * circumstances change they get offered again.
  *
  * Geo hint: we pick the default recommendation from the browser's
@@ -22,27 +24,31 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Globe, X, ArrowRight } from "lucide-react";
 
-const LS_KEY = "cortexcfo-region-prompt-v1";
+const LS_KEY = "cortexcfo-region-prompt-v2"; // v2 — now handles IN too
 const TTL_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
 
-type Choice = "dismissed" | "chose-us" | "chose-default";
+type Region = "US" | "IN" | "default";
+type Choice = "dismissed" | "chose-us" | "chose-in" | "chose-default";
 
 interface Stored {
   v: Choice;
   t: number;
 }
 
-/** Best-guess region from the browser's IANA timezone. "US" if the
- * timezone starts with "America/", else "default". No geolocation API
- * prompt (would trigger a permission banner). */
-function guessRegion(): "US" | "default" {
+/** Best-guess region from the browser's IANA timezone.
+ *
+ *  - "US"      if timezone starts with "America/"  (covers US + LATAM;
+ *              LATAM visitors can dismiss)
+ *  - "IN"      if timezone is "Asia/Kolkata" (the only IANA zone India
+ *              actually uses)
+ *  - "default" otherwise
+ */
+function guessRegion(): Region {
   if (typeof Intl === "undefined") return "default";
   try {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
-    // America/* covers US + LATAM. For a US-specific pitch it's still
-    // the best cheap hint we have; Mexico/Brazil visitors see the same
-    // nudge and can dismiss it.
     if (tz.startsWith("America/")) return "US";
+    if (tz === "Asia/Kolkata" || tz === "Asia/Calcutta") return "IN";
   } catch {
     /* resolvedOptions not available in some runtimes */
   }
@@ -51,6 +57,7 @@ function guessRegion(): "US" | "default" {
 
 export default function RegionPicker() {
   const [show, setShow] = useState(false);
+  const [region, setRegion] = useState<Region>("default");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -66,10 +73,11 @@ export default function RegionPicker() {
     } catch {
       /* corrupt storage — treat as unseen */
     }
-    // Only show to visitors whose timezone guess suggests US — avoids
-    // annoying Indian visitors (the default audience) with a picker
-    // they don't need.
-    if (guessRegion() !== "US") return;
+    // Only show to visitors whose timezone guess suggests a region we
+    // have a page for. "default" gets the regionally-neutral /.
+    const guess = guessRegion();
+    if (guess === "default") return;
+    setRegion(guess);
     // Small delay so the banner doesn't jank above-the-fold paint.
     const t = setTimeout(() => setShow(true), 1200);
     return () => clearTimeout(t);
@@ -85,6 +93,27 @@ export default function RegionPicker() {
   };
 
   if (!show) return null;
+
+  // Per-region copy. Keep both branches short — the picker is a pill,
+  // not a tour.
+  const copy =
+    region === "US"
+      ? {
+          headline: "Based in the US?",
+          body:
+            "We have a page tailored for US SMBs preparing for M&A — pricing in USD, GAAP references, US-CPA-reviewed outputs.",
+          href: "/us",
+          cta: "View US version",
+          choice: "chose-us" as const,
+        }
+      : {
+          headline: "Based in India?",
+          body:
+            "We have a page tailored for Indian MSMEs preparing for PE — pricing in ₹, Ind AS, Tally/Zoho native, CA-reviewed outputs.",
+          href: "/in",
+          cta: "View India version",
+          choice: "chose-in" as const,
+        };
 
   return (
     <div
@@ -104,20 +133,21 @@ export default function RegionPicker() {
           <Globe className="w-4 h-4 text-emerald-400" />
         </div>
         <div>
-          <p className="text-[13px] font-semibold text-white leading-tight">Based in the US?</p>
+          <p className="text-[13px] font-semibold text-white leading-tight">
+            {copy.headline}
+          </p>
           <p className="text-[11px] text-white/50 mt-0.5 leading-relaxed">
-            We have a page tailored for US SMBs preparing for M&amp;A &mdash;
-            pricing in USD, GAAP references, US-CPA-reviewed outputs.
+            {copy.body}
           </p>
         </div>
       </div>
       <div className="flex gap-2">
         <Link
-          href="/us"
-          onClick={() => record("chose-us")}
+          href={copy.href}
+          onClick={() => record(copy.choice)}
           className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-white text-[12px] font-semibold px-3 py-2 rounded-lg transition-colors"
         >
-          View US version
+          {copy.cta}
           <ArrowRight className="w-3 h-3" />
         </Link>
         <button

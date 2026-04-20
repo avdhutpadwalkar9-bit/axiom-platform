@@ -27,24 +27,156 @@ export const metadata: Metadata = {
     "CortexCFO is the FP&A platform for high-growth teams. Build flexible financial models, collaborate across departments, and turn data into confident decisions.",
   // Hreflang alternates tell Google which version to serve to which
   // locale. "en-US" → /us (M&A-Readiness positioning, USD pricing).
-  // "x-default" points to / (the regionally-neutral landing) so
-  // everyone else lands there by default. Adding "/in" later is one
-  // more line — and the SEO accrues to the single domain either way.
+  // "en-IN" → /in (PE-Readiness positioning, INR pricing, Ind AS).
+  // "x-default" points to / — the regionally-neutral landing that
+  // serves everyone else by default.
   alternates: {
     canonical: SITE_URL,
     languages: {
       "en-US": `${SITE_URL}/us`,
+      "en-IN": `${SITE_URL}/in`,
       "x-default": SITE_URL,
     },
   },
   openGraph: {
     title: "CortexCFO — The FP&A Platform for High-Growth Teams",
     description:
-      "AI FP&A for $1M-$10M SMBs. GAAP-clean financials, QoE-ready reports, strategic CFO advisor on call.",
+      "AI FP&A for $1M-$10M SMBs. GAAP/Ind AS-clean financials, QoE-ready reports, strategic CFO advisor on call.",
     url: SITE_URL,
     siteName: "CortexCFO",
     type: "website",
   },
+};
+
+// Schema.org JSON-LD — gives Google / Bing structured signal for rich
+// results. Three entities sitewide:
+//   1. Organization — who we are, where we're based, what we do.
+//   2. SoftwareApplication — the product itself, pricing range, rating.
+//   3. WebSite — enables the sitelink search box in SERPs.
+// Per-tier Offer markup lives on /us and /in if we extend later; sitewide
+// is enough to earn the first round of rich results.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}#organization`,
+      name: "CortexCFO",
+      url: SITE_URL,
+      logo: `${SITE_URL}/logo.png`,
+      description:
+        "AI-powered FP&A and QoE platform for high-growth SMBs preparing for M&A, PE, or growth capital.",
+      sameAs: [
+        // Placeholder — swap for real handles as they go live.
+        "https://twitter.com/cortexcfo",
+        "https://www.linkedin.com/company/cortexcfo",
+      ],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}#website`,
+      url: SITE_URL,
+      name: "CortexCFO",
+      publisher: { "@id": `${SITE_URL}#organization` },
+      inLanguage: "en",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${SITE_URL}#software`,
+      name: "CortexCFO",
+      applicationCategory: "BusinessApplication",
+      applicationSubCategory: "FinancialApplication",
+      operatingSystem: "Web",
+      url: SITE_URL,
+      description:
+        "Continuous QoE engine and AI FP&A advisor for SMBs. Upload your trial balance; get audit-ready financials, adjusted EBITDA, and strategic recommendations in minutes.",
+      // Price range covers the free tier up through QoE-Ready custom
+      // pricing. PriceSpecification breaks it down by region.
+      offers: [
+        {
+          "@type": "Offer",
+          name: "Starter",
+          price: "0",
+          priceCurrency: "USD",
+          description: "Free forever — books health check for early-stage SMBs",
+        },
+        {
+          "@type": "Offer",
+          name: "Growth (US)",
+          price: "99",
+          priceCurrency: "USD",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "99",
+            priceCurrency: "USD",
+            unitText: "MONTH",
+          },
+          description: "Valuation + 3-statement projections for $1-5M US SMBs",
+        },
+        {
+          "@type": "Offer",
+          name: "Growth (India)",
+          price: "7999",
+          priceCurrency: "INR",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "7999",
+            priceCurrency: "INR",
+            unitText: "MONTH",
+          },
+          description: "Valuation + 3-statement projections for ₹10-25 Cr Indian MSMEs",
+        },
+        {
+          "@type": "Offer",
+          name: "Diligence",
+          price: "299",
+          priceCurrency: "USD",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "299",
+            priceCurrency: "USD",
+            unitText: "MONTH",
+          },
+          description: "Light-touch pre-diligence deliverables",
+        },
+        {
+          "@type": "Offer",
+          name: "Pre-M&A",
+          price: "599",
+          priceCurrency: "USD",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "599",
+            priceCurrency: "USD",
+            unitText: "MONTH",
+          },
+          description: "Advanced diagnostic before going to market",
+        },
+        {
+          "@type": "Offer",
+          name: "QoE-Ready",
+          price: "2499",
+          priceCurrency: "USD",
+          priceSpecification: {
+            "@type": "UnitPriceSpecification",
+            price: "2499",
+            priceCurrency: "USD",
+            unitText: "MONTH",
+          },
+          description: "Full QoE workbook, CPA-reviewed, boardroom-ready",
+        },
+      ],
+      featureList: [
+        "Continuous QoE engine with add-back schedule",
+        "Audit-ready GAAP / Ind AS financial statements",
+        "Adjusted EBITDA with documented normalizations",
+        "Live FX across USD / EUR / GBP / INR / JPY",
+        "AI CFO advisor (Claude-powered Quick + Think-Deeper modes)",
+        "Scenario planning + 13-week cash forecasting",
+      ],
+      publisher: { "@id": `${SITE_URL}#organization` },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -57,6 +189,16 @@ export default function RootLayout({
       lang="en"
       className={`${poppins.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Structured data for Google rich results. Using dangerouslySetInnerHTML
+            because Next.js strips unknown children from <script> tags during
+            hydration — this is the documented pattern. */}
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
