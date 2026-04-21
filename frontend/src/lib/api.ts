@@ -213,7 +213,10 @@ class ApiClient {
       onThinking?: (chunk: string) => void;
       onResponse?: (chunk: string) => void;
       onDone?: () => void;
-      onError?: (msg: string) => void;
+      // Second arg is the HTTP status when the error originated from a
+      // non-2xx response. Callers use this to distinguish a 404 (endpoint
+      // not deployed yet — fall back to /ask) from a generic stream crash.
+      onError?: (msg: string, status?: number) => void;
       signal?: AbortSignal;
     },
   ): Promise<void> {
@@ -242,7 +245,7 @@ class ApiClient {
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      handlers.onError?.(text || `HTTP ${res.status}`);
+      handlers.onError?.(text || `HTTP ${res.status}`, res.status);
       return;
     }
     if (!res.body) {

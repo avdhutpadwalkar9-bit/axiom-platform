@@ -274,7 +274,46 @@ export default function AIChatPanel() {
               // reasoning later if they want.
               setThinkingOpen((prev) => ({ ...prev, [aiId]: false }));
             },
-            onError: (msg) => {
+            onError: async (msg, status) => {
+              // 404 on /ask-stream means the backend deployment is behind
+              // the frontend (the streaming endpoint landed in Phase 4.5
+              // but hasn't shipped to prod yet). Rather than dead-end the
+              // user, silently fall back to Quick mode — they still get
+              // an answer, just without the live thinking pane. When the
+              // backend catches up, this branch becomes unreachable.
+              if (status === 404) {
+                try {
+                  const data = await api.chat({
+                    ...payloadBase,
+                    mode: "deep", // keep intent in the payload for the server
+                  });
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === aiId
+                        ? {
+                            ...m,
+                            text: data.response,
+                            thinking: "",
+                            source: data.source,
+                            faqId: data.faq_id ?? null,
+                            streaming: false,
+                            mode: "deep",
+                          }
+                        : m,
+                    ),
+                  );
+                  setThinkingOpen((prev) => ({ ...prev, [aiId]: false }));
+                  return;
+                } catch (fallbackErr) {
+                  const fm =
+                    fallbackErr instanceof Error
+                      ? fallbackErr.message
+                      : "Deep mode unavailable and fallback failed.";
+                  setError(fm);
+                  setMessages((prev) => prev.filter((m) => m.id !== aiId));
+                  return;
+                }
+              }
               setError(msg || "Stream interrupted — please try again.");
               setMessages((prev) => prev.filter((m) => m.id !== aiId));
             },
