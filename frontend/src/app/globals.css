@@ -539,3 +539,126 @@
     opacity: 0.4;
   }
 }
+
+/* ───────────────────────────────────────────────────────────
+   LIGHT MODE OVERRIDES (marketing + app shells)
+
+   Strategy: rather than retheme every hardcoded color across
+   the site (which is a hundreds-of-classes lift), we flip the
+   most visible surfaces + text layers when `.theme-light` is
+   on <html>. Primary brand accent (emerald) stays put because
+   it works on both backgrounds.
+   ─────────────────────────────────────────────────────────── */
+html.theme-light {
+  /* ── Canvas + raised surfaces ── */
+  --surface-base: #fafaf7;
+  --surface-raised: #ffffff;
+  --surface-overlay: #f5f3ef;
+
+  /* Marketing dark-canvas classes → light */
+  background-color: #fafaf7;
+}
+html.theme-light body {
+  background-color: #fafaf7;
+  color: #1a1a1a;
+}
+
+/* Canvas backgrounds (dark hex → cream) */
+html.theme-light .bg-\[\#0a0a0a\],
+html.theme-light .bg-\[\#0a0a0a\]\/95,
+html.theme-light .bg-\[\#0a0a0a\]\/98,
+html.theme-light .bg-\[\#0d0d0d\] {
+  background-color: #fafaf7 !important;
+}
+html.theme-light .bg-\[\#111\],
+html.theme-light .bg-\[\#111111\] {
+  background-color: #ffffff !important;
+}
+html.theme-light .bg-\[\#161616\] {
+  background-color: #f5f3ef !important;
+}
+
+/* Subtle glass-y whites → subtle darks */
+html.theme-light .bg-white\/\[0\.015\],
+html.theme-light .bg-white\/\[0\.02\],
+html.theme-light .bg-white\/\[0\.025\],
+html.theme-light .bg-white\/\[0\.03\],
+html.theme-light .bg-white\/\[0\.04\],
+html.theme-light .bg-white\/5,
+html.theme-light .bg-white\/\[0\.06\] {
+  background-color: rgba(17, 24, 39, 0.04) !important;
+}
+html.theme-light .bg-white\/10,
+html.theme-light .bg-white\/\[0\.08\] {
+  background-color: rgba(17, 24, 39, 0.08) !important;
+}
+html.theme-light .hover\:bg-white\/5:hover,
+html.theme-light .hover\:bg-white\/\[0\.05\]:hover {
+  background-color: rgba(17, 24, 39, 0.05) !important;
+}
+html.theme-light .hover\:bg-white\/10:hover {
+  background-color: rgba(17, 24, 39, 0.08) !important;
+}
+
+/* Primary + muted text (dark page text on cream canvas) */
+html.theme-light .text-white {
+  color: #111827 !important;
+}
+html.theme-light .text-white\/80 { color: rgba(17, 24, 39, 0.85) !important; }
+html.theme-light .text-white\/70 { color: rgba(17, 24, 39, 0.75) !important; }
+html.theme-light .text-white\/65 { color: rgba(17, 24, 39, 0.7) !important; }
+html.theme-light .text-white\/60 { color: rgba(17, 24, 39, 0.65) !important; }
+html.theme-light .text-white\/55 { color: rgba(17, 24, 39, 0.6) !important; }
+html.theme-light .text-white\/50 { color: rgba(17, 24, 39, 0.55) !important; }
+html.theme-light .text-white\/45 { color: rgba(17, 24, 39, 0.5) !important; }
+html.theme-light .text-white\/40 { color: rgba(17, 24, 39, 0.48) !important; }
+html.theme-light .text-white\/35 { color: rgba(17, 24, 39, 0.45) !important; }
+html.theme-light .text-white\/30 { color: rgba(17, 24, 39, 0.42) !important; }
+html.theme-light .text-white\/25 { color: rgba(17, 24, 39, 0.38) !important; }
+html.theme-light .text-white\/20 { color: rgba(17, 24, 39, 0.35) !important; }
+
+/* Borders — faint white borders → faint gray borders */
+html.theme-light .border-white\/5,
+html.theme-light .border-white\/8,
+html.theme-light .border-white\/\[0\.06\],
+html.theme-light .border-white\/\[0\.08\],
+html.theme-light .border-white\/10,
+html.theme-light .border-white\/\[0\.12\],
+html.theme-light .border-white\/\[0\.14\] {
+  border-color: rgba(17, 24, 39, 0.08) !important;
+}
+html.theme-light .border-white\/15,
+html.theme-light .border-white\/20,
+html.theme-light .border-white\/25,
+html.theme-light .border-white\/\[0\.24\],
+html.theme-light .border-white\/\[0\.28\] {
+  border-color: rgba(17, 24, 39, 0.15) !important;
+}
+html.theme-light .hover\:border-white\/20:hover,
+html.theme-light .hover\:border-white\/25:hover,
+html.theme-light .hover\:border-white\/\[0\.24\]:hover,
+html.theme-light .hover\:border-white\/\[0\.28\]:hover {
+  border-color: rgba(17, 24, 39, 0.2) !important;
+}
+
+/* Product-card + similar container helpers */
+html.theme-light .product-card {
+  background-color: #ffffff !important;
+  border-color: rgba(17, 24, 39, 0.08) !important;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+}
+
+/* Ghost button text contrast on cream */
+html.theme-light .btn-ghost {
+  color: rgba(17, 24, 39, 0.7);
+}
+html.theme-light .btn-ghost:hover {
+  color: #111827;
+}
+
+/* Emerald gradient text stays the same — brand color works on both */
+
+/* Floating CTA shadow — re-tune for light */
+html.theme-light .shadow-\[0_4px_20px_rgba\(52\,211\,153\,0\.3\)\] {
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35) !important;
+}

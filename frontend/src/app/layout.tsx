@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/lib/theme";
 
 // Poppins — consistent sans across marketing + app. Pulled at 400/500/600/700
 // so we don't need to hand-tune weights per surface.
@@ -212,8 +213,20 @@ export default function RootLayout({
             __html: `try{var m=[['axiom-analysis','cortexcfo-analysis'],['axiom-onboarding','cortexcfo-onboarding']];for(var i=0;i<m.length;i++){var k1=m[i][0],k2=m[i][1];if(!localStorage.getItem(k2)){var v=localStorage.getItem(k1);if(v)localStorage.setItem(k2,v);}}}catch(e){}`,
           }}
         />
+        {/* No-flash theme resolver — runs before first paint so a
+            returning light-mode user doesn't see a dark flash. Reads
+            localStorage key cortexcfo-theme, falls back to system
+            preference, writes theme-light | theme-dark on <html>. */}
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem('cortexcfo-theme');if(!t||t==='system'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}var h=document.documentElement;h.classList.add(t==='light'?'theme-light':'theme-dark');h.style.colorScheme=t;}catch(e){document.documentElement.classList.add('theme-dark');}`,
+          }}
+        />
       </head>
-      <body className="min-h-full flex flex-col font-sans">{children}</body>
+      <body className="min-h-full flex flex-col font-sans">
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   );
 }

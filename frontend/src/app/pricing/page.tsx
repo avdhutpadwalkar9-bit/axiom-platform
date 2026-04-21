@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check, Minus } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { ArrowRight, Check, Minus, Sparkles, LayoutDashboard } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import { FadeIn } from "@/components/Animate";
@@ -75,13 +77,60 @@ const plans = [
   },
 ];
 
-export default function PricingPage() {
+// Separate component so we can wrap useSearchParams in Suspense — Next 16
+// requires it to avoid the "useSearchParams() should be wrapped in a
+// suspense boundary" error at build time.
+function PricingPageInner() {
+  const searchParams = useSearchParams();
+  const region = searchParams.get("region"); // "us" | "in" | null
+  const fromOnboarding = searchParams.get("source") === "onboarding";
+  const regionQuery = region ? `&region=${region}` : "";
+
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
       <SiteNav />
 
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
+          {/* Onboarding celebration banner — only shows when the user has
+              just completed upload + analysis. Keeps the moment positive
+              and sets context for why they're on pricing. */}
+          {fromOnboarding && (
+            <FadeIn className="max-w-3xl mx-auto mb-10">
+              <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-5 lg:p-6">
+                <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
+                <div className="relative flex items-start gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-emerald-300" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-emerald-400 mb-1">
+                      Your analysis is ready
+                    </p>
+                    <h2 className="text-[19px] lg:text-[22px] font-semibold text-white tracking-tight mb-1">
+                      Pick a plan to unlock continuous monitoring.
+                    </h2>
+                    <p className="text-[14px] text-white/65 leading-relaxed">
+                      Your first report is already in the dashboard. Paid plans
+                      add live QuickBooks/Xero/Tally sync, monthly CPA-signed
+                      packs, and unlimited AI chat on your ledger.
+                    </p>
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      <Link
+                        href="/dashboard"
+                        className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white/80 hover:text-white transition-colors"
+                      >
+                        <LayoutDashboard className="w-3.5 h-3.5" />
+                        Skip for now — open dashboard
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </FadeIn>
+          )}
+
           <FadeIn className="text-center mb-6">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Pricing</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
@@ -89,7 +138,7 @@ export default function PricingPage() {
               <br />
               <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">We ship one every month for $299.</span>
             </h1>
-            <p className="text-white/45 text-lg max-w-2xl mx-auto">
+            <p className="text-white/60 text-lg max-w-2xl mx-auto">
               Every report is CPA-signed. No per-seat surprises. Cancel anytime.
             </p>
           </FadeIn>
@@ -131,8 +180,12 @@ export default function PricingPage() {
                   </div>
                   <p className="text-xs text-white/40 mb-6 min-h-[32px]">{plan.desc}</p>
                   <Link
-                    href={plan.name === "Enterprise" || plan.name === "Portfolio" ? "/contact" : "/signup"}
-                    className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${plan.highlighted ? "bg-emerald-500 text-white hover:bg-emerald-400 btn-magnetic" : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10"}`}
+                    href={
+                      plan.name === "Enterprise" || plan.name === "Portfolio"
+                        ? "/contact"
+                        : `/checkout?plan=${encodeURIComponent(plan.name.toLowerCase().replace(/\s+/g, "-"))}${regionQuery}`
+                    }
+                    className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${plan.highlighted ? "bg-emerald-500 text-white hover:bg-emerald-400 btn-magnetic hover:shadow-lg hover:shadow-emerald-500/30" : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 hover:border-white/25"}`}
                   >
                     {plan.cta}
                   </Link>
@@ -251,5 +304,19 @@ export default function PricingPage() {
 
       <SiteFooter />
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0a0a0a] text-white">
+          <SiteNav />
+        </div>
+      }
+    >
+      <PricingPageInner />
+    </Suspense>
   );
 }

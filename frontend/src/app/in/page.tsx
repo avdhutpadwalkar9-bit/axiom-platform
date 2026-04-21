@@ -365,33 +365,33 @@ export default function InLandingPage() {
               return (
                 <div
                   key={t.name}
-                  className={`relative rounded-2xl border p-6 lg:p-8 transition-all hover:border-emerald-500/30 ${border}`}
+                  className={`group relative rounded-2xl border p-6 lg:p-8 transition-all duration-300 hover:border-emerald-500/40 hover:shadow-[0_0_40px_-12px_rgba(16,185,129,0.25)] hover:-translate-y-0.5 ${border}`}
                 >
-                  {t.popular && (
-                    <span className="absolute top-4 right-4 lg:top-6 lg:right-6 text-[10px] uppercase tracking-[0.14em] font-semibold bg-emerald-500 text-white px-2.5 py-1 rounded-full">
-                      Most popular
-                    </span>
-                  )}
                   <div className="grid lg:grid-cols-[1fr_220px] gap-6 lg:gap-10 items-start">
                     <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] uppercase tracking-[0.14em] text-emerald-400 font-semibold">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className="text-[11px] uppercase tracking-[0.14em] text-emerald-400 font-semibold">
                           Tier {i + 1}
                         </span>
-                        <span className="text-[10px] text-white/30">·</span>
-                        <span className="text-[11px] text-white/40">{t.band}</span>
+                        <span className="text-[11px] text-white/30">·</span>
+                        <span className="text-[12px] text-white/50">{t.band}</span>
+                        {t.popular && (
+                          <span className="text-[10px] uppercase tracking-[0.14em] font-semibold bg-emerald-500 text-white px-2.5 py-0.5 rounded-full ml-1">
+                            Most popular
+                          </span>
+                        )}
                       </div>
                       <h3 className="text-[22px] lg:text-[26px] font-semibold text-white mb-1 tracking-tight">
                         {t.name}
                       </h3>
-                      <p className="text-[14px] text-white/50 mb-5">{t.tagline}</p>
+                      <p className="text-[15px] text-white/60 mb-5">{t.tagline}</p>
                       <ul className="grid sm:grid-cols-2 gap-x-6 gap-y-2">
                         {t.features.map((f) => (
                           <li
                             key={f}
-                            className="flex items-start gap-2 text-[13px] text-white/70 leading-relaxed"
+                            className="flex items-start gap-2 text-[14px] text-white/75 leading-relaxed"
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                             <span>{f}</span>
                           </li>
                         ))}
@@ -402,19 +402,19 @@ export default function InLandingPage() {
                         <span className="text-[32px] font-bold text-white leading-none tabular-nums">
                           {t.price}
                         </span>
-                        <span className="text-[12px] text-white/40">{t.priceNote}</span>
+                        <span className="text-[13px] text-white/50">{t.priceNote}</span>
                       </div>
-                      <p className="text-[11px] text-white/35 mb-4">{t.duration}</p>
+                      <p className="text-[12px] text-white/45 mb-4">{t.duration}</p>
                       <Link
                         href={t.href}
-                        className={`inline-flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2.5 rounded-full transition-all ${
+                        className={`inline-flex items-center gap-1.5 text-[14px] font-semibold px-5 py-2.5 rounded-full transition-all duration-200 hover:scale-[1.03] hover:shadow-lg ${
                           t.tone === "emerald" || t.tone === "emerald-strong"
-                            ? "bg-emerald-500 hover:bg-emerald-400 text-white"
-                            : "bg-white/5 hover:bg-white/10 text-white border border-white/10"
+                            ? "bg-emerald-500 hover:bg-emerald-400 text-white hover:shadow-emerald-500/40"
+                            : "bg-white/5 hover:bg-white/10 text-white border border-white/10 hover:border-white/25"
                         }`}
                       >
                         {t.cta}
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                       </Link>
                     </div>
                   </div>
@@ -423,10 +423,10 @@ export default function InLandingPage() {
             })}
           </div>
 
-          <p className="text-center text-[12px] text-white/35 mt-10 max-w-xl mx-auto">
+          <p className="text-center text-[14px] text-white/55 mt-10 max-w-2xl mx-auto leading-relaxed">
             All tiers include the CortexAI advisor (Claude-powered,
             Quick + Think-Deeper), live FX across 5 currencies, and
-            exportable Ind AS-compliant outputs. Upgrade or cancel anytime.
+            exportable compliance-ready outputs. Upgrade or cancel anytime.
           </p>
         </div>
       </section>
@@ -534,8 +534,8 @@ export default function InLandingPage() {
               Start modelling.
             </span>
           </h2>
-          <p className="text-[17px] text-white/55 leading-relaxed mb-8 max-w-xl mx-auto">
-            Ten minutes to a first Ind AS-clean analysis. Thirty days
+          <p className="text-[19px] lg:text-[20px] text-white/70 leading-relaxed mb-8 max-w-xl mx-auto">
+            Ten minutes to a first compliance-clean analysis. Thirty days
             to a QoE draft that would have cost ₹15 L and six weeks
             anywhere else.
           </p>
@@ -554,15 +554,15 @@ export default function InLandingPage() {
               Talk to an advisor
             </Link>
           </div>
-          <div className="flex items-center justify-center gap-5 mt-8 text-[11px] text-white/30 flex-wrap">
+          <div className="flex items-center justify-center gap-6 mt-8 text-[13px] text-white/55 flex-wrap">
             <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="w-3 h-3" /> No card required
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> No card required
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="w-3 h-3" /> 30-day trial on paid tiers
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> 30-day trial on paid tiers
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="w-3 h-3" /> Cancel anytime
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Cancel anytime
             </span>
           </div>
         </div>

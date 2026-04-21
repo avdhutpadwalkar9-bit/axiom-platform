@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, TrendingUp, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuthStore } from "@/stores/authStore";
+import ThemeToggle from "@/components/ThemeToggle";
 
 // useLayoutEffect warns during SSR. Swap to useEffect on the server so we
 // don't get console noise — the difference is irrelevant there.
@@ -204,7 +205,36 @@ export default function SiteNav() {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {/* Region toggle — one-click jump to the region-tailored
+                landing. Shown on all non-app pages. */}
+            <div
+              role="group"
+              aria-label="Choose region"
+              className="hidden md:inline-flex items-center bg-white/[0.04] border border-white/10 rounded-full p-0.5"
+            >
+              <Link
+                href="/us"
+                className={`px-2.5 py-1 rounded-full text-[12px] font-semibold transition-colors ${
+                  pathname === "/us"
+                    ? "bg-emerald-500/20 text-emerald-300"
+                    : "text-white/60 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                🇺🇸 US
+              </Link>
+              <Link
+                href="/in"
+                className={`px-2.5 py-1 rounded-full text-[12px] font-semibold transition-colors ${
+                  pathname === "/in"
+                    ? "bg-emerald-500/20 text-emerald-300"
+                    : "text-white/60 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                🇮🇳 IN
+              </Link>
+            </div>
+            <ThemeToggle compact />
             {!mounted ? (
               /* SSR + first client render: show a neutral ghost that matches
                  the guest-state width. After mount we swap to either the
@@ -312,7 +342,30 @@ export default function SiteNav() {
                 {item.label}
               </Link>
             ))}
-            <div className="border-t border-white/[0.06] mt-4 pt-4 flex flex-col gap-3">
+            <div className="border-t border-white/[0.06] mt-4 pt-4 flex items-center gap-3">
+              <Link
+                href="/us"
+                className={`flex-1 text-center px-3 py-2 rounded-full text-[13px] font-semibold transition-colors ${
+                  pathname === "/us"
+                    ? "bg-emerald-500/20 text-emerald-300"
+                    : "bg-white/5 text-white/70 hover:bg-white/10"
+                }`}
+              >
+                🇺🇸 US
+              </Link>
+              <Link
+                href="/in"
+                className={`flex-1 text-center px-3 py-2 rounded-full text-[13px] font-semibold transition-colors ${
+                  pathname === "/in"
+                    ? "bg-emerald-500/20 text-emerald-300"
+                    : "bg-white/5 text-white/70 hover:bg-white/10"
+                }`}
+              >
+                🇮🇳 IN
+              </Link>
+              <ThemeToggle />
+            </div>
+            <div className="border-t border-white/[0.06] mt-2 pt-4 flex flex-col gap-3">
               {!mounted ? (
                 // Match the pre-hydration state on the desktop side.
                 <div className="h-[52px]" aria-hidden="true" />

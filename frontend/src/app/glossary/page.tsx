@@ -41,6 +41,46 @@ const glossaryTerms = [
   { term: "TDS (Tax Deducted at Source)", def: "Tax deducted by the payer at payment time. Required on salary, rent, professional fees under Income Tax Act." },
   { term: "Trial Balance", def: "Worksheet listing all ledger account balances. Total debits must equal credits. Verifies book accuracy before financial statements." },
   { term: "Working Capital", def: "Current Assets minus Current Liabilities. Positive means the business can fund day-to-day operations." },
+
+  // ── US GAAP & US-specific glossary ──
+  { term: "ASC 606 (US GAAP)", def: "US GAAP revenue recognition standard codified by FASB. Five-step model: identify contract, identify performance obligations, determine transaction price, allocate price, recognize revenue as obligations are satisfied. Nearly identical to IFRS 15." },
+  { term: "ASC 842 (Leases)", def: "US GAAP lease accounting standard effective for private companies from FY2022. Requires operating leases longer than 12 months to be capitalized on the balance sheet as a right-of-use (ROU) asset and lease liability." },
+  { term: "ASC 340-40 (Contract Costs)", def: "US GAAP rule requiring capitalization and amortization of incremental costs of obtaining a customer contract (e.g., sales commissions) over the contract's benefit period." },
+  { term: "ASC 718 (Stock Compensation)", def: "US GAAP standard for accounting for share-based payments. Requires fair-value measurement on the grant date and expense recognition over the vesting period." },
+  { term: "ASC 805 (Business Combinations)", def: "US GAAP rule for acquisition accounting. Requires purchase price allocation to identifiable assets, liabilities, intangibles, and goodwill at fair value on the acquisition date." },
+  { term: "FASB (Financial Accounting Standards Board)", def: "The private, non-profit organization that issues US GAAP standards. Its rulings are codified in the Accounting Standards Codification (ASC)." },
+  { term: "SEC (Securities and Exchange Commission)", def: "US federal regulator overseeing public companies' financial reporting. Public-company filings (10-K, 10-Q, 8-K) must comply with SEC rules and US GAAP." },
+  { term: "10-K", def: "Annual report filed by public companies with the SEC. Includes audited financial statements, management discussion and analysis, risk factors, and executive compensation disclosures." },
+  { term: "10-Q", def: "Quarterly report filed by public companies with the SEC. Contains unaudited financial statements and MD&A for the quarter." },
+  { term: "US GAAP (Generally Accepted Accounting Principles)", def: "The accounting standards used in the United States, issued by FASB. Rules-based, more prescriptive than IFRS." },
+  { term: "IFRS (International Financial Reporting Standards)", def: "The international accounting standards used in 140+ countries, issued by the IASB. Principles-based, allows more judgment than US GAAP. Closely aligned with Ind AS." },
+  { term: "LIFO (Last-In, First-Out)", def: "Inventory costing method where most-recently-acquired inventory is expensed first. Permitted under US GAAP (unlike IFRS) and often elected during inflation to defer tax." },
+  { term: "FIFO (First-In, First-Out)", def: "Inventory costing method where oldest inventory is expensed first. Permitted under both US GAAP and IFRS. Tends to produce higher income during inflation." },
+  { term: "Section 1202 (QSBS)", def: "US tax code provision allowing exclusion of up to $10M or 10x basis in federal capital gains on sale of Qualified Small Business Stock held for 5+ years. Applies only to C-corps." },
+  { term: "Section 41 (R&D Credit)", def: "US federal tax credit of up to 14% on qualified research expenses (engineer wages, contractor costs, supplies). Can be applied against payroll taxes up to $500K/year for startups." },
+  { term: "Safe Harbor 401(k)", def: "A 401(k) plan design that skips annual non-discrimination testing in exchange for mandatory employer contributions (either 3% non-elective or basic match of 4%)." },
+  { term: "1099-NEC", def: "IRS form used to report non-employee compensation of $600 or more to independent contractors. Due to contractors and IRS by January 31 of the following year." },
+  { term: "W-9", def: "IRS form collected from US contractors/vendors capturing their legal name, TIN, and tax classification. Required before issuing 1099-NEC forms." },
+  { term: "Form 5500", def: "Annual report that most employer-sponsored retirement plans (401(k), pension) must file with the Department of Labor and IRS by July 31 of the year after the plan year." },
+  { term: "Economic Nexus (Sales Tax)", def: "Post-Wayfair standard where out-of-state sellers owe sales tax in a US state once they cross a revenue or transaction threshold (typically $100K or 200 transactions)." },
+  { term: "Wayfair Decision", def: "2018 US Supreme Court ruling (South Dakota v. Wayfair) that removed the physical-presence requirement for state sales tax collection, establishing economic nexus." },
+  { term: "Delaware C-Corp", def: "The default US corporate structure for VC-backed startups. Delaware's mature corporate law and Court of Chancery provide predictability for investors and acquirers." },
+  { term: "Pass-Through Entity", def: "Entity (S-corp, LLC, partnership) whose income passes through to owners' personal tax returns, avoiding corporate-level tax. Not suitable for institutional equity rounds." },
+  { term: "Qualified Opportunity Zone (QOZ)", def: "Economically-distressed US area designated under the 2017 Tax Cuts and Jobs Act. Investors can defer or eliminate capital gains tax on investments held in QOZ funds." },
+  { term: "EBITDA Margin", def: "EBITDA as a percentage of revenue. Common SMB benchmarks: SaaS 20-40%, services 10-20%, manufacturing 8-15%, distribution 3-8%." },
+  { term: "Rule of 40 (SaaS)", def: "SaaS benchmark where revenue growth rate + EBITDA margin should exceed 40%. Balances growth with profitability for US software companies." },
+  { term: "NRR (Net Revenue Retention)", def: "Revenue from existing customers one year later, as a percentage of starting revenue (including upsell, minus churn and downgrades). Best-in-class US SaaS: 120%+." },
+  { term: "Gross Retention", def: "Revenue retained from existing customers a year later, excluding upsell. Measures churn risk. Best-in-class US SaaS: 90%+." },
+  { term: "ARR (Annual Recurring Revenue)", def: "Normalized annual subscription revenue for a US SaaS company. Excludes one-time implementation or professional services fees." },
+  { term: "MRR (Monthly Recurring Revenue)", def: "Normalized monthly subscription revenue. ARR divided by 12. The primary KPI for SaaS financial health." },
+  { term: "Magic Number (SaaS)", def: "Quarterly revenue growth divided by prior quarter's sales and marketing spend, annualized. Above 0.75 indicates efficient GTM; below 0.5 indicates sales engine problems." },
+  { term: "CAC Payback Period", def: "Months required for gross profit from a new customer to recover acquisition cost. US SaaS benchmark: under 12 months for mid-market, under 24 months for enterprise." },
+  { term: "Series A / Series B / Series C", def: "US venture financing rounds. Series A typically $5-15M at $20-50M post-money, Series B $15-50M at $60-150M, Series C $50M+ at $200M+. Round sizes have grown meaningfully post-2021." },
+  { term: "Convertible Note", def: "Short-term debt that converts into equity at a future priced round, usually with a discount and/or valuation cap. Common pre-seed US fundraising instrument." },
+  { term: "SAFE (Simple Agreement for Future Equity)", def: "Y Combinator-designed instrument giving investors rights to future equity at the next priced round. Cleaner than a note (no maturity, no interest) — now the US seed default." },
+  { term: "83(b) Election", def: "IRS election filed within 30 days of receiving restricted stock, letting the recipient pay ordinary income tax on the grant-date value instead of the vesting-date value. Critical for US startup founders." },
+  { term: "ISO (Incentive Stock Option)", def: "US tax-advantaged stock option grantable only to employees. Exercises within AMT limits avoid ordinary income at exercise; sale after 1+ year post-exercise and 2+ years post-grant qualifies for long-term capital gains." },
+  { term: "NSO (Non-Qualified Stock Option)", def: "Stock option with no special tax treatment. Exercise triggers ordinary income tax on the spread (FMV minus strike price). Used for non-employee grants or when ISO limits are exceeded." },
 ];
 
 export default function GlossaryPage() {
@@ -75,8 +115,8 @@ export default function GlossaryPage() {
               </div>
               <h1 className="text-3xl md:text-4xl font-bold">Financial Glossary</h1>
             </div>
-            <p className="text-lg text-white/40 max-w-2xl mb-10">
-              Clear definitions of the metrics, ratios, and Indian accounting concepts that drive business decisions.
+            <p className="text-lg text-white/60 max-w-2xl mb-10">
+              Clear definitions of the metrics, ratios, and accounting concepts — US GAAP, Ind AS, and cross-border — that drive SMB decisions.
             </p>
             <div className="relative max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20" />

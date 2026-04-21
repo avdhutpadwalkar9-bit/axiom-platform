@@ -660,9 +660,32 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               {/* Left: text content */}
               <div className="pt-4">
-                <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full mb-6">
-                  <Sparkles className="w-3 h-3" />
-                  For SMBs preparing for PE, M&amp;A, or growth capital
+                <div className="flex flex-wrap items-center gap-3 mb-6">
+                  <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
+                    <Sparkles className="w-3 h-3" />
+                    For SMBs preparing for PE, M&amp;A, or growth capital
+                  </div>
+                  {/* Inline region toggle — one click to the region-tailored
+                      landing. Replaces the silent timezone-based nudge for
+                      users who want to self-select. */}
+                  <div
+                    role="group"
+                    aria-label="Choose region"
+                    className="inline-flex items-center bg-white/[0.04] border border-white/10 rounded-full p-0.5 shadow-sm"
+                  >
+                    <Link
+                      href="/us"
+                      className="px-3 py-1 rounded-full text-[12px] font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      🇺🇸 US
+                    </Link>
+                    <Link
+                      href="/in"
+                      className="px-3 py-1 rounded-full text-[12px] font-semibold text-white/70 hover:text-white hover:bg-white/10 transition-colors"
+                    >
+                      🇮🇳 India
+                    </Link>
+                  </div>
                 </div>
 
                 <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-serif-heading font-bold leading-[1.05] tracking-tight text-white mb-6">
@@ -1770,7 +1793,7 @@ export default function LandingPage() {
                   <p className="text-[14px] text-white/60 leading-relaxed mb-3">
                     &ldquo;{review.quote}&rdquo;
                   </p>
-                  <p className="text-[11px] text-white/30 font-medium">
+                  <p className="text-[12px] text-white/50 font-medium">
                     — {review.source}
                   </p>
                 </div>
@@ -1805,7 +1828,7 @@ export default function LandingPage() {
                     <p className="text-[14px] text-white/60 leading-relaxed mb-3">
                       &ldquo;{review.quote}&rdquo;
                     </p>
-                    <p className="text-[11px] text-white/30 font-medium">
+                    <p className="text-[12px] text-white/50 font-medium">
                       — {review.source}
                     </p>
                   </div>
@@ -2000,8 +2023,8 @@ export default function LandingPage() {
       <section className="px-6 py-10 bg-[#0a0a0a] border-t border-white/5">
         <FadeIn>
           <div className="max-w-3xl mx-auto text-center">
-            <p className="text-[12px] text-white/55 leading-relaxed">
-              <span className="text-white/55 font-medium">Advisory, not audit.</span>{" "}
+            <p className="text-[14px] text-white/65 leading-relaxed">
+              <span className="text-white/80 font-semibold">Advisory, not audit.</span>{" "}
               CortexCFO produces investor-grade financial analysis reviewed by a qualified
               licensed CPA. Outputs are not a substitute for a statutory
               audit opinion, Big-4 QoE engagement, or independent legal/tax counsel.

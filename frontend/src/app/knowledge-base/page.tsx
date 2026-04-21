@@ -267,6 +267,167 @@ const articles: Article[] = [
       "The fix is mechanical but unglamorous. Run an exception list of any account with more than six distinct transaction types in a year. Reclassify or split. Then freeze the chart and document the rules. CortexCFO can generate this exception list from your trial balance in seconds.",
     ],
   },
+
+  // ---------------- US GAAP & US-specific articles ----------------
+  {
+    slug: "us-gaap-vs-ifrs-essentials",
+    title: "US GAAP vs IFRS — the essentials for US SMBs",
+    category: "Compliance & Standards",
+    readMin: 6,
+    summary:
+      "You don't need to know every FASB vs IASB nuance, but if you're raising from a cross-border investor you need to know where they diverge — inventory costing, lease accounting, R&D, and revenue.",
+    body: [
+      "US GAAP is rules-based and maintained by FASB; IFRS is principles-based and maintained by IASB. For a privately-held US SMB that isn't filing with the SEC, GAAP is functionally the only standard that matters — but cross-border investors and acquirers will ask how your books would look under IFRS.",
+      "Inventory costing is the most famous divergence. US GAAP still permits LIFO; IFRS does not. Many US SMBs elected LIFO during inflationary periods to defer tax — if you later want IFRS-comparable statements, you'll recompute to FIFO or weighted average.",
+      "Lease accounting under ASC 842 (GAAP) and IFRS 16 are more aligned than they used to be — both now bring operating leases onto the balance sheet. Practical difference: GAAP still distinguishes operating vs finance leases in the P&L (straight-line vs front-loaded), while IFRS collapses them.",
+      "R&D costs are expensed immediately under US GAAP. IFRS lets you capitalize development-phase costs once they meet six technical and commercial criteria. For a US SaaS company capitalizing internal-use software under ASC 350-40, this is closer to IFRS than people realize.",
+      "Revenue recognition under ASC 606 (GAAP) and IFRS 15 are nearly identical — both use the five-step model. If you're ASC 606-compliant, you're 95% of the way to IFRS 15.",
+    ],
+  },
+  {
+    slug: "asc-606-revenue-recognition-us",
+    title: "ASC 606 revenue recognition for US SaaS and services",
+    category: "Compliance & Standards",
+    readMin: 7,
+    featured: true,
+    summary:
+      "The five-step model turns every contract into disclosable performance obligations. For SaaS and multi-element services, this is the rule book that auditors and due-diligence teams run you through first.",
+    body: [
+      "ASC 606 applies to every US company with customer contracts, regardless of size. The five steps: (1) identify the contract, (2) identify the performance obligations, (3) determine the transaction price, (4) allocate that price to each obligation, (5) recognize revenue as you satisfy each one.",
+      "For SaaS subscriptions, the typical treatment is a single performance obligation (access to the platform) satisfied over time, with revenue recognized ratably over the subscription term. Setup fees are usually rolled into the subscription if they don't transfer a distinct good or service.",
+      "Multi-element arrangements are where auditors spend the most time. If your contract bundles a SaaS subscription with implementation services and training, each distinct element gets its own transaction-price allocation using the standalone selling price method.",
+      "Variable consideration — usage-based fees, performance bonuses, volume discounts — has to be estimated and constrained so it's 'probable' that a significant reversal won't occur. This is the single most common 606 audit finding: overly aggressive variable-consideration estimates.",
+      "Contract costs under ASC 340-40 must be capitalized and amortized. Sales commissions paid on a multi-year contract are spread over the contract's benefit period, not expensed in the month they're paid. This alone reshapes many SMB P&Ls.",
+    ],
+  },
+  {
+    slug: "asc-842-lease-accounting",
+    title: "ASC 842 — bringing operating leases onto the balance sheet",
+    category: "Compliance & Standards",
+    readMin: 6,
+    summary:
+      "Effective for private companies from FY2022, ASC 842 forces every lease longer than 12 months onto the balance sheet as a right-of-use asset and lease liability. Most SMBs are still catching up.",
+    body: [
+      "Under the old standard (ASC 840), operating lease payments hit rent expense and the obligation sat off-balance-sheet. Under ASC 842, operating leases create a right-of-use (ROU) asset and a lease liability on day one, using the present value of remaining payments discounted at the incremental borrowing rate.",
+      "The P&L still looks similar: operating leases continue to show a straight-line rent expense. Finance leases (mostly equipment financing dressed as a lease) split into depreciation + interest, with front-loaded expense.",
+      "For SMBs, the balance-sheet impact is the surprise. A five-year office lease at $120K/year adds roughly $500K to both assets and liabilities on day one. Covenant ratios that reference total debt suddenly look very different — and most SMB loan covenants aren't written to exclude ROU liabilities.",
+      "The practical lift: extract every lease with a term over 12 months, discount the remaining payments, and capitalize. Month-over-month, amortize the ROU asset and unwind the liability against each payment. We automate this for clients — it's one of the quickest quality-of-earnings wins on US engagements.",
+    ],
+  },
+  {
+    slug: "us-sales-tax-nexus",
+    title: "US sales tax: nexus rules and the Wayfair test",
+    category: "Compliance & Standards",
+    readMin: 5,
+    summary:
+      "Since South Dakota v. Wayfair (2018), online sellers owe sales tax in every state where they cross an economic-nexus threshold — typically $100K of in-state sales or 200 transactions.",
+    body: [
+      "Pre-2018, sales tax obligations required physical presence (an office, warehouse, or employee). Wayfair replaced that with economic nexus: cross a revenue or transaction threshold in a state and you owe its sales tax, even with no boots on the ground.",
+      "Thresholds vary by state but the most common are $100K of gross receipts OR 200 separate transactions in the prior or current calendar year. Some states use only dollars (California is $500K); a handful use only transactions.",
+      "Sales of services are often exempt, but SaaS is the gray zone. Twenty states now tax SaaS as tangible personal property — New York, Texas, Washington, Pennsylvania, and Massachusetts are the high-dollar jurisdictions where SaaS companies most often trip up.",
+      "For US SMBs expanding fast, the playbook: run a monthly nexus-exposure report against a tool like Avalara or TaxJar; register proactively in states where you're within 20% of threshold; and build sales-tax collection into your billing engine before volume forces the issue. A voluntary disclosure program costs 10% of what a look-back assessment does.",
+    ],
+  },
+  {
+    slug: "1099-filing-for-contractors",
+    title: "1099-NEC filing — the contractor compliance most SMBs get wrong",
+    category: "Compliance & Standards",
+    readMin: 4,
+    summary:
+      "If you paid any non-employee contractor over $600 in the year, you owe them a 1099-NEC by January 31. Get this wrong and the IRS fines you per form.",
+    body: [
+      "Form 1099-NEC (re-introduced in 2020) is for reporting payments of $600+ to independent contractors, freelancers, and other non-employees. The old 1099-MISC is still used for rent, royalties, and miscellaneous payments — but contractor payments now belong on NEC.",
+      "Before you can file, you need a Form W-9 on file for every contractor showing their legal name, TIN, and entity type. Collect W-9s BEFORE issuing the first payment, not at year-end — chasing a contractor for a W-9 in January is a well-known nightmare.",
+      "Deadlines are tight: 1099-NECs are due to contractors AND the IRS by January 31. Late filing penalties range from $60 to $630 per form depending on how late, capped at $3.5M/year for larger filers.",
+      "Common traps: payments to LLCs taxed as partnerships DO require a 1099; payments to S-corps and C-corps generally don't; payments via credit card or a third-party network like PayPal are reported by the payment processor on 1099-K, so you don't double-report; but payments via check, ACH, or wire DO require you to file.",
+    ],
+  },
+  {
+    slug: "delaware-c-corp-fundamentals",
+    title: "Why most US startups are Delaware C-corps",
+    category: "Core Concepts",
+    readMin: 5,
+    summary:
+      "For a US SMB planning an institutional raise or exit, Delaware C-corp is the default structure — not because it's best for taxes, but because it's what sophisticated investors expect.",
+    body: [
+      "Delaware's Court of Chancery has spent 200+ years developing case law on corporate governance. That precedent creates certainty: M&A lawyers, VC funds, and acquirers all know exactly how disputes will be adjudicated. Incorporating elsewhere means buying uncertainty you don't need.",
+      "The C-corp structure itself is chosen over LLC or S-corp because C-corps can issue multiple classes of stock (preferred vs common — essential for venture rounds), accommodate unlimited shareholders including foreign and institutional, and qualify for QSBS exclusion under Section 1202 (up to $10M or 10x basis in federal cap-gains exclusion on sale).",
+      "Downsides: double taxation (corporate tax then dividend tax on distributions), more compliance (annual franchise tax in Delaware + the state where you operate), and board formalities. For a bootstrapped SMB with no fundraising plans, an LLC taxed as an S-corp is usually simpler.",
+      "When to convert: if you're raising a priced round, most term sheets will require a Delaware C-corp conversion as a closing condition. The conversion is mechanical (file a Certificate of Conversion, issue new stock certificates, update the cap table) but legal fees run $5-15K, so plan for it.",
+    ],
+  },
+  {
+    slug: "adjusted-ebitda-addbacks-us",
+    title: "US QoE: the add-backs buyers scrutinize most",
+    category: "Playbooks",
+    readMin: 6,
+    featured: true,
+    summary:
+      "Every PE buyer and strategic acquirer builds their own adjusted-EBITDA bridge. Knowing which add-backs hold up to diligence — and which get rejected — protects your valuation.",
+    body: [
+      "US QoE diligence focuses on quality and sustainability of earnings. The buyer's adjusted-EBITDA starts with reported EBITDA and adds back: (1) one-time legal and M&A costs, (2) owner compensation in excess of market rate, (3) personal expenses run through the business, (4) discontinued product lines, (5) rent paid to owner-related entities above market.",
+      "Owner compensation add-backs are the single biggest bucket and the most contested. Buyers will benchmark your owner's salary against BLS data for your industry and geography, then add back only the premium. A founder taking $500K in a role BLS says pays $250K will see a $250K add-back — not $500K.",
+      "Related-party rent is aggressive when the building is owned by the founder's holding company. Buyers want to see a fair-market-rent analysis before accepting any adjustment; self-serving numbers get cut.",
+      "The category most often rejected: 'growth investments.' Founders try to add back marketing spend they consider 'strategic' rather than operating. Buyers almost never allow this — if the spend was necessary to produce the revenue being bought, it's an operating cost, period.",
+      "What holds up consistently: true one-time events with documentation (a discrete lawsuit settlement, a one-off system migration, a completed pre-sale restructuring). Build a schedule at close-of-books each month so the trail is real, not reconstructed.",
+    ],
+  },
+  {
+    slug: "us-401k-setup-for-smbs",
+    title: "Setting up a 401(k) for a growing US SMB",
+    category: "Playbooks",
+    readMin: 5,
+    summary:
+      "At 10+ employees a 401(k) becomes table stakes for hiring. The Safe Harbor design simplifies compliance and keeps highly-compensated employees eligible without annual discrimination testing.",
+    body: [
+      "Three plan designs dominate US SMBs: traditional 401(k) (flexible match but annual non-discrimination testing), Safe Harbor 401(k) (mandatory 3-4% employer contribution, skips testing), and SIMPLE IRA (under 100 employees, lower contribution limits, no loans).",
+      "Safe Harbor is the most common pick at the 10-50 employee stage. Employer contributes either a 3% non-elective contribution for all eligible employees, OR a basic match (100% of first 3%, 50% of next 2%). Trade-off: mandatory contribution but no ADP/ACP testing stress.",
+      "Cost structure: setup is $1-3K, ongoing plan administration runs $2-5K/year for a provider like Guideline or Human Interest, plus 0.05-0.15% of AUM in participant fees. Employer match typically costs 3-4% of payroll if maxed.",
+      "Compliance deadlines to calendar: plan document in place before year starts, participant notices 30-90 days before plan year, Form 5500 by July 31 of year after. A TPA (third-party administrator) handles most of this — don't try to DIY after first 20 employees.",
+    ],
+  },
+  {
+    slug: "r-and-d-tax-credit-us",
+    title: "The R&D tax credit (Section 41) — an under-claimed SMB benefit",
+    category: "Playbooks",
+    readMin: 5,
+    summary:
+      "The federal R&D credit gives you 6-14% back on qualifying research wages, supplies, and contractor costs. Most SMB founders don't realize their product engineering qualifies.",
+    body: [
+      "Section 41 rewards 'qualified research activities' — work intended to discover technological information, involving a process of experimentation, aimed at a new or improved product, process, or software. In practice this covers a huge portion of what SaaS and engineering-driven SMBs do daily.",
+      "Qualifying costs: W-2 wages for engineers, designers, and QA; contractor payments (at 65% of gross); supplies consumed in R&D; and cloud-compute costs used in development. Non-qualifying: routine maintenance, customer support, sales and marketing, and general admin.",
+      "The credit is 14% of the amount by which current-year QREs exceed a base period (alternative simplified credit). For a pre-profit startup, Section 41 also allows up to $500K/year to be applied against payroll taxes — so the credit is usable even without income-tax liability.",
+      "Documentation is the gating issue. Build a project tracker showing the technical uncertainty, the experiments run, and the employees' time allocated. If you can't produce project-level contemporaneous records, the IRS denies the claim in audit — this is the single most common loss in R&D credit disputes.",
+    ],
+  },
+  {
+    slug: "us-financial-statement-format",
+    title: "The US GAAP financial statement format investors expect",
+    category: "Core Concepts",
+    readMin: 4,
+    summary:
+      "A clean, comparable set of US financials has three statements — balance sheet, income statement, cash flow — plus a statement of stockholders' equity. Notes are where diligence lives.",
+    body: [
+      "The balance sheet is presented in a classified format: current assets / non-current assets / current liabilities / non-current liabilities / equity. Most SMBs botch the current/non-current split — anything expected to convert to cash or be settled within 12 months is current.",
+      "The income statement (under GAAP) can use a single-step or multi-step format. Multi-step is investor-preferred because it separates gross profit (revenue minus COGS), operating income (gross profit minus operating expenses), and net income (operating income plus/minus non-operating items and taxes).",
+      "The cash flow statement under ASC 230 reconciles net income to actual cash movement, with three sections: operating, investing, financing. The indirect method is used by 99% of US SMBs and is what auditors expect to see.",
+      "The statement of stockholders' equity tracks share issuances, repurchases, and retained earnings over time. Neglected by most SMBs but the first thing a venture-backed company's auditor asks for — it's how they verify cap table activity flows through to the books.",
+    ],
+  },
+  {
+    slug: "export-trial-balance-quickbooks",
+    title: "Exporting Trial Balance from QuickBooks Online",
+    category: "Integrations & Data",
+    readMin: 2,
+    summary:
+      "CortexCFO reads any Trial Balance. QuickBooks Online exports one in under a minute — here's the cleanest path.",
+    body: [
+      "In QuickBooks Online, navigate to Reports > Accountant & Taxes > Trial Balance. Click the report name to open.",
+      "Set the date range to the period you want to upload (last closed month is the usual choice). Leave 'Accounting method' on Accrual unless you specifically file on a cash basis.",
+      "Click the Export icon (top right), choose 'Export to Excel'. Save as .xlsx.",
+      "Upload the file to CortexCFO. Our GL parser auto-detects QuickBooks Online's column format (Account / Debit / Credit), classifies every account into a clean chart, runs the ratio pack, and generates the QoE lens automatically. Under a minute end-to-end.",
+    ],
+  },
 ];
 
 export default function KnowledgeBasePage() {

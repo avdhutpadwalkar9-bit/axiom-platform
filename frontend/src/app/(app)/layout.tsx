@@ -24,6 +24,7 @@ import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
 import AIChatPanel from "@/components/AIChatPanel";
 import { FxProvider } from "@/context/FxContext";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: BarChart3 },
@@ -217,15 +218,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Logout */}
-        <div className="border-t border-app-border/70 p-3">
+        {/* Theme toggle + Logout */}
+        <div className="border-t border-app-border/70 p-3 flex items-center gap-2">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium text-app-text-subtle transition-colors hover:bg-app-card-hover hover:text-app-text-muted"
+            className="flex flex-1 items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium text-app-text-subtle transition-colors hover:bg-app-card-hover hover:text-app-text-muted"
           >
             <LogOut className="h-4 w-4" />
             <span>Log out</span>
           </button>
+          <ThemeToggle compact />
         </div>
       </aside>
 

@@ -195,7 +195,13 @@ export default function OnboardingPage() {
       clearInterval(msgTimer);
       setAnalysisStatus("Done");
       completeOnboarding();
-      router.push("/dashboard");
+      // Post-upload routing: first time a user lands their financials,
+      // route them to /pricing (region-aware) so they can pick a plan.
+      // Dashboard is one click away from there. Once they've selected
+      // a plan (or skipped), subsequent logins land on dashboard via
+      // the "already completed" early-return above.
+      const region = business.region === "IN" ? "in" : "us";
+      router.push(`/pricing?region=${region}&source=onboarding`);
     } catch (err) {
       clearInterval(msgTimer);
       setError(err instanceof Error ? err.message : "Something went wrong while analysing your data. Please try again.");
