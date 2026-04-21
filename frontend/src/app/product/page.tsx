@@ -6,22 +6,40 @@ import { ArrowRight, ChevronDown, Check, ArrowUpRight, Sparkles, BarChart3, Shie
 import { FadeIn } from "@/components/Animate";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
+import {
+  HeroDashboardIllustration,
+  DataToAnalysisIllustration,
+  AskAnythingIllustration,
+} from "@/components/ProductIllustrations";
 
 /* ------------------------------------------------------------------ */
 /*  Feature cards data                                                  */
 /* ------------------------------------------------------------------ */
-const features = [
+// Feature cards. `img` is either a URL (for the two blocks the user
+// explicitly asked us to keep) or a React component for the two blocks
+// we're replacing with custom SVG illustrations.
+type FeatureImg = string | React.ComponentType<{ className?: string }>;
+
+const features: {
+  tag: string;
+  title: string;
+  desc: string;
+  img: FeatureImg;
+  icon: typeof Upload;
+}[] = [
   {
     tag: "Instant Analysis",
     title: "From raw data to boardroom-ready analysis",
     desc: "Upload a Trial Balance from QuickBooks, Xero, or Excel. CortexCFO auto-classifies 100+ account types, builds your P&L, Balance Sheet, and Cash Flow indicators. No manual mapping. No templates.",
-    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=85",
+    img: DataToAnalysisIllustration,
     icon: Upload,
   },
   {
     tag: "AI Variance Analysis",
     title: "Surface what matters. Automatically.",
     desc: "The AI identifies unusual balances, flags suspense accounts, detects revenue recognition issues, and highlights expense anomalies. Each finding includes severity levels and specific next steps.",
+    // Kept by user request — this image reads as a neural/connected grid
+    // rather than a stock-market photo.
     img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=85",
     icon: Brain,
   },
@@ -29,6 +47,7 @@ const features = [
     tag: "GAAP Compliance",
     title: "Compliance checks that never sleep",
     desc: "Every upload is reviewed against AS 12, 15, 16, 19, 24, and 37. Deferred tax gaps, employee benefit provisions, related party disclosures, and revenue recognition under ASC 606 (Revenue) are all covered.",
+    // Kept by user request.
     img: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=85",
     icon: Shield,
   },
@@ -36,7 +55,7 @@ const features = [
     tag: "Real-time AI Chat",
     title: "Ask anything. Get answers with your actual numbers.",
     desc: "Powered by Claude AI with your financial data loaded. Not generic advice from the internet. Ask about cost reduction, runway projections, hiring impact, or what your auditor would flag. The AI references your specific accounts.",
-    img: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=85",
+    img: AskAnythingIllustration,
     icon: Sparkles,
   },
 ];
@@ -101,7 +120,8 @@ export default function ProductPage() {
           </FadeIn>
         </div>
 
-        {/* Product screenshot */}
+        {/* Product screenshot — custom SVG dashboard illustration in
+            a faux browser chrome. Theme-aware via currentColor. */}
         <FadeIn delay={300}>
           <div className="max-w-5xl mx-auto mt-16">
             <div className="rounded-2xl overflow-hidden glass glow-border shadow-2xl">
@@ -111,7 +131,9 @@ export default function ProductPage() {
                 <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
                 <span className="text-[10px] text-white/20 ml-3">CortexCFO — Financial Analysis</span>
               </div>
-              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=85" alt="CortexCFO Dashboard" className="w-full h-[400px] object-cover" />
+              <div className="w-full h-[400px] bg-[#0d0d0d]">
+                <HeroDashboardIllustration className="w-full h-full text-white" />
+              </div>
             </div>
           </div>
         </FadeIn>
@@ -151,8 +173,20 @@ export default function ProductPage() {
                       </Link>
                     </div>
                     <div className={i % 2 === 1 ? "md:order-1" : ""}>
-                      <div className="rounded-2xl overflow-hidden glass card-shine">
-                        <img src={f.img} alt={f.title} className="w-full h-[300px] object-cover" loading="lazy" />
+                      <div className="rounded-2xl overflow-hidden glass card-shine bg-[#0d0d0d]">
+                        {typeof f.img === "string" ? (
+                          <img
+                            src={f.img}
+                            alt={f.title}
+                            className="w-full h-[300px] object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="w-full h-[300px] text-white">
+                            {/* Custom SVG illustration — inherits theme via currentColor */}
+                            <f.img className="w-full h-full" />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

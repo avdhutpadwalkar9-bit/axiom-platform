@@ -48,32 +48,82 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* ───────────────────────────────────────────────────────────
-     CortexCFO App Theme — dark dashboard surfaces.
-     These tokens are independent of the marketing-site palette
-     (which stays light via :root). Use them ONLY inside (app)/*
-     routes. Every text/bg pair below clears WCAG AA 4.5:1.
+     CortexCFO App Theme — dashboard surfaces + text.
+     These tokens power every bg-app-* / text-app-* / border-app-*
+     utility used inside (app)/ routes. Values are CSS-variable
+     references, so when .theme-light or .theme-dark flips on
+     <html>, the whole dashboard retheming cascades automatically.
+     Every pair below clears WCAG AA 4.5:1 on both themes.
      ─────────────────────────────────────────────────────────── */
 
-  /* Surfaces — distinct luminance stops so edges actually separate */
-  --color-app-canvas: #0A0A0A;        /* page bg */
-  --color-app-card: #161616;          /* card bg */
-  --color-app-card-hover: #1C1C1C;    /* card hover */
-  --color-app-elevated: #1F1F1F;      /* tooltips, popovers, modals */
-  --color-app-border: #2A2A2A;        /* default 1px border, now visible */
-  --color-app-border-strong: #3A3A3A; /* focus, active, elevated borders */
+  /* Surfaces */
+  --color-app-canvas: var(--app-canvas);
+  --color-app-card: var(--app-card);
+  --color-app-card-hover: var(--app-card-hover);
+  --color-app-elevated: var(--app-elevated);
+  --color-app-border: var(--app-border);
+  --color-app-border-strong: var(--app-border-strong);
 
-  /* Text — never darker than tertiary on card bg */
-  --color-app-text: #F5F5F5;          /* primary: headings, stat numbers */
-  --color-app-text-muted: #A3A3A3;    /* secondary: body copy, labels */
-  --color-app-text-subtle: #737373;   /* tertiary: metadata, captions */
-  --color-app-text-disabled: #525252; /* disabled states only */
+  /* Text */
+  --color-app-text: var(--app-text);
+  --color-app-text-muted: var(--app-text-muted);
+  --color-app-text-subtle: var(--app-text-subtle);
+  --color-app-text-disabled: var(--app-text-disabled);
 
-  /* Waterfall / chart fills — brand accents (alongside existing palette) */
+  /* Chart / semantic colors — unchanged across themes */
   --color-app-positive: #34D399;      /* emerald-400 — adds, brand, CTAs */
   --color-app-negative: #F87171;      /* rose-400 — subtractions, destructive */
   --color-app-warning: #FBBF24;       /* amber-400 — medium-severity flags */
   --color-app-info: #38BDF8;          /* sky-400 — informational */
   --color-app-neutral: #6B7280;       /* gray-500 — waterfall anchor bars */
+}
+
+/* Dark-mode defaults for the app tokens. Applied on :root so that
+   dashboards look right even before JS runs (FOUC protection). The
+   inline script in layout.tsx adds .theme-dark or .theme-light; if
+   neither is present we fall through to these dark defaults. */
+:root {
+  --app-canvas: #0A0A0A;
+  --app-card: #161616;
+  --app-card-hover: #1C1C1C;
+  --app-elevated: #1F1F1F;
+  --app-border: #2A2A2A;
+  --app-border-strong: #3A3A3A;
+  --app-text: #F5F5F5;
+  --app-text-muted: #A3A3A3;
+  --app-text-subtle: #737373;
+  --app-text-disabled: #525252;
+}
+
+html.theme-dark {
+  --app-canvas: #0A0A0A;
+  --app-card: #161616;
+  --app-card-hover: #1C1C1C;
+  --app-elevated: #1F1F1F;
+  --app-border: #2A2A2A;
+  --app-border-strong: #3A3A3A;
+  --app-text: #F5F5F5;
+  --app-text-muted: #A3A3A3;
+  --app-text-subtle: #737373;
+  --app-text-disabled: #525252;
+}
+
+/* Light-mode palette — values chosen for WCAG AA contrast on white:
+   #1a1a1a on #fff ≈ 18.5:1, #52525b on #fff ≈ 7.2:1, #71717a on #fff ≈ 4.55:1.
+   Canvas stays on the warm cream already used by the marketing site
+   (--background = #f5f3ef) so a user flipping themes feels one
+   continuous brand across marketing + app. */
+html.theme-light {
+  --app-canvas: #fafaf7;
+  --app-card: #ffffff;
+  --app-card-hover: #f5f3ef;
+  --app-elevated: #ffffff;
+  --app-border: #e5e1db;
+  --app-border-strong: #c8c2b9;
+  --app-text: #1a1a1a;
+  --app-text-muted: #52525b;
+  --app-text-subtle: #71717a;
+  --app-text-disabled: #a1a1aa;
 }
 
 /* ─── Design Tokens ─── */
@@ -543,24 +593,61 @@
 /* ───────────────────────────────────────────────────────────
    LIGHT MODE OVERRIDES (marketing + app shells)
 
-   Strategy: rather than retheme every hardcoded color across
-   the site (which is a hundreds-of-classes lift), we flip the
-   most visible surfaces + text layers when `.theme-light` is
-   on <html>. Primary brand accent (emerald) stays put because
-   it works on both backgrounds.
+   Two-layer strategy:
+
+   1. Token-driven surfaces — `bg-app-canvas`, `text-app-text`,
+      `border-app-border`, etc. flip AUTOMATICALLY because the
+      @theme inline block at the top resolves to var() lookups,
+      and the `html.theme-light` block above redefines those vars.
+      This covers the dashboard / analysis / QoE / integrations
+      surfaces without needing per-class overrides.
+
+   2. Hardcoded-hex fallback — marketing pages and some older
+      app surfaces use literal values like bg-[#0a0a0a] or
+      text-white/60. Those compile to literal CSS that doesn't
+      resolve via tokens, so we rewrite them here with !important.
+
+   Primary brand accent (emerald) stays put because it works on
+   both backgrounds.
    ─────────────────────────────────────────────────────────── */
 html.theme-light {
-  /* ── Canvas + raised surfaces ── */
+  /* ── Canvas + raised surfaces (legacy, still used by a few helpers) ── */
   --surface-base: #fafaf7;
   --surface-raised: #ffffff;
   --surface-overlay: #f5f3ef;
 
-  /* Marketing dark-canvas classes → light */
+  /* Shadcn scoped tokens — keep light-mode palette consistent for
+     any Radix primitives that live inside app routes. */
+  --background: #fafaf7;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --muted: #eae7e1;
+  --muted-foreground: #52525b;
+  --border: #e5e1db;
+  --input: #e5e1db;
+
   background-color: #fafaf7;
 }
 html.theme-light body {
   background-color: #fafaf7;
   color: #1a1a1a;
+}
+
+/* Neutralize the shadcn-installed `.dark` class when the user has
+   explicitly chosen light — otherwise any Radix primitives (dialogs,
+   popovers) inside the app still think they're in dark mode. */
+html.theme-light .dark {
+  --background: #fafaf7;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --border: #e5e1db;
+  --input: #e5e1db;
 }
 
 /* Canvas backgrounds (dark hex → cream) */
@@ -603,6 +690,27 @@ html.theme-light .hover\:bg-white\/10:hover {
 /* Primary + muted text (dark page text on cream canvas) */
 html.theme-light .text-white {
   color: #111827 !important;
+}
+/* Exceptions: when text-white sits on a strong colored background
+   (a CTA button, a status chip), it must stay white. Higher
+   specificity (two class selectors) beats the plain .text-white
+   rule above. */
+html.theme-light .bg-emerald-500.text-white,
+html.theme-light .bg-emerald-400.text-white,
+html.theme-light .bg-emerald-600.text-white,
+html.theme-light .bg-rose-500.text-white,
+html.theme-light .bg-rose-600.text-white,
+html.theme-light .bg-red-500.text-white,
+html.theme-light .bg-red-600.text-white,
+html.theme-light .bg-amber-500.text-white,
+html.theme-light .bg-amber-600.text-white,
+html.theme-light .bg-sky-500.text-white,
+html.theme-light .bg-blue-500.text-white,
+html.theme-light .bg-blue-600.text-white,
+html.theme-light .hover\:bg-emerald-400:hover.text-white,
+html.theme-light .btn-primary,
+html.theme-light .btn-accent {
+  color: #ffffff !important;
 }
 html.theme-light .text-white\/80 { color: rgba(17, 24, 39, 0.85) !important; }
 html.theme-light .text-white\/70 { color: rgba(17, 24, 39, 0.75) !important; }
@@ -656,9 +764,48 @@ html.theme-light .btn-ghost:hover {
   color: #111827;
 }
 
-/* Emerald gradient text stays the same — brand color works on both */
+/* Emerald text shades — bump to darker emerald on light canvas for
+   WCAG contrast. emerald-400 (#34d399) on cream is ~2.5:1, below AA;
+   emerald-700 (#047857) on cream is ~6.8:1. */
+html.theme-light .text-emerald-400,
+html.theme-light .text-emerald-300 {
+  color: #047857 !important;
+}
+html.theme-light .text-emerald-200 {
+  color: #065f46 !important;
+}
+/* Rose / amber / sky — same bump for status text on light */
+html.theme-light .text-rose-400,
+html.theme-light .text-rose-300 { color: #b91c1c !important; }
+html.theme-light .text-amber-400,
+html.theme-light .text-amber-300 { color: #b45309 !important; }
+html.theme-light .text-sky-400,
+html.theme-light .text-sky-300 { color: #0369a1 !important; }
 
 /* Floating CTA shadow — re-tune for light */
 html.theme-light .shadow-\[0_4px_20px_rgba\(52\,211\,153\,0\.3\)\] {
   box-shadow: 0 4px 20px rgba(16, 185, 129, 0.35) !important;
+}
+
+/* App sidebar + chrome on light mode — the `(app)` sidebar reads
+   every surface off token vars, so the sidebar card (bg-app-card)
+   already flips. Make sure the logo wordmark stays legible on light. */
+html.theme-light .text-app-text {
+  color: var(--app-text) !important;
+}
+
+/* Heatmap / severity chips that use tinted backgrounds — keep the
+   tint but flip the text inside so it stays readable. */
+html.theme-light .bg-emerald-500\/10,
+html.theme-light .bg-emerald-500\/\[0\.1\],
+html.theme-light .bg-emerald-500\/\[0\.08\] {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+}
+html.theme-light .bg-rose-500\/10,
+html.theme-light .bg-rose-500\/\[0\.1\] {
+  background-color: rgba(244, 63, 94, 0.12) !important;
+}
+html.theme-light .bg-amber-500\/10,
+html.theme-light .bg-amber-500\/\[0\.1\] {
+  background-color: rgba(245, 158, 11, 0.12) !important;
 }
