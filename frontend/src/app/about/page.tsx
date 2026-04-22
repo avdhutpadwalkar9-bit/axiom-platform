@@ -31,7 +31,7 @@ export default function AboutPage() {
   const milestones = [
     { year: "2024", title: "The idea", desc: "Founded with a vision to democratize financial intelligence for SMBs." },
     { year: "2025", title: "First product", desc: "Launched Trial Balance analyzer with AI-powered insights and GAAP compliance." },
-    { year: "2026", title: "Scaling up", desc: "11 industry verticals, Claude AI integration, and 200+ businesses onboarded." },
+    { year: "2026", title: "Scaling up", desc: "11 industry verticals, multi-model Cognitive Engine in production, and 200+ businesses onboarded." },
     { year: "Next", title: "The future", desc: "Real-time accounting integrations, predictive analytics, and white-label for CA firms." },
   ];
 

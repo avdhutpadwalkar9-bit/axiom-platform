@@ -424,9 +424,10 @@ export default function InLandingPage() {
           </div>
 
           <p className="text-center text-[14px] text-white/55 mt-10 max-w-2xl mx-auto leading-relaxed">
-            All tiers include the CortexAI advisor (Claude-powered,
-            Quick + Think-Deeper), live FX across 5 currencies, and
-            exportable compliance-ready outputs. Upgrade or cancel anytime.
+            All tiers include the CortexAI advisor (our multi-model Cognitive
+            Engine with Quick + Think-Deeper modes), live FX across 5
+            currencies, and exportable compliance-ready outputs. Upgrade or
+            cancel anytime.
           </p>
         </div>
       </section>
@@ -492,10 +493,11 @@ export default function InLandingPage() {
               <h3 className="text-[15px] font-semibold text-white mb-2">
                 Quick + Think-Deeper
               </h3>
-              <p className="text-[13px] text-white/55 leading-relaxed">
-                Quick mode answers in ~2s. Think-Deeper streams
-                Claude Sonnet 4.5's full chain of reasoning before the
-                answer. Use the right one for the question.
+              <p className="text-[14px] text-white/65 leading-relaxed">
+                Quick mode answers in ~2s via our Quick-Match retriever.
+                Think-Deeper routes to the Strategist with extended
+                reasoning, streaming the chain of thought live. Use the
+                right one for the question.
               </p>
             </div>
             <div className="bg-white/[0.02] border border-white/8 rounded-2xl p-6">

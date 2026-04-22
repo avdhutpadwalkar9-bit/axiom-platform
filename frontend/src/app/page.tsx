@@ -697,7 +697,7 @@ export default function LandingPage() {
                 </h1>
 
                 <p className="text-[18px] text-white/55 leading-relaxed max-w-lg mb-8">
-                  What Big-4 charges you $10-25K for, every time you raise capital. We ship it every month, for $299. Powered by Claude, reviewed by a qualified CA.
+                  What Big-4 charges you $10-25K for, every time you raise capital. We ship it every month, for $299. Run by our multi-model Cognitive Engine, reviewed by a qualified CA.
                 </p>
 
                 <div className="flex flex-wrap gap-3 mb-4">
@@ -930,7 +930,7 @@ export default function LandingPage() {
               { label: "SOC 2 data residency", icon: Lock },
               { label: "AES-256 + TLS 1.3", icon: Shield },
               { label: "Certified QuickBooks partner", icon: Plug },
-              { label: "Powered by Claude", icon: Sparkles },
+              { label: "Cognitive Engine inside", icon: Sparkles },
             ].map((badge) => {
               const Icon = badge.icon;
               return (
@@ -1102,7 +1102,7 @@ export default function LandingPage() {
                 step: "02",
                 tag: "Analyse",
                 title: "AI drafts, CPA reviews",
-                desc: "Our Claude-powered agent classifies entries and builds the Adjusted EBITDA schedule. A qualified licensed CPA reviews and signs off before you see it.",
+                desc: "The Classifier tags every entry, the Reasoner builds the Adjusted EBITDA schedule, and the Verifier cross-checks the math against your ledger. A qualified licensed CPA reviews and signs off before you see it.",
                 time: "24–48 hrs",
                 icon: Brain,
               },
@@ -1965,7 +1965,7 @@ export default function LandingPage() {
                 step: "02",
                 phase: "Normalise",
                 title: "Reviewing Brain drafts, CPA reviews",
-                desc: "Our Claude-powered agent classifies vouchers, isolates one-time expenses, and drafts the GAAP-aligned P&L, balance sheet, and Adjusted EBITDA schedule. A qualified licensed CPA then reviews and signs every output before delivery.",
+                desc: "The Cognitive Engine runs your data through Classifier → Reasoner → Verifier → Synthesizer: vouchers get classified, one-time expenses are isolated, and the GAAP-aligned P&L, balance sheet, and Adjusted EBITDA schedule get drafted. A qualified licensed CPA then reviews and signs every output before delivery.",
                 timeline: "24\u201348 hrs",
                 icon: Brain,
               },

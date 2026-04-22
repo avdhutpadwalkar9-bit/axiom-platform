@@ -18,21 +18,21 @@ const MODELS: Array<{
 }> = [
   {
     id: "claude",
-    label: "Claude Sonnet 4",
-    tagline: "Anthropic",
-    hint: "Best reasoning for financial analysis. Default.",
+    label: "Strategist",
+    tagline: "Primary reasoning model",
+    hint: "Best reasoning for financial analysis. Default routing.",
   },
   {
     id: "gemini",
-    label: "Gemini 2.0 Flash",
-    tagline: "Google",
-    hint: "Fast, free-tier fallback when Claude is rate-limited.",
+    label: "Fast Reasoner",
+    tagline: "High-throughput fallback",
+    hint: "Fast fallback when primary queues are saturated.",
   },
   {
     id: "groq",
-    label: "Llama 3.3 70B",
-    tagline: "Groq",
-    hint: "Fastest throughput, open-weights, free-tier fallback.",
+    label: "Scale Reasoner",
+    tagline: "Open-weights throughput",
+    hint: "Maximum throughput for batch operations.",
   },
 ];
 

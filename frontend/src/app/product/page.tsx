@@ -54,7 +54,7 @@ const features: {
   {
     tag: "Real-time AI Chat",
     title: "Ask anything. Get answers with your actual numbers.",
-    desc: "Powered by Claude AI with your financial data loaded. Not generic advice from the internet. Ask about cost reduction, runway projections, hiring impact, or what your auditor would flag. The AI references your specific accounts.",
+    desc: "Our multi-model Cognitive Engine with your financial data loaded — not generic advice from the internet. Ask about cost reduction, runway projections, hiring impact, or what your auditor would flag. Every answer references your specific accounts.",
     img: AskAnythingIllustration,
     icon: Sparkles,
   },
@@ -112,10 +112,12 @@ export default function ProductPage() {
                 Talk to us
               </Link>
             </div>
-            {/* AI logos */}
-            <div className="flex items-center justify-center gap-6 text-xs text-white/20">
-              <span>Powered by</span>
-              <span className="flex items-center gap-1.5 text-white/40"><Sparkles className="w-3.5 h-3.5" /> Claude AI</span>
+            {/* Architecture badge — points at the How It Works page */}
+            <div className="flex items-center justify-center gap-6 text-xs text-white/30">
+              <Link href="/how-it-works" className="flex items-center gap-1.5 text-white/60 hover:text-white transition-colors">
+                <Sparkles className="w-3.5 h-3.5" />
+                Multi-model Cognitive Engine — see how it works
+              </Link>
             </div>
           </FadeIn>
         </div>

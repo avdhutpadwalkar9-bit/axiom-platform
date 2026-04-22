@@ -13,9 +13,9 @@ const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const productLinks = [
-  { label: "Planning", desc: "Plan together with clarity and control.", href: "/product" },
-  { label: "Reporting", desc: "Transform data into story-driven reports.", href: "/product" },
-  { label: "Modeling", desc: "Scalable financial simulations.", href: "/product" },
+  { label: "Product overview", desc: "Full tour of what CortexCFO does.", href: "/product" },
+  { label: "How it works", desc: "The multi-model Cognitive Engine.", href: "/how-it-works" },
+  { label: "Pricing", desc: "Region-aware plans and tiers.", href: "/pricing" },
 ];
 
 const resourceLinks = [
@@ -324,6 +324,7 @@ export default function SiteNav() {
             {[
               { label: "About", href: "/about" },
               { label: "Product", href: "/product" },
+              { label: "How it works", href: "/how-it-works" },
               { label: "Pricing", href: "/pricing" },
               { label: "Knowledge Base", href: "/knowledge-base" },
               { label: "Blog", href: "/blog" },

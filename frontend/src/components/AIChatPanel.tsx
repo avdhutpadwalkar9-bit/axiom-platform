@@ -25,12 +25,12 @@ import { asCurrency, regionFromCurrency } from "@/lib/currency";
 import { useFx } from "@/context/FxContext";
 import { convertAnalysisResult } from "@/lib/fx";
 
-// Model labels shown in the bottom-of-panel badge. Kept in sync with the
-// backend's CLAUDE_MODEL_QUICK / CLAUDE_MODEL_DEEP constants — trust badge
-// that tells the user which tier served their answer.
+// Model labels shown in the bottom-of-panel badge. These surface the
+// role each component of the Cognitive Engine plays — not the underlying
+// provider. See /how-it-works for the full multi-model architecture.
 const MODEL_LABEL: Record<ChatMode, string> = {
-  quick: "Claude Haiku 4.5",
-  deep: "Claude Sonnet 4.5 · Extended Thinking",
+  quick: "Quick-Match + Reasoner",
+  deep: "Strategist · Extended Reasoning",
 };
 
 type ChatRole = "user" | "ai";
@@ -46,7 +46,7 @@ interface ChatMessage {
   source?: ChatSource;
   faqId?: string | null;
   mode?: ChatMode;
-  // Deep-mode streaming: Sonnet's extended-thinking trace, accumulated
+  // Deep-mode streaming: the Strategist model's extended-reasoning trace, accumulated
   // live as SSE chunks arrive. Rendered in a collapsible panel above
   // the main answer so founders can see the reasoning if they want.
   thinking?: string;
@@ -659,7 +659,7 @@ export default function AIChatPanel() {
                       Opening deep-think stream…
                     </span>
                     <span className="text-[10px] text-app-text-subtle">
-                      {elapsed}s &middot; Sonnet 4.5 warming up
+                      {elapsed}s &middot; Strategist warming up
                     </span>
                   </div>
                 </>
@@ -721,8 +721,8 @@ export default function AIChatPanel() {
             className="inline-flex items-center gap-1 text-[10px] text-app-text-subtle"
             title={
               mode === "deep"
-                ? "Deep mode uses Claude Sonnet 4.5 with extended thinking enabled — slower, more considered answers."
-                : "Quick mode uses Claude Haiku 4.5 for fast answers; FAQ matches are served instantly from our seed bank."
+                ? "Deep mode routes to our Strategist model with extended reasoning — slower, more considered answers. See /how-it-works."
+                : "Quick mode uses Quick-Match (FAQ retriever) first, then the Reasoner model if no match — fast answers. See /how-it-works."
             }
           >
             {mode === "deep" ? (

@@ -191,7 +191,7 @@ export default function FeedbackPage() {
           <div className="grid lg:grid-cols-2 gap-4">
             <BreakdownCard
               title="By mode"
-              subtitle="Quick (Haiku) vs Deep (Sonnet + Extended Thinking)"
+              subtitle="Quick (Quick-Match + Reasoner) vs Deep (Strategist + Extended Reasoning)"
               data={stats.by_mode}
               icon={(key) =>
                 key === "deep" ? (

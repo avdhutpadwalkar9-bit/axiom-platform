@@ -65,7 +65,7 @@ const faqData: { category: Category; q: string; a: string }[] = [
   {
     category: "Technical",
     q: "How accurate is the AI analysis?",
-    a: "CortexCFO uses Claude AI combined with deterministic financial models for analysis. Account classification accuracy exceeds 95% across standard Indian chart-of-account formats. All ratio calculations and compliance checks use established formulae. The AI consultant draws insights from your actual data, not generic responses, and cites specific numbers from your financials.",
+    a: "CortexCFO runs a multi-model Cognitive Engine — a pipeline of specialized models (Classifier, Reasoner, Strategist, Verifier, Synthesizer) combined with deterministic financial formulae. Account classification accuracy exceeds 95% across standard chart-of-account formats. All ratio calculations and compliance checks use established formulae. The AI advisor draws insights from your actual data, not generic responses, and cites specific numbers from your financials. See our How It Works page for the full architecture.",
   },
   {
     category: "Technical",

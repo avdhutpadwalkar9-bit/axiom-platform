@@ -123,10 +123,11 @@ class ApiClient {
   // Chat — sends a question to the backend CortexAI advisor.
   //
   // Pipeline (server-side):
-  //   1. mode="quick" → FAQ matcher tries first. Good match → canned
-  //      answer interpolated with user's own numbers, no LLM call.
-  //   2. Anything else → LLM. Quick uses Haiku (~2s), Deep uses
-  //      Sonnet 4 with extended thinking enabled (~15-30s).
+  //   1. mode="quick" → Quick-Match (FAQ retriever) tries first. Good
+  //      match → canned answer interpolated with user's own numbers,
+  //      no model call needed.
+  //   2. Anything else → Reasoner (Quick) or Strategist with extended
+  //      reasoning (Deep). See /how-it-works for the full architecture.
   //
   // Response carries a `source` so the UI can badge "FAQ" vs "AI" for
   // trust + tuning visibility.

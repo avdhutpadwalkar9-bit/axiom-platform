@@ -172,7 +172,7 @@ const jsonLd = {
         "Audit-ready GAAP / Ind AS financial statements",
         "Adjusted EBITDA with documented normalizations",
         "Live FX across USD / EUR / GBP / INR / JPY",
-        "AI CFO advisor (Claude-powered Quick + Think-Deeper modes)",
+        "AI CFO advisor — multi-model Cognitive Engine with Quick + Think-Deeper modes",
         "Scenario planning + 13-week cash forecasting",
       ],
       publisher: { "@id": `${SITE_URL}#organization` },
