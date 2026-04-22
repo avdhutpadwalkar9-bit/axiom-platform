@@ -14,6 +14,9 @@ import {
   Database,
   Clock,
   Sparkles,
+  AlertTriangle,
+  Stethoscope,
+  Mail,
 } from "lucide-react";
 import { FadeIn } from "@/components/Animate";
 import SiteNav from "@/components/SiteNav";
@@ -23,7 +26,9 @@ type Category =
   | "Core Concepts"
   | "Playbooks"
   | "Compliance & Standards"
-  | "Integrations & Data";
+  | "Integrations & Data"
+  | "US Deal Pitfalls"
+  | "Healthcare Sector";
 
 type Article = {
   slug: string;
@@ -45,6 +50,16 @@ const categories: { label: Category; icon: React.ElementType; desc: string }[] =
     label: "Playbooks",
     icon: ClipboardList,
     desc: "Step-by-step guides from finance operators who have run these cycles.",
+  },
+  {
+    label: "US Deal Pitfalls",
+    icon: AlertTriangle,
+    desc: "The findings we see again and again in US QoE — ranked by how often they kill deals.",
+  },
+  {
+    label: "Healthcare Sector",
+    icon: Stethoscope,
+    desc: "Sector-specific diligence patterns for US healthcare — payer mix, physician comp, value-based care.",
   },
   {
     label: "Compliance & Standards",
@@ -428,6 +443,253 @@ const articles: Article[] = [
       "Upload the file to CortexCFO. Our GL parser auto-detects QuickBooks Online's column format (Account / Debit / Credit), classifies every account into a clean chart, runs the ratio pack, and generates the QoE lens automatically. Under a minute end-to-end.",
     ],
   },
+
+  // ==================================================================
+  //  US DEAL PITFALLS — patterns we see repeatedly in US QoE
+  //  engagements. Each entry is written from real findings across
+  //  multiple diligence engagements; the advice is operator-grade, not
+  //  textbook. Ranked roughly by how often each pitfall kills a deal.
+  // ==================================================================
+  {
+    slug: "revenue-bank-statement-variance",
+    title: "When your P&L and your bank statements tell different stories",
+    category: "US Deal Pitfalls",
+    readMin: 6,
+    featured: true,
+    summary:
+      "The first thing any competent QoE team does is a proof-of-cash — reconcile reported revenue against actual bank deposits. We regularly see 20–65% variances. If you can't close that gap in an hour, buyers walk.",
+    body: [
+      "Proof of cash is the single most important — and most under-appreciated — step in US financial due diligence. The logic is simple: if the revenue in your P&L exceeds what actually hit the bank, something is either mistimed or misstated. Every serious buyer will reconcile your top-line revenue against your bank statements month by month before they discuss valuation.",
+      "What we typically find: a 10–15% variance that's explained by legitimate timing (credit card batches, platform holdback periods, intercompany sweeps). A 30–65% variance that's explained by revenue booked but never collected, aggressive cut-off manipulation, or misapplied customer deposits. Either way, the buyer's team marks it for further investigation — and re-trades the purchase price if the gap isn't closed.",
+      "The remedy is mechanical: pull 24 months of bank statements, tag every deposit against the invoice or customer it represents, flag unreconciled items. In a healthy business, 95%+ of revenue ties cleanly to a bank deposit within 7–45 days. In a problematic one, the trail goes cold — and that's the exact moment a deal enters re-trade territory.",
+      "For founders preparing for exit: run your own proof of cash before the buyer's team does. When the gap surfaces in your own pre-diligence, it's a correctable accounting issue. When it surfaces in the buyer's diligence, it's a valuation haircut.",
+    ],
+  },
+  {
+    slug: "marketplace-revenue-concentration",
+    title: "One-channel revenue: the 90% Amazon problem",
+    category: "US Deal Pitfalls",
+    readMin: 5,
+    featured: true,
+    summary:
+      "We've worked engagements where 90%+ of revenue came from a single marketplace (Amazon, Shopify, DoorDash). Buyers treat this as a platform-risk discount of 15–30% on multiple — and sometimes refuse to close at all.",
+    body: [
+      "Channel concentration is one of the most under-appreciated value killers in US lower-middle-market deals. A business selling $4M a year looks the same on paper whether the customers come from one channel or twenty. But to a buyer, those are two completely different businesses — and the valuation reflects that.",
+      "The pattern we see: a D2C brand or aggregator that built on Amazon or Shopify gets 85–95% of revenue from that one platform. Marketing spend is 35–45% of sales, with 90%+ of that going to the same platform's ad network. The platform can change fees (Amazon's referral fee, FBA storage, closing fee), tighten attribution, suspend the listing, or launch a competing private-label SKU any quarter. A single policy change can wipe out 30% of EBITDA overnight.",
+      "The buyer math: if the platform holds the gun, the seller loses the multiple. A business with 60%+ channel concentration trades at 3–4x vs a diversified peer at 6–7x. That's a 30–40% valuation haircut — on top of any operational flags from the diligence.",
+      "The fix takes 12–24 months. Launch a D2C site and drive 15% of revenue through it. Open a wholesale channel (Walmart Marketplace, Target Plus, Faire). Build an email list with direct replenishment. Diversify ad spend beyond the platform's own ad product. Buyers reward the diversification trajectory, not just the endpoint — start early.",
+    ],
+  },
+  {
+    slug: "owner-compensation-normalization-us",
+    title: "Owner pay is the add-back buyers scrutinize first",
+    category: "US Deal Pitfalls",
+    readMin: 5,
+    featured: true,
+    summary:
+      "Every US founder we've taken to market has an above-market salary. The buyer's team will benchmark it, add back the premium, and reject the add-back of the base. Here's how to structure it so the adjustment holds.",
+    body: [
+      "In nearly every US lower-middle-market QoE we've run, the single biggest EBITDA add-back is owner compensation. It's also the most contested. Founders and management both know the number is inflated — but what the add-back should be, and how it's documented, decides whether the buyer accepts it or rejects it at the committee review.",
+      "The rule buyers actually use: benchmark the owner's role against BLS data (or a sector-specific comp study) for their city and industry, then add back only the premium. A founder paying himself $500K in a role BLS pegs at $250K gets a $250K add-back — not $500K. Buyers that see the full $500K proposed will reject it entirely, which is worse than a conservative starting position.",
+      "Related-party rent and management fees are the close second. If the founder owns the building through a separate entity and the Company pays above-market rent, the excess is an add-back. If there's a shared-services LLC charging 3% of revenue for 'management services' without a clear deliverable, that's an add-back too. We've seen $3.3M a year flagged in one engagement — where the shared-services entity ran payroll, IT, and HR for five related companies and inflated the fee to keep a specific margin at the parent.",
+      "What doesn't hold: 'strategic investments' the founder wants added back as one-time. Marketing spend that drove the revenue being purchased, consulting fees that recur every year, and travel that's clearly both business and personal. Documentation is the gating criterion — without a contemporaneous record, buyers cut the add-back to zero.",
+    ],
+  },
+  {
+    slug: "related-party-transactions-us",
+    title: "Related-party flows: the hidden discount on every founder-led business",
+    category: "US Deal Pitfalls",
+    readMin: 5,
+    summary:
+      "A third of the closely-held US businesses we've diligenced had material related-party flows not separately disclosed. Buyers price this as risk — and the pricing is conservative.",
+    body: [
+      "Related-party transactions show up in three flavors in US lower-middle-market deals: above-market rent to owner-held real estate, management fees to a shared-services entity under common control, and inventory or services from a sister company at non-arm's-length pricing. All three require disclosure, documentation, and normalization before a buyer will accept the headline EBITDA.",
+      "The FASB framework is ASC 850. It requires disclosure of the nature of the relationship, the nature and amount of the transactions, and the terms. In practice, what we find in unaudited financials: a rent line item with no supporting lease document, a 'consulting fee' that goes to the founder's wife's LLC, a purchase of inventory from a sister entity at a markup embedded in COGS, or management fees that compound to 5–8% of revenue with no clear deliverable.",
+      "The buyer's playbook: if the amounts are material (>1% of revenue or >5% of EBITDA), require a fair-market-rate analysis before accepting any add-back. If the arrangement continues post-close, bake the new rate into the forecast. If the arrangement ends at close (because the related entity is excluded from the transaction), model the replacement cost — because you WILL need to pay market for that service going forward.",
+      "For founders: disclose early, disclose comprehensively, and be ready with the fair-market analysis. Related-party flows that surface mid-diligence don't just reduce EBITDA — they introduce trust issues that compound every other finding. Transparency up front is worth 0.5–1.0x of multiple.",
+    ],
+  },
+  {
+    slug: "personal-expenses-in-business",
+    title: "The personal-expense audit: $50K in add-backs, $200K in buyer skepticism",
+    category: "US Deal Pitfalls",
+    readMin: 5,
+    summary:
+      "Company cars, club memberships, 'client entertainment' trips, spouse on payroll — every US diligence finds them. The problem isn't the expenses themselves. It's what they signal about everything else in the books.",
+    body: [
+      "In every closely-held US business we've diligenced, management has run some personal expenses through the entity. It's so common that buyers don't moralize about it — they just adjust for it. But the size and type of the personal-expense pattern tells the buyer a great deal about the rigor of the financial reporting, and therefore about what ELSE might be misstated.",
+      "The categories that almost always need normalization: personal auto (company car used 100% personally but deducted as business), club and gym memberships, personal travel coded as 'client entertainment,' charitable donations in the founder's name, gifts to family, home office expenses for a home that isn't a home office, subscriptions the business doesn't use. A typical lower-middle-market QoE will identify $30K–$80K of these per year across 10–15 line items.",
+      "Legitimate add-backs all share three features: (1) they don't recur post-close because the buyer won't incur them, (2) the nature is clearly non-operating (a founder's sailing club membership vs an industry conference), and (3) management can document the personal vs business split. Without those three, the add-back is rejected.",
+      "The cumulative effect on buyer confidence is where it hurts. A business with well-organized add-backs and clear documentation gets a 0.5x premium on multiple vs one that has to be forensically unpacked. Run the exercise yourself 12 months before going to market — put the personal expenses on an owner distribution line where they belong.",
+    ],
+  },
+  {
+    slug: "working-capital-intercompany-ar",
+    title: "Normalized working capital: the deal's other price tag",
+    category: "US Deal Pitfalls",
+    readMin: 6,
+    summary:
+      "Buyers buy cash flow, but they also inherit working capital. The NWC peg — set during diligence — is the second-largest dollar item in most US M&A deals. Getting it wrong costs more than getting the EBITDA wrong.",
+    body: [
+      "Every US M&A transaction includes a working-capital peg: the level of NWC the business is expected to deliver at closing. The buyer and seller negotiate a target (usually the trailing 12-month average). If actual NWC at closing exceeds the target, the seller gets more cash; if it's below, the buyer does. A $50M deal can easily swing $1–3M based on the peg calculation alone.",
+      "What gets adjusted out of reported NWC to arrive at 'normalized' NWC: intercompany due-to / due-from balances (we've seen single entries of $357K excluded), trade receivables aged beyond their stated credit term (typically 30 days past due), related-party receivables where recoverability is uncertain, non-operating accruals like property tax and TDS, customer deposits tied to contracts that won't transfer, and inventory that's obsolete or consigned.",
+      "What gets added back in: accrued payroll if it's within normal cycles, current-period tax accruals that the seller is responsible for, accrued bonuses and commissions tied to revenue earned pre-close. Every one of these requires documentation — and the documentation needs to be contemporaneous, not reconstructed.",
+      "For sellers: run a 24-month NWC trend before going to market. If trailing 12-month NWC is rising (bad — cash is being consumed by the cycle), understand why and be ready to explain. If it's falling (good — cycle is tightening), showcase it. The peg gets set in diligence; the story gets set before diligence.",
+    ],
+  },
+  {
+    slug: "unaudited-financials-year-end",
+    title: "Unaudited financials: what buyers do with the 6-month gap",
+    category: "US Deal Pitfalls",
+    readMin: 4,
+    summary:
+      "Most lower-middle-market US businesses run unaudited. Trailing twelve months includes a period without year-end adjustments. The gap is where the surprises hide.",
+    body: [
+      "US lower-middle-market businesses typically don't carry a full audit. They have a bookkeeper producing monthly financials, a CPA preparing the tax return, and a year-end set of adjusting entries that happens 3–6 months after year-end. When a buyer looks at TTM (trailing twelve months) data, half of it usually reflects pre-adjustment bookkeeping — not final numbers.",
+      "The adjustments that typically materialize at year-end and get missed in interim data: revenue cutoff (receivables recorded in the wrong period), inventory count adjustments, prepaid amortization, accrued expenses (commissions, bonuses, payroll taxes, legal fees), depreciation catch-up, deferred revenue true-ups, and bad-debt provisions. The cumulative effect is often 1–3% of revenue in net EBITDA.",
+      "The way professional buyers handle it: assume that TTM EBITDA will be re-stated down by 1–3% after year-end adjustments. Either build that into the valuation, require an adjusted TTM before close, or hold a portion of the purchase price in escrow until the year-end close is complete and adjustments are known.",
+      "For founders: if you're going to market with a TTM that includes unaudited months, have your CPA run a preliminary year-end review before the data room opens. The cost is $5–10K; the value in pricing defense is 3–5x that.",
+    ],
+  },
+  {
+    slug: "capex-replacement-under-reporting",
+    title: "The $0 balance sheet: when your assets are 'fully depreciated' but still running",
+    category: "US Deal Pitfalls",
+    readMin: 4,
+    summary:
+      "We've seen businesses where 100% of the fixed asset base is fully depreciated and carries $0 net book value — yet the assets are still the backbone of operations. Buyers see a major capex overhang no one has priced in.",
+    body: [
+      "One of the cleanest signals of under-reported capex is a fixed asset schedule where 95–100% of assets are fully depreciated. The P&L looks great (no depreciation hit to EBITDA, no capex line in the cash flow), but the buyer's operational team sees a business about to need a major asset refresh — and prices it accordingly.",
+      "The pattern typically has three drivers: (1) the owner bought equipment 8–12 years ago and has been running it hard, (2) the accounting depreciation schedule (often 5–7 years MACRS) completed well before the economic useful life, and (3) maintenance capex has been booked through repairs and maintenance expense rather than capitalized. Each of those is defensible on its own. Together, they create a significant capex overhang the buyer has to fund post-close.",
+      "The way the buyer models it: estimate replacement cost for each critical asset category (production equipment, delivery vehicles, IT infrastructure, real estate mechanicals), amortize the replacement over the remaining useful life, and treat that amortization as a normalized capex subtraction from EBITDA. In one recent engagement, this single adjustment was $2M annually on a $12M EBITDA business — a 17% EBITDA haircut, worth $8–12M of enterprise value at typical multiples.",
+      "For sellers: if you have fully depreciated assets still in service, get a third-party replacement-cost appraisal before diligence. Including the appraisal in the data room preempts the most aggressive buyer adjustment — you'll keep 0.25x–0.5x of the multiple.",
+    ],
+  },
+  {
+    slug: "franchise-compliance-risks",
+    title: "Franchise deals: the minimum-revenue clause most sellers miss",
+    category: "US Deal Pitfalls",
+    readMin: 4,
+    summary:
+      "Franchise agreements almost always include minimum revenue or billing-hours clauses. Miss them and the franchisor can terminate or revoke exclusivity. We regularly find non-compliance buried in the fine print.",
+    body: [
+      "US franchise agreements — especially in home health, senior care, restaurants, and fitness — typically include protected-territory clauses coupled with minimum-performance obligations. If the franchisee fails to hit minimum gross sales, minimum client hours, or minimum billing volumes, the franchisor has the right to reduce the protected area, appoint an adjacent franchisee, or terminate the agreement.",
+      "The diligence flag we find most often: unaudited internal reports show the franchisee has been at 70–80% of the minimum for multiple consecutive periods, but no notice has been issued by the franchisor. That's not a safety signal — it's a ticking clock. Once the franchisor flags non-compliance (often triggered by a change-of-control request), the buyer is suddenly acquiring a business with an unstable territorial moat.",
+      "The second common flag: insurance coverage mismatches. The franchise agreement requires specific coverages (EPLI, umbrella liability, professional/E&O, abuse and molestation for care businesses), and the Company has let one lapse. Reinstating costs are usually minor; the deal risk is that the franchisor uses the lapse as a termination hook during the change-of-control review.",
+      "For franchisee-sellers: pull the full franchise agreement 90 days before going to market. Pull your trailing 24 months of performance against every stated minimum. Pull current insurance certificates and compare against the schedule of required coverages. Fix everything before the buyer's lawyers read it. The cost of repair is 1/10 the cost of renegotiating purchase price after a finding.",
+    ],
+  },
+
+  // ==================================================================
+  //  HEALTHCARE SECTOR — adapted from the blog corpus (27 sector
+  //  topics). These are the healthcare-specific QoE patterns that
+  //  don't get covered by generic templates. Useful for both PE
+  //  buyers screening targets and sector-specialist sellers.
+  // ==================================================================
+  {
+    slug: "healthcare-qoe-sector-specific",
+    title: "Why generic QoE templates fail in US healthcare",
+    category: "Healthcare Sector",
+    readMin: 6,
+    featured: true,
+    summary:
+      "Healthcare deals carry risks no other sector does — payer concentration, coding clawbacks, physician-owner pay, value-based care performance bonuses. A generic QoE misses most of them.",
+    body: [
+      "Healthcare is the sector where a generic QoE template does the most damage. The revenue engine runs on reimbursement codes from payers with different rules, timing, and denial rates. Earnings are materially affected by coding accuracy (upcoding risk), payer mix shifts, and bundled-payment contracts whose economics change every contract cycle. A template designed for manufacturing or services will systematically under-weight the risks that actually drive valuation.",
+      "The four healthcare-specific adjustments that are almost always needed: (1) normalization of physician-owner compensation against BLS MGMA benchmarks, not peer private-company averages; (2) adjusted EBITDA for COVID-era relief income (PPP, Provider Relief Fund, ARP) which is non-recurring; (3) treatment of value-based-care performance bonuses — are they sustainable run-rate or episodic upside?; and (4) denial rates and bad-debt provisions normalized to sector averages (3–5% for commercial, 8–12% for Medicaid).",
+      "The diligence areas generic templates miss entirely: coding practices (upcoding vs undercoding, and what a CMS Recovery Audit Contractor would find), payer-mix variance (a drop from 60% commercial to 45% commercial changes net yield by 8–12%), reimbursement-delay exposure (claims in the Medicare appeals process), and the regulatory landscape for any stipend arrangements (Stark Law, Anti-Kickback Statute).",
+      "For PE buyers: engage a sector-specialist QoE team for any healthcare deal above $5M EBITDA. For sellers: a pre-transaction healthcare-specific QoE is worth 2–3x the buyer's generic QoE in your own pricing defense.",
+    ],
+  },
+  {
+    slug: "physician-compensation-normalization",
+    title: "Normalizing physician-owner compensation: the MGMA benchmark trap",
+    category: "Healthcare Sector",
+    readMin: 5,
+    summary:
+      "Every PE buyer in physician practice management uses MGMA (Medical Group Management Association) benchmarks to normalize owner pay. Miss the percentile conversation and you leave multiple on the table.",
+    body: [
+      "In physician practice management (PPM) deals, owner-physician compensation is almost always the largest add-back — and the most contested. The benchmark everyone uses is MGMA (or AMGA, or Sullivan Cotter for academic settings). The conversation is about which percentile your physician's true market comp sits at: 50th, 65th, 75th, 90th. That single decision can swing EBITDA by $200–500K per physician.",
+      "The factors that move a physician up the percentile ladder: specialty (cardiology >= primary care), geography (NYC / Bay Area > rural), productivity (wRVUs in top quartile), subspecialty board certification, and book of business (established patient panel). A family physician at $300K in a low-cost market is probably at 60th percentile. The same number in San Francisco is 40th percentile.",
+      "How buyers actually structure the adjustment: calculate the physician's current compensation, pull MGMA median and 75th percentile for their specialty and region, use the 65th percentile as the 'market replacement' rate unless the physician has documented top-quartile productivity. The delta between current pay and the replacement rate is the add-back. Pay above 90th percentile almost never gets fully added back — buyers assume some portion is deserved productivity compensation.",
+      "The Stark-Law / Anti-Kickback overlay: if the physician-owner has ownership interest in ancillary services (imaging, labs, PT) and refers patients to those services, the compensation structure has to be documented as fair market value (FMV) under Stark. Post-close, buyers require FMV opinions for every compensation arrangement — factoring that cost into deal economics.",
+    ],
+  },
+  {
+    slug: "payer-mix-concentration",
+    title: "Payer mix: the concentration risk buyers actually care about",
+    category: "Healthcare Sector",
+    readMin: 5,
+    summary:
+      "'Top 10 customers = 80% of revenue' is one kind of concentration. Healthcare has a worse kind: payer concentration, where a single Medicare rate change can wipe out 20% of EBITDA overnight.",
+    body: [
+      "Customer concentration in healthcare means something different from any other sector. Customers are patients, but the people actually paying are insurance carriers — and five of them (Medicare, Medicaid, United, Anthem, BCBS affiliates) pay for the vast majority of US care. A healthcare business can have 20,000 patients and still have 60% of revenue riding on a single payer's reimbursement decision.",
+      "Why this is different from channel concentration: payer rates can change unilaterally. Medicare's annual Physician Fee Schedule update can move a specialty's reimbursement by 3–8% in either direction. Medicaid rates vary by state and can be cut mid-year in a budget crisis. Commercial payers renegotiate contracts every 2–3 years, usually demanding rate concessions tied to UCR (usual, customary, reasonable) benchmarks the payer controls.",
+      "What professional buyers look for: net yield per unit (visit, procedure, RVU) broken out by payer, trend over trailing 36 months, and scenario modeling of a 5% cut to the top-two payers. If the business can't survive a 5% cut without falling below covenant thresholds, the payer mix is a deal-structure issue, not a commercial risk.",
+      "The mitigation strategies buyers reward: (1) growth of self-pay / concierge / direct-contract segments, (2) participation in value-based-care contracts that include upside, (3) entry into employer-direct or narrow-network contracts where pricing is negotiated individually, and (4) geographic diversification across states with different Medicaid rates. A 10-percentage-point move toward any of these typically gets 0.25–0.5x of multiple credit.",
+    ],
+  },
+  {
+    slug: "home-health-pdgm-lupa",
+    title: "Home health post-PDGM: the 30-day billing reality",
+    category: "Healthcare Sector",
+    readMin: 5,
+    summary:
+      "The Patient-Driven Groupings Model (PDGM) changed home health reimbursement from 60-day episodes to 30-day billing cycles. LUPA thresholds moved. Margin compression is real. QoE has to map it.",
+    body: [
+      "The Patient-Driven Groupings Model (PDGM) took effect January 2020 and remains the most significant change in home health reimbursement in 20 years. It moved the unit of payment from a 60-day episode to a 30-day billing cycle, split each period into early vs late (with lower rates for late), reduced the LUPA (Low Utilization Payment Adjustment) threshold structure, and introduced case-mix adjustment based on clinical grouping.",
+      "The margin impact has been significant and uneven. Agencies with a high mix of behavioral-diagnosis referrals (PDGM clinical group 5, 6) gained. Agencies dependent on musculoskeletal / neuro rehab cases (groups 1–4) lost. Agencies that couldn't staff a sufficient number of visits per period fell into LUPA more frequently — each LUPA flip costs $1,200–1,800 in reimbursement per period.",
+      "What healthcare QoE has to map: trailing 36-month revenue broken by clinical grouping, LUPA rate trend (industry is 8–12%, above 15% is a structural problem), visits per period trend (productivity signal), staffing cost per visit, and referral-source mix (hospitals vs physician offices vs SNFs). The goal is to distinguish a business that's adapting to PDGM from one that's bleeding margin and hasn't realized it yet.",
+      "The specific add-backs buyers will challenge: any treatment of LUPA losses as 'one-time,' any value-based-payment performance incentives booked as recurring, CAAP (Cost Accounting Advance Payment) repayments pushing through working capital, and labor cost inflation that outpaces Medicare's annual market-basket update (which it has, in 2023, 2024, and 2025).",
+    ],
+  },
+  {
+    slug: "value-based-care-earnings",
+    title: "Value-based care EBITDA: sustainable run-rate or shiny episode?",
+    category: "Healthcare Sector",
+    readMin: 5,
+    summary:
+      "As healthcare moves from fee-for-service to value-based care, QoE has to distinguish the shared-savings bonus that shows up every year from the one that landed once and won't return.",
+    body: [
+      "Value-based-care (VBC) contracts — Medicare ACO participation, Medicare Advantage shared savings, commercial shared-risk arrangements — are increasingly common in US primary care, specialist practices, and health systems. They also distort EBITDA in ways a generic QoE misses.",
+      "The structure: the provider earns fee-for-service as a floor, plus a shared-savings bonus if their attributed patient population costs less than benchmarks. Bonuses arrive 12–18 months after the performance year, lump-sum, and can be 5–30% of total revenue in a single quarter when they land. They also reverse — if the next year's cost comes in above benchmark, shared losses claw back previous income.",
+      "QoE treatment: distinguish the sustainable run-rate VBC bonus (consistent year-over-year, evidence of actuarial capability, strong primary-care infrastructure) from an episodic outlier (one lucky year of benign utilization). Buyers use a 36-month rolling average for run-rate, excluding any single year that's more than 2 standard deviations from trend.",
+      "The specific disclosure and documentation requirements: the provider must be able to produce (1) the benchmark methodology for each VBC contract, (2) the true-up timing — when performance-year bonuses are recognized vs when cash arrives, (3) the two-sided risk exposure — what happens in a bad year, and (4) the capability evidence: case-management staffing, care-coordination infrastructure, clinical protocols. Without the infrastructure, the bonus isn't repeatable.",
+    ],
+  },
+  {
+    slug: "behavioral-health-authorization-limits",
+    title: "Behavioral health diligence: authorization limits and the retention problem",
+    category: "Healthcare Sector",
+    readMin: 4,
+    summary:
+      "Behavioral health and substance-use clinics look high-margin on paper, but authorization limits, state-funding exposure, and patient retention create earnings volatility generic QoE can't catch.",
+    body: [
+      "Behavioral health — outpatient therapy, IOP (intensive outpatient), PHP (partial hospitalization), substance-use treatment — has been a high-flow PE investment area since 2019. The margin profile looks attractive: 55–65% gross, 20–30% EBITDA. But the underlying business has three risks that compound in diligence.",
+      "First: authorization limits. Most commercial payers cap the number of therapy sessions, IOP/PHP days, or substance-use episodes per member per year. Revenue growth can reflect volume growth OR it can reflect patients running up to their authorization ceiling. The QoE has to distinguish new-patient growth from continuing-patient-to-ceiling growth — the latter is much less sustainable.",
+      "Second: state funding. Many behavioral-health providers are heavily exposed to Medicaid and state block grants. Medicaid rate changes vary by state and can happen mid-year. Substance-use providers specifically are exposed to Opioid Settlement Funds, SAMHSA grants, and state-specific recovery funds — all of which are time-limited and policy-dependent.",
+      "Third: patient retention and outcomes. Behavioral health has the highest voluntary drop-off rate in healthcare — often 30–50% of referrals never complete an initial assessment, and another 30% drop out before treatment goals are met. QoE needs to map cohort retention by diagnosis, and verify that trailing revenue isn't propped up by one cohort that's finishing out.",
+    ],
+  },
+  {
+    slug: "dental-mso-chain-diligence",
+    title: "Dental MSO diligence: lab cost variance and the doctor-turnover trap",
+    category: "Healthcare Sector",
+    readMin: 4,
+    summary:
+      "Dental support organizations (DSOs) have been one of the most active PE consolidation themes of the last five years. They also have three specific diligence traps generic QoE misses.",
+    body: [
+      "Dental MSO / DSO (dental support organization) consolidation has been one of the most active PE themes of the last five years. The thesis is simple: individual dental practices generate predictable cash with low regulatory risk, buy enough of them and you get scale economies on marketing, supplies, and back office. The diligence is more complex than it looks.",
+      "Trap one: revenue recognition on treatment plans. Ortho and implant cases are typically multi-phase with upfront payments. A practice that recognizes revenue on the initial payment rather than over the treatment period inflates current-period revenue. Post-ASC 606 this should be consistent — but many independent practices weren't fully compliant. The QoE needs to restate treatment-plan revenue to percentage-of-completion.",
+      "Trap two: lab cost variance. Crown, bridge, and implant cases have lab costs of 15–30% of the case fee. Lab costs are typically coded to COGS, but timing of when the lab bills the practice (30–90 days post-case) creates a working-capital risk and distorts monthly GM. Normalized GM requires matching lab costs to the treatment period, not the invoice date.",
+      "Trap three: doctor turnover. The asset that produces the revenue is the dentist. If the dentist in a practice retires, dies, or leaves for a competitor, the patient list goes with them within 6–12 months. Roll-up platforms that don't have documented non-compete and retention agreements for acquired dentists have a structural churn problem the trailing financials don't show.",
+    ],
+  },
+
+  // ==================================================================
+  //  (existing articles continue below if any — this new block sits
+  //  at the end of the array before the closing bracket)
+  // ==================================================================
 ];
 
 export default function KnowledgeBasePage() {
@@ -448,8 +710,13 @@ export default function KnowledgeBasePage() {
 
   const featured = articles.filter((a) => a.featured);
 
-  // Group filtered articles by category for the main list
+  // Group filtered articles by category for the main list. Order
+  // matters here — this dictates the vertical section ordering on the
+  // page. US Deal Pitfalls + Healthcare lead because they're the
+  // highest-credibility content.
   const grouped: Record<Category, Article[]> = {
+    "US Deal Pitfalls": [],
+    "Healthcare Sector": [],
     "Core Concepts": [],
     "Playbooks": [],
     "Compliance & Standards": [],
@@ -621,19 +888,33 @@ export default function KnowledgeBasePage() {
                               className="w-full text-left p-6 flex items-start justify-between gap-6"
                             >
                               <div className="flex-1 min-w-0">
-                                <h3 className="text-[16px] font-semibold text-white mb-2 leading-snug">
+                                {/* Bain-style pill tag row: category +
+                                    featured badge if applicable. Gives
+                                    the eye an anchor before the headline. */}
+                                <div className="flex flex-wrap items-center gap-2 mb-3">
+                                  <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 rounded-full">
+                                    {a.category}
+                                  </span>
+                                  {a.featured && (
+                                    <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] font-semibold text-amber-300 bg-amber-500/10 border border-amber-500/25 px-2.5 py-0.5 rounded-full">
+                                      <Sparkles className="w-2.5 h-2.5" />
+                                      Featured
+                                    </span>
+                                  )}
+                                </div>
+                                <h3 className="text-[17px] font-semibold text-white mb-2 leading-snug">
                                   {a.title}
                                 </h3>
-                                <p className="text-[13px] text-white/45 leading-relaxed">
+                                <p className="text-[14px] text-white/55 leading-relaxed">
                                   {a.summary}
                                 </p>
-                                <p className="text-[11px] text-white/30 mt-3 flex items-center gap-1.5">
+                                <p className="text-[12px] text-white/45 mt-3 flex items-center gap-1.5">
                                   <Clock className="w-3 h-3" />
                                   {a.readMin} min read
                                 </p>
                               </div>
                               <ChevronDown
-                                className={`w-5 h-5 text-white/30 flex-shrink-0 transition-transform ${
+                                className={`w-5 h-5 text-white/40 flex-shrink-0 transition-transform ${
                                   isOpen ? "rotate-180 text-emerald-400" : ""
                                 }`}
                               />
@@ -670,6 +951,64 @@ export default function KnowledgeBasePage() {
             </div>
           )}
         </div>
+      </section>
+
+      {/* Newsletter signup — Bain-inspired. Deliberate, low-friction
+          email capture that gives a reason to come back. Not a hard
+          sell; a "pick up the thread" moment. */}
+      <section className="py-16 px-6 border-t border-white/5">
+        <FadeIn>
+          <div className="max-w-4xl mx-auto">
+            <div className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.08] via-emerald-500/[0.02] to-transparent p-8 lg:p-10">
+              <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
+              <div className="relative grid lg:grid-cols-[1fr_auto] gap-6 lg:gap-10 items-center">
+                <div>
+                  <div className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 rounded-full px-3 py-1 mb-4">
+                    <Mail className="w-3 h-3" />
+                    The CortexCFO Brief
+                  </div>
+                  <h3 className="text-[24px] lg:text-[28px] font-bold tracking-tight mb-2 leading-tight">
+                    One deal pattern. One Friday. Nothing else.
+                  </h3>
+                  <p className="text-[14px] text-white/65 leading-relaxed max-w-lg">
+                    A weekly email with one diligence finding we see over
+                    and over — and how to avoid it. Written for founders,
+                    CFOs, and PE associates who read fast and skip the
+                    rest. Unsubscribe in one click.
+                  </p>
+                </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    // TODO: wire to email capture endpoint when ready.
+                    const input = e.currentTarget.querySelector(
+                      "input[type='email']",
+                    ) as HTMLInputElement | null;
+                    if (input) input.value = "";
+                    alert(
+                      "Thanks — we'll be in touch when the first issue ships.",
+                    );
+                  }}
+                  className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto"
+                >
+                  <input
+                    type="email"
+                    required
+                    placeholder="you@company.com"
+                    className="flex-1 lg:w-64 px-4 py-3 rounded-full bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-[14px] focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06] transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-3 rounded-full transition-all text-[14px] hover:scale-[1.03] hover:shadow-lg hover:shadow-emerald-500/30"
+                  >
+                    Subscribe
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
       </section>
 
       {/* CTA footer */}
