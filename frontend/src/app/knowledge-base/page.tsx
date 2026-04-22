@@ -696,6 +696,41 @@ export default function KnowledgeBasePage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category | "All">("All");
   const [expanded, setExpanded] = useState<string | null>(null);
+  // Newsletter subscribe — local state machine so the form can flip
+  // between idle / submitting / success / error without needing a store.
+  const [subEmail, setSubEmail] = useState("");
+  const [subStatus, setSubStatus] = useState<"idle" | "submitting" | "ok" | "error">("idle");
+  const [subMessage, setSubMessage] = useState<string | null>(null);
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (subStatus === "submitting") return;
+    setSubStatus("submitting");
+    setSubMessage(null);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: subEmail }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error || `Subscription failed (${res.status})`);
+      }
+      setSubStatus("ok");
+      setSubEmail("");
+    } catch (err) {
+      setSubStatus("error");
+      setSubMessage(
+        err instanceof Error
+          ? err.message
+          : "Subscription failed. Please try again.",
+      );
+    }
+  };
 
   const filtered = articles.filter((a) => {
     const matchesCategory = activeCategory === "All" || a.category === activeCategory;
@@ -977,34 +1012,59 @@ export default function KnowledgeBasePage() {
                     rest. Unsubscribe in one click.
                   </p>
                 </div>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    // TODO: wire to email capture endpoint when ready.
-                    const input = e.currentTarget.querySelector(
-                      "input[type='email']",
-                    ) as HTMLInputElement | null;
-                    if (input) input.value = "";
-                    alert(
-                      "Thanks — we'll be in touch when the first issue ships.",
-                    );
-                  }}
-                  className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto"
-                >
-                  <input
-                    type="email"
-                    required
-                    placeholder="you@company.com"
-                    className="flex-1 lg:w-64 px-4 py-3 rounded-full bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-[14px] focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06] transition-colors"
-                  />
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-3 rounded-full transition-all text-[14px] hover:scale-[1.03] hover:shadow-lg hover:shadow-emerald-500/30"
+                {subStatus === "ok" ? (
+                  /* Success state — friendly acknowledgement. Copy matches
+                     the transactional email we just sent so the user sees
+                     the same story inside and outside their inbox. */
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="w-full lg:max-w-sm rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4"
                   >
-                    Subscribe
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
-                </form>
+                    <p className="text-[13px] font-semibold text-emerald-200 mb-1">
+                      Thanks for subscribing.
+                    </p>
+                    <p className="text-[13px] text-emerald-100/80 leading-relaxed">
+                      We&rsquo;re still building the program and it&rsquo;ll take
+                      a few more months to ship — we want to be double-sure on
+                      the encryption and the analysis that comes out of it.
+                      We&rsquo;ll email you the moment the first issue is ready.
+                    </p>
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={handleSubscribe}
+                    className="flex flex-col gap-2 w-full lg:w-auto"
+                  >
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <input
+                        type="email"
+                        required
+                        value={subEmail}
+                        onChange={(e) => setSubEmail(e.target.value)}
+                        disabled={subStatus === "submitting"}
+                        placeholder="you@company.com"
+                        className="flex-1 lg:w-64 px-4 py-3 rounded-full bg-white/[0.04] border border-white/10 text-white placeholder-white/30 text-[14px] focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06] transition-colors disabled:opacity-60"
+                      />
+                      <button
+                        type="submit"
+                        disabled={subStatus === "submitting" || !subEmail.trim()}
+                        className="inline-flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-5 py-3 rounded-full transition-all text-[14px] hover:scale-[1.03] hover:shadow-lg hover:shadow-emerald-500/30 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      >
+                        {subStatus === "submitting" ? "Subscribing…" : "Subscribe"}
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    {subStatus === "error" && subMessage && (
+                      <p
+                        role="alert"
+                        className="text-[12px] text-rose-300 leading-snug"
+                      >
+                        {subMessage}
+                      </p>
+                    )}
+                  </form>
+                )}
               </div>
             </div>
           </div>
