@@ -21,6 +21,12 @@ class UserResponse(BaseModel):
     name: str | None
     is_email_verified: bool
     created_at: datetime
+    # Set by the server based on the AI_ASSISTANT_ALLOWED_EMAILS env var.
+    # Frontend uses this to decide whether to render <AIChatPanel />.
+    # Defaults to True so local / dev environments without the gate set
+    # don't accidentally hide the chat. Real authority is the backend
+    # 403 on /api/chat/*.
+    has_ai_access: bool = True
 
     model_config = {"from_attributes": True}
 

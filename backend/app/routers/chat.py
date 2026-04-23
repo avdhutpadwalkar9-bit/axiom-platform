@@ -27,6 +27,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.database import get_db
 from app.middleware.auth import get_current_user
 from app.models.chat_feedback import ChatFeedback
@@ -37,6 +38,29 @@ from app.services.faq_service import try_faq_answer
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
+
+
+def _require_ai_access(user: User) -> None:
+    """Raise 403 if the user isn't on the AI Assistant allowlist.
+
+    Allowlist is controlled by the AI_ASSISTANT_ALLOWED_EMAILS env var
+    (see app/config.py). Empty env var = no gate. Populated = only
+    listed emails can hit /api/chat/ask + /ask-stream. The frontend
+    hides <AIChatPanel /> for denied users so they never see this 403,
+    but we enforce server-side too so a direct API call can't bypass.
+    """
+    if not settings.user_has_ai_access(user.email):
+        logger.info(
+            "AI Assistant access denied for user %s (email=%s) — not on allowlist",
+            user.id, user.email,
+        )
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "The AI Assistant is currently in a limited beta. "
+                "Your account will gain access as we roll it out more broadly."
+            ),
+        )
 
 
 class ChatMessage(BaseModel):
@@ -110,6 +134,7 @@ async def ask_ai(
     to the LLM. Deep mode skips FAQ entirely — if the user opted in to
     Strategic Thinking they want the model, not a canned template.
     """
+    _require_ai_access(current_user)
     if not data.question.strip():
         raise HTTPException(status_code=400, detail="Question is required")
 
@@ -187,6 +212,7 @@ async def ask_ai_stream(
     regular /ask endpoint (JSON, FAQ-first). Mixing streaming into the
     FAQ path would be pointless — the answer is already local.
     """
+    _require_ai_access(current_user)
     if not data.question.strip():
         raise HTTPException(status_code=400, detail="Question is required")
     if data.mode != "deep":

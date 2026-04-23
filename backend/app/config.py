@@ -37,7 +37,41 @@ class Settings(BaseSettings):
     # "development" | "production". Drives the production guards below.
     ENVIRONMENT: str = "development"
 
+    # Comma-separated email allowlist for the AI Assistant (/api/chat/*).
+    # Empty string = no gate (every verified user can use the chat). When
+    # populated, only the listed emails can call /api/chat/ask and
+    # /api/chat/ask-stream — everyone else gets a 403. Matching is case-
+    # insensitive and trims whitespace. Intentionally an env var rather
+    # than a DB flag so we can change the allowlist without a migration
+    # while the beta is small.
+    AI_ASSISTANT_ALLOWED_EMAILS: str = ""
+
     model_config = {"extra": "ignore"}
+
+    def ai_assistant_allowlist(self) -> set[str]:
+        """Normalized set of allowed emails. Empty set means no gate."""
+        if not self.AI_ASSISTANT_ALLOWED_EMAILS:
+            return set()
+        return {
+            e.strip().lower()
+            for e in self.AI_ASSISTANT_ALLOWED_EMAILS.split(",")
+            if e.strip()
+        }
+
+    def user_has_ai_access(self, email: str | None) -> bool:
+        """True if the email is allowed to use the AI Assistant.
+
+        Rules:
+          - When the allowlist is empty, everyone gets access (dev / early mode)
+          - When populated, only listed emails get access (case-insensitive)
+          - Missing / empty email strings always denied when a list is set
+        """
+        allowlist = self.ai_assistant_allowlist()
+        if not allowlist:
+            return True  # no gate configured
+        if not email:
+            return False
+        return email.strip().lower() in allowlist
 
 
 def _is_production(env_value: str) -> bool:

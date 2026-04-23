@@ -93,9 +93,16 @@ class ApiClient {
   }
 
   async getMe() {
-    return this.request<{ id: string; email: string; name: string | null; is_email_verified: boolean }>(
-      "/api/auth/me"
-    );
+    return this.request<{
+      id: string;
+      email: string;
+      name: string | null;
+      is_email_verified: boolean;
+      // Set by the backend based on the AI_ASSISTANT_ALLOWED_EMAILS
+      // allowlist. Default `true` when the field is missing, which
+      // keeps older backends (pre-gate) working unchanged.
+      has_ai_access?: boolean;
+    }>("/api/auth/me");
   }
 
   async verifyEmail(code: string) {

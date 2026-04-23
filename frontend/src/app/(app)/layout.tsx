@@ -40,6 +40,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [hasAiAccess, setHasAiAccess] = useState(false);
   const [wsOpen, setWsOpen] = useState(false);
   const { business, personal } = useOnboardingStore();
 
@@ -60,6 +61,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           router.replace("/verify-email");
           return;
         }
+        // has_ai_access drives whether we mount <AIChatPanel />. Defaults
+        // to true when the backend doesn't send the field (older build)
+        // so upgrading the frontend ahead of the backend doesn't hide
+        // the chat for everyone.
+        setHasAiAccess(me.has_ai_access !== false);
         setMounted(true);
       } catch {
         if (cancelled) return;
@@ -235,11 +241,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      {/* Floating CFO advisor — visible on every authenticated page.
-          The widget manages its own open/collapsed state and uses the
-          live onboarding + analysis stores so it always sees what the
-          user sees. */}
-      <AIChatPanel />
+      {/* Floating CFO advisor — visible on every authenticated page
+          for users on the AI Assistant allowlist. Users not yet granted
+          access simply don't see the widget (no broken state, no 403
+          surface). Backend enforces the same gate on /api/chat/* so a
+          direct API call from a denied user gets a 403, not silence. */}
+      {hasAiAccess && <AIChatPanel />}
     </div>
     </FxProvider>
   );

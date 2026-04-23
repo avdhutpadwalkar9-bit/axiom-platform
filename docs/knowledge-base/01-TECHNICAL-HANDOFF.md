@@ -566,6 +566,7 @@ All endpoints rooted at `NEXT_PUBLIC_API_URL` (dev: `http://localhost:8000`, pro
 | `FROM_EMAIL` | `CortexCFO <onboarding@resend.dev>` | Swap to verified domain when ready |
 | `VERIFICATION_CODE_EXPIRE_MINUTES` | `10` | |
 | `ENVIRONMENT` | `production` | Triggers the boot guards |
+| `AI_ASSISTANT_ALLOWED_EMAILS` | `avdhut@...,rajan@...` | Comma-separated allowlist for the AI Assistant chat panel. **Empty / unset = every verified user can use it.** When populated, only listed emails can call `/api/chat/ask` + `/ask-stream`; denied users get a 403 and the frontend simply hides `<AIChatPanel />`. Case-insensitive, trims whitespace. See Part 16 below. |
 
 ### Frontend (`.env.local` / `.env.production` + Vercel)
 
@@ -726,7 +727,51 @@ Earlier foundational work (older commits you'll see referenced):
 
 ---
 
-## Part 16 — Handoff checklist for the new engineer
+## Part 16 — AI Assistant email allowlist (abuse prevention)
+
+The Cognitive Engine chat panel (`AIChatPanel`) makes Claude API calls on every Deep-mode question. Without a gate, any verified user can consume our Anthropic budget — a real risk once the site is indexed and strangers can sign up.
+
+### How it works
+
+1. Env var `AI_ASSISTANT_ALLOWED_EMAILS` (backend only, NOT `NEXT_PUBLIC_*`) holds a comma-separated allowlist:
+   ```
+   AI_ASSISTANT_ALLOWED_EMAILS=avdhut@example.com,rajan@example.com,beta.user@company.com
+   ```
+2. `settings.user_has_ai_access(email)` in `backend/app/config.py` does the match. Case-insensitive, trims whitespace, returns `True` if the list is empty (dev default — no gate).
+3. `_require_ai_access(user)` helper in `backend/app/routers/chat.py` is called at the top of both `/api/chat/ask` and `/api/chat/ask-stream`. Raises `HTTPException(403, "limited beta, rolling out...")` on denial.
+4. `/api/auth/me` returns `has_ai_access: bool` computed from the same helper — this is what the frontend reads.
+5. `frontend/src/app/(app)/layout.tsx` reads `me.has_ai_access` after the gate check and passes it to a React state. `<AIChatPanel />` is rendered only when `hasAiAccess === true`. Denied users don't see the widget at all — no 403 surface, no broken UX.
+
+### Two-layer enforcement (on purpose)
+
+| Layer | Purpose | What it catches |
+|---|---|---|
+| Backend 403 on `/api/chat/*` | Real security | Direct API calls, browser-devtools bypass, token stolen from another session |
+| Frontend hide `<AIChatPanel />` | UX | Denied users don't see a floating button they can't use |
+
+Never rely on only the frontend. The backend is authoritative.
+
+### Operational notes
+
+- **Changes are zero-downtime.** Add or remove emails in the env var, redeploy the backend on Render. No DB migration.
+- **No DB field, on purpose.** The allowlist is small (single digits during beta). When we scale beyond ~50 allowed users, move to a `users.has_ai_access` boolean column with a proper admin UI.
+- **Stale frontend protection.** The `has_ai_access` field defaults to `true` when missing from the response, so an older frontend talking to a newer backend (or vice versa) keeps working.
+- **Audit trail.** Denied requests are logged at INFO level in the backend — `logger.info("AI Assistant access denied for user %s ...")`. Helps us see if non-allowlisted users are trying.
+
+### Turning the gate ON
+
+1. Render dashboard → Environment → add `AI_ASSISTANT_ALLOWED_EMAILS` with your allowlist string
+2. Render redeploys automatically (or manual deploy if auto is off)
+3. Wait ~30s for the backend to boot with the new value
+4. Every Authenticated user's next `/auth/me` poll returns the updated `has_ai_access`. Existing logged-in users see the chat disappear on their next navigation.
+
+### Turning it OFF (back to "open to all verified users")
+
+Clear the env var (or unset it) and redeploy. Everyone regains access.
+
+---
+
+## Part 17 — Handoff checklist for the new engineer
 
 Day 1:
 - [ ] Clone repo, run `npm install` in `frontend/`, `pip install -r requirements.txt` in `backend/`

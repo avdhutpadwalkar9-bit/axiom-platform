@@ -3,6 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.database import get_db
 from app.middleware.auth import get_current_user
 from app.models.user import User
@@ -115,7 +116,18 @@ async def refresh(data: RefreshRequest, db: AsyncSession = Depends(get_db)):
 
 @router.get("/me", response_model=UserResponse)
 async def me(current_user: User = Depends(get_current_user)):
-    return current_user
+    # Compose the response so has_ai_access reflects the allowlist at
+    # this moment. ORM objects don't carry that field; we compute it per
+    # request so a newly-added email in the env var takes effect on the
+    # next /auth/me poll without any DB write.
+    return UserResponse(
+        id=current_user.id,
+        email=current_user.email,
+        name=current_user.name,
+        is_email_verified=current_user.is_email_verified,
+        created_at=current_user.created_at,
+        has_ai_access=settings.user_has_ai_access(current_user.email),
+    )
 
 
 @router.post("/verify-email", response_model=MessageResponse)
