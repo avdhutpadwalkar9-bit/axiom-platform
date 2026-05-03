@@ -23,9 +23,18 @@ const jetbrainsMono = JetBrains_Mono({
 const SITE_URL = "https://axiom-platform.vercel.app";
 
 export const metadata: Metadata = {
-  title: "CortexCFO — The FP&A Platform for High-Growth Teams",
+  metadataBase: new URL(SITE_URL),
+  // title.default = the homepage title (route /).
+  // title.template = appended to any child layout's `title` field, so a
+  // page like /pricing that sets title:"Pricing" renders "Pricing · CortexCFO".
+  // Child layouts can also set title.absolute when they want to override
+  // the template entirely (rare).
+  title: {
+    default: "CortexCFO — Investor-ready financial analysis from your trial balance",
+    template: "%s · CortexCFO",
+  },
   description:
-    "CortexCFO is the FP&A platform for high-growth teams. Build flexible financial models, collaborate across departments, and turn data into confident decisions.",
+    "Upload your trial balance. Get a CPA-reviewed Quality-of-Earnings pack — adjusted EBITDA, add-back schedule, compliance flags — in minutes. Built for SMBs preparing for funding, M&A, or growth capital.",
   // Hreflang alternates tell Google which version to serve to which
   // locale. "en-US" → /us (M&A-Readiness positioning, USD pricing).
   // "en-IN" → /in (PE-Readiness positioning, INR pricing, Ind AS).
@@ -40,12 +49,18 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "CortexCFO — The FP&A Platform for High-Growth Teams",
+    title: "CortexCFO — Investor-ready financial analysis from your trial balance",
     description:
-      "AI FP&A for $1M-$10M SMBs. GAAP/Ind AS-clean financials, QoE-ready reports, strategic CFO advisor on call.",
+      "Continuous Quality-of-Earnings, CPA-reviewed, grounded in your ledger. For SMBs preparing for funding, M&A, or growth capital.",
     url: SITE_URL,
     siteName: "CortexCFO",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CortexCFO — Investor-ready financial analysis from your trial balance",
+    description:
+      "Upload your TB → CPA-reviewed QoE pack in minutes. For founders preparing for funding, M&A, or PE.",
   },
 };
 
