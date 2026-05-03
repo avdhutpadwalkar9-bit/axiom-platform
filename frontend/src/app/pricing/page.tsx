@@ -1,8 +1,19 @@
-"use client";
+// Server-rendered pricing page.
+//
+// Why this matters: pricing is the highest-stakes content page on the site.
+// Earlier this file had `"use client"` at the top because the original
+// implementation called `useSearchParams()` to read ?source=onboarding +
+// ?region=us|in. That meant the entire page — plan cards, copy, comparison
+// table — only rendered after JS hydrated. Slow connections, JS blockers,
+// SEO crawlers, and link-preview scrapers all saw an empty shell.
+//
+// Next.js 16 server components receive searchParams as a Promise. We await
+// it once, branch the small region-aware bits, and render the rest as pure
+// HTML. SiteNav, SiteFooter, and FadeIn remain "use client" — Next handles
+// the server/client boundary automatically. The page itself is now a true
+// async server component that ships full content in the initial response.
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 import { ArrowRight, Check, Minus, Sparkles, LayoutDashboard } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
@@ -11,7 +22,8 @@ import { FadeIn } from "@/components/Animate";
 const plans = [
   {
     name: "Diligence Report",
-    price: "\u20B949,000",
+    slug: "diligence-report",
+    price: "₹49,000",
     period: "one-time",
     desc: "For a specific deal or board meeting",
     features: [
@@ -24,12 +36,14 @@ const plans = [
     ],
     highlighted: false,
     cta: "Buy one report",
+    contactOnly: false,
   },
   {
     name: "Growth",
-    price: "\u20B924,999",
+    slug: "growth",
+    price: "₹24,999",
     period: "/month",
-    desc: "For SMBs at \u20B910\u201350M revenue",
+    desc: "For SMBs at ₹10–50M revenue",
     features: [
       "Everything in Diligence Report, monthly",
       "Unlimited QuickBooks/Xero syncs",
@@ -42,10 +56,12 @@ const plans = [
     ],
     highlighted: true,
     cta: "Start 14-day trial",
+    contactOnly: false,
   },
   {
     name: "Portfolio",
-    price: "\u20B91.5 L",
+    slug: "portfolio",
+    price: "₹1.5 L",
     period: "/month per fund",
     desc: "For PE/VC firms with 10+ portfolio cos",
     features: [
@@ -58,9 +74,11 @@ const plans = [
     ],
     highlighted: false,
     cta: "Talk to partnerships",
+    contactOnly: true,
   },
   {
     name: "Enterprise",
+    slug: "enterprise",
     price: "Custom",
     period: "",
     desc: "For CA firms, family offices, holdcos",
@@ -74,16 +92,75 @@ const plans = [
     ],
     highlighted: false,
     cta: "Contact sales",
+    contactOnly: true,
   },
+] as const;
+
+const comparisonRows: Array<{
+  feature: string;
+  diligence: string | boolean;
+  growth: string | boolean;
+  portfolio: string | boolean;
+  enterprise: string | boolean;
+}> = [
+  { feature: "QoE reports", diligence: "1 report", growth: "Monthly", portfolio: "Monthly x all cos", enterprise: "Unlimited" },
+  { feature: "CA sign-off on every report", diligence: true, growth: true, portfolio: true, enterprise: true },
+  { feature: "Adjusted EBITDA + add-back schedule", diligence: true, growth: true, portfolio: true, enterprise: true },
+  { feature: "QuickBooks / Xero sync", diligence: "One-time", growth: "Continuous", portfolio: "Continuous", enterprise: "Continuous" },
+  { feature: "GAAP-aligned P&L, BS, CFS", diligence: true, growth: true, portfolio: true, enterprise: true },
+  { feature: "Industry benchmarks", diligence: false, growth: true, portfolio: true, enterprise: true },
+  { feature: "Multi-year analysis", diligence: false, growth: true, portfolio: true, enterprise: true },
+  { feature: "AI chat on your ledger", diligence: "30-day access", growth: "Unlimited", portfolio: "Unlimited", enterprise: "Unlimited" },
+  { feature: "Portfolio rollup dashboard", diligence: false, growth: false, portfolio: true, enterprise: true },
+  { feature: "White-label / co-brand", diligence: false, growth: false, portfolio: true, enterprise: true },
+  { feature: "API + webhook access", diligence: false, growth: false, portfolio: true, enterprise: true },
+  { feature: "On-premise / VPC", diligence: false, growth: false, portfolio: false, enterprise: true },
+  { feature: "Support", diligence: "Email", growth: "Priority WhatsApp", portfolio: "Dedicated partner lead", enterprise: "Dedicated CSM + SLA" },
 ];
 
-// Separate component so we can wrap useSearchParams in Suspense — Next 16
-// requires it to avoid the "useSearchParams() should be wrapped in a
-// suspense boundary" error at build time.
-function PricingPageInner() {
-  const searchParams = useSearchParams();
-  const region = searchParams.get("region"); // "us" | "in" | null
-  const fromOnboarding = searchParams.get("source") === "onboarding";
+function Cell({
+  value,
+  highlight = false,
+}: {
+  value: string | boolean;
+  highlight?: boolean;
+}) {
+  if (value === true) {
+    return (
+      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+        <Check className={`w-3.5 h-3.5 ${highlight ? "text-emerald-400" : "text-emerald-500"}`} />
+      </span>
+    );
+  }
+  if (value === false) {
+    return (
+      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/5 border border-white/10">
+        <Minus className="w-3.5 h-3.5 text-white/30" />
+      </span>
+    );
+  }
+  return (
+    <span className={`text-[13px] ${highlight ? "text-white font-medium" : "text-white/60"}`}>
+      {value}
+    </span>
+  );
+}
+
+interface PageProps {
+  // Next.js 16 passes searchParams as a Promise to server components.
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function PricingPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const regionRaw = sp.region;
+  const region =
+    typeof regionRaw === "string" && (regionRaw === "us" || regionRaw === "in")
+      ? regionRaw
+      : null;
+  const sourceRaw = sp.source;
+  const fromOnboarding =
+    typeof sourceRaw === "string" && sourceRaw === "onboarding";
   const regionQuery = region ? `&region=${region}` : "";
 
   return (
@@ -92,9 +169,9 @@ function PricingPageInner() {
 
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
-          {/* Onboarding celebration banner — only shows when the user has
-              just completed upload + analysis. Keeps the moment positive
-              and sets context for why they're on pricing. */}
+          {/* Onboarding celebration banner — only renders when arrived
+              from completing the onboarding upload. Server-side branch
+              based on the awaited searchParams; no JS required to show it. */}
           {fromOnboarding && (
             <FadeIn className="max-w-3xl mx-auto mb-10">
               <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-5 lg:p-6">
@@ -132,136 +209,154 @@ function PricingPageInner() {
           )}
 
           <FadeIn className="text-center mb-6">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Pricing</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">
+              Pricing
+            </p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Big-4 charges $10-25K per QoE.
               <br />
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">We ship one every month for $299.</span>
+              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                We ship one every month for $299.
+              </span>
             </h1>
             <p className="text-white/60 text-lg max-w-2xl mx-auto">
               Every report is CPA-signed. No per-seat surprises. Cancel anytime.
             </p>
           </FadeIn>
 
-          {/* Anchor strip */}
+          {/* Anchor strip — Big-4 vs CortexCFO */}
           <FadeIn delay={100}>
             <div className="max-w-3xl mx-auto mb-14 bg-white/[0.02] border border-white/8 rounded-2xl p-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[13px]">
               <div className="flex items-center gap-2">
                 <span className="text-white/40">Big-4 QoE engagement</span>
-                <span className="text-white/60 font-semibold tabular-nums">$6–15 L</span>
+                <span className="text-white/60 font-semibold tabular-nums">
+                  $6–15 L
+                </span>
                 <span className="text-white/30">&middot; 6–8 weeks</span>
               </div>
               <span className="text-white/20">vs.</span>
               <div className="flex items-center gap-2">
-                <span className="text-emerald-400 font-semibold">CortexCFO Growth</span>
+                <span className="text-emerald-400 font-semibold">
+                  CortexCFO Growth
+                </span>
                 <span className="text-white tabular-nums">$299/mo</span>
                 <span className="text-white/30">&middot; continuous</span>
               </div>
             </div>
           </FadeIn>
 
+          {/* Plan grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 pt-4">
-            {plans.map((plan, i) => (
-              <FadeIn key={plan.name} delay={i * 80}>
-                {/* Relative wrapper lives OUTSIDE card-shine so the "Most popular"
-                    ribbon can sit above the card without being clipped by
-                    card-shine's overflow: hidden. */}
-                <div className="relative h-full">
-                  {plan.highlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1.5 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg shadow-emerald-500/30 whitespace-nowrap">
-                      &#9733; Most popular
+            {plans.map((plan, i) => {
+              const ctaHref = plan.contactOnly
+                ? "/contact"
+                : `/checkout?plan=${plan.slug}${regionQuery}`;
+              return (
+                <FadeIn key={plan.name} delay={i * 80}>
+                  <div className="relative h-full">
+                    {plan.highlighted && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1.5 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg shadow-emerald-500/30 whitespace-nowrap">
+                        &#9733; Most popular
+                      </div>
+                    )}
+                    <div
+                      className={`relative p-6 rounded-2xl border h-full card-shine ${
+                        plan.highlighted
+                          ? "border-emerald-500/40 bg-emerald-500/5 glow-border shadow-xl shadow-emerald-500/10"
+                          : "border-white/8 bg-[#111]"
+                      }`}
+                    >
+                      <p className="text-sm text-white/50 mb-1 mt-1">
+                        {plan.name}
+                      </p>
+                      <div className="mb-1">
+                        <span className="text-3xl font-bold">{plan.price}</span>
+                        <span className="text-sm text-white/30 ml-1">
+                          {plan.period}
+                        </span>
+                      </div>
+                      <p className="text-xs text-white/40 mb-6 min-h-[32px]">
+                        {plan.desc}
+                      </p>
+                      <Link
+                        href={ctaHref}
+                        className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${
+                          plan.highlighted
+                            ? "bg-emerald-500 text-white hover:bg-emerald-400 btn-magnetic hover:shadow-lg hover:shadow-emerald-500/30"
+                            : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 hover:border-white/25"
+                        }`}
+                      >
+                        {plan.cta}
+                      </Link>
+                      <ul className="space-y-2.5">
+                        {plan.features.map((f) => (
+                          <li
+                            key={f}
+                            className="flex items-start gap-2 text-sm text-white/55"
+                          >
+                            <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                  )}
-                <div className={`relative p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/40 bg-emerald-500/5 glow-border shadow-xl shadow-emerald-500/10" : "border-white/8 bg-[#111]"}`}>
-                  <p className="text-sm text-white/50 mb-1 mt-1">{plan.name}</p>
-                  <div className="mb-1">
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    <span className="text-sm text-white/30 ml-1">{plan.period}</span>
                   </div>
-                  <p className="text-xs text-white/40 mb-6 min-h-[32px]">{plan.desc}</p>
-                  <Link
-                    href={
-                      plan.name === "Enterprise" || plan.name === "Portfolio"
-                        ? "/contact"
-                        : `/checkout?plan=${encodeURIComponent(plan.name.toLowerCase().replace(/\s+/g, "-"))}${regionQuery}`
-                    }
-                    className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${plan.highlighted ? "bg-emerald-500 text-white hover:bg-emerald-400 btn-magnetic hover:shadow-lg hover:shadow-emerald-500/30" : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 hover:border-white/25"}`}
-                  >
-                    {plan.cta}
-                  </Link>
-                  <ul className="space-y-2.5">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-white/55">
-                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                </div>
-              </FadeIn>
-            ))}
+                </FadeIn>
+              );
+            })}
           </div>
 
           {/* Comparison table */}
           <FadeIn delay={200}>
             <div className="mt-20">
-              <h2 className="text-2xl font-bold text-center mb-3">Compare plans</h2>
-              <p className="text-center text-white/40 text-sm mb-10">Every tier, every report, reviewed and signed off by a qualified licensed CPA.</p>
+              <h2 className="text-2xl font-bold text-center mb-3">
+                Compare plans
+              </h2>
+              <p className="text-center text-white/40 text-sm mb-10">
+                Every tier, every report, reviewed and signed off by a qualified
+                licensed CPA.
+              </p>
               <div className="bg-[#111] rounded-2xl border border-white/8 overflow-x-auto">
                 <table className="w-full text-sm min-w-[720px]">
                   <thead>
                     <tr className="border-b border-white/5">
-                      <th className="text-left px-5 py-4 text-white/30 font-medium">Feature</th>
-                      <th className="text-center px-3 py-4 text-white/50 font-medium">Diligence</th>
-                      <th className="text-center px-3 py-4 text-emerald-400 font-semibold">Growth</th>
-                      <th className="text-center px-3 py-4 text-white/50 font-medium">Portfolio</th>
-                      <th className="text-center px-3 py-4 text-white/50 font-medium">Enterprise</th>
+                      <th className="text-left px-5 py-4 text-white/30 font-medium">
+                        Feature
+                      </th>
+                      <th className="text-center px-3 py-4 text-white/50 font-medium">
+                        Diligence
+                      </th>
+                      <th className="text-center px-3 py-4 text-emerald-400 font-semibold">
+                        Growth
+                      </th>
+                      <th className="text-center px-3 py-4 text-white/50 font-medium">
+                        Portfolio
+                      </th>
+                      <th className="text-center px-3 py-4 text-white/50 font-medium">
+                        Enterprise
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      { feature: "QoE reports", diligence: "1 report", growth: "Monthly", portfolio: "Monthly x all cos", enterprise: "Unlimited" },
-                      { feature: "CA sign-off on every report", diligence: true, growth: true, portfolio: true, enterprise: true },
-                      { feature: "Adjusted EBITDA + add-back schedule", diligence: true, growth: true, portfolio: true, enterprise: true },
-                      { feature: "QuickBooks / Xero sync", diligence: "One-time", growth: "Continuous", portfolio: "Continuous", enterprise: "Continuous" },
-                      { feature: "GAAP-aligned P&L, BS, CFS", diligence: true, growth: true, portfolio: true, enterprise: true },
-                      { feature: "Industry benchmarks", diligence: false, growth: true, portfolio: true, enterprise: true },
-                      { feature: "Multi-year analysis", diligence: false, growth: true, portfolio: true, enterprise: true },
-                      { feature: "AI chat on your ledger", diligence: "30-day access", growth: "Unlimited", portfolio: "Unlimited", enterprise: "Unlimited" },
-                      { feature: "Portfolio rollup dashboard", diligence: false, growth: false, portfolio: true, enterprise: true },
-                      { feature: "White-label / co-brand", diligence: false, growth: false, portfolio: true, enterprise: true },
-                      { feature: "API + webhook access", diligence: false, growth: false, portfolio: true, enterprise: true },
-                      { feature: "On-premise / VPC", diligence: false, growth: false, portfolio: false, enterprise: true },
-                      { feature: "Support", diligence: "Email", growth: "Priority WhatsApp", portfolio: "Dedicated partner lead", enterprise: "Dedicated CSM + SLA" },
-                    ].map((row) => {
-                      const renderCell = (val: string | boolean, highlight = false) => {
-                        if (val === true) {
-                          return (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                              <Check className={`w-3.5 h-3.5 ${highlight ? "text-emerald-400" : "text-emerald-500"}`} />
-                            </span>
-                          );
-                        }
-                        if (val === false) {
-                          return (
-                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/5 border border-white/10">
-                              <Minus className="w-3.5 h-3.5 text-white/30" />
-                            </span>
-                          );
-                        }
-                        return <span className={`text-[13px] ${highlight ? "text-white font-medium" : "text-white/60"}`}>{val}</span>;
-                      };
-                      return (
-                        <tr key={row.feature} className="border-b border-white/3">
-                          <td className="px-5 py-3.5 text-white/55">{row.feature}</td>
-                          <td className="text-center px-3 py-3.5">{renderCell(row.diligence)}</td>
-                          <td className="text-center px-3 py-3.5 bg-emerald-500/[0.03]">{renderCell(row.growth, true)}</td>
-                          <td className="text-center px-3 py-3.5">{renderCell(row.portfolio)}</td>
-                          <td className="text-center px-3 py-3.5">{renderCell(row.enterprise)}</td>
-                        </tr>
-                      );
-                    })}
+                    {comparisonRows.map((row) => (
+                      <tr key={row.feature} className="border-b border-white/3">
+                        <td className="px-5 py-3.5 text-white/55">
+                          {row.feature}
+                        </td>
+                        <td className="text-center px-3 py-3.5">
+                          <Cell value={row.diligence} />
+                        </td>
+                        <td className="text-center px-3 py-3.5 bg-emerald-500/[0.03]">
+                          <Cell value={row.growth} highlight />
+                        </td>
+                        <td className="text-center px-3 py-3.5">
+                          <Cell value={row.portfolio} />
+                        </td>
+                        <td className="text-center px-3 py-3.5">
+                          <Cell value={row.enterprise} />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
@@ -275,26 +370,39 @@ function PricingPageInner() {
         <FadeIn>
           <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/8 rounded-2xl p-6 text-center">
             <p className="text-[13px] text-white/45 leading-relaxed">
-              <span className="text-white/70 font-medium">Advisory, not audit.</span>{" "}
-              CortexCFO produces investor-grade financial analysis reviewed by a qualified licensed CPA.
-              Reports are not a substitute for a statutory audit opinion, a Big-4 Quality-of-Earnings engagement,
-              or independent legal/tax counsel. All outputs are advisory in nature and carry our standard disclaimer and E&amp;O cover.
+              <span className="text-white/70 font-medium">
+                Advisory, not audit.
+              </span>{" "}
+              CortexCFO produces investor-grade financial analysis reviewed by a
+              qualified licensed CPA. Reports are not a substitute for a
+              statutory audit opinion, a Big-4 Quality-of-Earnings engagement,
+              or independent legal/tax counsel. All outputs are advisory in
+              nature and carry our standard disclaimer and E&amp;O cover.
             </p>
           </div>
         </FadeIn>
       </section>
 
-      {/* CTA */}
+      {/* Closing CTA */}
       <section className="py-20 px-6">
         <FadeIn>
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl font-bold mb-4">Not sure which tier fits?</h2>
-            <p className="text-white/40 mb-8">Start with a one-time Diligence Report for $49K. Upgrade to Growth anytime and we&rsquo;ll credit it toward your first month.</p>
+            <p className="text-white/40 mb-8">
+              Start with a one-time Diligence Report for $49K. Upgrade to Growth
+              anytime and we&rsquo;ll credit it toward your first month.
+            </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Link href="/signup" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-xl btn-magnetic text-sm font-semibold">
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-xl btn-magnetic text-sm font-semibold"
+              >
                 Start 14-day trial <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/contact" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white/80 px-8 py-3.5 rounded-xl border border-white/10 text-sm font-semibold transition-all">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white/80 px-8 py-3.5 rounded-xl border border-white/10 text-sm font-semibold transition-all"
+              >
                 Talk to sales
               </Link>
             </div>
@@ -304,19 +412,5 @@ function PricingPageInner() {
 
       <SiteFooter />
     </div>
-  );
-}
-
-export default function PricingPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-[#0a0a0a] text-white">
-          <SiteNav />
-        </div>
-      }
-    >
-      <PricingPageInner />
-    </Suspense>
   );
 }
