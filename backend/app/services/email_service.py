@@ -400,6 +400,157 @@ def send_welcome_email(to_email: str, name: str | None = None) -> bool:
         return False
 
 
+def _build_password_reset_html(reset_url: str, expires_minutes: int) -> str:
+    """Branded password-reset email matching the verification email theme."""
+    return f"""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="margin:0;padding:0;background:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f5;padding:40px 20px;">
+<tr><td align="center">
+
+<table width="520" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+
+  <!-- Brand strip -->
+  <tr>
+    <td style="background:#059669;padding:24px 40px;">
+      <table cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td>
+            <table cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="width:32px;height:32px;background:rgba(255,255,255,0.2);border-radius:8px;text-align:center;vertical-align:middle;">
+                  <span style="color:#ffffff;font-size:16px;font-weight:700;">&#x2197;</span>
+                </td>
+                <td style="padding-left:10px;">
+                  <span style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:-0.3px;">CortexCFO</span>
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td align="right">
+            <span style="color:rgba(255,255,255,0.7);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Password reset</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Body -->
+  <tr>
+    <td style="padding:36px 40px 8px;">
+      <h1 style="margin:0 0 16px;font-size:22px;font-weight:600;color:#1a1a1a;line-height:1.3;">Reset your password</h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#444;line-height:1.7;">
+        We received a request to reset the password on your CortexCFO account.
+        Click the button below to choose a new one.
+      </p>
+    </td>
+  </tr>
+
+  <!-- CTA -->
+  <tr>
+    <td style="padding:8px 40px 24px;">
+      <a href="{reset_url}"
+         style="display:inline-block;background:#10b981;color:#ffffff;font-weight:600;font-size:14px;padding:13px 24px;border-radius:10px;text-decoration:none;">
+        Reset password &rarr;
+      </a>
+      <p style="margin:14px 0 0;font-size:12px;color:#999;line-height:1.55;">
+        This link expires in {expires_minutes} minutes and can only be used once.
+      </p>
+    </td>
+  </tr>
+
+  <!-- Plain URL fallback -->
+  <tr>
+    <td style="padding:0 40px 24px;">
+      <p style="margin:0 0 6px;font-size:12px;color:#888;line-height:1.55;">
+        If the button doesn&rsquo;t work, copy and paste this URL into your browser:
+      </p>
+      <p style="margin:0;font-size:11px;color:#0d6e58;word-break:break-all;font-family:'SF Mono',Monaco,Consolas,monospace;">
+        {reset_url}
+      </p>
+    </td>
+  </tr>
+
+  <!-- Security note -->
+  <tr>
+    <td style="padding:0 40px 28px;">
+      <table cellpadding="0" cellspacing="0" width="100%" style="background:#fafafa;border-radius:8px;padding:14px 16px;">
+        <tr>
+          <td style="vertical-align:top;width:20px;">
+            <span style="font-size:13px;">&#x1f512;</span>
+          </td>
+          <td style="padding-left:8px;">
+            <span style="font-size:12px;color:#777;line-height:1.55;">
+              If you didn&rsquo;t request this, ignore this email and your password
+              stays the same. The link will quietly expire.
+            </span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="background:#fafafa;padding:18px 40px;border-top:1px solid #f0f0f0;">
+      <span style="font-size:11px;color:#bbb;">CortexCFO &middot; AI-powered financial intelligence</span>
+    </td>
+  </tr>
+
+</table>
+
+</td></tr>
+</table>
+
+</body>
+</html>
+"""
+
+
+def send_password_reset_email(to_email: str, reset_url: str, expires_minutes: int = 60) -> bool:
+    """Send a branded password-reset email via Resend.
+
+    The link in the email points at the frontend's /reset-password page
+    with the one-time token in the query string. Always returns True/False
+    so the caller can log delivery success — but we never expose delivery
+    failure to the user (would leak which emails are registered).
+    """
+    if not settings.RESEND_API_KEY:
+        print(f"[DEV] No RESEND_API_KEY set. Reset URL for {to_email}: {reset_url}")
+        return False
+
+    try:
+        import resend
+        resend.api_key = settings.RESEND_API_KEY
+
+        html = _build_password_reset_html(reset_url, expires_minutes)
+
+        result = resend.Emails.send({
+            "from": settings.FROM_EMAIL,
+            "to": [to_email],
+            "subject": "Reset your CortexCFO password",
+            "html": html,
+            "text": (
+                f"We received a request to reset the password on your CortexCFO account.\n\n"
+                f"Reset your password here:\n{reset_url}\n\n"
+                f"This link expires in {expires_minutes} minutes and can only be used once.\n\n"
+                f"If you didn't request this, ignore this email — your password won't change."
+            ),
+        })
+        print(f"[EMAIL] Sent password-reset to {to_email}. Resend response: {result}")
+        return True
+    except Exception as e:
+        print(f"[EMAIL ERROR] Password-reset mail to {to_email} failed: {e}")
+        traceback.print_exc()
+        return False
+
+
 def check_resend_configured() -> dict:
     """Check if Resend is properly configured."""
     has_key = bool(settings.RESEND_API_KEY)

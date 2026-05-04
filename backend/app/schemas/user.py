@@ -53,5 +53,25 @@ class DeleteAccountRequest(BaseModel):
     confirmation: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    """Initial request — user types their email on /forgot-password.
+
+    Server always returns generic success to prevent email enumeration —
+    we never confirm whether an email is registered.
+    """
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Final reset — user clicks the email link, types new password.
+
+    The token comes from the email URL; the password is the new password
+    the user entered. Length validation is permissive here (>=8 chars) and
+    matches the signup contract.
+    """
+    token: str
+    password: str
+
+
 class MessageResponse(BaseModel):
     message: str

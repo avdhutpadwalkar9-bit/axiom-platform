@@ -127,6 +127,27 @@ class ApiClient {
     });
   }
 
+  // Public — no auth required. Always returns a generic success message
+  // ("if an account with that email exists...") so the response itself
+  // can't be used to enumerate registered emails. The 429 cooldown is
+  // surfaced because honest clients don't need to know whether the
+  // email exists to know they're sending too fast.
+  async forgotPassword(email: string) {
+    return this.request<{ message: string }>("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  // Public — no auth required. Token comes from the email URL; new
+  // password is what the user typed on /reset-password.
+  async resetPassword(token: string, password: string) {
+    return this.request<{ message: string }>("/api/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token, password }),
+    });
+  }
+
   // Chat — sends a question to the backend CortexAI advisor.
   //
   // Pipeline (server-side):

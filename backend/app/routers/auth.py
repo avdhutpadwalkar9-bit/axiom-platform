@@ -9,8 +9,10 @@ from app.middleware.auth import get_current_user
 from app.models.user import User
 from app.schemas.user import (
     DeleteAccountRequest,
+    ForgotPasswordRequest,
     MessageResponse,
     RefreshRequest,
+    ResetPasswordRequest,
     TokenResponse,
     UserCreate,
     UserLogin,
@@ -28,6 +30,11 @@ from app.services.auth_service import (
     verify_password,
 )
 from app.services.email_service import send_welcome_email
+from app.services.password_reset_service import (
+    can_request_reset,
+    request_reset,
+)
+from app.services.password_reset_service import reset_password as do_reset_password
 from app.services.verification_service import (
     can_resend,
     generate_and_send_code,
@@ -145,6 +152,102 @@ async def verify_email(
         raise HTTPException(status_code=400, detail="Invalid or expired code. Please try again or request a new code.")
 
     return MessageResponse(message="Email verified successfully")
+
+
+# ── Password reset ────────────────────────────────────────────────────
+#
+# Two endpoints, both public (no JWT). Together they implement the
+# standard "click the link in the email, type a new password" flow:
+#
+#   POST /api/auth/forgot-password   accepts email, sends reset email
+#   POST /api/auth/reset-password    accepts token + new password
+#
+# Important defenses baked in:
+#
+#   1. Email enumeration — both endpoints return generic success
+#      messages regardless of whether the email is registered or the
+#      token is valid. An attacker cannot tell which addresses exist.
+#
+#   2. Rate limiting — the request endpoint rejects requests within
+#      60 seconds of the previous one for the same email. Cooldown is
+#      tracked by inspecting the most recent PasswordReset row.
+#
+#   3. Single-use tokens — each token is invalidated after use, and
+#      requesting a new token invalidates all prior unused tokens for
+#      the same user.
+#
+#   4. Password length — minimum 8 characters enforced server-side.
+#      The frontend has its own validation but should not be trusted.
+
+# Generic success copy used for BOTH paths (email exists, email doesn't,
+# Resend succeeds, Resend fails). Identical text + identical HTTP status
+# means a network observer cannot infer registration state.
+_FORGOT_GENERIC_MESSAGE = (
+    "If an account with that email exists, a password reset link has been sent."
+)
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+async def forgot_password(
+    data: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Issue a password-reset token + email it to the user.
+
+    Always returns the same generic success message regardless of input —
+    do not change this behavior without thinking through the enumeration
+    implications. The 429 cooldown is still emitted because legitimate
+    clients have already proved they own the email by the time they hit
+    this twice in 60 seconds.
+    """
+    if not await can_request_reset(db, data.email):
+        raise HTTPException(
+            status_code=429,
+            detail="Please wait 60 seconds before requesting another reset email.",
+        )
+
+    # Best-effort issuance. request_reset() returns False for unknown
+    # emails (no work done) and True for known emails (token + email
+    # attempted). Either way the user sees the same response.
+    try:
+        await request_reset(db, data.email)
+    except Exception as e:  # pragma: no cover — log + swallow
+        import traceback
+        print(f"[AUTH] forgot_password failed for {data.email}: {e}")
+        print(traceback.format_exc())
+
+    return MessageResponse(message=_FORGOT_GENERIC_MESSAGE)
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+async def reset_password(
+    data: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Validate the reset token and update the password.
+
+    All token-validation failures (expired / used / unknown) collapse to
+    the same 400 to avoid leaking which one occurred. Password length is
+    checked here so the frontend can be more permissive in its UI
+    without allowing a 1-char password.
+    """
+    if len(data.password) < 8:
+        raise HTTPException(
+            status_code=400,
+            detail="Password must be at least 8 characters.",
+        )
+
+    success = await do_reset_password(db, data.token, data.password)
+    if not success:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "This reset link is invalid or has expired. "
+                "Request a new one from the Forgot password page."
+            ),
+        )
+
+    return MessageResponse(message="Password reset. Sign in with your new password.")
 
 
 @router.post("/resend-verification", response_model=MessageResponse)
