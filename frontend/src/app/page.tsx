@@ -110,7 +110,7 @@ const showcaseFeatures = [
   {
     tag: "Reviewing Brain",
     title: "Hunt margin leaks automatically",
-    desc: "Our AI reads every voucher, isolates one-time expenses, and surfaces add-back opportunities the way a Big-4 due diligence team would\u2014every single month.",
+    desc: "Our AI reads every voucher, isolates one-time expenses, and surfaces add-back opportunities the way a diligence team would\u2014every single month, reviewed by a CA before you see it.",
     cta: "See a sample QoE report",
     ctaHref: "/contact",
   },
@@ -556,7 +556,7 @@ const essentialsTabs = [
   {
     icon: Brain,
     title: "Continuous QoE engine",
-    desc: "Every voucher, every month: hunt for margin leaks, isolate one-time expenses, and ship a defensible add-back schedule\u2014the way a Big-4 due diligence team would.",
+    desc: "Every voucher, every month: hunt for margin leaks, isolate one-time expenses, and ship a defensible add-back schedule\u2014diligence-grade output, CA-reviewed, ready for any investor or acquirer.",
     active: true,
     isNew: true,
   },
@@ -689,23 +689,26 @@ export default function LandingPage() {
                 </div>
 
                 <h1 className="text-[48px] md:text-[64px] lg:text-[72px] font-serif-heading font-bold leading-[1.05] tracking-tight text-white mb-6">
-                  The continuous
+                  Investor-ready
                   <br />
-                  <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Quality of Earnings</span>
+                  <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">financial analysis</span>
                   <br />
-                  engine.
+                  from your trial balance.
                 </h1>
 
-                <p className="text-[18px] text-white/55 leading-relaxed max-w-lg mb-8">
-                  What Big-4 charges you $10-25K for, every time you raise capital. We ship it every month, for $299. Run by our multi-model Cognitive Engine, reviewed by a qualified CA.
+                <p className="text-[18px] text-white/65 leading-relaxed max-w-lg mb-8">
+                  Upload QuickBooks, Xero, Tally, Zoho, or an Excel export. CortexCFO produces adjusted EBITDA, QoE flags, compliance checks, and a board-ready report — reviewed by a qualified CA before you see it.
                 </p>
 
                 <div className="flex flex-wrap gap-3 mb-4">
                   <Link href="/signup" className="btn-accent">
-                    Start your 14-day trial
+                    Upload sample financials
                   </Link>
-                  <Link href="/contact" className="inline-flex items-center gap-2 text-white/80 hover:text-white px-5 py-3 rounded-xl border border-white/[0.14] hover:border-white/[0.28] hover:bg-white/[0.03] text-sm font-medium transition-all">
-                    Book a QoE walkthrough
+                  <Link
+                    href="/contact?intent=sample-report"
+                    className="inline-flex items-center gap-2 text-white/80 hover:text-white px-5 py-3 rounded-xl border border-white/[0.14] hover:border-white/[0.28] hover:bg-white/[0.03] text-sm font-medium transition-all"
+                  >
+                    See a sample report
                   </Link>
                 </div>
 
@@ -1166,10 +1169,10 @@ export default function LandingPage() {
               items stripped out. It&apos;s the number every investor, lender, and
               acquirer asks for.
             </p>
-            <p className="text-[17px] text-white/55 leading-relaxed">
-              Big-4 firms charge $10K to build this once a year. We build it
+            <p className="text-[17px] text-white/65 leading-relaxed">
+              Diligence advisors charge ₹6–20L to build this once. We build it
               <span className="text-white"> every month, automatically</span>,
-              so your business stays audit-ready and fundable at all times.
+              so your business stays investor-ready and fundable at all times.
             </p>
           </FadeIn>
 
@@ -1193,7 +1196,7 @@ export default function LandingPage() {
                 icon: Lightbulb,
                 tag: "Defend",
                 title: "Build the add-back schedule",
-                desc: "Ships a board-ready add-back schedule with footnotes the way a Big-4 QoE report would&mdash;ready for any investor, lender, or acquirer.",
+                desc: "Ships a board-ready add-back schedule with footnotes the way a diligence-grade QoE report would&mdash;ready for any investor, lender, or acquirer.",
                 stat: "Replaces $7K+ of one-time advisory work",
               },
             ].map((card, i) => {
@@ -1232,8 +1235,8 @@ export default function LandingPage() {
                 <p className="text-[12px] font-semibold text-white/60 uppercase tracking-wider mb-2">
                   The old way
                 </p>
-                <p className="text-[14px] text-white/50 leading-relaxed">
-                  Hire a Big-4 firm for $10-25K. Wait 6–8 weeks.
+                <p className="text-[14px] text-white/55 leading-relaxed">
+                  Engage a diligence advisor for ₹6–20L. Wait 6–8 weeks.
                   Get a static QoE deck. Repeat next funding round.
                 </p>
               </div>
@@ -1724,7 +1727,7 @@ export default function LandingPage() {
               {
                 icon: Lightbulb,
                 title: "Replace $6\u201315 L per QoE",
-                desc: "Get the Big-4 diligence rigour every month, not once a year\u2014continuous, CPA-signed, at 1/60th the cost.",
+                desc: "Get diligence-grade rigour every month, not once a year\u2014continuous, CA-reviewed, at a fraction of the cost.",
               },
               {
                 icon: Shield,
@@ -1922,13 +1925,13 @@ export default function LandingPage() {
           {/* CTA */}
           <FadeIn delay={200}>
             <div className="text-center mt-12">
-              <p className="text-[16px] text-white/45 mb-6">
-                Replace the $10-25K Big-4 QoE engagement with a
-                $299/month continuous review engine&mdash;every report CPA-signed,
-                every add-back defensible in diligence.
+              <p className="text-[16px] text-white/55 mb-6">
+                Pre-diligence prep the month before you raise: a
+                continuous QoE engine that walks you in audit-ready&mdash;every report
+                CA-reviewed, every add-back defensible.
               </p>
               <Link href="/signup" className="btn-accent">
-                Start your 14-day trial
+                Upload sample financials
               </Link>
             </div>
           </FadeIn>
@@ -2025,9 +2028,9 @@ export default function LandingPage() {
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-[14px] text-white/65 leading-relaxed">
               <span className="text-white/80 font-semibold">Advisory, not audit.</span>{" "}
-              CortexCFO produces investor-grade financial analysis reviewed by a qualified
-              licensed CPA. Outputs are not a substitute for a statutory
-              audit opinion, Big-4 QoE engagement, or independent legal/tax counsel.
+              CortexCFO produces investor-grade financial analysis reviewed by a qualified CA.
+              Outputs are not a substitute for a statutory audit opinion, a formal QoE
+              engagement, or independent legal/tax counsel.
               All reports are advisory in nature and carry our standard disclaimer and E&amp;O cover.
             </p>
           </div>
@@ -2042,7 +2045,7 @@ export default function LandingPage() {
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:scale-105 hover:bg-emerald-400 active:scale-95 transition-all text-[13px] font-semibold"
       >
         <Plug className="w-4 h-4" />
-        Start 14-day trial
+        Upload sample financials
       </Link>
 
       <SiteFooter />

@@ -671,7 +671,7 @@ export default function QoEPage() {
           <div className="mt-6 pt-5 border-t border-app-border/70 text-[11px] text-app-text-subtle leading-relaxed">
             <span className="text-app-text-muted font-medium">Advisory, not audit.</span> This workbook is produced for
             internal review and transaction support. It is not a substitute for a statutory audit opinion or a
-            Big-4 QoE engagement.
+            formal third-party QoE engagement.
           </div>
         </div>
       </div>

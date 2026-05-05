@@ -139,7 +139,7 @@ const TIERS = [
 // Three proof stats — the Libra move, specific to our US pitch.
 const STATS = [
   { value: "10 min", label: "To a QoE-ready report" },
-  { value: "6 weeks", label: "Typical Big-4 QoE timeline" },
+  { value: "6 weeks", label: "Typical advisor QoE timeline" },
   { value: "80%", label: "Reduction in buyer re-trade exposure" },
 ];
 
@@ -203,7 +203,7 @@ export default function UsLandingPage() {
                 and weaken terms. CortexCFO is the AI FP&amp;A engine that
                 shows up to the data room with GAAP-clean statements, a real
                 QoE bridge, and every add-back documented — for a fraction of
-                the Big-4 bill.
+                a one-shot diligence engagement.
               </p>
               <div className="flex items-center gap-3 flex-wrap">
                 <Link

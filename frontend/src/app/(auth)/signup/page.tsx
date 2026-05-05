@@ -67,7 +67,7 @@ export default function SignupPage() {
             <span className="text-lg font-semibold text-app-text">CortexCFO</span>
           </Link>
           <h1 className="text-2xl font-semibold text-app-text">Create your account</h1>
-          <p className="text-sm text-app-text-subtle mt-1">Start your 14-day trial. No card required.</p>
+          <p className="text-sm text-app-text-subtle mt-1">Upload sample financials. No card required.</p>
         </div>
 
         <div className="bg-app-card rounded-xl border border-app-border p-6">

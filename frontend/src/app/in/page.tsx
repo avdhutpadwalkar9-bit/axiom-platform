@@ -147,8 +147,8 @@ const TIERS = [
 // against what the consultancy route actually costs/takes.
 const STATS = [
   { value: "10 min", label: "To a QoE-ready report" },
-  { value: "6 weeks", label: "Typical Big-4 QoE timeline" },
-  { value: "₹15 L", label: "Typical Big-4 QoE fee" },
+  { value: "6 weeks", label: "Typical advisor QoE timeline" },
+  { value: "₹6–20L", label: "Typical advisor QoE fee" },
 ];
 
 // Pain narrative — reframed for Indian diligence patterns. PE and
@@ -225,7 +225,7 @@ export default function InLandingPage() {
                 working-capital cycles. CortexCFO arrives to the data
                 room with Ind AS-clean statements, a defensible QoE
                 bridge, and every add-back documented — for a fraction
-                of the Big-4 fee.
+                of a one-shot diligence engagement.
               </p>
               <div className="flex items-center gap-3 flex-wrap">
                 <Link

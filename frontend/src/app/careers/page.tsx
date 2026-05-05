@@ -57,7 +57,7 @@ const whyJoin = [
   {
     icon: Rocket,
     title: "Real problem, real urgency",
-    desc: "63 million Indian SMEs, most running on spreadsheets, most paying $10-25K for a Big-4 QoE they can't afford. We're closing that gap every month.",
+    desc: "63 million Indian SMEs, most running on spreadsheets, most paying ₹6–20L for a one-shot QoE they can't afford. We're closing that gap every month.",
   },
   {
     icon: Shield,

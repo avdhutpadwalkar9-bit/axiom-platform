@@ -25,12 +25,12 @@ const faqData: { category: Category; q: string; a: string }[] = [
   {
     category: "General",
     q: "How does CortexCFO work?",
-    a: "Upload your Trial Balance in Excel or CSV format from any accounting software such as QuickBooks, Xero, or QuickBooks. CortexCFO automatically classifies your accounts, calculates financial ratios, checks GAAP compliance, and generates a detailed analysis report. You can then ask our AI consultant follow-up questions about your data.",
+    a: "Upload your Trial Balance in Excel or CSV format from any accounting software such as QuickBooks, Xero, Tally, or Zoho Books. CortexCFO automatically classifies your accounts, calculates financial ratios, checks compliance, and generates a detailed QoE-style analysis report. You can then ask our AI consultant follow-up questions about your data.",
   },
   {
     category: "General",
     q: "What file formats does CortexCFO accept?",
-    a: "CortexCFO accepts Trial Balance data in .xlsx, .xls, and .csv formats. The system is designed to work with exports from popular accounting software including QuickBooks Online, QuickBooks Desktop, Xero, QuickBooks, Sage, and FreshBooks. You can also use our standard template for manual uploads.",
+    a: "CortexCFO accepts Trial Balance data in .xlsx, .xls, and .csv formats. The system is designed to work with exports from popular accounting software including QuickBooks Online, QuickBooks Desktop, Xero, Tally, Zoho Books, Sage, and FreshBooks. You can also use our standard template for manual uploads.",
   },
   {
     category: "General",
@@ -39,18 +39,23 @@ const faqData: { category: Category; q: string; a: string }[] = [
   },
   {
     category: "General",
-    q: "Which GAAP standards does CortexCFO cover?",
-    a: "CortexCFO currently reviews compliance against six key Indian Accounting Standards: GAAP 12 (Income Taxes / Deferred Tax), GAAP 15 (Employee Benefits), GAAP 16 (Property, Plant and Equipment), ASC 715 (Retirement Benefits) (Provisions and Contingencies), ASC 850 (Related Party) (Related Party Disclosures), and ASC 450 (Contingencies) (Revenue Recognition). Each review includes severity levels and specific remediation steps.",
+    q: "Which accounting standards does CortexCFO cover?",
+    a: "CortexCFO reviews compliance against the Indian Accounting Standards (Ind AS) most relevant to MSMEs and pre-diligence prep: Ind AS 12 (Income Taxes / Deferred Tax), Ind AS 19 (Employee Benefits), Ind AS 16 (Property, Plant & Equipment), Ind AS 37 (Provisions & Contingencies), Ind AS 24 (Related Party Disclosures), and Ind AS 115 (Revenue Recognition). For US-aligned engagements, CortexCFO also covers ASC 606 (Revenue), ASC 842 (Leases), and ASC 718 (Stock Compensation). Each review includes severity levels and specific remediation steps.",
   },
   {
     category: "Pricing",
-    q: "Is there a free trial available?",
-    a: "Yes. CortexCFO is currently in beta and is free for all early users. You can sign up, upload your Trial Balance, and get a full analysis at no cost. Once we exit beta, early users will receive preferential pricing and a generous free tier.",
+    q: "Is there a free way to try CortexCFO?",
+    a: "Yes. The Free Diagnostic gives you one sample QoE pass on your trial balance, an Adjusted EBITDA preview, and the top 5 add-back flags — at no cost and with no card required. If the report earns your trust, you can upgrade to Investor Readiness or buy a one-time Diligence Pack.",
   },
   {
     category: "Pricing",
     q: "What are the pricing plans?",
-    a: "During beta, CortexCFO is completely free. Post-launch, we will offer a Free tier with limited analyses per month, a Pro tier for growing businesses with unlimited analyses and advanced features, and an Enterprise tier with custom integrations, priority support, and dedicated account management. Pricing will be announced before beta ends.",
+    a: "Three tiers plus Enterprise. Free Diagnostic (₹0) for a one-time sample report. Investor Readiness (₹24,999/month) for continuous QoE monitoring — the pre-diligence prep tier for founders 3–9 months from a raise. Diligence Pack (₹1,49,000 one-time) for a specific deal, term sheet, or board meeting, delivered in 5 business days. Enterprise is custom-priced for PE/VC portfolios, family offices, and CA firms. Full breakdown is on the pricing page.",
+  },
+  {
+    category: "Pricing",
+    q: "If I start with the Free Diagnostic, can I upgrade?",
+    a: "Yes. The Free Diagnostic is designed as the on-ramp. If you upgrade to Investor Readiness or buy a Diligence Pack within 30 days, we credit the value of the diagnostic toward your first month or first report.",
   },
   {
     category: "Security",
@@ -70,7 +75,7 @@ const faqData: { category: Category; q: string; a: string }[] = [
   {
     category: "Technical",
     q: "Does CortexCFO integrate with QuickBooks and Xero?",
-    a: "Currently, CortexCFO works with exported Trial Balance files from QuickBooks and Xero. Direct API integrations with QuickBooks Online, Xero, and other popular accounting software are on our roadmap and expected within the next quarter. This will enable automatic syncing and real-time analysis.",
+    a: "Currently, CortexCFO works with exported Trial Balance files from QuickBooks, Xero, Tally, and Zoho Books — the four formats that cover the vast majority of Indian MSMEs. Direct API integrations are on our roadmap; we prioritise the connector by request volume and partner readiness. If a specific integration matters to your timeline, write to us and we'll tell you exactly where it sits in the queue.",
   },
   {
     category: "Technical",
@@ -102,7 +107,7 @@ export default function FaqPage() {
               Frequently asked questions
             </h1>
             <p className="text-lg text-white/50 max-w-xl mx-auto">
-              Everything you need to know about CortexCFO. Can not find what you are looking for? Reach out to our team.
+              Everything you need to know about CortexCFO. Can&rsquo;t find what you&rsquo;re looking for? Reach out to our team.
             </p>
           </FadeIn>
         </div>
@@ -169,7 +174,7 @@ export default function FaqPage() {
           <div className="max-w-3xl mx-auto text-center bg-white/[0.02] border border-white/8 rounded-2xl p-12">
             <h2 className="text-2xl md:text-3xl font-bold mb-4">Still have questions?</h2>
             <p className="text-white/40 mb-8 max-w-md mx-auto text-sm">
-              Our team is happy to help. Reach out and we will get back to you within 24 hours.
+              Our team is happy to help. Reach out and we&rsquo;ll get back to you within 24 hours.
             </p>
             <Link
               href="/contact"

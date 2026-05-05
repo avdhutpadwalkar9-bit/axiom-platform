@@ -10,79 +10,77 @@ import { FadeIn } from "@/components/Animate";
 
 const plans = [
   {
-    name: "Diligence Report",
-    price: "\u20B949,000",
-    period: "one-time",
-    desc: "For a specific deal or board meeting",
+    name: "Free Diagnostic",
+    price: "₹0",
+    period: "one report",
+    desc: "See what we find before you commit",
     features: [
-      "One full QoE report",
-      "Adjusted EBITDA with add-back schedule",
-      "GAAP-aligned P&L, BS, CFS",
-      "CA sign-off on every report",
-      "30-day access to underlying dashboard",
-      "Delivered in 48 hours",
+      "One sample QoE pass on your trial balance",
+      "Adjusted EBITDA preview",
+      "Top 5 add-back flags",
+      "Compliance scan (GST, TDS, related-party)",
+      "Read-only dashboard for 14 days",
+      "No card required",
     ],
     highlighted: false,
-    cta: "Buy one report",
+    cta: "Upload sample financials",
   },
   {
-    name: "Growth",
-    price: "\u20B924,999",
+    name: "Investor Readiness",
+    price: "₹24,999",
     period: "/month",
-    desc: "For SMBs at \u20B910\u201350M revenue",
+    desc: "Pre-diligence prep — for founders 3–9 months from a raise",
     features: [
-      "Everything in Diligence Report, monthly",
-      "Unlimited QuickBooks/Xero syncs",
-      "Continuous QoE engine",
-      "Multi-year GAAP reports",
-      "Unlimited AI chat",
-      "Industry benchmarks",
-      "Monthly growth SOPs",
+      "Continuous QoE engine, monthly",
+      "Adjusted EBITDA + ranked add-backs",
+      "GAAP-aligned P&L, BS, CFS",
+      "CA-reviewed every month",
+      "QuickBooks / Xero / Tally / Zoho sync",
+      "Multi-year analysis + benchmarks",
+      "Unlimited AI chat on your ledger",
       "Priority WhatsApp support",
     ],
     highlighted: true,
-    cta: "Start 14-day trial",
+    cta: "Start subscription",
   },
   {
-    name: "Portfolio",
-    price: "\u20B91.5 L",
-    period: "/month per fund",
-    desc: "For PE/VC firms with 10+ portfolio cos",
+    name: "Diligence Pack",
+    price: "₹1,49,000",
+    period: "one-time",
+    desc: "For an active deal, term sheet, or board meeting",
     features: [
-      "Everything in Growth, all portfolio cos",
-      "Cross-portfolio dashboard",
-      "White-label reports in your brand",
-      "Quarterly rollup for LPs",
-      "API + webhook access",
-      "Dedicated partner success lead",
+      "One full QoE report, CA-reviewed",
+      "Adjusted EBITDA with full add-back schedule",
+      "Working-capital + debt-like items review",
+      "Compliance + related-party flags",
+      "90-day dashboard access",
+      "Delivered in 5 business days",
+      "Upgrade credit toward Investor Readiness",
     ],
     highlighted: false,
-    cta: "Talk to partnerships",
+    cta: "Buy diligence pack",
   },
   {
     name: "Enterprise",
     price: "Custom",
     period: "",
-    desc: "For CA firms, family offices, holdcos",
+    desc: "PE/VC portfolios, family offices, CA firms",
     features: [
-      "Custom AI models trained on your ledger",
-      "On-premise / VPC deployment",
+      "Multi-entity rollup dashboard",
+      "White-label / co-brand reports",
+      "API + webhook access",
       "SSO + role-based access",
       "Audit trail + compliance controls",
-      "99.9% SLA + dedicated CSM",
-      "GAAP, IFRS, US GAAP",
+      "Dedicated CSM + 99.9% SLA",
     ],
     highlighted: false,
     cta: "Contact sales",
   },
 ];
 
-// Separate component so we can wrap useSearchParams in Suspense — Next 16
-// requires it to avoid the "useSearchParams() should be wrapped in a
-// suspense boundary" error at build time.
 function PricingPageInner() {
   const searchParams = useSearchParams();
-  const region = searchParams.get("region"); // "us" | "in" | null
+  const region = searchParams.get("region");
   const fromOnboarding = searchParams.get("source") === "onboarding";
   const regionQuery = region ? `&region=${region}` : "";
 
@@ -92,9 +90,6 @@ function PricingPageInner() {
 
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto">
-          {/* Onboarding celebration banner — only shows when the user has
-              just completed upload + analysis. Keeps the moment positive
-              and sets context for why they're on pricing. */}
           {fromOnboarding && (
             <FadeIn className="max-w-3xl mx-auto mb-10">
               <div className="relative overflow-hidden rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 via-emerald-500/5 to-transparent p-5 lg:p-6">
@@ -111,9 +106,9 @@ function PricingPageInner() {
                       Pick a plan to unlock continuous monitoring.
                     </h2>
                     <p className="text-[14px] text-white/65 leading-relaxed">
-                      Your first report is already in the dashboard. Paid plans
-                      add live QuickBooks/Xero/Tally sync, monthly CPA-signed
-                      packs, and unlimited AI chat on your ledger.
+                      Your first report is in the dashboard. Paid plans add live
+                      QuickBooks / Xero / Tally sync, monthly CA-reviewed packs,
+                      and unlimited AI chat on your ledger.
                     </p>
                     <div className="mt-3 flex flex-wrap gap-3">
                       <Link
@@ -121,7 +116,7 @@ function PricingPageInner() {
                         className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white/80 hover:text-white transition-colors"
                       >
                         <LayoutDashboard className="w-3.5 h-3.5" />
-                        Skip for now — open dashboard
+                        Skip for now &mdash; open dashboard
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
                     </div>
@@ -134,27 +129,27 @@ function PricingPageInner() {
           <FadeIn className="text-center mb-6">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Pricing</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Big-4 charges $10-25K per QoE.
+              Pre-diligence prep, before you raise.
               <br />
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">We ship one every month for $299.</span>
+              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">Investor-ready, every month.</span>
             </h1>
-            <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              Every report is CPA-signed. No per-seat surprises. Cancel anytime.
+            <p className="text-white/65 text-lg max-w-2xl mx-auto">
+              Every report is CA-reviewed. Start free, upgrade when you&rsquo;re ready, cancel anytime.
             </p>
           </FadeIn>
 
-          {/* Anchor strip */}
+          {/* Anchor strip — pre-diligence prep vs full diligence */}
           <FadeIn delay={100}>
             <div className="max-w-3xl mx-auto mb-14 bg-white/[0.02] border border-white/8 rounded-2xl p-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[13px]">
               <div className="flex items-center gap-2">
-                <span className="text-white/40">Big-4 QoE engagement</span>
-                <span className="text-white/60 font-semibold tabular-nums">$6–15 L</span>
-                <span className="text-white/30">&middot; 6–8 weeks</span>
+                <span className="text-white/45">Full diligence engagement</span>
+                <span className="text-white/65 font-semibold tabular-nums">&#8377;6&ndash;20 L</span>
+                <span className="text-white/30">&middot; 6&ndash;8 weeks</span>
               </div>
               <span className="text-white/20">vs.</span>
               <div className="flex items-center gap-2">
-                <span className="text-emerald-400 font-semibold">CortexCFO Growth</span>
-                <span className="text-white tabular-nums">$299/mo</span>
+                <span className="text-emerald-400 font-semibold">Investor Readiness</span>
+                <span className="text-white tabular-nums">&#8377;24,999/mo</span>
                 <span className="text-white/30">&middot; continuous</span>
               </div>
             </div>
@@ -163,41 +158,40 @@ function PricingPageInner() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 pt-4">
             {plans.map((plan, i) => (
               <FadeIn key={plan.name} delay={i * 80}>
-                {/* Relative wrapper lives OUTSIDE card-shine so the "Most popular"
-                    ribbon can sit above the card without being clipped by
-                    card-shine's overflow: hidden. */}
                 <div className="relative h-full">
                   {plan.highlighted && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1.5 bg-emerald-500 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg shadow-emerald-500/30 whitespace-nowrap">
                       &#9733; Most popular
                     </div>
                   )}
-                <div className={`relative p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/40 bg-emerald-500/5 glow-border shadow-xl shadow-emerald-500/10" : "border-white/8 bg-[#111]"}`}>
-                  <p className="text-sm text-white/50 mb-1 mt-1">{plan.name}</p>
-                  <div className="mb-1">
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    <span className="text-sm text-white/30 ml-1">{plan.period}</span>
+                  <div className={`relative p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/40 bg-emerald-500/5 glow-border shadow-xl shadow-emerald-500/10" : "border-white/8 bg-[#111]"}`}>
+                    <p className="text-sm text-white/50 mb-1 mt-1">{plan.name}</p>
+                    <div className="mb-1">
+                      <span className="text-3xl font-bold">{plan.price}</span>
+                      <span className="text-sm text-white/30 ml-1">{plan.period}</span>
+                    </div>
+                    <p className="text-xs text-white/45 mb-6 min-h-[32px]">{plan.desc}</p>
+                    <Link
+                      href={
+                        plan.name === "Enterprise"
+                          ? "/contact"
+                          : plan.name === "Free Diagnostic"
+                            ? `/signup${region ? `?region=${region}` : ""}`
+                            : `/checkout?plan=${encodeURIComponent(plan.name.toLowerCase().replace(/\s+/g, "-"))}${regionQuery}`
+                      }
+                      className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${plan.highlighted ? "bg-emerald-500 text-white hover:bg-emerald-400 btn-magnetic hover:shadow-lg hover:shadow-emerald-500/30" : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 hover:border-white/25"}`}
+                    >
+                      {plan.cta}
+                    </Link>
+                    <ul className="space-y-2.5">
+                      {plan.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-sm text-white/60">
+                          <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <p className="text-xs text-white/40 mb-6 min-h-[32px]">{plan.desc}</p>
-                  <Link
-                    href={
-                      plan.name === "Enterprise" || plan.name === "Portfolio"
-                        ? "/contact"
-                        : `/checkout?plan=${encodeURIComponent(plan.name.toLowerCase().replace(/\s+/g, "-"))}${regionQuery}`
-                    }
-                    className={`block text-center py-2.5 rounded-xl text-sm font-medium mb-6 transition-all ${plan.highlighted ? "bg-emerald-500 text-white hover:bg-emerald-400 btn-magnetic hover:shadow-lg hover:shadow-emerald-500/30" : "bg-white/5 text-white/70 hover:bg-white/10 border border-white/10 hover:border-white/25"}`}
-                  >
-                    {plan.cta}
-                  </Link>
-                  <ul className="space-y-2.5">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-white/55">
-                        <Check className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
                 </div>
               </FadeIn>
             ))}
@@ -207,33 +201,35 @@ function PricingPageInner() {
           <FadeIn delay={200}>
             <div className="mt-20">
               <h2 className="text-2xl font-bold text-center mb-3">Compare plans</h2>
-              <p className="text-center text-white/40 text-sm mb-10">Every tier, every report, reviewed and signed off by a qualified licensed CPA.</p>
+              <p className="text-center text-white/45 text-sm mb-10">
+                Every tier, every report, reviewed and signed off by a qualified CA.
+              </p>
               <div className="bg-[#111] rounded-2xl border border-white/8 overflow-x-auto">
                 <table className="w-full text-sm min-w-[720px]">
                   <thead>
                     <tr className="border-b border-white/5">
                       <th className="text-left px-5 py-4 text-white/30 font-medium">Feature</th>
-                      <th className="text-center px-3 py-4 text-white/50 font-medium">Diligence</th>
-                      <th className="text-center px-3 py-4 text-emerald-400 font-semibold">Growth</th>
-                      <th className="text-center px-3 py-4 text-white/50 font-medium">Portfolio</th>
+                      <th className="text-center px-3 py-4 text-white/50 font-medium">Free Diagnostic</th>
+                      <th className="text-center px-3 py-4 text-emerald-400 font-semibold">Investor Readiness</th>
+                      <th className="text-center px-3 py-4 text-white/50 font-medium">Diligence Pack</th>
                       <th className="text-center px-3 py-4 text-white/50 font-medium">Enterprise</th>
                     </tr>
                   </thead>
                   <tbody>
                     {[
-                      { feature: "QoE reports", diligence: "1 report", growth: "Monthly", portfolio: "Monthly x all cos", enterprise: "Unlimited" },
-                      { feature: "CA sign-off on every report", diligence: true, growth: true, portfolio: true, enterprise: true },
-                      { feature: "Adjusted EBITDA + add-back schedule", diligence: true, growth: true, portfolio: true, enterprise: true },
-                      { feature: "QuickBooks / Xero sync", diligence: "One-time", growth: "Continuous", portfolio: "Continuous", enterprise: "Continuous" },
-                      { feature: "GAAP-aligned P&L, BS, CFS", diligence: true, growth: true, portfolio: true, enterprise: true },
-                      { feature: "Industry benchmarks", diligence: false, growth: true, portfolio: true, enterprise: true },
-                      { feature: "Multi-year analysis", diligence: false, growth: true, portfolio: true, enterprise: true },
-                      { feature: "AI chat on your ledger", diligence: "30-day access", growth: "Unlimited", portfolio: "Unlimited", enterprise: "Unlimited" },
-                      { feature: "Portfolio rollup dashboard", diligence: false, growth: false, portfolio: true, enterprise: true },
-                      { feature: "White-label / co-brand", diligence: false, growth: false, portfolio: true, enterprise: true },
-                      { feature: "API + webhook access", diligence: false, growth: false, portfolio: true, enterprise: true },
-                      { feature: "On-premise / VPC", diligence: false, growth: false, portfolio: false, enterprise: true },
-                      { feature: "Support", diligence: "Email", growth: "Priority WhatsApp", portfolio: "Dedicated partner lead", enterprise: "Dedicated CSM + SLA" },
+                      { feature: "QoE reports", free: "1 sample", growth: "Monthly", diligence: "1 full report", enterprise: "Unlimited" },
+                      { feature: "CA review on every report", free: false, growth: true, diligence: true, enterprise: true },
+                      { feature: "Adjusted EBITDA + add-back schedule", free: "Top 5 only", growth: true, diligence: true, enterprise: true },
+                      { feature: "QuickBooks / Xero / Tally / Zoho sync", free: "One-time", growth: "Continuous", diligence: "One-time", enterprise: "Continuous" },
+                      { feature: "GAAP-aligned P&L, BS, CFS", free: false, growth: true, diligence: true, enterprise: true },
+                      { feature: "Working-capital + debt-like items review", free: false, growth: true, diligence: true, enterprise: true },
+                      { feature: "Compliance + related-party flags", free: true, growth: true, diligence: true, enterprise: true },
+                      { feature: "Multi-year analysis + benchmarks", free: false, growth: true, diligence: true, enterprise: true },
+                      { feature: "AI chat on your ledger", free: "Read-only 14d", growth: "Unlimited", diligence: "90-day access", enterprise: "Unlimited" },
+                      { feature: "Multi-entity rollup", free: false, growth: false, diligence: false, enterprise: true },
+                      { feature: "White-label / co-brand", free: false, growth: false, diligence: false, enterprise: true },
+                      { feature: "API + webhook access", free: false, growth: false, diligence: false, enterprise: true },
+                      { feature: "Support", free: "Community", growth: "Priority WhatsApp", diligence: "Email + WhatsApp", enterprise: "Dedicated CSM + SLA" },
                     ].map((row) => {
                       const renderCell = (val: string | boolean, highlight = false) => {
                         if (val === true) {
@@ -255,9 +251,9 @@ function PricingPageInner() {
                       return (
                         <tr key={row.feature} className="border-b border-white/3">
                           <td className="px-5 py-3.5 text-white/55">{row.feature}</td>
-                          <td className="text-center px-3 py-3.5">{renderCell(row.diligence)}</td>
+                          <td className="text-center px-3 py-3.5">{renderCell(row.free)}</td>
                           <td className="text-center px-3 py-3.5 bg-emerald-500/[0.03]">{renderCell(row.growth, true)}</td>
-                          <td className="text-center px-3 py-3.5">{renderCell(row.portfolio)}</td>
+                          <td className="text-center px-3 py-3.5">{renderCell(row.diligence)}</td>
                           <td className="text-center px-3 py-3.5">{renderCell(row.enterprise)}</td>
                         </tr>
                       );
@@ -274,11 +270,12 @@ function PricingPageInner() {
       <section className="px-6 pb-6">
         <FadeIn>
           <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/8 rounded-2xl p-6 text-center">
-            <p className="text-[13px] text-white/45 leading-relaxed">
-              <span className="text-white/70 font-medium">Advisory, not audit.</span>{" "}
-              CortexCFO produces investor-grade financial analysis reviewed by a qualified licensed CPA.
-              Reports are not a substitute for a statutory audit opinion, a Big-4 Quality-of-Earnings engagement,
-              or independent legal/tax counsel. All outputs are advisory in nature and carry our standard disclaimer and E&amp;O cover.
+            <p className="text-[13px] text-white/55 leading-relaxed">
+              <span className="text-white/75 font-medium">Advisory, not audit.</span>{" "}
+              CortexCFO produces investor-grade financial analysis reviewed by a qualified CA.
+              Reports are not a substitute for a statutory audit opinion, a formal third-party
+              Quality-of-Earnings engagement, or independent legal/tax counsel. All outputs are
+              advisory in nature and carry our standard disclaimer and E&amp;O cover.
             </p>
           </div>
         </FadeIn>
@@ -289,10 +286,13 @@ function PricingPageInner() {
         <FadeIn>
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl font-bold mb-4">Not sure which tier fits?</h2>
-            <p className="text-white/40 mb-8">Start with a one-time Diligence Report for $49K. Upgrade to Growth anytime and we&rsquo;ll credit it toward your first month.</p>
+            <p className="text-white/55 mb-8">
+              Start with the Free Diagnostic. If the report earns your trust, upgrade to
+              Investor Readiness and we&rsquo;ll credit the diagnostic toward your first month.
+            </p>
             <div className="flex flex-wrap justify-center gap-3">
               <Link href="/signup" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-xl btn-magnetic text-sm font-semibold">
-                Start 14-day trial <ArrowRight className="w-4 h-4" />
+                Upload sample financials <ArrowRight className="w-4 h-4" />
               </Link>
               <Link href="/contact" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white/80 px-8 py-3.5 rounded-xl border border-white/10 text-sm font-semibold transition-all">
                 Talk to sales
