@@ -663,7 +663,7 @@ export default function LandingPage() {
                 <div className="flex flex-wrap items-center gap-3 mb-6">
                   <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full">
                     <Sparkles className="w-3 h-3" />
-                    For SMBs preparing for PE, M&amp;A, or growth capital
+                    For ₹10–50 Cr / $1–10M businesses preparing to raise
                   </div>
                   {/* Inline region toggle — one click to the region-tailored
                       landing. Replaces the silent timezone-based nudge for
@@ -965,8 +965,8 @@ export default function LandingPage() {
             <h2 className="text-[32px] md:text-[42px] font-serif-heading font-bold text-white leading-[1.15] mb-4">
               Built for the people who actually own the number
             </h2>
-            <p className="text-base text-white/55 max-w-[640px] mx-auto">
-              CortexCFO is the FP&amp;A engine SMBs in the $1-10M
+            <p className="text-base text-white/65 max-w-[640px] mx-auto">
+              CortexCFO is the QoE engine SMBs in the ₹10–50 Cr / $1–10M
               band use before they can afford a full-time CFO &mdash; and
               before every investor call asks &ldquo;what&rsquo;s your normalised EBITDA?&rdquo;
             </p>

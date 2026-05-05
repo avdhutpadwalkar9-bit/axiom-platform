@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { ArrowRight, Check, Minus, Sparkles, LayoutDashboard } from "lucide-react";
+import { ArrowRight, Check, Minus, Sparkles, LayoutDashboard, Compass } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import { FadeIn } from "@/components/Animate";
@@ -264,6 +264,47 @@ function PricingPageInner() {
             </div>
           </FadeIn>
         </div>
+      </section>
+
+      {/* Where we're NOT the right fit — honesty as trust signal.
+          Explicitly names alternatives instead of pretending to fit
+          everyone, which is the play every other FP&A vendor makes. */}
+      <section className="px-6 pb-12">
+        <FadeIn>
+          <div className="max-w-4xl mx-auto bg-white/[0.02] border border-white/8 rounded-2xl p-7 md:p-8">
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                <Compass className="w-5 h-5 text-white/50" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[18px] font-semibold text-white mb-2">
+                  Where CortexCFO isn&rsquo;t the right fit
+                </h3>
+                <p className="text-[14px] text-white/65 leading-relaxed mb-3">
+                  We&rsquo;re built for ₹10–50 Cr / $1–10M founders running a single
+                  business toward their next raise or sale. We&rsquo;re honest about
+                  where the fit breaks:
+                </p>
+                <ul className="space-y-1.5 text-[13.5px] text-white/55 leading-relaxed">
+                  <li>
+                    &mdash; Group revenue past <span className="text-white/75">₹500 Cr / $50M</span>{" "}
+                    or 10+ entities needing real-time consolidation? Look at{" "}
+                    <span className="text-white/75">Anaplan, Workday Adaptive, or Pigment</span>.
+                  </li>
+                  <li>
+                    &mdash; Need a statutory audit opinion or signed SAS-100 report?{" "}
+                    Engage your statutory auditor or a registered CA firm directly.
+                  </li>
+                  <li>
+                    &mdash; Active sell-side process with a signed LOI?{" "}
+                    Buy the Diligence Pack from us, but also engage a transaction
+                    advisor (BDO, Grant Thornton, Nexdigm, or similar) to sit alongside.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </FadeIn>
       </section>
 
       {/* Disclaimer */}

@@ -200,10 +200,10 @@ export default function UsLandingPage() {
               </h1>
               <p className="text-[17px] text-white/60 leading-relaxed mb-7 max-w-[500px]">
                 Buyers dig deep. Surprises erode credibility, extend diligence,
-                and weaken terms. CortexCFO is the AI FP&amp;A engine that
+                and weaken terms. CortexCFO is the QoE engine that
                 shows up to the data room with GAAP-clean statements, a real
-                QoE bridge, and every add-back documented — for a fraction of
-                a one-shot diligence engagement.
+                Adjusted EBITDA bridge, and every add-back documented — for a
+                fraction of a one-shot diligence engagement.
               </p>
               <div className="flex items-center gap-3 flex-wrap">
                 <Link
