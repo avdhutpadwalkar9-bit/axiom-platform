@@ -110,10 +110,11 @@ export default function AboutPage() {
           <FadeIn className="text-center mb-12">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Co-founders</p>
             <h2 className="text-3xl font-bold">The people behind the product</h2>
-            <p className="text-white/40 text-[15px] leading-relaxed max-w-xl mx-auto mt-4">
-              Built by two management consultants on a mission to arm every
-              ambitious SMB with the financial intelligence layer their
-              growth deserves.
+            <p className="text-white/55 text-[15px] leading-relaxed max-w-xl mx-auto mt-4">
+              Built by two young management consultants from Goa. Both alumni of
+              MARC (Mangal Analytics and Research Consulting). Neither of us is
+              a Chartered Accountant — every QoE report is reviewed and signed
+              off by a qualified CA partner before you see it.
             </p>
           </FadeIn>
 
@@ -129,31 +130,34 @@ export default function AboutPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-xl font-bold">Avdhut Padwalkar</h3>
-                    <p className="text-sm text-emerald-400 font-medium">Co-founder &amp; CEO</p>
-                    <p className="text-[12px] text-white/35 mt-1">Finance, product, AI &middot; Goa</p>
+                    <p className="text-sm text-emerald-400 font-medium">Founder</p>
+                    <p className="text-[12px] text-white/50 mt-1">Product, finance, fundraising &middot; Margao, Goa</p>
                   </div>
                 </div>
 
-                <div className="space-y-3 text-[14px] text-white/55 leading-relaxed flex-1">
+                <div className="space-y-3 text-[14px] text-white/65 leading-relaxed flex-1">
                   <p>
-                    A management consultant by training and an operator by
-                    practice. Avdhut has spent his career inside SMBs
-                    &mdash; helping promoters tighten their books, pressure-test
-                    their numbers, and roll out the accounting, ERP and
-                    reporting software stacks that turn messy operations into
-                    investor-ready businesses.
+                    Spent five years at MARC (Mangal Analytics and Research
+                    Consulting) in Goa, where he led M&amp;A due diligence,
+                    financial modelling, and Quality of Earnings projects
+                    &mdash; including QoE work for HealthValue Group (USA)
+                    &mdash; and headed the firm&rsquo;s Analytics division.
+                    Now Finance Manager at Tohands Private Limited, owning
+                    end-to-end finance ops, GST/TDS compliance, SOPs, and
+                    fundraising support.
                   </p>
                   <p>
-                    He also teaches financial modeling and capital markets to
-                    the next generation of finance professionals. At CortexCFO
-                    he leads product, finance and AI &mdash; shipping the tool
-                    he kept wishing his clients had: PE-grade financial
-                    intelligence, every month, at a fraction of the cost.
+                    Also teaches Financial Modelling, Stock Market Operations
+                    and Management Accounting part-time at Goa University and
+                    three Goa colleges. MBA in Finance from Goa Business
+                    School. He built CortexCFO because he saw, from inside a
+                    consulting firm, how unaffordable diligence had become
+                    for the Indian MSMEs who need it most.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-6">
-                  {["Management Consulting", "FP&A", "Software Implementation", "Teaching", "Product & AI"].map((tag) => (
+                  {["Management Consulting", "M&A Due Diligence", "Financial Modelling", "MBA Finance", "Asst. Professor"].map((tag) => (
                     <span
                       key={tag}
                       className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
@@ -174,7 +178,7 @@ export default function AboutPage() {
                     <LinkedinIcon className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
                   </a>
                   <a
-                    href="mailto:avdhut@cortexcfo.ai"
+                    href="mailto:avdhutpadwalkar.9@gmail.com"
                     aria-label="Email Avdhut"
                     className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
                   >
@@ -195,31 +199,36 @@ export default function AboutPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-xl font-bold">Rajan Nagaraju</h3>
-                    <p className="text-sm text-emerald-400 font-medium">Co-founder &mdash; Growth &amp; Automation</p>
-                    <p className="text-[12px] text-white/35 mt-1">AI, automation, growth &middot; Goa</p>
+                    <p className="text-sm text-emerald-400 font-medium">Co-founder</p>
+                    <p className="text-[12px] text-white/50 mt-1">Strategy, market research, GTM &middot; Ponda, Goa</p>
                   </div>
                 </div>
 
-                <div className="space-y-3 text-[14px] text-white/55 leading-relaxed flex-1">
+                <div className="space-y-3 text-[14px] text-white/65 leading-relaxed flex-1">
                   <p>
-                    A management consultant obsessed with making complicated
-                    things simple. Rajan designs AI-first workflows and
-                    automation pipelines that turn manual drudgery into crisp,
-                    repeatable systems &mdash; across research, partnerships,
-                    GTM and the back-office plumbing that keeps a startup
-                    honest.
+                    Business consultant at MARC (Mangal Analytics and Research
+                    Consulting) in Goa, focused on market research design,
+                    partnership development, and proposal architecture. Won
+                    MARC&rsquo;s first competitive PAN-India FMCG tender
+                    against 15+ established consulting firms, and closed three
+                    strategic MoUs with VCs managing more than US$10M average
+                    deal size each.
                   </p>
                   <p>
-                    At CortexCFO he owns growth, go-to-market and the
-                    automation spine that lets a small team punch far above
-                    its weight. His bet: the SMBs that win the next
-                    decade will be the ones that wire AI and automation into
-                    every function &mdash; not just into the marketing deck.
+                    Ran on-ground primary research for a government-sponsored
+                    economic-development project &mdash; sitting with Farmer
+                    Producer Organisations, local producers, and value-chain
+                    participants to map bottlenecks. Designed MARC&rsquo;s
+                    &ldquo;Strategic Outcomes&rdquo; proposal framework and
+                    the &ldquo;Business Transformation Kit&rdquo; that opened
+                    the firm&rsquo;s MSME segment. BCom in Accounting from Goa.
+                    At CortexCFO he owns strategy, market research, and the
+                    go-to-market motion.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap gap-2 mt-6">
-                  {["Management Consulting", "AI & Automation", "Process Design", "Go-to-Market", "SMBs"].map((tag) => (
+                  {["Management Consulting", "Market Research", "Business Development", "MSME Outreach", "Proposal Design"].map((tag) => (
                     <span
                       key={tag}
                       className="text-[11px] font-medium text-white/50 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
@@ -240,7 +249,7 @@ export default function AboutPage() {
                     <LinkedinIcon className="w-4 h-4 text-white/60 group-hover:text-emerald-400" />
                   </a>
                   <a
-                    href="mailto:rajan@cortexcfo.ai"
+                    href="mailto:rajannagaraju17@gmail.com"
                     aria-label="Email Rajan"
                     className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/30 transition-all group"
                   >
@@ -253,11 +262,11 @@ export default function AboutPage() {
 
           <FadeIn delay={200}>
             <div className="mt-6 bg-white/[0.02] rounded-2xl p-6 border border-white/5">
-              <p className="text-[13px] text-white/50 leading-relaxed">
+              <p className="text-[13px] text-white/60 leading-relaxed">
                 <span className="text-emerald-400 font-semibold">Building the team.</span>{" "}
-                We&apos;re hiring founding engineers, CAs and a founding GTM
-                associate to build the financial intelligence layer for Indian
-                SMBs.{" "}
+                Hiring founding engineers and a founding GTM associate. Every
+                QoE report is reviewed and signed by a partnered qualified CA
+                &mdash; we&rsquo;re growing that CA-reviewer panel as we scale.{" "}
                 <Link href="/careers" className="text-emerald-400 hover:underline font-medium">
                   See open roles &rarr;
                 </Link>

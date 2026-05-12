@@ -1138,7 +1138,7 @@ export function exportQoEPdf(
   doc.text("Advisory, not audit.", margin + 4, y + 7);
   doc.setFontSize(7);
   doc.setTextColor(...MUTED);
-  const disc = "This workbook is produced for internal review and transaction support. It is not a substitute for a statutory audit opinion or a Big-4 QoE engagement.";
+  const disc = "This workbook is produced for internal review and transaction support. It is not a substitute for a statutory audit opinion or a formal third-party QoE engagement.";
   const wrapped = doc.splitTextToSize(disc, contentW - 8);
   doc.text(wrapped, margin + 4, y + 13);
 
