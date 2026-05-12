@@ -47,6 +47,16 @@ function fmtDelta(n: number): string {
   return `${sign}${n.toFixed(1)}%`;
 }
 
+/** Time-aware greeting — "Good morning" / "Good afternoon" / "Good evening".
+ *  Boundaries match Indian English business norms: morning runs to noon,
+ *  afternoon noon→5pm, evening 5pm onwards. */
+function greetingByHour(): string {
+  const h = new Date().getHours();
+  if (h >= 5 && h < 12) return "Good morning";
+  if (h >= 12 && h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
 /* ------------------------------------------------------------------ */
 /*  Sample data — only used when no analysis is loaded                 */
 /* ------------------------------------------------------------------ */
@@ -361,7 +371,7 @@ export default function DashboardPage() {
         </div>
 
         <h1 className="hero-title">
-          Good morning, <span className="name">{firstName}</span>
+          {greetingByHour()}, <span className="name">{firstName}</span>
         </h1>
 
         <div className="hero-sub">

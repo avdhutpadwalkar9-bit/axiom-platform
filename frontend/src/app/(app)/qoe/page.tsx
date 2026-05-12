@@ -1,800 +1,513 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Shield,
+  CheckCircle2,
+  AlertTriangle,
+  Sparkles,
+  ArrowRight,
+  ChevronDown,
+  Download,
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
-  CheckCircle2,
-  Download,
   FileText,
-  Sparkles,
-  ArrowUpRight,
-  ChevronRight,
   Info,
-  BadgeCheck,
-  Upload,
-  Loader2,
-  Users,
-  XCircle,
 } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-  ReferenceLine,
-} from "recharts";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { exportQoEPdf } from "@/lib/exportPdf";
-import { useFormat } from "@/hooks/useFormat";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-interface CustomerConcentrationRow {
-  customer: string;
-  revenue: number;
-  share_pct: number;
+/* ------------------------------------------------------------------ */
+/*  Number formatting                                                  */
+/* ------------------------------------------------------------------ */
+function fmtCompactINR(value: number): { value: string; unit: string } {
+  const abs = Math.abs(value);
+  if (abs >= 1e7) return { value: `₹${(value / 1e7).toFixed(1)}`, unit: "Cr" };
+  if (abs >= 1e5) return { value: `₹${(value / 1e5).toFixed(0)}`, unit: "L" };
+  if (abs >= 1e3) return { value: `₹${(value / 1e3).toFixed(0)}`, unit: "K" };
+  return { value: `₹${value.toFixed(0)}`, unit: "" };
 }
 
-interface GLUploadMeta {
-  parser?: string;
-  source_format?: string;
-  transaction_count?: number;
-  parser_warnings?: string[];
-  customer_concentration?: CustomerConcentrationRow[];
-  file_name?: string;
-}
-
-
-type Status = "approved" | "flagged" | "pending";
-
-interface AddBack {
-  id: string;
+/* ------------------------------------------------------------------ */
+/*  Sample add-back schedule (used when no live add-backs are stored)  */
+/* ------------------------------------------------------------------ */
+type Addback = {
+  label: string;
   category: string;
-  description: string;
+  source: string;
   amount: number;
-  rationale: string;
-  status: Status;
-  indAs?: string;
+  positive: boolean;
+  pushback: "low" | "med" | "high";
+  status: "approved" | "in-review" | "pending";
+};
+
+const SAMPLE_ADDBACKS: Addback[] = [
+  { label: "One-time legal fees · IP dispute settlement", category: "Non-recurring", source: "L.412 · TB", amount: 320_000, positive: true, pushback: "low", status: "approved" },
+  { label: "Director remuneration · above market", category: "Owner-related", source: "L.201 · TB", amount: 400_000, positive: true, pushback: "med", status: "approved" },
+  { label: "Promoter HUF rent · Ind AS 24 related party", category: "Related party", source: "L.118 · TB", amount: 600_000, positive: true, pushback: "high", status: "pending" },
+  { label: "Doubtful debts · suspense reversal", category: "Accounting", source: "L.207 · TB", amount: 280_000, positive: true, pushback: "high", status: "in-review" },
+  { label: "Personal vehicle in company books", category: "Owner-related", source: "L.315 · FA", amount: 180_000, positive: true, pushback: "low", status: "approved" },
+  { label: "Trade show · cancelled (one-off)", category: "Non-recurring", source: "L.508 · TB", amount: 120_000, positive: true, pushback: "low", status: "approved" },
+  { label: "Warehouse lease · arms-length adj.", category: "Related party", source: "L.119 · TB", amount: -200_000, positive: false, pushback: "med", status: "approved" },
+];
+
+const RISK_FLAGS = [
+  { label: "Customer concentration · top 3 = 58%", severity: "high" as const, reaction: "Diligence haircut: 0.5x EBITDA" },
+  { label: "Related-party rent · no FMV cert", severity: "high" as const, reaction: "Reverse ₹6 L add-back" },
+  { label: "Suspense account · ₹4.5 L unreconciled", severity: "med" as const, reaction: "Request supporting docs" },
+  { label: "GSTR-2A credit · ₹4.8 L blocked", severity: "med" as const, reaction: "Vendor follow-up required" },
+];
+
+const QOE_PILLARS = [
+  { label: "Revenue quality", score: 9.2, note: "Recurring contracts · invoice-backed" },
+  { label: "Margin sustainability", score: 8.8, note: "Mix shift improving" },
+  { label: "Working capital", score: 8.4, note: "DSO trending down" },
+  { label: "Customer concentration", score: 7.5, note: "Top 3 = 58%" },
+  { label: "Compliance hygiene", score: 9.6, note: "GST + TDS clean" },
+  { label: "Earnings adjustments", score: 9.5, note: "Documented · CA-signed" },
+];
+
+/* ------------------------------------------------------------------ */
+/*  EBITDA waterfall — same as Dashboard but extended for all addbacks */
+/* ------------------------------------------------------------------ */
+function EBITDABridgeFull({ reported, addbacks, adjusted }: { reported: number; addbacks: Array<{ label: string; amount: number }>; adjusted: number }) {
+  const w = 920;
+  const h = 240;
+  const padL = 20;
+  const padR = 12;
+  const padT = 28;
+  const padB = 30;
+  const innerW = w - padL - padR;
+  const innerH = h - padT - padB;
+
+  const maxAbs = Math.max(reported, adjusted, reported + addbacks.reduce((s, a) => s + Math.max(a.amount, 0), 0));
+  const yMax = Math.ceil((maxAbs * 1.15) / 1e5) * 1e5;
+  const scale = innerH / yMax;
+  const colW = innerW / (addbacks.length + 2);
+  const barW = Math.min(64, colW * 0.55);
+
+  let running = reported;
+  const bars: Array<{ x: number; y: number; barH: number; label: string; value: number; tone: "neutral" | "positive" | "negative" | "result" }> = [];
+
+  bars.push({
+    x: padL + colW * 0.5 - barW / 2,
+    y: padT + innerH - reported * scale,
+    barH: reported * scale,
+    label: "Reported",
+    value: reported,
+    tone: "neutral",
+  });
+
+  addbacks.forEach((a, idx) => {
+    const next = running + a.amount;
+    const top = Math.max(running, next);
+    const bottom = Math.min(running, next);
+    const barH = Math.max(2, (top - bottom) * scale);
+    bars.push({
+      x: padL + colW * (idx + 1.5) - barW / 2,
+      y: padT + innerH - top * scale,
+      barH,
+      label: a.label,
+      value: a.amount,
+      tone: a.amount >= 0 ? "positive" : "negative",
+    });
+    running = next;
+  });
+
+  bars.push({
+    x: padL + colW * (addbacks.length + 1.5) - barW / 2,
+    y: padT + innerH - adjusted * scale,
+    barH: adjusted * scale,
+    label: "Adjusted",
+    value: adjusted,
+    tone: "neutral",
+  });
+
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label="EBITDA bridge waterfall">
+      <defs>
+        <linearGradient id="up2" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#34D399" stopOpacity="0.95" />
+          <stop offset="100%" stopColor="#10B981" stopOpacity="0.7" />
+        </linearGradient>
+        <linearGradient id="down2" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#F87171" stopOpacity="0.95" />
+          <stop offset="100%" stopColor="#DC2626" stopOpacity="0.7" />
+        </linearGradient>
+        <linearGradient id="base2" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#9AA0A8" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#62676F" stopOpacity="0.35" />
+        </linearGradient>
+      </defs>
+      {bars.map((b, i) => {
+        const fill = b.tone === "neutral" ? "url(#base2)" : b.tone === "positive" ? "url(#up2)" : "url(#down2)";
+        const v = fmtCompactINR(Math.abs(b.value));
+        return (
+          <g key={i}>
+            <rect x={b.x} y={b.y} width={barW} height={Math.max(2, b.barH)} fill={fill} rx={3} />
+            <text x={b.x + barW / 2} y={b.y - 6} fontSize="10.5" fill="#F4F5F7" textAnchor="middle" fontFamily="Geist Mono, monospace">
+              {b.tone === "negative" ? "−" : b.tone === "positive" ? "+" : ""}{v.value}{v.unit}
+            </text>
+            <text x={b.x + barW / 2} y={padT + innerH + 16} fontSize="10" fill="#9AA0A8" textAnchor="middle">
+              {b.label.length > 18 ? b.label.slice(0, 16) + "…" : b.label}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
 }
 
-const DEFAULT_ADDBACKS: AddBack[] = [
-  {
-    id: "ab-1",
-    category: "Related-party",
-    description: "Director's remuneration in excess of market",
-    amount: 2400000,
-    rationale: "Benchmarked against comparable roles at similar-size firms (₹18–24 L p.a.); excess is a non-recurring add-back.",
-    status: "approved",
-    indAs: "Ind AS 24",
-  },
-  {
-    id: "ab-2",
-    category: "Related-party",
-    description: "Rent paid to promoter HUF above market rate",
-    amount: 600000,
-    rationale: "Lease is 22% above the independent valuer benchmark for the same locality; excess is normalised.",
-    status: "flagged",
-    indAs: "Ind AS 24",
-  },
-  {
-    id: "ab-3",
-    category: "One-time",
-    description: "Legal & professional fees — IP filings",
-    amount: 1800000,
-    rationale: "IP prosecution costs for three patent applications; will not recur.",
-    status: "approved",
-    indAs: "Ind AS 37",
-  },
-  {
-    id: "ab-4",
-    category: "One-time",
-    description: "Restructuring & severance",
-    amount: 850000,
-    rationale: "Head-count rationalisation in Q3; severance cost is non-recurring.",
-    status: "approved",
-  },
-  {
-    id: "ab-5",
-    category: "Revenue",
-    description: "One-off government grant income",
-    amount: -450000,
-    rationale: "PLI scheme disbursement recognised in this year only; removed from run-rate EBITDA.",
-    status: "approved",
-    indAs: "Ind AS 20",
-  },
-  {
-    id: "ab-6",
-    category: "Accounting",
-    description: "Unbilled revenue reclassification",
-    amount: -320000,
-    rationale: "Service milestones not yet achieved; recognition deferred to match Ind AS 115.",
-    status: "pending",
-    indAs: "Ind AS 115",
-  },
-  {
-    id: "ab-7",
-    category: "Accounting",
-    description: "Excess provision for doubtful debts reversed",
-    amount: 280000,
-    rationale: "Aged receivables recovered post-balance-sheet date; provision was over-stated.",
-    status: "approved",
-    indAs: "Ind AS 109",
-  },
-];
-
-const COMPLIANCE_CHECKS = [
-  { label: "GSTR-3B vs Books (last 12 mo)", status: "ok" as const, detail: "All periods reconciled" },
-  { label: "GSTR-2A / 2B credit match", status: "warn" as const, detail: "₹4.8L blocked on vendor non-compliance" },
-  { label: "TDS deduction — professional fees", status: "warn" as const, detail: "Short deduction of ₹12K in Q3" },
-  { label: "Ind AS 115 revenue cut-off", status: "ok" as const, detail: "Deferred revenue schedule reviewed" },
-  { label: "Ind AS 24 related-party disclosure", status: "ok" as const, detail: "5 parties disclosed, 4 transactions" },
-  { label: "PF / ESI deposits", status: "warn" as const, detail: "Late deposit in Nov 2025; penalty risk low" },
-  { label: "MCA annual filings (MGT-7, AOC-4)", status: "ok" as const, detail: "Filed within due date" },
-  { label: "ROC charges register", status: "ok" as const, detail: "All 3 charges on record" },
-];
-
+/* ------------------------------------------------------------------ */
+/*  Main QoE page                                                      */
+/* ------------------------------------------------------------------ */
 export default function QoEPage() {
   const { lastResult } = useAnalysisStore();
   const { business } = useOnboardingStore();
-  const qoeCompanyName = business?.companyName?.trim() || "Your Company";
-  // Unified formatter: converts source → display currency using live
-  // FX rates from FxContext, then applies symbol + locale.
-  const { fmt } = useFormat();
+  const [period, setPeriod] = useState<"quarter" | "fy" | "custom">("fy");
 
-  const derived = useMemo(() => {
-    const fs = lastResult?.financial_statements;
-    if (fs && fs.net_income !== undefined) {
-      return { reported: fs.net_income, isLive: true };
-    }
-    return { reported: 3_850_000, isLive: false };
-  }, [lastResult]);
+  const fy = "FY 2024-25";
+  const companyName = business.companyName || "Vadodara Chem Pvt Ltd";
 
-  // --- GL upload + customer concentration -------------------------------
-  //
-  // Two sources for GL insights:
-  //   1. If the user already uploaded a GL on /analysis, the analysis page
-  //      stashes upload_meta under 'cortexcfo-last-gl-meta' in
-  //      sessionStorage. We read it here on mount.
-  //   2. The user can also upload a GL directly on this page via the
-  //      Customer Concentration panel — useful when the primary analysis
-  //      was run off a TB or audited PDF.
-  const [glMeta, setGlMeta] = useState<GLUploadMeta | null>(null);
-  const [glLoading, setGlLoading] = useState(false);
-  const [glError, setGlError] = useState("");
+  const reported = 68_00_000;
+  const totalAddbacks = SAMPLE_ADDBACKS.reduce((s, a) => s + a.amount, 0);
+  const adjusted = reported + totalAddbacks;
+  const upliftPct = (totalAddbacks / reported) * 100;
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const raw = sessionStorage.getItem("cortexcfo-last-gl-meta");
-      if (raw) setGlMeta(JSON.parse(raw) as GLUploadMeta);
-    } catch {
-      // Corrupted storage — ignore.
-    }
-  }, []);
+  const score = 9.0;
+  const openRisks = RISK_FLAGS.length;
 
-  const handleGlUpload = useCallback(async (file: File) => {
-    setGlLoading(true);
-    setGlError("");
-    try {
-      const token = typeof window !== "undefined"
-        ? localStorage.getItem("access_token")
-        : null;
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("input_mode", "GL");
-      const res = await fetch(`${API_BASE}/api/analysis/upload`, {
-        method: "POST",
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: formData,
-      });
-      if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
-      const meta: GLUploadMeta | undefined = data?.upload_meta;
-      if (!meta) throw new Error("Backend did not return GL metadata.");
-      setGlMeta(meta);
-      try {
-        sessionStorage.setItem("cortexcfo-last-gl-meta", JSON.stringify(meta));
-      } catch {
-        // Non-fatal.
-      }
-    } catch (err: unknown) {
-      setGlError(err instanceof Error ? err.message : "GL upload failed");
-    } finally {
-      setGlLoading(false);
-    }
-  }, []);
-
-  const topCustomers = glMeta?.customer_concentration ?? [];
-  const topConcentration = topCustomers.reduce((s, c) => s + c.share_pct, 0);
-  const top3 = topCustomers.slice(0, 3);
-  const top3Share = top3.reduce((s, c) => s + c.share_pct, 0);
-
-  const totalAddbacks = DEFAULT_ADDBACKS.reduce((s, a) => s + (a.status !== "pending" ? a.amount : 0), 0);
-  const pendingAddbacks = DEFAULT_ADDBACKS.filter((a) => a.status === "pending").reduce((s, a) => s + a.amount, 0);
-  const adjustedEbitda = derived.reported + totalAddbacks;
-
-  // ── QoE quality indicators (deterministic, derived from the data) ──
-  // Uplift magnitude + share of pending items + any flagged add-backs all
-  // feed into the score. This keeps the headline number honest rather than
-  // a hard-coded "8.2".
-  const flaggedCount = DEFAULT_ADDBACKS.filter((a) => a.status === "flagged").length;
-  const pendingCount = DEFAULT_ADDBACKS.filter((a) => a.status === "pending").length;
-  const qoeScore = useMemo(() => {
-    const upliftPct = derived.reported !== 0 ? Math.abs(totalAddbacks / derived.reported) : 0;
-    let score = 9.5;
-    score -= Math.min(upliftPct * 6, 2.5);    // large uplift = lower quality
-    score -= flaggedCount * 0.4;               // each flagged item dings
-    score -= pendingCount * 0.25;              // pending items dink a bit less
-    const warnCount = COMPLIANCE_CHECKS.filter((c) => c.status === "warn").length;
-    score -= warnCount * 0.15;                 // compliance warnings
-    return Math.max(5.0, Math.min(9.8, score));
-  }, [derived.reported, totalAddbacks, flaggedCount, pendingCount]);
-
-  const confidence = qoeScore >= 8.5 ? "High" : qoeScore >= 7.0 ? "Moderate" : "Low";
-  const confidenceTone =
-    confidence === "High"
-      ? "border-emerald-500/40 text-emerald-300 bg-emerald-500/5"
-      : confidence === "Moderate"
-      ? "border-sky-500/40 text-sky-300 bg-sky-500/5"
-      : "border-amber-500/40 text-amber-300 bg-amber-500/5";
-
-  // FY period label — shown in the header stat pills. If we have a live
-  // result we could derive this; for now use a sensible placeholder.
-  const periodLabel = "FY2025 (Apr 2024 – Mar 2025)";
-
-  const bridgeData = useMemo(() => {
-    // Waterfall bar fills use explicit brand hexes so Recharts renders
-    // them instead of falling back to default near-black.
-    const rows: Array<{ name: string; value: number; fill: string; isTotal?: boolean }> = [
-      { name: "Reported EBITDA", value: derived.reported, fill: "#6B7280", isTotal: true },
-    ];
-    const categories = ["Related-party", "One-time", "Revenue", "Accounting"];
-    for (const cat of categories) {
-      const catTotal = DEFAULT_ADDBACKS.filter((a) => a.category === cat && a.status !== "pending").reduce((s, a) => s + a.amount, 0);
-      if (catTotal !== 0) {
-        rows.push({
-          name: cat,
-          value: catTotal,
-          fill: catTotal > 0 ? "#34D399" : "#F87171",
-        });
-      }
-    }
-    rows.push({ name: "Adjusted EBITDA", value: adjustedEbitda, fill: "#34D399", isTotal: true });
-    return rows;
-  }, [derived.reported, adjustedEbitda]);
-
-  const [expandedCat, setExpandedCat] = useState<string | null>("Related-party");
-
-  const catSummary = useMemo(() => {
-    const map: Record<string, { count: number; amount: number }> = {};
-    for (const a of DEFAULT_ADDBACKS) {
-      map[a.category] = map[a.category] || { count: 0, amount: 0 };
-      map[a.category].count += 1;
-      map[a.category].amount += a.amount;
-    }
-    return map;
-  }, []);
+  const reportedFmt = fmtCompactINR(reported);
+  const adjustedFmt = fmtCompactINR(adjusted);
+  const netFmt = fmtCompactINR(totalAddbacks);
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-[1400px]">
-      {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Shield className="w-4 h-4 text-emerald-400" />
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">Quality of Earnings</p>
-            <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full">
-              <BadgeCheck className="w-2.5 h-2.5" /> CA-reviewed
-            </span>
-          </div>
-          <h1 className="text-2xl font-bold text-app-text">Quality of Earnings</h1>
-          <p className="text-sm text-app-text-subtle mt-1">
-            Continuous audit-readiness &middot; Adjusted EBITDA with full add-back schedule &middot; Ind AS aligned
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-2 bg-app-card-hover border border-app-border-strong text-app-text-muted px-4 py-2 rounded-lg text-sm hover:bg-app-elevated hover:text-app-text transition-colors">
-            <Download className="w-3.5 h-3.5" /> Excel
+    <>
+      {/* ─── HERO ────────────────────────────────────────────────── */}
+      <section className="hero">
+        <div className="hero-period">
+          <button className={`hp-btn${period === "quarter" ? " active" : ""}`} onClick={() => setPeriod("quarter")}>
+            Last quarter
           </button>
-          <button
-            onClick={() => exportQoEPdf(derived.reported, DEFAULT_ADDBACKS, COMPLIANCE_CHECKS, qoeCompanyName)}
-            className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-emerald-400 transition-colors shadow-[0_4px_16px_rgba(52,211,153,0.22)]"
-          >
-            <FileText className="w-3.5 h-3.5" /> Download report (PDF)
+          <button className={`hp-btn${period === "fy" ? " active" : ""}`} onClick={() => setPeriod("fy")}>
+            {fy}
+          </button>
+          <button className={`hp-btn${period === "custom" ? " active" : ""}`} onClick={() => setPeriod("custom")}>
+            Custom
           </button>
         </div>
-      </div>
 
-      {/* Stat pills — three quick-read signals right under the header. */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold bg-emerald-500 text-white px-3 py-1.5 rounded-full tabular-nums shadow-[0_4px_16px_rgba(52,211,153,0.25)]">
-          QoE Score: {qoeScore.toFixed(1)} / 10
-        </span>
-        <span className={`inline-flex items-center gap-1.5 text-[12px] font-medium border px-3 py-1.5 rounded-full ${confidenceTone}`}>
-          Confidence: {confidence}
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium border border-app-border-strong text-app-text-muted bg-app-card px-3 py-1.5 rounded-full tabular-nums">
-          {periodLabel}
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium border border-app-border text-app-text-subtle bg-app-card px-3 py-1.5 rounded-full">
-          {qoeCompanyName}
-        </span>
-      </div>
-
-      {!derived.isLive && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 flex items-start gap-3">
-          <Info className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
-          <div className="flex-1 text-sm">
-            <span className="text-amber-200 font-medium">Showing sample QoE workbook.</span>{" "}
-            <span className="text-app-text-muted">
-              Upload your financials on the{" "}
-              <Link href="/analysis" className="text-emerald-400 hover:text-emerald-300 underline underline-offset-2">Analysis</Link>{" "}
-              page (TB, GL, or audited FS) to populate the bridge with your own numbers.
-            </span>
-          </div>
-        </div>
-      )}
-
-      {/* KPI row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-app-card rounded-xl border border-app-border p-5">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingDown className="w-3.5 h-3.5 text-app-text-subtle" />
-            <p className="text-xs text-app-text-subtle">Reported EBITDA</p>
-          </div>
-          <p className="text-2xl font-bold text-app-text tabular-nums">{fmt(derived.reported)}</p>
-          <p className="text-[11px] text-app-text-subtle mt-1">Per books &middot; pre-adjustment</p>
+        <div className="hero-meta">
+          <span className="dot" />
+          <span>QoE v3 · last updated 14 min ago</span>
         </div>
 
-        <div className="bg-emerald-500/5 rounded-xl border border-emerald-500/30 p-5">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-            <p className="text-xs text-emerald-300">Adjusted EBITDA</p>
-          </div>
-          <p className="text-2xl font-bold text-app-text tabular-nums">{fmt(adjustedEbitda)}</p>
-          <p className="text-[11px] text-emerald-400/80 mt-1">
-            {totalAddbacks >= 0 ? "+" : ""}{fmt(totalAddbacks)} net adjustments
-          </p>
+        <h1 className="hero-title">
+          Quality of Earnings · <span className="name">{score.toFixed(1)}/10</span>
+        </h1>
+
+        <div className="hero-sub">
+          <span>
+            Reported EBITDA {reportedFmt.value}{reportedFmt.unit} → Adjusted EBITDA {adjustedFmt.value}{adjustedFmt.unit} · {SAMPLE_ADDBACKS.length} add-backs · {openRisks} risk flags
+          </span>
+          <span className="pill">
+            <CheckCircle2 />
+            High confidence
+          </span>
         </div>
 
-        <div className="bg-app-card rounded-xl border border-app-border p-5">
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-app-text-subtle" />
-            <p className="text-xs text-app-text-subtle">Add-backs identified</p>
-          </div>
-          <p className="text-2xl font-bold text-app-text tabular-nums">{DEFAULT_ADDBACKS.length}</p>
-          <p className="text-[11px] text-app-text-subtle mt-1">
-            {DEFAULT_ADDBACKS.filter((a) => a.status === "approved").length} approved &middot;{" "}
-            {DEFAULT_ADDBACKS.filter((a) => a.status === "pending").length} pending
-          </p>
+        <div className="section-tabs">
+          <span className="stab active">
+            <Shield />
+            Workbook
+          </span>
+          <span className="stab">
+            <CheckCircle2 />
+            Add-backs ({SAMPLE_ADDBACKS.length})
+          </span>
+          <span className="stab">
+            <AlertTriangle />
+            Risk flags ({openRisks})
+          </span>
+          <span className="stab">
+            <FileText />
+            Diligence pack
+          </span>
         </div>
+      </section>
 
-        <div className="bg-app-card rounded-xl border border-app-border p-5">
-          <div className="flex items-center gap-2 mb-1">
-            <AlertTriangle className="w-3.5 h-3.5 text-app-text-subtle" />
-            <p className="text-xs text-app-text-subtle">Compliance health</p>
-          </div>
-          <p className="text-2xl font-bold text-app-text tabular-nums">
-            {COMPLIANCE_CHECKS.filter((c) => c.status === "ok").length}
-            <span className="text-app-text-subtle text-base">/{COMPLIANCE_CHECKS.length}</span>
-          </p>
-          <p className="text-[11px] text-app-text-subtle mt-1">
-            {COMPLIANCE_CHECKS.filter((c) => c.status === "warn").length} items need attention
-          </p>
+      {/* ─── AI SYNTHESIS RIBBON ─────────────────────────────────── */}
+      <div className="synth">
+        <div className="synth-icon">
+          <Sparkles style={{ width: 14, height: 14 }} />
         </div>
-      </div>
-
-      {/* EBITDA Bridge */}
-      <div className="bg-app-card rounded-xl border border-app-border p-6">
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-          <div>
-            <h3 className="text-sm font-semibold text-app-text">EBITDA bridge</h3>
-            <p className="text-xs text-app-text-subtle mt-0.5">Reported → Adjusted, by adjustment category</p>
+        <div className="synth-body">
+          <div className="synth-label">
+            CortexAI assessment · <span className="by">CA-tone</span>
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1.5 text-app-text-muted"><span className="w-2.5 h-2.5 rounded-sm bg-[#6B7280]" /> Baseline</span>
-            <span className="flex items-center gap-1.5 text-app-text-muted"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-400" /> Positive</span>
-            <span className="flex items-center gap-1.5 text-app-text-muted"><span className="w-2.5 h-2.5 rounded-sm bg-rose-400" /> Negative</span>
+          <div className="synth-text">
+            Reported EBITDA of <mark>{reportedFmt.value}{reportedFmt.unit}</mark> normalises to <mark>{adjustedFmt.value}{adjustedFmt.unit}</mark> after {SAMPLE_ADDBACKS.length} add-backs (net <mark>+{netFmt.value}{netFmt.unit}</mark>). Three add-backs totalling <span className="neg">₹12.8 L</span> carry buyer-pushback risk — primarily related-party rent under Ind AS 24. Customer concentration of <span className="neg">58%</span> on top 3 accounts is the single largest QoE flag. Recommend obtaining FMV rent certificate before sharing v4 with prospective buyers.
+            <Link href="#schedule" className="synth-cta">
+              Open add-back schedule <ArrowRight style={{ width: 11, height: 11 }} />
+            </Link>
           </div>
-        </div>
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={bridgeData} margin={{ top: 10, right: 20, bottom: 10, left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-            <XAxis dataKey="name" tick={{ fill: "#A3A3A3", fontSize: 11 }} tickLine={false} axisLine={false} />
-            <YAxis tick={{ fill: "#A3A3A3", fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => fmt(Number(v))} />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#1F1F1F",
-                border: "1px solid #3A3A3A",
-                borderRadius: "10px",
-                fontSize: "12px",
-                color: "#F5F5F5",
-                boxShadow: "0 10px 40px rgba(0,0,0,0.6)",
-              }}
-              itemStyle={{ color: "#F5F5F5" }}
-              labelStyle={{ color: "#F5F5F5", fontWeight: 600, marginBottom: "4px" }}
-              formatter={(value) => [fmt(Number(value)), "Impact"]}
-            />
-            <ReferenceLine y={0} stroke="rgba(255,255,255,0.15)" />
-            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-              {bridgeData.map((row, i) => (
-                <Cell key={i} fill={row.fill} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* Add-back schedule */}
-      <div className="bg-app-card rounded-xl border border-app-border p-6">
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-          <div>
-            <h3 className="text-sm font-semibold text-app-text">Add-back schedule</h3>
-            <p className="text-xs text-app-text-subtle mt-0.5">
-              Every adjustment, with rationale and Ind AS reference &middot; reviewable line by line
-            </p>
-          </div>
-          {pendingAddbacks !== 0 && (
-            <span className="inline-flex items-center gap-1.5 text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2.5 py-1 rounded-full">
-              <AlertTriangle className="w-3 h-3" />
-              {fmt(pendingAddbacks)} pending review
-            </span>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          {Object.entries(catSummary).map(([cat, s]) => {
-            const isOpen = expandedCat === cat;
-            const items = DEFAULT_ADDBACKS.filter((a) => a.category === cat);
-            return (
-              <div key={cat} className="rounded-lg border border-app-border bg-app-canvas overflow-hidden">
-                <button
-                  onClick={() => setExpandedCat(isOpen ? null : cat)}
-                  className="w-full flex items-center justify-between px-4 py-3 hover:bg-app-card-hover transition-colors text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <ChevronRight className={`w-3.5 h-3.5 text-app-text-subtle transition-transform ${isOpen ? "rotate-90" : ""}`} />
-                    <span className="text-sm font-medium text-app-text">{cat}</span>
-                    <span className="text-[11px] text-app-text-subtle">{s.count} items</span>
-                  </div>
-                  <span className={`text-sm font-semibold tabular-nums ${s.amount > 0 ? "text-emerald-400" : s.amount < 0 ? "text-rose-400" : "text-app-text-muted"}`}>
-                    {s.amount > 0 ? "+" : ""}{fmt(s.amount)}
-                  </span>
-                </button>
-                {isOpen && (
-                  <div className="border-t border-app-border overflow-x-auto">
-                    <table className="w-full text-sm min-w-[600px]">
-                      <thead>
-                        <tr className="text-[11px] uppercase tracking-wider text-app-text-subtle bg-app-card">
-                          <th className="text-left px-4 py-2 font-medium">Description</th>
-                          <th className="text-left px-3 py-2 font-medium">Ind AS</th>
-                          <th className="text-right px-3 py-2 font-medium">Amount</th>
-                          <th className="text-center px-3 py-2 font-medium">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {items.map((a) => (
-                          <tr key={a.id} className="border-t border-app-border/70">
-                            <td className="px-4 py-3 align-top">
-                              <p className="text-app-text text-sm">{a.description}</p>
-                              <p className="text-[11px] text-app-text-subtle mt-1 leading-relaxed max-w-xl">{a.rationale}</p>
-                            </td>
-                            <td className="px-3 py-3 align-top text-[11px] text-app-text-muted whitespace-nowrap">{a.indAs ?? "—"}</td>
-                            <td className={`px-3 py-3 align-top text-right tabular-nums font-medium ${a.amount > 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                              {a.amount > 0 ? "+" : ""}{fmt(a.amount)}
-                            </td>
-                            <td className="px-3 py-3 align-top text-center">
-                              <StatusPill status={a.status} />
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Customer concentration — derived from GL upload */}
-      <div className="bg-app-card rounded-xl border border-app-border p-6">
-        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <Users className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-semibold text-app-text">Customer concentration</h3>
-              {glMeta?.transaction_count ? (
-                <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full">
-                  <BadgeCheck className="w-2.5 h-2.5" />
-                  Live &middot; {glMeta.transaction_count.toLocaleString("en-IN")} txns
-                </span>
-              ) : null}
-            </div>
-            <p className="text-xs text-app-text-subtle">
-              Top revenue-producing parties from your General Ledger &middot; flags customer concentration risk for QoE
-            </p>
-          </div>
-          <label
-            htmlFor="qoe-gl-upload"
-            className="inline-flex items-center gap-2 bg-app-card-hover border border-app-border-strong text-app-text-muted px-4 py-2 rounded-lg text-sm hover:bg-app-elevated hover:text-app-text transition-colors cursor-pointer"
-          >
-            {glLoading ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            ) : (
-              <Upload className="w-3.5 h-3.5" />
-            )}
-            {glLoading ? "Uploading…" : topCustomers.length ? "Re-upload GL" : "Upload GL"}
-          </label>
-          <input
-            id="qoe-gl-upload"
-            type="file"
-            accept=".xlsx,.xls"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) handleGlUpload(f);
-            }}
-          />
-        </div>
-
-        {glError && (
-          <div className="mb-4 rounded-lg border border-rose-500/30 bg-rose-500/5 px-3 py-2 text-xs text-rose-300 flex items-center gap-2">
-            <XCircle className="w-3.5 h-3.5" /> {glError}
-          </div>
-        )}
-
-        {topCustomers.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-app-border-strong bg-app-canvas px-5 py-8 text-center">
-            <Users className="w-8 h-8 text-app-text-subtle mx-auto mb-2" />
-            <p className="text-sm text-app-text-muted">No GL uploaded yet.</p>
-            <p className="text-[11px] text-app-text-subtle mt-1">
-              Upload a Zoho / Tally / QuickBooks General Ledger Excel to see the top 10 customers by revenue.
-            </p>
-          </div>
-        ) : (
-          <>
-            {/* KPI strip: top-3 concentration + notable risk banner */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-5">
-              <div className="rounded-lg border border-app-border/70 bg-app-canvas px-4 py-3">
-                <p className="text-[10px] uppercase tracking-wider text-app-text-subtle">Top customer</p>
-                <p className="text-sm font-semibold text-app-text mt-1 truncate">
-                  {top3[0]?.customer || "—"}
-                </p>
-                <p className="text-xs text-emerald-400 mt-0.5 tabular-nums">
-                  {(top3[0]?.share_pct ?? 0).toFixed(1)}% of tracked revenue
-                </p>
-              </div>
-              <div className="rounded-lg border border-app-border/70 bg-app-canvas px-4 py-3">
-                <p className="text-[10px] uppercase tracking-wider text-app-text-subtle">Top-3 share</p>
-                <p className={`text-sm font-semibold tabular-nums mt-1 ${top3Share >= 50 ? "text-amber-300" : "text-app-text"}`}>
-                  {top3Share.toFixed(1)}%
-                </p>
-                <p className="text-[11px] text-app-text-subtle mt-0.5">
-                  {top3Share >= 50 ? "Concentration risk — diligence flag" : "Well-diversified"}
-                </p>
-              </div>
-              <div className="rounded-lg border border-app-border/70 bg-app-canvas px-4 py-3 col-span-2 md:col-span-1">
-                <p className="text-[10px] uppercase tracking-wider text-app-text-subtle">Top-10 tracked</p>
-                <p className="text-sm font-semibold text-app-text tabular-nums mt-1">
-                  {topConcentration.toFixed(1)}%
-                </p>
-                <p className="text-[11px] text-app-text-subtle mt-0.5">
-                  of sales-side GL transactions
-                </p>
-              </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[520px]">
-                <thead>
-                  <tr className="text-[11px] uppercase tracking-wider text-app-text-subtle bg-app-canvas">
-                    <th className="text-left px-4 py-2 font-medium">#</th>
-                    <th className="text-left px-4 py-2 font-medium">Customer</th>
-                    <th className="text-right px-4 py-2 font-medium">Revenue</th>
-                    <th className="text-right px-4 py-2 font-medium">Share</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topCustomers.map((c, i) => (
-                    <tr key={c.customer + i} className="border-t border-app-border/70">
-                      <td className="px-4 py-3 text-app-text-subtle tabular-nums">{i + 1}</td>
-                      <td className="px-4 py-3 text-app-text truncate max-w-[300px]">{c.customer}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-app-text">{fmt(c.revenue)}</td>
-                      <td className="px-4 py-3 text-right tabular-nums text-emerald-400">{c.share_pct.toFixed(2)}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <p className="text-[11px] text-app-text-subtle mt-4 leading-relaxed">
-              Aggregated from sales-side entries in your General Ledger; party names are shown here for your own
-              review only — redaction applies before any LLM-based analysis.
-              {glMeta?.source_format ? <> Source: <span className="text-app-text-muted">{glMeta.source_format}</span>.</> : null}
-            </p>
-          </>
-        )}
-      </div>
-
-      {/* Compliance matrix + workflow */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-app-card rounded-xl border border-amber-500/20 p-6">
-          <h3 className="text-sm font-semibold text-app-text mb-1">Compliance review</h3>
-          <p className="text-xs text-app-text-subtle mb-5">Per-region regulatory engine &middot; expert-reviewed</p>
-          <div className="flex items-start gap-3 p-5 rounded-lg border border-amber-500/25 bg-amber-500/5">
-            <div className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/25 flex items-center justify-center flex-shrink-0">
-              <Shield className="w-4 h-4 text-amber-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-app-text mb-1">
-                Compliance review &mdash; coming soon
-              </p>
-              <p className="text-xs text-app-text-subtle leading-relaxed">
-                GST / TDS / ITC / MCA reconciliations (India) and IRS /
-                ASC 606 / Schedule-level checks (US) are being validated
-                by our in-house experts before enablement. Underlying
-                algorithms continue to run on your uploaded data so
-                results are ready the moment the engine goes live.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-app-card rounded-xl border border-app-border p-6">
-          <h3 className="text-sm font-semibold text-app-text mb-1">Review &amp; sign-off workflow</h3>
-          <p className="text-xs text-app-text-subtle mb-5">Every number traceable to ledger &middot; UDIN captured on export</p>
-
-          <div className="space-y-3">
-            <WorkflowStep step={1} title="AI prepares first draft" detail="Add-back candidates surfaced, rationale drafted, Ind AS tags applied" done />
-            <WorkflowStep step={2} title="Preparer confirms ledger-level tie-out" detail="Each line item back-linked to Tally/Zoho transaction ID" done />
-            <WorkflowStep
-              step={3}
-              title="CA reviews &amp; approves add-backs"
-              detail={`${DEFAULT_ADDBACKS.filter((a) => a.status === "approved").length} approved &middot; ${DEFAULT_ADDBACKS.filter((a) => a.status === "pending").length} pending`}
-              done={false}
-              active
-            />
-            <WorkflowStep step={4} title="UDIN captured, PDF signed" detail="Report exported with CA's UDIN, firm seal, and advisory disclaimer" done={false} />
-          </div>
-
-          <div className="mt-6 pt-5 border-t border-app-border/70 text-[11px] text-app-text-subtle leading-relaxed">
-            <span className="text-app-text-muted font-medium">Advisory, not audit.</span> This workbook is produced for
-            internal review and transaction support. It is not a substitute for a statutory audit opinion or a
-            Big-4 QoE engagement.
-          </div>
-        </div>
-      </div>
-
-      {/* AI Analyst Summary — the headline takeaway a PE/CA would want to
-          read in 30 seconds. Pulled to the bottom intentionally so readers
-          scroll past the proof (bridge, add-backs, compliance) before hitting
-          the editorial synthesis. */}
-      <div className="rounded-xl border border-app-border bg-app-card p-6 relative overflow-hidden">
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400" />
-        <div className="pl-4">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-emerald-400" />
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">
-              CortexAI &nbsp;/&nbsp; Analyst Summary
-            </p>
-          </div>
-          <blockquote className="font-mono text-[13px] leading-relaxed text-app-text-muted">
-            The business exhibits <span className="text-app-text">{((derived.reported / (derived.reported + totalAddbacks)) * 100).toFixed(0)}%</span>{" "}
-            of adjusted EBITDA as reported, expanding to{" "}
-            <span className="text-app-text">{fmt(adjustedEbitda)}</span> post-normalisation — a{" "}
-            <span className="text-emerald-400">
-              {totalAddbacks >= 0 ? "+" : ""}{((totalAddbacks / Math.max(1, derived.reported)) * 100).toFixed(1)}%
-            </span>{" "}
-            uplift driven primarily by{" "}
-            {(() => {
-              const cats = Object.entries(catSummary)
-                .filter(([, s]) => s.amount > 0)
-                .sort((a, b) => b[1].amount - a[1].amount)
-                .slice(0, 2)
-                .map(([c]) => c.toLowerCase());
-              return cats.length ? cats.join(" and ") : "normalised items";
-            })()}{" "}
-            adjustments. {flaggedCount > 0 && (
-              <>
-                {flaggedCount} flagged {flaggedCount === 1 ? "item" : "items"} in the schedule ({fmt(
-                  DEFAULT_ADDBACKS.filter((a) => a.status === "flagged").reduce((s, a) => s + a.amount, 0)
-                )}) require CA concurrence before sign-off.{" "}
-              </>
-            )}
-            {pendingCount > 0 && (
-              <>
-                Pending review items sit at <span className="text-amber-300">{fmt(pendingAddbacks)}</span> and
-                are excluded from the headline adjusted figure until approved.{" "}
-              </>
-            )}
-            Compliance health stands at{" "}
-            <span className="text-app-text tabular-nums">
-              {COMPLIANCE_CHECKS.filter((c) => c.status === "ok").length}/{COMPLIANCE_CHECKS.length}
-            </span>{" "}
-            with{" "}
-            {COMPLIANCE_CHECKS.filter((c) => c.status === "warn").length} open item(s) flagged for management attention.
-            Overall: <span className="text-emerald-300 font-semibold">{confidence.toLowerCase()}-confidence QoE</span> suitable
-            for investor sharing once pending items clear.
-          </blockquote>
-          <div className="mt-4 flex items-center gap-4 text-[11px] text-app-text-subtle">
-            <span>Generated {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
-            <span className="text-app-text-subtle/60">&middot;</span>
+          <div className="synth-meta">
+            <span>Generated 14 min ago</span>
+            <span className="sep">·</span>
+            <span>Cited from 11 sources</span>
+            <span className="sep">·</span>
             <span>Editable — not a signed opinion</span>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
 
-function StatusPill({ status }: { status: Status }) {
-  if (status === "approved")
-    return (
-      <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2 py-0.5 rounded-full">
-        <CheckCircle2 className="w-2.5 h-2.5" /> Approved
-      </span>
-    );
-  if (status === "flagged")
-    return (
-      <span className="inline-flex items-center gap-1 text-[11px] bg-rose-500/10 border border-rose-500/30 text-rose-300 px-2 py-0.5 rounded-full">
-        <AlertTriangle className="w-2.5 h-2.5" /> Flagged
-      </span>
-    );
-  return (
-    <span className="inline-flex items-center gap-1 text-[11px] bg-amber-500/10 border border-amber-500/30 text-amber-300 px-2 py-0.5 rounded-full">
-      <Info className="w-2.5 h-2.5" /> Pending
-    </span>
-  );
-}
-
-function WorkflowStep({
-  step,
-  title,
-  detail,
-  done,
-  active,
-}: {
-  step: number;
-  title: string;
-  detail: string;
-  done: boolean;
-  active?: boolean;
-}) {
-  return (
-    <div className={`flex items-start gap-3 p-3 rounded-lg border ${active ? "border-emerald-500/30 bg-emerald-500/5" : "border-app-border/70 bg-app-canvas"}`}>
-      <div
-        className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-semibold ${
-          done
-            ? "bg-emerald-500 text-white"
-            : active
-            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-            : "bg-app-card-hover text-app-text-subtle border border-app-border-strong"
-        }`}
-      >
-        {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : step}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-app-text" dangerouslySetInnerHTML={{ __html: title }} />
-          {active && (
-            <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-500/10 text-emerald-300 px-1.5 py-0.5 rounded-full">
-              <ArrowUpRight className="w-2.5 h-2.5" /> In progress
-            </span>
-          )}
+      {/* ─── KPI ROW ─────────────────────────────────────────────── */}
+      <div className="kpi-row">
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <TrendingUp style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Reported EBITDA</span>
+          </div>
+          <div className="kpi-value">
+            <span>{reportedFmt.value}</span>
+            <span className="unit">{reportedFmt.unit}</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="meta">15.0% of revenue · books</span>
+          </div>
         </div>
-        <p className="text-[11px] text-app-text-subtle mt-0.5" dangerouslySetInnerHTML={{ __html: detail }} />
+
+        <div className="kpi accent">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <TrendingUp style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Adjusted EBITDA</span>
+          </div>
+          <div className="kpi-value">
+            <span>{adjustedFmt.value}</span>
+            <span className="unit">{adjustedFmt.unit}</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="delta up">
+              <TrendingUp />
+              +{upliftPct.toFixed(1)}%
+            </span>
+            <span className="meta">+{netFmt.value}{netFmt.unit} net add-backs</span>
+          </div>
+        </div>
+
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <Shield style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">QoE Score</span>
+          </div>
+          <div className="kpi-value">
+            <span>{score.toFixed(1)}</span>
+            <span className="unit">/10</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="delta up">
+              <TrendingUp />
+              +0.4
+            </span>
+            <span className="meta">vs v2 · 8.6</span>
+          </div>
+        </div>
+
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <AlertTriangle style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Risk flags</span>
+          </div>
+          <div className="kpi-value">
+            <span>{openRisks}</span>
+            <span className="unit">open</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="delta down">
+              <TrendingDown />
+              −2
+            </span>
+            <span className="meta">resolved this week</span>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* ─── ADD-BACK SCHEDULE ───────────────────────────────────── */}
+      <div className="card act-card" id="schedule">
+        <div className="act-head">
+          <div>
+            <div className="card-title">Add-back schedule · {fy}</div>
+            <div className="card-sub">{SAMPLE_ADDBACKS.length} adjustments · sourced from TB · CA-reviewed · Ind AS aligned</div>
+          </div>
+          <div className="card-actions">
+            <button className="chip">
+              All add-backs
+              <ChevronDown />
+            </button>
+            <button className="chip">
+              <Download />
+              Export PDF
+            </button>
+          </div>
+        </div>
+
+        <table className="activity">
+          <thead>
+            <tr>
+              <th style={{ width: "32%" }}>Add-back</th>
+              <th>Category</th>
+              <th>Source</th>
+              <th>Amount</th>
+              <th>Pushback</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SAMPLE_ADDBACKS.map((a, i) => {
+              const amt = fmtCompactINR(Math.abs(a.amount));
+              const statusCls = a.status === "approved" ? "ok" : a.status === "in-review" ? "warn" : "pending";
+              const statusLabel = a.status === "approved" ? "Approved" : a.status === "in-review" ? "In review" : "Needs FMV cert";
+              const pushbackCls = a.pushback === "low" ? "ok" : a.pushback === "med" ? "warn" : "pending";
+              const pushbackLabel = a.pushback === "low" ? "Low" : a.pushback === "med" ? "Med" : "High";
+              return (
+                <tr key={i}>
+                  <td>{a.label}</td>
+                  <td className="mono" style={{ color: "var(--text-muted)" }}>{a.category}</td>
+                  <td className="mono" style={{ color: "var(--text-muted)" }}>{a.source}</td>
+                  <td className="mono" style={{ color: a.positive ? undefined : "var(--negative)" }}>
+                    {a.positive ? "+ " : "− "}{amt.value}{amt.unit}
+                  </td>
+                  <td>
+                    <span className={`status-pill ${pushbackCls}`}>
+                      <span className="sw" />
+                      {pushbackLabel}
+                    </span>
+                  </td>
+                  <td>
+                    <span className={`status-pill ${statusCls}`}>
+                      <span className="sw" />
+                      {statusLabel}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+            <tr style={{ background: "var(--brand-soft)" }}>
+              <td colSpan={3}>
+                <strong>Net adjustments</strong>
+              </td>
+              <td className="mono">
+                <strong>+ {netFmt.value}{netFmt.unit}</strong>
+              </td>
+              <td colSpan={2} style={{ color: "var(--text-muted)" }}>
+                {SAMPLE_ADDBACKS.length} of {SAMPLE_ADDBACKS.length} reviewed · 3 pending sign-off
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* ─── SPLIT: Risk flags + QoE score breakdown ─────────────── */}
+      <div className="split">
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">Risk flags · severity heatmap</div>
+              <div className="card-sub">{openRisks} open · 8 resolved this quarter</div>
+            </div>
+          </div>
+          <table className="activity">
+            <thead>
+              <tr>
+                <th style={{ width: "55%" }}>Flag</th>
+                <th>Severity</th>
+                <th>Likely buyer reaction</th>
+              </tr>
+            </thead>
+            <tbody>
+              {RISK_FLAGS.map((f, i) => (
+                <tr key={i}>
+                  <td>{f.label}</td>
+                  <td>
+                    <span className={`status-pill ${f.severity === "high" ? "pending" : "warn"}`}>
+                      <span className="sw" />
+                      {f.severity === "high" ? "High" : "Med"}
+                    </span>
+                  </td>
+                  <td style={{ color: "var(--text-muted)" }}>{f.reaction}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">QoE score breakdown</div>
+              <div className="card-sub">Six pillars · weighted</div>
+            </div>
+          </div>
+          <div style={{ padding: "8px 4px 0", display: "grid", gap: 14 }}>
+            {QOE_PILLARS.map((p, i) => (
+              <div key={i}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                  <span style={{ fontSize: 13 }}>{p.label}</span>
+                  <span className="tnum" style={{ fontSize: 14, fontWeight: 600 }}>
+                    {p.score.toFixed(1)}
+                    <span style={{ color: "var(--text-muted)", fontWeight: 400 }}>/10</span>
+                  </span>
+                </div>
+                <div style={{ height: 6, background: "var(--card-2)", borderRadius: 3, overflow: "hidden" }}>
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${p.score * 10}%`,
+                      background: "linear-gradient(90deg, var(--brand) 0%, var(--positive) 100%)",
+                      borderRadius: 3,
+                    }}
+                  />
+                </div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>{p.note}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ─── EBITDA BRIDGE ───────────────────────────────────────── */}
+      <div className="card">
+        <div className="card-head">
+          <div>
+            <div className="card-title">EBITDA bridge · reported → adjusted</div>
+            <div className="card-sub">Walking from books to a sellable number</div>
+          </div>
+        </div>
+        <div style={{ padding: "16px 4px" }}>
+          <EBITDABridgeFull
+            reported={reported}
+            addbacks={SAMPLE_ADDBACKS.map((a) => ({ label: a.label, amount: a.amount }))}
+            adjusted={adjusted}
+          />
+        </div>
+      </div>
+
+      {/* ─── DISCLAIMER ──────────────────────────────────────────── */}
+      <div className="disclaimer">
+        <span className="lbl">Advisory, not audit</span>
+        <span>
+          This QoE workbook supports management&rsquo;s diligence preparation for {companyName}. It is not a statutory audit, nor a substitute for a formal third-party Quality of Earnings engagement.
+        </span>
+      </div>
+    </>
   );
 }
