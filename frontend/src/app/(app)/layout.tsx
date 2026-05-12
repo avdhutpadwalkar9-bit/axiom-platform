@@ -1,47 +1,81 @@
 "use client";
 
+import "./app-shell.css";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
+  Home,
   BarChart3,
   GitBranch,
   Shield,
   Plug,
   LogOut,
-  ChevronDown,
-  Building2,
+  ChevronsLeft,
+  ChevronsRight,
   FileSpreadsheet,
-  User,
   FolderOpen,
   TrendingUp,
   Loader2,
-  Sparkles,
-  ArrowRight,
+  Search,
+  Bell,
+  HelpCircle,
+  Settings,
   MessageSquare,
+  Briefcase,
+  FileText,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
 import AIChatPanel from "@/components/AIChatPanel";
 import { FxProvider } from "@/context/FxContext";
-import ThemeToggle from "@/components/ThemeToggle";
 
-const navItems = [
-  { label: "Dashboard", href: "/dashboard", icon: BarChart3 },
-  { label: "Analysis", href: "/analysis", icon: FileSpreadsheet },
-  { label: "Industry Expertise", href: "/industries", icon: TrendingUp },
+// Top-level workspace navigation
+const workspaceNav: { label: string; href: string; icon: typeof Home; badge?: string }[] = [
+  { label: "Dashboard", href: "/dashboard", icon: Home },
+  { label: "Analysis", href: "/analysis", icon: BarChart3 },
+  { label: "QoE Workbook", href: "/qoe", icon: Shield, badge: "9.0" },
   { label: "Scenarios", href: "/scenarios", icon: GitBranch },
-  { label: "QoE Center", href: "/qoe", icon: Shield },
-  { label: "AI Feedback", href: "/feedback", icon: MessageSquare },
+  { label: "Industry", href: "/industries", icon: TrendingUp },
+];
+
+// Data + integrations section
+const dataNav: { label: string; href: string; icon: typeof Home }[] = [
+  { label: "Uploads", href: "/uploads", icon: FolderOpen },
+  { label: "Reports", href: "/feedback", icon: FileText },
   { label: "Integrations", href: "/integrations", icon: Plug },
 ];
+
+// Breadcrumb segment builder — derives "Vadodara Chem / Dashboard / FY 2024-25"
+function buildBreadcrumb(pathname: string, workspaceName: string) {
+  const segs: { label: string; href?: string }[] = [{ label: workspaceName }];
+  const pageMap: Record<string, string> = {
+    "/dashboard": "Dashboard",
+    "/analysis": "Analysis",
+    "/qoe": "QoE Workbook",
+    "/scenarios": "Scenarios",
+    "/industries": "Industry",
+    "/integrations": "Integrations",
+    "/uploads": "Uploads",
+    "/feedback": "Reports",
+    "/profile": "Profile",
+  };
+  for (const [path, label] of Object.entries(pageMap)) {
+    if (pathname.startsWith(path)) {
+      segs.push({ label });
+      break;
+    }
+  }
+  return segs;
+}
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [hasAiAccess, setHasAiAccess] = useState(false);
-  const [wsOpen, setWsOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { business, personal } = useOnboardingStore();
 
   useEffect(() => {
@@ -53,7 +87,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         router.replace("/login");
         return;
       }
-      // Validate the token + enforce email verification via /auth/me.
       try {
         const me = await api.getMe();
         if (cancelled) return;
@@ -61,15 +94,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           router.replace("/verify-email");
           return;
         }
-        // has_ai_access drives whether we mount <AIChatPanel />. Defaults
-        // to true when the backend doesn't send the field (older build)
-        // so upgrading the frontend ahead of the backend doesn't hide
-        // the chat for everyone.
         setHasAiAccess(me.has_ai_access !== false);
         setMounted(true);
       } catch {
         if (cancelled) return;
-        // api.request() already redirects on 401; this covers transient errors.
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         router.replace("/login");
@@ -90,164 +118,169 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   if (!mounted) {
     return (
-      <div className="flex h-screen items-center justify-center bg-app-canvas text-app-text-subtle">
-        <Loader2 className="w-4 h-4 animate-spin" />
+      <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", background: "var(--canvas)", color: "var(--text-subtle)" }}>
+        <Loader2 className="animate-spin" style={{ width: 18, height: 18 }} />
       </div>
     );
   }
 
   const workspaceName = business.companyName || "My Workspace";
   const userName = personal.fullName || "User";
-  const wsActive = pathname === "/profile" || pathname === "/uploads";
+  const userInitials = userName
+    .split(" ")
+    .slice(0, 2)
+    .map((s) => s[0])
+    .join("")
+    .toUpperCase() || "U";
+
+  const crumbs = buildBreadcrumb(pathname, workspaceName);
+
+  // Active highlighting — same logic across both nav blocks.
+  const isActive = (href: string) =>
+    pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
 
   return (
     <FxProvider>
-    <div className="flex h-screen bg-app-canvas text-app-text overflow-hidden">
-      {/* Dark sidebar */}
-      <aside className="w-[260px] flex-shrink-0 flex flex-col border-r border-app-border/70 bg-app-card">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 px-5 py-4 hover:opacity-80 transition-opacity">
-          <div className="h-7 w-7 rounded-lg bg-emerald-500 flex items-center justify-center">
-            <svg className="w-3.5 h-3.5 text-app-text" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+      <div className={`app${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
+        {/* ─── SIDEBAR ─────────────────────────────────────────── */}
+        <aside className="sidebar">
+          <div className="sb-brand">
+            <div className="sb-mark">C</div>
+            <div className="sb-wordmark">
+              Cortex<span>CFO</span>
+            </div>
           </div>
-          <span className="text-[15px] font-semibold tracking-tight text-app-text">CortexCFO</span>
-        </Link>
 
-        {/* Workspace */}
-        <div className="mx-4 mb-5">
-          <button
-            onClick={() => setWsOpen(!wsOpen)}
-            className={`w-full flex items-center gap-2.5 rounded-lg border px-3 py-2.5 transition-colors ${
-              wsOpen || wsActive ? "border-emerald-500/20 bg-emerald-500/5" : "border-app-border bg-app-canvas hover:bg-app-card-hover"
-            }`}
-          >
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-emerald-500/10">
-              <Building2 className="h-3.5 w-3.5 text-emerald-400" />
+          <div className="sb-section">Workspace</div>
+          <nav className="sb-nav">
+            {workspaceNav.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`sb-item${active ? " active" : ""}`}
+                >
+                  <Icon className="sb-icon" />
+                  <span>{item.label}</span>
+                  {item.badge && <span className="sb-badge">{item.badge}</span>}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="sb-section">Data</div>
+          <nav className="sb-nav">
+            {dataNav.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`sb-item${active ? " active" : ""}`}
+                >
+                  <Icon className="sb-icon" />
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="sb-spacer" />
+
+          <div className="sb-foot">
+            <div className="sb-avatar">{userInitials}</div>
+            <div className="sb-user">
+              <div className="sb-user-name">{userName}</div>
+              <div className="sb-user-org">{workspaceName}</div>
             </div>
-            <div className="flex-1 min-w-0 text-left">
-              <p className="text-[13px] font-medium text-app-text truncate">{workspaceName}</p>
-              <p className="text-[10px] text-app-text-subtle">{userName}</p>
+            <button
+              className="sb-toggle"
+              onClick={() => setSidebarCollapsed((v) => !v)}
+              aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {sidebarCollapsed ? <ChevronsRight style={{ width: 14, height: 14 }} /> : <ChevronsLeft style={{ width: 14, height: 14 }} />}
+            </button>
+          </div>
+        </aside>
+
+        {/* ─── MAIN COLUMN ─────────────────────────────────────── */}
+        <main className="main">
+          {/* Top bar — breadcrumb, search, action icons */}
+          <div className="topbar">
+            <div className="crumb">
+              {crumbs.map((seg, i) => (
+                <span key={i} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  {i > 0 && <span className="crumb-sep">/</span>}
+                  <span className="crumb-seg">{seg.label}</span>
+                </span>
+              ))}
             </div>
-            <ChevronDown className={`h-3.5 w-3.5 text-app-text-subtle transition-transform ${wsOpen ? "rotate-180" : ""}`} />
-          </button>
 
-          {wsOpen && (
-            <div className="mt-1 ml-1 space-y-0.5">
-              {[
-                { label: "Profile & Business", href: "/profile", icon: User },
-                { label: "Uploads", href: "/uploads", icon: FolderOpen },
-              ].map((item) => {
-                const isActive = pathname === item.href;
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.href}
-                    onClick={() => router.push(item.href)}
-                    className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] font-medium transition-colors ${
-                      isActive ? "bg-emerald-500/10 text-emerald-400" : "text-app-text-subtle hover:bg-app-card-hover hover:text-app-text-muted"
-                    }`}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
+            <div className="search-pill" role="button" tabIndex={0}>
+              <Search style={{ width: 13, height: 13 }} />
+              <input placeholder="Search uploads, reports, accounts…" />
+              <span className="kbd">⌘K</span>
             </div>
-          )}
-        </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 space-y-0.5">
-          <p className="px-3 mb-2 text-[10px] font-medium uppercase tracking-widest text-app-text-subtle">
-            Platform
-          </p>
-          {navItems.map((item) => {
-            const isActive = pathname.startsWith(item.href);
-            const Icon = item.icon;
-            const comingSoon = (item as { comingSoon?: boolean }).comingSoon;
-
-            return (
-              <button
-                key={item.href}
-                onClick={() => !comingSoon && router.push(item.href)}
-                className={`relative flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-colors ${
-                  comingSoon
-                    ? "text-app-text/15 cursor-default"
-                    : isActive
-                    ? "bg-emerald-500/10 text-emerald-400"
-                    : "text-app-text-subtle hover:bg-app-card-hover hover:text-app-text-muted"
-                }`}
-              >
-                {isActive && !comingSoon && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-full bg-emerald-500" />
-                )}
-                <Icon className={`h-[18px] w-[18px] ${isActive && !comingSoon ? "text-emerald-400" : ""}`} />
-                <span>{item.label}</span>
-                {comingSoon && (
-                  <span className="ml-auto text-[9px] bg-app-card-hover text-app-text-subtle px-1.5 py-0.5 rounded-full font-normal">Soon</span>
-                )}
+            <div className="top-actions">
+              <button className="icon-btn" aria-label="Notifications" title="Notifications">
+                <Bell style={{ width: 15, height: 15 }} />
+                <span className="dot" />
               </button>
-            );
-          })}
-        </nav>
-
-        {/* Subscription upgrade card */}
-        <div className="px-3 pb-3">
-          <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-500/15 via-emerald-500/8 to-transparent border border-emerald-500/20 p-4">
-            <div className="absolute -right-4 -top-4 w-16 h-16 rounded-full bg-emerald-500/20 blur-2xl pointer-events-none" />
-            <div className="relative">
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center">
-                  <Sparkles className="w-3 h-3 text-app-text" />
-                </div>
-                <p className="text-[13px] font-semibold text-app-text">Upgrade to Pro</p>
-              </div>
-              <p className="text-[11px] text-app-text-muted leading-relaxed mb-3">
-                Unlimited analyses, multi-entity workspaces and priority AI models.
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => router.push("/pricing")}
-                  className="flex-1 flex items-center justify-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-app-text text-[11px] font-semibold py-1.5 transition-colors"
-                >
-                  Upgrade
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={() => router.push("/pricing")}
-                  className="text-[11px] text-app-text-subtle hover:text-app-text-muted font-medium transition-colors"
-                >
-                  Learn more
-                </button>
-              </div>
+              <button className="icon-btn" aria-label="Help" title="Help">
+                <HelpCircle style={{ width: 15, height: 15 }} />
+              </button>
+              <button
+                className="icon-btn"
+                aria-label="Profile & settings"
+                title="Profile & settings"
+                onClick={() => router.push("/profile")}
+              >
+                <Settings style={{ width: 15, height: 15 }} />
+              </button>
+              <button
+                className="icon-btn"
+                aria-label="Log out"
+                title="Log out"
+                onClick={handleLogout}
+              >
+                <LogOut style={{ width: 15, height: 15 }} />
+              </button>
             </div>
           </div>
-        </div>
 
-        {/* Theme toggle + Logout */}
-        <div className="border-t border-app-border/70 p-3 flex items-center gap-2">
-          <button
-            onClick={handleLogout}
-            className="flex flex-1 items-center gap-2.5 rounded-lg px-3 py-2.5 text-[13px] font-medium text-app-text-subtle transition-colors hover:bg-app-card-hover hover:text-app-text-muted"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Log out</span>
-          </button>
-          <ThemeToggle compact />
-        </div>
-      </aside>
+          {/* Page content */}
+          <div className="content">{children}</div>
+        </main>
 
-      <main className="flex-1 overflow-y-auto page-enter bg-app-canvas">
-        {children}
-      </main>
+        {/* ─── AI CHAT DOCK ───────────────────────────────────── */}
+        {hasAiAccess && (
+          <aside className="chat-dock">
+            <div className="chat-collapsed">
+              <div
+                className="chat-tab"
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  // Tap the floating panel — handled by AIChatPanel.
+                  document.dispatchEvent(new CustomEvent("cortex:open-chat"));
+                }}
+              >
+                <MessageSquare />
+                <span>CortexAI</span>
+              </div>
+              <div className="chat-pulse" />
+            </div>
+          </aside>
+        )}
 
-      {/* Floating CFO advisor — visible on every authenticated page
-          for users on the AI Assistant allowlist. Users not yet granted
-          access simply don't see the widget (no broken state, no 403
-          surface). Backend enforces the same gate on /api/chat/* so a
-          direct API call from a denied user gets a 403, not silence. */}
-      {hasAiAccess && <AIChatPanel />}
-    </div>
+        {/* Floating chat overlay — opens via tab in chat-dock or via its own button */}
+        {hasAiAccess && <AIChatPanel />}
+      </div>
     </FxProvider>
   );
 }

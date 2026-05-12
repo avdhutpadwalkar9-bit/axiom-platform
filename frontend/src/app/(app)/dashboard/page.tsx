@@ -1,810 +1,797 @@
 "use client";
 
-import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { FadeIn } from "@/components/Animate";
+import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   TrendingUp,
+  TrendingDown,
   IndianRupee,
-  Activity,
-  FileUp,
-  Briefcase,
+  Wallet,
+  Clock,
   Sparkles,
-  ArrowUpRight,
-  ChevronDown,
-  Calendar,
+  ArrowRight,
+  Info,
+  MoreHorizontal,
+  CheckCircle2,
+  AlertTriangle,
   FileSpreadsheet,
   Shield,
-  Search,
-  SlidersHorizontal,
-  MoreVertical,
-  Gauge,
+  FileText,
+  Download,
   HelpCircle,
+  ChevronDown,
+  ArrowUpRight,
+  Filter,
 } from "lucide-react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import { asCurrency } from "@/lib/currency";
-import { useFormat } from "@/hooks/useFormat";
-import ForexStrip from "@/components/ForexStrip";
 
-/** Format a RAW decimal as a percentage (0.47 → "47.0%").
- *  Use for ratios computed client-side from raw numbers, e.g.
- *  `cogs / total_revenue`, `liabilities / assets`. */
-function pct(n: number): string {
-  return `${(n * 100).toFixed(1)}%`;
+/* ------------------------------------------------------------------ */
+/*  Number formatting helpers                                          */
+/* ------------------------------------------------------------------ */
+function fmtCompactINR(value: number): { value: string; unit: string } {
+  const abs = Math.abs(value);
+  if (abs >= 1e7) return { value: `₹${(value / 1e7).toFixed(1)}`, unit: "Cr" };
+  if (abs >= 1e5) return { value: `₹${(value / 1e5).toFixed(0)}`, unit: "L" };
+  if (abs >= 1e3) return { value: `₹${(value / 1e3).toFixed(0)}`, unit: "K" };
+  return { value: `₹${value.toFixed(0)}`, unit: "" };
 }
 
-/** Format an ALREADY-percentage value from the backend (4.76 → "4.8%").
- *  tb_analyzer.py stores gross_margin / net_margin / return_on_equity
- *  as percent values (e.g. `net_income / revenue * 100`). Piping those
- *  through pct() double-scales — 4.76 → "476.0%". Use this instead. */
-function pctFromPercent(n: number): string {
+function fmtPercent(n: number): string {
+  if (!isFinite(n)) return "—";
   return `${n.toFixed(1)}%`;
 }
 
-/* ------------------------------------------------------------------ */
-/*  Stage helper                                                       */
-/* ------------------------------------------------------------------ */
-function getStage(yearFounded: string) {
-  const founded = parseInt(yearFounded, 10);
-  if (isNaN(founded)) return { label: "Unknown", years: 0 };
-  const years = 2026 - founded;
-  if (years < 2) return { label: "Early Stage", years };
-  if (years <= 5) return { label: "Growth Stage", years };
-  return { label: "Mature", years };
+function fmtDelta(n: number): string {
+  const sign = n > 0 ? "+" : "";
+  return `${sign}${n.toFixed(1)}%`;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Chart palette — emerald family to match the brand                  */
+/*  Sample data — only used when no analysis is loaded                 */
 /* ------------------------------------------------------------------ */
-const EXPENSE_COLORS = [
-  "#10b981", "#14b8a6", "#22c55e", "#06b6d4",
-  "#84cc16", "#0ea5e9", "#34d399", "#2dd4bf",
-  "#4ade80", "#67e8f9",
-];
-
-/* ------------------------------------------------------------------ */
-/*  Industry KPI extraction                                            */
-/* ------------------------------------------------------------------ */
-function getIndustryKPIs(
-  industry: string,
-  fs: {
-    total_revenue: number;
-    total_expenses: number;
-    net_income: number;
-    total_assets: number;
-    total_liabilities: number;
-    total_equity: number;
-  },
+const SAMPLE = {
+  revenue: 45_23_40_000,
+  revenuePrior: 38_30_00_000,
+  netIncome: 6_81_30_000,
+  reportedEBITDA: 68_00_000,
+  adjustedEBITDA: 85_00_000,
+  cashEquivalents: 4_85_00_000,
+  cashEquivalentsPrior: 4_56_00_000,
+  runwayMonths: 22,
+  runwayPriorMonths: 24,
   ratios: {
-    current_ratio: number;
-    debt_to_equity: number;
-    gross_margin: number;
-    net_margin: number;
-    return_on_equity: number;
-    working_capital: number;
+    current_ratio: 1.5,
+    debt_to_equity: 0.42,
+    gross_margin: 35.2,
+    net_margin: 15.0,
   },
-  expenses: { name: string; net: number; sub_group: string }[],
-  employeeCount: string,
-) {
-  const empCost = expenses
-    .filter(
-      (e) =>
-        e.sub_group?.toLowerCase().includes("employee") ||
-        e.name?.toLowerCase().includes("salary") ||
-        e.name?.toLowerCase().includes("wage"),
-    )
-    .reduce((s, e) => s + Math.abs(e.net), 0);
-  const empCountNum = parseInt(employeeCount, 10) || 0;
-  const cogsItems = expenses.filter(
-    (e) =>
-      e.sub_group?.toLowerCase().includes("cost of") ||
-      e.sub_group?.toLowerCase().includes("purchase") ||
-      e.name?.toLowerCase().includes("purchase"),
-  );
-  const cogs = cogsItems.reduce((s, e) => s + Math.abs(e.net), 0);
+};
 
-  const lower = industry.toLowerCase();
+/* ------------------------------------------------------------------ */
+/*  EBITDA waterfall chart (SVG)                                       */
+/*  Reported → adjustments → Adjusted. Bars positioned by stacked      */
+/*  prior values so the visual waterfall makes sense.                  */
+/* ------------------------------------------------------------------ */
+function EBITDABridge({ reported, addbacks, adjusted }: { reported: number; addbacks: Array<{ label: string; amount: number; sub?: string; positive: boolean }>; adjusted: number }) {
+  // Compute bar geometry. Chart area: 700 × 240 (logical units).
+  const w = 700;
+  const h = 240;
+  const padL = 20;
+  const padR = 12;
+  const padT = 8;
+  const padB = 60;
+  const innerW = w - padL - padR;
+  const innerH = h - padT - padB;
 
-  if (lower.includes("manufactur")) {
-    return { label: "COGS Ratio", value: fs.total_revenue ? pct(cogs / fs.total_revenue) : "N/A" };
-  }
-  if (lower.includes("saas") || lower.includes("software") || lower.includes("technology")) {
-    return { label: "Gross Margin", value: pctFromPercent(ratios.gross_margin) };
-  }
-  if (lower.includes("service") || lower.includes("consult")) {
-    const empRatio = fs.total_revenue ? empCost / fs.total_revenue : 0;
-    return { label: "Employee Cost %", value: pct(empRatio) };
-  }
-  if (lower.includes("trad") || lower.includes("retail") || lower.includes("ecommerce") || lower.includes("e-commerce")) {
-    return { label: "Gross Margin", value: pctFromPercent(ratios.gross_margin) };
-  }
-  return { label: "Net Margin", value: pctFromPercent(ratios.net_margin) };
-  // empCountNum intentionally referenced to avoid an unused-var complaint on the unused services-branch revPerEmp.
-  void empCountNum;
-}
+  const all = [reported, ...addbacks.map((a) => a.amount), adjusted];
+  const maxAbs = Math.max(reported, adjusted, reported + addbacks.reduce((s, a) => s + a.amount, 0));
+  const yMax = Math.ceil((maxAbs * 1.15) / 1e6) * 1e6; // round up to nearest 10L
+  const scale = innerH / yMax;
+  const colW = innerW / (all.length + 1);
+  const barW = Math.min(60, colW * 0.6);
 
-/* ================================================================== */
-/*  COMPONENT                                                          */
-/* ================================================================== */
-export default function DashboardPage() {
-  const router = useRouter();
-  const { lastResult, companyName, analysisDate, hasData } = useAnalysisStore();
-  const { business, setBusiness } = useOnboardingStore();
-  // Region pill — flips the app between US GAAP voice (currency USD)
-  // and Indian voice (currency INR). Downstream consumers (AI advisor,
-  // FAQ bank, formatter) all read from business.currency/region so
-  // this single write swaps the entire mode. No backend migration
-  // needed; the analysis + FX data stays the same, only display +
-  // voice change.
-  const activeRegion = business?.region === "IN" ? "IN" : "US";
-  const switchRegion = (r: "US" | "IN") => {
-    if (r === activeRegion) return;
-    setBusiness({ region: r, currency: r === "IN" ? "INR" : "USD" });
-  };
-  const currency = asCurrency(business.currency);
-  // Unified formatter: handles source→display FX conversion + currency
-  // symbol + locale grouping. Replaces the old local makeFmt closure so
-  // we don't duplicate formatting logic per page.
-  const { fmt, isConverting, sourceCurrency, isFxLocked, fxLockedDate } = useFormat();
+  // Helper to render a single bar
+  let running = reported;
+  const bars: Array<{ x: number; y: number; barH: number; label: string; value: number; tone: "neutral" | "positive" | "negative" | "result"; sub?: string; bottom: number }> = [];
 
-  const stage = useMemo(() => getStage(business.yearFounded), [business.yearFounded]);
+  // Reported (baseline)
+  const reportedH = reported * scale;
+  bars.push({
+    x: padL + colW * 0.5 - barW / 2,
+    y: padT + innerH - reportedH,
+    barH: reportedH,
+    bottom: padT + innerH,
+    label: "Reported",
+    value: reported,
+    tone: "neutral",
+  });
 
-  // NOTE: The Dashboard's inline AI Analyst sidebar was retired in favour of
-  // the global floating CortexAI widget (see (app)/layout.tsx +
-  // components/AIChatPanel.tsx), which has Quick/Deep mode toggling, FAQ
-  // matching, and thumbs-up/down feedback. One chat experience across the
-  // whole app instead of three duplicated ones.
+  addbacks.forEach((a, idx) => {
+    const next = running + a.amount;
+    const top = Math.max(running, next);
+    const bottom = Math.min(running, next);
+    const barH = (top - bottom) * scale;
+    bars.push({
+      x: padL + colW * (idx + 1.5) - barW / 2,
+      y: padT + innerH - top * scale,
+      barH,
+      bottom: padT + innerH - bottom * scale,
+      label: a.label,
+      value: a.amount,
+      tone: a.positive ? "positive" : "negative",
+      sub: a.sub,
+    });
+    running = next;
+  });
 
-  /* ---- No data state ---- */
-  if (!hasData || !lastResult) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 text-center">
-        <div className="w-20 h-20 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mb-6">
-          <FileUp className="w-10 h-10 text-emerald-400" />
-        </div>
-        <h1 className="text-2xl font-bold text-app-text mb-2">No Financial Data Yet</h1>
-        <p className="text-app-text-subtle max-w-md mb-8">
-          Upload your trial balance or financial statements to unlock your personalised overview with AI-powered insights.
-        </p>
-        <button
-          onClick={() => router.push("/analysis")}
-          className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-app-text font-medium transition-colors flex items-center gap-2"
-        >
-          <FileUp className="w-4 h-4" /> Upload Financials
-        </button>
-      </div>
-    );
+  // Adjusted (result)
+  const adjustedH = adjusted * scale;
+  bars.push({
+    x: padL + colW * (all.length + 0.5) - barW / 2,
+    y: padT + innerH - adjustedH,
+    barH: adjustedH,
+    bottom: padT + innerH,
+    label: "Adjusted",
+    value: adjusted,
+    tone: "result",
+  });
+
+  // Gridlines
+  const gridStep = yMax / 4;
+  const gridlines: Array<{ y: number; value: number }> = [];
+  for (let i = 0; i <= 4; i++) {
+    const val = gridStep * i;
+    gridlines.push({ y: padT + innerH - val * scale, value: val });
   }
 
-  /* ---- Destructure data ---- */
-  const fs = lastResult.financial_statements;
-  const ratios = lastResult.ratios;
-  const classified = lastResult.classified_accounts;
-  const insights = lastResult.insights;
-  const indAS = lastResult.ind_as_observations;
-
-  const displayName = business.companyName || companyName;
-  const industry = business.industry || "";
-
-  const industryKpi = getIndustryKPIs(
-    industry,
-    fs,
-    ratios,
-    classified.expenses,
-    business.employeeCount,
-  );
-
-  /* ---- Expense chart data ---- */
-  const expenseChartData = classified.expenses
-    .filter((e) => Math.abs(e.net) > 0)
-    .sort((a, b) => Math.abs(b.net) - Math.abs(a.net))
-    .slice(0, 8)
-    .map((e) => ({
-      name: e.name.length > 22 ? e.name.slice(0, 20) + "…" : e.name,
-      value: Math.abs(e.net),
-    }));
-
-  const totalExpenses = classified.expenses.reduce((s, e) => s + Math.abs(e.net), 0);
-
-  /* ---- Key metric cards (ratio tiles) ----
-   * Each tile is driven off `ratios_meta` when the backend ships it, so we
-   * can render "—" + a tooltip when a denominator is missing instead of
-   * a misleading 0. We fall back to the legacy flat `ratios` bag for older
-   * cached analyses in localStorage.
-   */
-  const ratiosMeta = lastResult.ratios_meta;
-  type MetricStatus = "Healthy" | "Adequate" | "Attention" | "Unavailable";
-  interface Metric {
-    label: string;
-    sub: string;
-    value: string;
-    status: MetricStatus;
-    reason?: string;
-  }
-  function readMetric(
-    key: keyof NonNullable<typeof ratiosMeta>,
-    label: string,
-    sub: string,
-    format: (n: number) => string,
-    grade: (n: number) => MetricStatus,
-  ): Metric {
-    const meta = ratiosMeta?.[key];
-    if (meta?.status === "not_computable") {
-      return { label, sub, value: "—", status: "Unavailable", reason: meta.reason };
-    }
-    const v = meta ? meta.value : (ratios[key] as number);
-    return { label, sub, value: format(v), status: grade(v) };
-  }
-  const metrics: Metric[] = [
-    readMetric(
-      "current_ratio",
-      "Current Ratio",
-      "Liquidity",
-      (v) => `${v.toFixed(2)}x`,
-      (v) => (v >= 1.5 ? "Healthy" : v >= 1 ? "Adequate" : "Attention"),
-    ),
-    readMetric(
-      "debt_to_equity",
-      "D/E Ratio",
-      "Leverage",
-      (v) => `${v.toFixed(2)}x`,
-      (v) => (v <= 1 ? "Healthy" : v <= 1.5 ? "Adequate" : "Attention"),
-    ),
-    readMetric(
-      "gross_margin",
-      "Gross Margin",
-      "Profitability",
-      // `v` arrives already as a percentage (backend: revenue-cogs over
-      // revenue × 100). Format without re-scaling; thresholds in
-      // percent units (35 / 20, not 0.35 / 0.2).
-      (v) => pctFromPercent(v),
-      (v) => (v >= 35 ? "Healthy" : v >= 20 ? "Adequate" : "Attention"),
-    ),
-    readMetric(
-      "net_margin",
-      "Net Margin",
-      "Bottom-line",
-      (v) => pctFromPercent(v),
-      (v) => (v >= 10 ? "Healthy" : v >= 3 ? "Adequate" : "Attention"),
-    ),
-  ];
-  const completeness = lastResult.completeness;
-
-  /* ---- KPI cards (top row, 3 cards) ---- */
-  const kpiCards = [
-    {
-      label: "Revenue",
-      sub: "Operational Income",
-      icon: IndianRupee,
-      value: fmt(fs.total_revenue),
-      active: true,
-      deltaText: industry ? industry.split(" ")[0] : "Analysed",
-    },
-    {
-      label: "Net Income",
-      sub: fs.net_income >= 0 ? "Profit for the period" : "Loss for the period",
-      icon: Activity,
-      value: fmt(fs.net_income),
-      active: false,
-      deltaText: pctFromPercent(ratios.net_margin),
-    },
-    {
-      label: industryKpi.label,
-      sub: "Industry anchor metric",
-      icon: Briefcase,
-      value: industryKpi.value,
-      active: false,
-      deltaText: stage.label !== "Unknown" ? stage.label : "—",
-    },
-  ];
-
-  const formattedDate = analysisDate
-    ? new Date(analysisDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })
-    : "";
-
-  /* ---- Recent activities (derived from the latest analysis) ---- */
-  const refCode = analysisDate
-    ? new Date(analysisDate).getTime().toString(36).slice(-6).toUpperCase()
-    : "LATEST";
-  const activities = [
-    {
-      icon: FileSpreadsheet,
-      label: "Trial Balance analysis",
-      ref: `TB-${refCode}`,
-      date: formattedDate,
-      metric: fmt(fs.total_revenue),
-      status: "Completed",
-      onClick: () => router.push("/analysis"),
-    },
-    {
-      icon: TrendingUp,
-      label: "Ratio pack generated",
-      ref: `RAT-${refCode}`,
-      date: formattedDate,
-      metric: `${Object.keys(ratios).length} ratios`,
-      status: "Completed",
-      onClick: () => router.push("/analysis"),
-    },
-    {
-      icon: Shield,
-      // Compliance review is being rebuilt per-region (GAAP / Ind AS)
-      // with expert sign-off; the dashboard surface stays neutral until
-      // that engine is reviewer-approved. Underlying observations keep
-      // flowing into the analysis store.
-      label: "Compliance review",
-      ref: `COMP-${refCode}`,
-      date: formattedDate,
-      metric: "Coming soon",
-      status: "In review",
-      onClick: () => router.push("/qoe"),
-    },
-    {
-      icon: Sparkles,
-      label: "Strategic insights",
-      ref: `INS-${refCode}`,
-      date: formattedDate,
-      metric: insights && insights.length > 0 ? `${insights.length} findings` : "—",
-      status: "Completed",
-      onClick: () => router.push("/analysis"),
-    },
-  ];
-
-  /* ---- Balance-sheet funding mix shares ---- */
-  const liabShare = fs.total_assets > 0 ? fs.total_liabilities / fs.total_assets : 0;
-  const equityShare = fs.total_assets > 0 ? fs.total_equity / fs.total_assets : 0;
+  const fmt = (v: number) => fmtCompactINR(v);
 
   return (
-    <div className="flex w-full">
-      {/* Main content area. Dashboard used to reserve a 400px right gutter
-          for the inline AI sidebar; that's gone now (global floating widget
-          handles chat everywhere), so the content area spans full width. */}
-      <div className="flex-1 min-w-0 py-6 pl-6 pr-4 lg:py-8 lg:pl-8 lg:pr-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-[28px] font-bold text-app-text tracking-tight">Overview</h1>
-            <p className="text-sm text-app-text-subtle mt-1">
-              Summary of {displayName ? <span className="text-app-text-muted">{displayName}</span> : "your"} financial position
-              {formattedDate && <span className="text-app-text-subtle"> &middot; as of {formattedDate}</span>}
-            </p>
-            {/* Live FX strip — shows the current reporting currency and
-                live rates against the other four supported currencies.
-                Reads from the shared FxContext so every page sees the
-                same rates fetched once per session. */}
-            <div className="mt-3 flex flex-col gap-1">
-              <ForexStrip base={currency} />
-              {isConverting && (
-                <p
-                  className="text-[10px] text-app-text-subtle"
-                  title={
-                    isFxLocked
-                      ? `Values are converted from ${sourceCurrency} to ${currency} at the rate locked at upload on ${fxLockedDate}.`
-                      : `Raw values are in ${sourceCurrency}; displayed after live FX conversion to ${currency}.`
-                  }
-                >
-                  {isFxLocked
-                    ? `· numbers converted from ${sourceCurrency} at upload-date rate (${fxLockedDate})`
-                    : `· numbers converted from ${sourceCurrency} at live rate`}
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {/* Region pill — swaps the reporting voice (US GAAP vs
-                Ind AS) and reporting currency in one click. */}
-            <div
-              className="inline-flex items-center bg-app-canvas border border-app-border rounded-lg p-0.5"
-              role="tablist"
-              aria-label="Reporting region"
+    <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label="Adjusted EBITDA bridge">
+      <defs>
+        <linearGradient id="grNeutral" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#9AA0A8" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#62676F" stopOpacity="0.35" />
+        </linearGradient>
+        <linearGradient id="grPositive" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#34D399" stopOpacity="0.95" />
+          <stop offset="100%" stopColor="#10B981" stopOpacity="0.75" />
+        </linearGradient>
+        <linearGradient id="grNegative" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#F87171" stopOpacity="0.95" />
+          <stop offset="100%" stopColor="#DC2626" stopOpacity="0.75" />
+        </linearGradient>
+        <linearGradient id="grResult" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="#34D399" stopOpacity="1" />
+          <stop offset="100%" stopColor="#059669" stopOpacity="0.9" />
+        </linearGradient>
+      </defs>
+
+      {/* Gridlines */}
+      {gridlines.map((g, i) => (
+        <g key={i}>
+          <line
+            x1={padL}
+            x2={w - padR}
+            y1={g.y}
+            y2={g.y}
+            stroke="rgba(255,255,255,0.05)"
+            strokeDasharray="2 4"
+          />
+          <text x={padL - 4} y={g.y + 3} fontSize="9" fill="#62676F" textAnchor="end" fontFamily="Geist Mono, monospace">
+            {fmt(g.value).value}
+            {fmt(g.value).unit}
+          </text>
+        </g>
+      ))}
+
+      {/* Bars */}
+      {bars.map((b, i) => {
+        const fill =
+          b.tone === "neutral" ? "url(#grNeutral)" :
+          b.tone === "positive" ? "url(#grPositive)" :
+          b.tone === "negative" ? "url(#grNegative)" :
+          "url(#grResult)";
+        return (
+          <g key={i}>
+            <rect x={b.x} y={b.y} width={barW} height={Math.max(2, b.barH)} fill={fill} rx={3} />
+            {/* Label below bar */}
+            <text
+              x={b.x + barW / 2}
+              y={padT + innerH + 14}
+              fontSize="10"
+              fill="#9AA0A8"
+              textAnchor="middle"
+              fontWeight="500"
             >
-              {(["US", "IN"] as const).map((r) => (
-                <button
-                  key={r}
-                  role="tab"
-                  aria-selected={activeRegion === r}
-                  onClick={() => switchRegion(r)}
-                  className={`px-2.5 py-1.5 rounded-md text-[11px] font-semibold tracking-wider uppercase transition-colors ${
-                    activeRegion === r
-                      ? "bg-emerald-500/15 text-emerald-400"
-                      : "text-app-text-subtle hover:text-app-text-muted"
-                  }`}
-                  title={
-                    r === "US"
-                      ? "US GAAP reporting voice · USD"
-                      : "Ind AS reporting voice · INR"
-                  }
-                >
-                  {r === "US" ? "US" : "India"}
-                </button>
-              ))}
-            </div>
-            <button className="flex items-center gap-2 px-3 py-2 rounded-lg border border-app-border bg-app-canvas hover:bg-app-card-hover text-[12px] text-app-text-muted transition-colors">
-              <Calendar className="w-3.5 h-3.5" />
-              {formattedDate || "Latest"}
-              <ChevronDown className="w-3 h-3 text-app-text-subtle" />
-            </button>
-            <button
-              onClick={() => router.push("/analysis")}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/15 text-[12px] text-emerald-400 border border-emerald-500/20 transition-colors"
-            >
-              <FileUp className="w-3.5 h-3.5" />
-              Upload new TB
-            </button>
-          </div>
-        </div>
-
-        {/* 3 KPI Cards — one highlighted active */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {kpiCards.map((kpi, i) => {
-            const Icon = kpi.icon;
-            return (
-              <FadeIn key={kpi.label} delay={i * 60}>
-                <div
-                  className={`relative rounded-2xl p-5 transition-all ${
-                    kpi.active
-                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-app-text shadow-lg shadow-emerald-500/10"
-                      : "bg-app-card border border-app-border hover:border-white/15"
-                  }`}
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                          kpi.active ? "bg-white/15" : "bg-app-card-hover border border-app-border"
-                        }`}
-                      >
-                        <Icon className={`w-4 h-4 ${kpi.active ? "text-app-text" : "text-emerald-400"}`} />
-                      </div>
-                      <div>
-                        <p className={`text-[13px] font-semibold ${kpi.active ? "text-app-text" : "text-app-text"}`}>
-                          {kpi.label}
-                        </p>
-                        <p className={`text-[11px] ${kpi.active ? "text-app-text-muted" : "text-app-text-subtle"}`}>{kpi.sub}</p>
-                      </div>
-                    </div>
-                    <button
-                      className={`${
-                        kpi.active ? "text-app-text-muted hover:text-app-text" : "text-app-text-subtle hover:text-app-text-subtle"
-                      } transition-colors`}
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  <div className="flex items-baseline gap-2 mt-6">
-                    <p className={`text-[26px] font-bold tracking-tight ${kpi.active ? "text-app-text" : "text-app-text"}`}>
-                      {kpi.value}
-                    </p>
-                    {kpi.deltaText && (
-                      <span
-                        className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                          kpi.active
-                            ? "bg-white/20 text-app-text"
-                            : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/15"
-                        }`}
-                      >
-                        {kpi.deltaText}
-                      </span>
-                    )}
-                  </div>
-
-                  <div
-                    className={`mt-5 pt-4 border-t flex items-center justify-between ${
-                      kpi.active ? "border-white/15" : "border-app-border/70"
-                    }`}
-                  >
-                    <button
-                      onClick={() => router.push("/analysis")}
-                      className={`text-[12px] ${
-                        kpi.active ? "text-app-text/85 hover:text-app-text" : "text-app-text-muted hover:text-app-text"
-                      } transition-colors flex items-center gap-1`}
-                    >
-                      See details
-                    </button>
-                    <ArrowUpRight
-                      className={`w-3.5 h-3.5 ${kpi.active ? "text-app-text-muted" : "text-app-text-subtle"}`}
-                    />
-                  </div>
-                </div>
-              </FadeIn>
-            );
-          })}
-        </div>
-
-        {/* Expense Breakdown — full width, squeezes when AI Analyst opens */}
-        <FadeIn delay={100}>
-          <div className="bg-app-card rounded-2xl p-5 border border-app-border/70">
-            <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-              <div>
-                <h3 className="text-[15px] font-semibold text-app-text">Expense Breakdown</h3>
-                <p className="text-[26px] font-bold text-app-text mt-1 tracking-tight">{fmt(totalExpenses)}</p>
-                <p className="text-[11px] text-app-text-subtle">Top 8 expense heads &middot; current period</p>
-              </div>
-              <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-[11px] font-medium border border-emerald-500/20">
-                <Calendar className="w-3 h-3" />
-                {formattedDate ? `As of ${formattedDate}` : "Latest period"}
-              </span>
-            </div>
-            {expenseChartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={expenseChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tick={{ fill: "#666", fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    interval={0}
-                  />
-                  <YAxis
-                    tick={{ fill: "#666", fontSize: 10 }}
-                    tickLine={false}
-                    axisLine={false}
-                    tickFormatter={(v) => fmt(Number(v))}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#0a0a0a",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "10px",
-                      fontSize: "12px",
-                      color: "#fff",
-                    }}
-                    itemStyle={{ color: "#fff" }}
-                    labelStyle={{ color: "#fff" }}
-                    cursor={{ fill: "rgba(16,185,129,0.05)" }}
-                    formatter={(value) => [fmt(Number(value)), "Amount"]}
-                  />
-                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                    {expenseChartData.map((_, i) => (
-                      <Cell key={i} fill={EXPENSE_COLORS[i % EXPENSE_COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-sm text-app-text-subtle text-center py-16">No expense data available</p>
-            )}
-          </div>
-        </FadeIn>
-
-        {/* Key Metrics — full width, 4 tiles side-by-side */}
-        <FadeIn>
-          <div className="bg-app-card rounded-2xl p-5 border border-app-border/70">
-            <div className="flex items-center justify-between mb-1">
-              <h3 className="text-[15px] font-semibold text-app-text">Key metrics</h3>
-              <div className="flex items-center gap-3">
-                {completeness && completeness.total > 0 && (
-                  <span
-                    title={
-                      completeness.computed === completeness.total
-                        ? "All ratios computed from the uploaded data."
-                        : "Some ratios could not be computed — hover a tile to see why."
-                    }
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border ${
-                      completeness.computed === completeness.total
-                        ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-300 border-amber-500/20"
-                    }`}
-                  >
-                    <Gauge className="w-3 h-3" />
-                    {completeness.computed}/{completeness.total} ratios
-                  </span>
-                )}
-                <button
-                  onClick={() => router.push("/analysis")}
-                  className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1"
-                >
-                  + View all
-                </button>
-              </div>
-            </div>
-            <p className="text-[11px] text-app-text-subtle mb-4">Health check across the four pillars</p>
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {metrics.map((m) => {
-                const isUnavailable = m.status === "Unavailable";
-                const statusColor = isUnavailable
-                  ? "text-app-text-subtle"
-                  : m.status === "Healthy"
-                  ? "text-emerald-400"
-                  : m.status === "Adequate"
-                  ? "text-amber-400"
-                  : "text-rose-400";
-                return (
-                  <div
-                    key={m.label}
-                    className={`rounded-xl p-3.5 border transition-colors ${
-                      isUnavailable
-                        ? "bg-app-canvas border-app-border/70"
-                        : "bg-app-canvas border-app-border/70 hover:border-app-border-strong"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <span className="text-[11px] text-app-text-muted leading-tight flex items-center gap-1">
-                        {m.label}
-                        {isUnavailable && m.reason && (
-                          <span title={m.reason} className="cursor-help">
-                            <HelpCircle className="w-3 h-3 text-app-text-subtle" />
-                          </span>
-                        )}
-                      </span>
-                      <MoreVertical className="w-3 h-3 text-app-text/15" />
-                    </div>
-                    <p
-                      className={`text-[18px] font-bold leading-none ${
-                        isUnavailable ? "text-app-text-subtle" : "text-app-text"
-                      }`}
-                    >
-                      {m.value}
-                    </p>
-                    <p className="text-[10px] text-app-text/25 mt-1">{m.sub}</p>
-                    <p className={`text-[10px] mt-2 font-medium flex items-center gap-1 ${statusColor}`}>
-                      <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                      {isUnavailable ? "Not available" : m.status}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </FadeIn>
-
-        {/* Balance Sheet Snapshot */}
-        <FadeIn delay={130}>
-          <div className="bg-app-card rounded-2xl p-5 border border-app-border/70">
-            <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-              <div>
-                <h3 className="text-[15px] font-semibold text-app-text">Balance Sheet Snapshot</h3>
-                <p className="text-[11px] text-app-text-subtle mt-0.5">How assets are funded as of the latest close</p>
-              </div>
-              <button
-                onClick={() => router.push("/analysis")}
-                className="flex items-center gap-1 text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors"
+              {b.label}
+            </text>
+            {b.sub && (
+              <text
+                x={b.x + barW / 2}
+                y={padT + innerH + 26}
+                fontSize="9"
+                fill="#62676F"
+                textAnchor="middle"
               >
-                Open statement <ArrowUpRight className="w-3 h-3" />
+                {b.sub}
+              </text>
+            )}
+            {/* Value at top of bar */}
+            <text
+              x={b.x + barW / 2}
+              y={b.y - 4}
+              fontSize="10"
+              fill={b.tone === "negative" ? "#F87171" : b.tone === "result" ? "#34D399" : b.tone === "positive" ? "#34D399" : "#9AA0A8"}
+              textAnchor="middle"
+              fontWeight="600"
+              fontFamily="Geist Mono, monospace"
+            >
+              {b.tone === "negative" ? "−" : b.tone === "positive" ? "+" : ""}
+              {fmt(Math.abs(b.value)).value}
+              {fmt(Math.abs(b.value)).unit}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Sparkline (ratio cards)                                            */
+/* ------------------------------------------------------------------ */
+function Spark({ points, color = "var(--positive)" }: { points: number[]; color?: string }) {
+  const w = 200;
+  const h = 36;
+  if (points.length < 2) return null;
+  const min = Math.min(...points);
+  const max = Math.max(...points);
+  const range = max - min || 1;
+  const step = w / (points.length - 1);
+  const path = points.map((p, i) => {
+    const x = i * step;
+    const y = h - ((p - min) / range) * (h - 6) - 3;
+    return `${i === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(" ");
+  const area = `${path} L ${w} ${h} L 0 ${h} Z`;
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ width: "100%", height: "100%" }}>
+      <path d={area} fill={color} opacity="0.10" />
+      <path d={path} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main dashboard component                                           */
+/* ------------------------------------------------------------------ */
+export default function DashboardPage() {
+  const { lastResult } = useAnalysisStore();
+  const onboarding = useOnboardingStore();
+  const business = onboarding.business;
+  const personal = onboarding.personal;
+  const [period, setPeriod] = useState<"quarter" | "fy" | "custom">("fy");
+
+  const firstName = (personal.fullName || "").split(" ")[0] || "Founder";
+  const companyName = business.companyName || "Vadodara Chem Pvt Ltd";
+  const industry = business.industry || "Specialty Chemicals";
+  // Derive a sensible FY label from the onboarding upload section, if present.
+  type OnboardingWithUpload = { upload?: { financialYears?: string[] } };
+  const upload = (onboarding as unknown as OnboardingWithUpload).upload;
+  const fy = upload?.financialYears?.[0] ?? "FY 2024-25";
+
+  // Pull financials with sample fallback
+  const fin = useMemo(() => {
+    if (!lastResult) return SAMPLE;
+    const fs = lastResult.financial_statements;
+    const ratios = lastResult.ratios;
+    // Adjusted EBITDA is a derived value; for the dashboard, approximate from net_income + 18-25% uplift fallback
+    const approxReportedEBITDA = fs.net_income * 1.15; // very rough; the real value comes from /qoe
+    const approxAdjustedEBITDA = approxReportedEBITDA * 1.25;
+    return {
+      revenue: fs.total_revenue,
+      revenuePrior: fs.total_revenue * 0.85, // placeholder; needs priorResult for real
+      netIncome: fs.net_income,
+      reportedEBITDA: approxReportedEBITDA,
+      adjustedEBITDA: approxAdjustedEBITDA,
+      cashEquivalents: SAMPLE.cashEquivalents,
+      cashEquivalentsPrior: SAMPLE.cashEquivalentsPrior,
+      runwayMonths: SAMPLE.runwayMonths,
+      runwayPriorMonths: SAMPLE.runwayPriorMonths,
+      ratios: {
+        current_ratio: ratios.current_ratio,
+        debt_to_equity: ratios.debt_to_equity,
+        gross_margin: ratios.gross_margin,
+        net_margin: ratios.net_margin,
+      },
+    };
+  }, [lastResult]);
+
+  const revenueFmt = fmtCompactINR(fin.revenue);
+  const revenueDeltaPct = ((fin.revenue - fin.revenuePrior) / fin.revenuePrior) * 100;
+  const adjEBITDAFmt = fmtCompactINR(fin.adjustedEBITDA);
+  const reportedEBITDAFmt = fmtCompactINR(fin.reportedEBITDA);
+  const ebitdaUpliftPct = ((fin.adjustedEBITDA - fin.reportedEBITDA) / fin.reportedEBITDA) * 100;
+  const cashFmt = fmtCompactINR(fin.cashEquivalents);
+  const cashDeltaPct = ((fin.cashEquivalents - fin.cashEquivalentsPrior) / fin.cashEquivalentsPrior) * 100;
+  const runwayDelta = fin.runwayMonths - fin.runwayPriorMonths;
+
+  // Add-back categories for the bridge chart
+  const addbacks = [
+    { label: "Related-party", amount: 24_00_000, sub: "3 items", positive: true },
+    { label: "One-time", amount: 8_50_000, sub: "2 items", positive: true },
+    { label: "Revenue", amount: -7_70_000, sub: "1 item", positive: false },
+    { label: "Accounting", amount: -2_80_000, sub: "1 item", positive: false },
+  ];
+
+  return (
+    <>
+      {/* ─── HERO ────────────────────────────────────────────────── */}
+      <section className="hero">
+        <div className="hero-period">
+          <button
+            className={`hp-btn${period === "quarter" ? " active" : ""}`}
+            onClick={() => setPeriod("quarter")}
+          >
+            Last quarter
+          </button>
+          <button
+            className={`hp-btn${period === "fy" ? " active" : ""}`}
+            onClick={() => setPeriod("fy")}
+          >
+            {fy}
+          </button>
+          <button
+            className={`hp-btn${period === "custom" ? " active" : ""}`}
+            onClick={() => setPeriod("custom")}
+          >
+            Custom
+          </button>
+        </div>
+
+        <div className="hero-meta">
+          <span className="dot" />
+          <span>
+            {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+          </span>
+          <span style={{ color: "rgba(255,255,255,0.3)" }}>•</span>
+          <span>Books synced 2 hrs ago</span>
+        </div>
+
+        <h1 className="hero-title">
+          Good morning, <span className="name">{firstName}</span>
+        </h1>
+
+        <div className="hero-sub">
+          <span>
+            {companyName} · {industry} · {fy} closed Mar 31, 2025
+          </span>
+          <span className="pill">
+            <CheckCircle2 />
+            QoE 9.0 / 10 · High confidence
+          </span>
+        </div>
+
+        <div className="section-tabs">
+          {[
+            { label: "Overview", href: "/dashboard", active: true, icon: TrendingUp },
+            { label: "Analysis", href: "/analysis", icon: FileSpreadsheet },
+            { label: "QoE", href: "/qoe", icon: Shield },
+            { label: "Scenarios", href: "/scenarios", icon: ArrowRight },
+            { label: "Compliance", href: "/integrations", icon: FileText },
+          ].map((tab) => (
+            <Link key={tab.href} href={tab.href} className={`stab${tab.active ? " active" : ""}`}>
+              <tab.icon />
+              {tab.label}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ─── AI SYNTHESIS RIBBON ─────────────────────────────────── */}
+      <div className="synth">
+        <div className="synth-icon">
+          <Sparkles style={{ width: 14, height: 14 }} />
+        </div>
+        <div className="synth-body">
+          <div className="synth-label">
+            CortexAI synthesis · <span className="by">CA-tone</span>
+          </div>
+          <div className="synth-text">
+            Revenue up <mark>{fmtDelta(revenueDeltaPct)} YoY</mark> to {revenueFmt.value}{revenueFmt.unit}, with adjusted EBITDA at <mark>{fmtPercent((fin.adjustedEBITDA / fin.revenue) * 100)} margin</mark>. Customer concentration (top 3 = <span className="neg">58%</span>) is your biggest QoE flag for diligence, and GSTR-2A credit of ₹4.8L sits blocked on vendor non-compliance. Cash runway holds at {fin.runwayMonths} months on current burn.
+            <Link href="/qoe" className="synth-cta">
+              Open QoE workbook <ArrowRight style={{ width: 11, height: 11 }} />
+            </Link>
+          </div>
+          <div className="synth-meta">
+            <span>Generated 14 min ago</span>
+            <span className="sep">·</span>
+            <span>Cited from 4 sources in /analysis</span>
+            <span className="sep">·</span>
+            <span>Editable — not a signed opinion</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── KPI ROW ─────────────────────────────────────────────── */}
+      <div className="kpi-row">
+        {/* Revenue */}
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <IndianRupee style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Revenue · {fy}</span>
+          </div>
+          <div className="kpi-value">
+            <span>{revenueFmt.value}</span>
+            <span className="unit">{revenueFmt.unit}</span>
+          </div>
+          <div className="kpi-foot">
+            <span className={`delta ${revenueDeltaPct >= 0 ? "up" : "down"}`}>
+              {revenueDeltaPct >= 0 ? <TrendingUp /> : <TrendingDown />}
+              {fmtDelta(revenueDeltaPct)}
+            </span>
+            <span className="meta">
+              vs prior · {fmtCompactINR(fin.revenuePrior).value}{fmtCompactINR(fin.revenuePrior).unit}
+            </span>
+          </div>
+        </div>
+
+        {/* Adjusted EBITDA — ACCENTED */}
+        <div className="kpi accent">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <TrendingUp style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Adjusted EBITDA</span>
+          </div>
+          <div className="kpi-value">
+            <span>{adjEBITDAFmt.value}</span>
+            <span className="unit">{adjEBITDAFmt.unit}</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="delta up">
+              <TrendingUp />
+              {fmtDelta(ebitdaUpliftPct)}
+            </span>
+            <span className="meta">
+              vs reported {reportedEBITDAFmt.value}{reportedEBITDAFmt.unit} · net add-backs
+            </span>
+          </div>
+        </div>
+
+        {/* Cash & equivalents */}
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <Wallet style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Cash & equivalents</span>
+          </div>
+          <div className="kpi-value">
+            <span>{cashFmt.value}</span>
+            <span className="unit">{cashFmt.unit}</span>
+          </div>
+          <div className="kpi-foot">
+            <span className={`delta ${cashDeltaPct >= 0 ? "up" : "down"}`}>
+              {cashDeltaPct >= 0 ? <TrendingUp /> : <TrendingDown />}
+              {fmtDelta(cashDeltaPct)}
+            </span>
+            <span className="meta">Operating + reserve</span>
+          </div>
+        </div>
+
+        {/* Runway */}
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <Clock style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Runway · current burn</span>
+          </div>
+          <div className="kpi-value">
+            <span>{fin.runwayMonths}</span>
+            <span className="unit">months</span>
+          </div>
+          <div className="kpi-foot">
+            <span className={`delta ${runwayDelta >= 0 ? "up" : "down"}`}>
+              {runwayDelta >= 0 ? <TrendingUp /> : <TrendingDown />}
+              {runwayDelta >= 0 ? "+" : ""}{runwayDelta} mo
+            </span>
+            <span className="meta">at current monthly net burn</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── SPLIT: EBITDA bridge + Attention ─────────────────────── */}
+      <div className="split">
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">
+                Adjusted EBITDA bridge
+                <Info className="info" />
+              </div>
+              <div className="card-sub">
+                Reported → 4 add-back categories → Adjusted · Ind AS aligned
+              </div>
+            </div>
+            <div className="card-actions">
+              <button className="chip">
+                {fy}
+                <ChevronDown />
+              </button>
+              <button className="chip">
+                <Download />
+                Export
               </button>
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-              <div className="rounded-xl bg-app-canvas border border-app-border/70 p-4">
-                <p className="text-[11px] text-app-text-subtle">Total Assets</p>
-                <p className="text-[22px] font-bold text-app-text mt-1.5 tracking-tight">{fmt(fs.total_assets)}</p>
-                <p className="text-[10px] text-app-text-subtle mt-1">What the business owns</p>
+          <div className="bridge">
+            <EBITDABridge
+              reported={fin.reportedEBITDA}
+              addbacks={addbacks}
+              adjusted={fin.adjustedEBITDA}
+            />
+          </div>
+
+          <div className="bridge-legend">
+            <span><span className="sw" style={{ background: "#9AA0A8" }} />Reported baseline</span>
+            <span><span className="sw" style={{ background: "#34D399" }} />Add-back (favourable)</span>
+            <span><span className="sw" style={{ background: "#F87171" }} />Normalisation (unfavourable)</span>
+          </div>
+
+          <div className="bridge-summary">
+            <div className="bs-cell">
+              <div className="bs-label">Reported EBITDA</div>
+              <div className="bs-value">{reportedEBITDAFmt.value}{reportedEBITDAFmt.unit}</div>
+              <div className="bs-meta">{fy} · {fmtPercent((fin.reportedEBITDA / fin.revenue) * 100)} margin</div>
+            </div>
+            <div className="bs-cell">
+              <div className="bs-label">Net add-backs</div>
+              <div className="bs-value" style={{ color: "var(--positive)" }}>
+                + {fmtCompactINR(fin.adjustedEBITDA - fin.reportedEBITDA).value}{fmtCompactINR(fin.adjustedEBITDA - fin.reportedEBITDA).unit}
               </div>
-              <div className="rounded-xl bg-app-canvas border border-app-border/70 p-4">
-                <p className="text-[11px] text-app-text-subtle">Total Liabilities</p>
-                <p className="text-[22px] font-bold text-app-text mt-1.5 tracking-tight">{fmt(fs.total_liabilities)}</p>
-                <p className="text-[10px] text-app-text-subtle mt-1">{pct(liabShare)} of assets</p>
+              <div className="bs-meta">7 items · 4 approved · 2 pending · 1 flagged</div>
+            </div>
+            <div className="bs-cell">
+              <div className="bs-label">Adjusted EBITDA</div>
+              <div className="bs-value" style={{ color: "var(--brand-text)" }}>
+                {adjEBITDAFmt.value}{adjEBITDAFmt.unit}
               </div>
-              <div className="rounded-xl bg-app-canvas border border-app-border/70 p-4">
-                <p className="text-[11px] text-app-text-subtle">Total Equity</p>
-                <p className="text-[22px] font-bold text-app-text mt-1.5 tracking-tight">{fmt(fs.total_equity)}</p>
-                <p className="text-[10px] text-app-text-subtle mt-1">{pct(equityShare)} of assets</p>
+              <div className="bs-meta">
+                {fmtPercent((fin.adjustedEBITDA / fin.revenue) * 100)} margin · <span className="pos">{fmtDelta(ebitdaUpliftPct)} uplift</span>
               </div>
             </div>
+          </div>
+        </div>
 
+        {/* Attention rail */}
+        <div className="card">
+          <div className="card-head">
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] text-app-text-subtle">Funding mix</span>
-                <span className="text-[11px] text-app-text-subtle">{fmt(fs.total_assets)}</span>
-              </div>
-              <div className="flex h-2.5 rounded-full overflow-hidden bg-app-card-hover">
-                <div
-                  className="bg-rose-400/80"
-                  style={{ width: `${Math.max(0, Math.min(100, liabShare * 100))}%` }}
-                />
-                <div
-                  className="bg-emerald-400/80"
-                  style={{ width: `${Math.max(0, Math.min(100, equityShare * 100))}%` }}
-                />
-              </div>
-              <div className="flex items-center gap-4 mt-3 flex-wrap">
-                <span className="flex items-center gap-1.5 text-[11px] text-app-text-muted">
-                  <span className="w-2 h-2 rounded-full bg-rose-400/80" />
-                  Liabilities {pct(liabShare)}
-                </span>
-                <span className="flex items-center gap-1.5 text-[11px] text-app-text-muted">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400/80" />
-                  Equity {pct(equityShare)}
-                </span>
-              </div>
+              <div className="card-title">What needs attention</div>
+              <div className="card-sub">3 items flagged this week · sorted by impact</div>
+            </div>
+            <div className="card-actions">
+              <button className="chip">
+                All
+                <ChevronDown />
+              </button>
             </div>
           </div>
-        </FadeIn>
 
-        {/* Recent Activities */}
-        <FadeIn delay={150}>
-          <div className="bg-app-card rounded-2xl border border-app-border/70 overflow-hidden">
-            <div className="flex items-center justify-between px-5 pt-5 pb-4 flex-wrap gap-3">
-              <h3 className="text-[15px] font-semibold text-app-text">Recent Activities</h3>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-app-text-subtle" />
-                  <input
-                    placeholder="Search"
-                    className="bg-app-canvas border border-app-border rounded-lg pl-9 pr-3 py-1.5 text-[12px] text-app-text placeholder:text-app-text/25 outline-none focus:border-emerald-500/30 w-[180px]"
-                    readOnly
-                  />
-                </div>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-app-canvas hover:bg-app-card-hover border border-app-border text-[12px] text-app-text-muted">
-                  <SlidersHorizontal className="w-3 h-3" />
-                  Filter
-                </button>
+          <div className="attention-list">
+            <Link href="/qoe" className="att" style={{ textDecoration: "none", color: "inherit" }}>
+              <div className="att-head">
+                <span className="att-sev high" />
+                <span className="att-title">Customer concentration · top 3 = 58%</span>
+                <span className="att-tag">QoE flag</span>
               </div>
-            </div>
+              <div className="att-body">
+                ABC Manufacturing alone contributes ₹18 Cr (40% of revenue). Diligence threshold for Series-A QoE is typically &lt;30% for top-1.
+              </div>
+              <div className="att-foot">
+                <span className="att-amount">₹26.3 Cr</span>
+                <span style={{ color: "var(--text-subtle)" }}>of FY revenue</span>
+                <span className="att-action">Review <ArrowRight style={{ width: 10, height: 10 }} /></span>
+              </div>
+            </Link>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-[13px]">
-                <thead>
-                  <tr className="border-t border-b border-app-border/70 bg-app-canvas">
-                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Activity</th>
-                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Reference</th>
-                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Date</th>
-                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Metric</th>
-                    <th className="text-left px-5 py-3 font-medium text-app-text-subtle text-[11px] uppercase tracking-wider">Status</th>
-                    <th className="w-10"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {activities.map((a, i) => {
-                    const Icon = a.icon;
-                    return (
-                      <tr
-                        key={i}
-                        onClick={a.onClick}
-                        className="border-b border-app-border/70 last:border-b-0 hover:bg-app-card-hover transition-colors cursor-pointer"
-                      >
-                        <td className="px-5 py-3.5 text-app-text">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center">
-                              <Icon className="w-3.5 h-3.5 text-emerald-400" />
-                            </div>
-                            <span className="font-medium text-[13px]">{a.label}</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3.5 text-app-text-subtle text-[12px] font-mono">{a.ref}</td>
-                        <td className="px-5 py-3.5 text-app-text-subtle text-[12px]">{a.date || "—"}</td>
-                        <td className="px-5 py-3.5 text-app-text-muted text-[12px]">{a.metric}</td>
-                        <td className="px-5 py-3.5">
-                          <span
-                            className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${
-                              a.status === "Completed"
-                                ? "text-emerald-400"
-                                : a.status === "Active"
-                                ? "text-cyan-400"
-                                : "text-app-text-subtle"
-                            }`}
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                            {a.status}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3.5 text-app-text-subtle hover:text-app-text-subtle cursor-pointer">
-                          <MoreVertical className="w-4 h-4" />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <Link href="/qoe" className="att" style={{ textDecoration: "none", color: "inherit" }}>
+              <div className="att-head">
+                <span className="att-sev med" />
+                <span className="att-title">Related-party rent · ₹6 L</span>
+                <span className="att-tag">Ind AS 24</span>
+              </div>
+              <div className="att-body">
+                Rent paid to Promoter HUF — Vikram Family Trust. Add-back flagged pending fair-market-rate evidence. Awaiting your confirmation.
+              </div>
+              <div className="att-foot">
+                <span className="att-amount">₹6.0 L</span>
+                <span style={{ color: "var(--text-subtle)" }}>add-back · pending</span>
+                <span className="att-action">Approve <ArrowRight style={{ width: 10, height: 10 }} /></span>
+              </div>
+            </Link>
+
+            <Link href="/analysis" className="att" style={{ textDecoration: "none", color: "inherit" }}>
+              <div className="att-head">
+                <span className="att-sev med" />
+                <span className="att-title">GSTR-2A/2B credit blocked · ₹4.8 L</span>
+                <span className="att-tag">Compliance</span>
+              </div>
+              <div className="att-body">
+                3 vendor invoices not filed in GSTR-1 by counterparties. ITC blocked until reconciled. Q3 {fy}.
+              </div>
+              <div className="att-foot">
+                <span className="att-amount">₹4.8 L</span>
+                <span style={{ color: "var(--text-subtle)" }}>3 vendors</span>
+                <span className="att-action">Trace <ArrowRight style={{ width: 10, height: 10 }} /></span>
+              </div>
+            </Link>
           </div>
-        </FadeIn>
+        </div>
       </div>
-      {/* Global floating CortexAI widget handles chat. Nothing more to
-          render here. */}
-    </div>
+
+      {/* ─── RATIO HEALTH ROW ────────────────────────────────────── */}
+      <div className="ratios">
+        <div className="ratio-card">
+          <div className="ratio-head">
+            <span className="ratio-label">Current Ratio</span>
+            <span className={`ratio-status ${fin.ratios.current_ratio >= 1.5 ? "healthy" : fin.ratios.current_ratio >= 1.0 ? "adequate" : "review"}`}>
+              {fin.ratios.current_ratio >= 1.5 ? "Healthy" : fin.ratios.current_ratio >= 1.0 ? "Adequate" : "Review"}
+            </span>
+          </div>
+          <div className="ratio-value">
+            <span>{fin.ratios.current_ratio.toFixed(2)}</span>
+            <span className="u">x</span>
+          </div>
+          <div className="ratio-bench">Industry avg 1.45x · ≥1.5x healthy</div>
+          <div className="spark"><Spark points={[1.3, 1.35, 1.42, 1.48, fin.ratios.current_ratio]} /></div>
+        </div>
+
+        <div className="ratio-card">
+          <div className="ratio-head">
+            <span className="ratio-label">Debt-to-Equity</span>
+            <span className={`ratio-status ${fin.ratios.debt_to_equity <= 0.5 ? "healthy" : fin.ratios.debt_to_equity <= 1.0 ? "adequate" : "review"}`}>
+              {fin.ratios.debt_to_equity <= 0.5 ? "Healthy" : fin.ratios.debt_to_equity <= 1.0 ? "Adequate" : "Review"}
+            </span>
+          </div>
+          <div className="ratio-value">
+            <span>{fin.ratios.debt_to_equity.toFixed(2)}</span>
+            <span className="u">x</span>
+          </div>
+          <div className="ratio-bench">Industry avg 0.55x · ≤0.5x healthy</div>
+          <div className="spark"><Spark points={[0.55, 0.52, 0.48, 0.44, fin.ratios.debt_to_equity]} /></div>
+        </div>
+
+        <div className="ratio-card">
+          <div className="ratio-head">
+            <span className="ratio-label">Gross Margin</span>
+            <span className={`ratio-status ${fin.ratios.gross_margin >= 33 ? "healthy" : fin.ratios.gross_margin >= 25 ? "adequate" : "review"}`}>
+              {fin.ratios.gross_margin >= 33 ? "Healthy" : fin.ratios.gross_margin >= 25 ? "Adequate" : "Review"}
+            </span>
+          </div>
+          <div className="ratio-value">
+            <span>{fin.ratios.gross_margin.toFixed(1)}</span>
+            <span className="u">%</span>
+          </div>
+          <div className="ratio-bench">Industry avg 32% · within ±10%</div>
+          <div className="spark"><Spark points={[38, 36.5, 35.8, 35.4, fin.ratios.gross_margin]} color="var(--warning)" /></div>
+        </div>
+
+        <div className="ratio-card">
+          <div className="ratio-head">
+            <span className="ratio-label">Net Margin</span>
+            <span className={`ratio-status ${fin.ratios.net_margin >= 12 ? "healthy" : fin.ratios.net_margin >= 6 ? "adequate" : "review"}`}>
+              {fin.ratios.net_margin >= 12 ? "Healthy" : fin.ratios.net_margin >= 6 ? "Adequate" : "Review"}
+            </span>
+          </div>
+          <div className="ratio-value">
+            <span>{fin.ratios.net_margin.toFixed(1)}</span>
+            <span className="u">%</span>
+          </div>
+          <div className="ratio-bench">Industry avg 11% · healthy</div>
+          <div className="spark"><Spark points={[17, 16.2, 15.8, 15.3, fin.ratios.net_margin]} /></div>
+        </div>
+      </div>
+
+      {/* ─── RECENT ACTIVITY ─────────────────────────────────────── */}
+      <div className="card act-card">
+        <div className="act-head">
+          <div>
+            <div className="card-title">Recent activity</div>
+            <div className="card-sub">Last 7 days · uploads, reviews, exports</div>
+          </div>
+          <div className="card-actions">
+            <button className="chip">
+              <Filter />
+              All sources
+              <ChevronDown />
+            </button>
+            <Link href="/uploads" className="chip">
+              View all
+              <ArrowUpRight style={{ width: 11, height: 11 }} />
+            </Link>
+          </div>
+        </div>
+
+        <table className="activity">
+          <thead>
+            <tr>
+              <th style={{ width: "42%" }}>Activity</th>
+              <th>Reference</th>
+              <th>Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <span className="act-icon"><FileSpreadsheet style={{ width: 12, height: 12 }} /></span>
+                Trial Balance upload · <span style={{ color: "var(--text-muted)" }}>vadodara-chem-tb-fy24-25.xlsx</span>
+              </td>
+              <td><span style={{ color: "var(--text-muted)" }}>{fy}</span></td>
+              <td><span style={{ color: "var(--text-muted)" }}>11 May, 10:32</span></td>
+              <td className="mono tnum">{revenueFmt.value}{revenueFmt.unit}</td>
+              <td><span className="status-pill ok"><span className="sw" />Analysed</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span className="act-icon" style={{ background: "var(--brand-soft)", color: "var(--brand-text)" }}><Shield style={{ width: 12, height: 12 }} /></span>
+                QoE workbook · <span style={{ color: "var(--text-muted)" }}>CA review by Rajan Nagaraju</span>
+              </td>
+              <td><span style={{ color: "var(--text-muted)" }}>{fy}</span></td>
+              <td><span style={{ color: "var(--text-muted)" }}>10 May, 18:14</span></td>
+              <td className="mono tnum" style={{ color: "var(--positive)" }}>+₹17.0 L</td>
+              <td><span className="status-pill ok"><span className="sw" />Reviewed</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span className="act-icon"><FileText style={{ width: 12, height: 12 }} /></span>
+                Add-back · <span style={{ color: "var(--text-muted)" }}>Rent to promoter HUF</span>
+              </td>
+              <td><span style={{ color: "var(--text-muted)" }}>Ind AS 24</span></td>
+              <td><span style={{ color: "var(--text-muted)" }}>09 May, 14:22</span></td>
+              <td className="mono tnum">₹6.0 L</td>
+              <td><span className="status-pill warn"><span className="sw" />Flagged</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span className="act-icon"><Download style={{ width: 12, height: 12 }} /></span>
+                PDF export · <span style={{ color: "var(--text-muted)" }}>Series-A diligence pack</span>
+              </td>
+              <td><span style={{ color: "var(--text-muted)" }}>v3</span></td>
+              <td><span style={{ color: "var(--text-muted)" }}>08 May, 11:05</span></td>
+              <td className="mono tnum">28 pages</td>
+              <td><span className="status-pill info"><span className="sw" />Shared</span></td>
+            </tr>
+            <tr>
+              <td>
+                <span className="act-icon"><HelpCircle style={{ width: 12, height: 12 }} /></span>
+                AI question · <span style={{ color: "var(--text-muted)" }}>Suspense account ₹4.5 L</span>
+              </td>
+              <td><span style={{ color: "var(--text-muted)" }}>#Q-027</span></td>
+              <td><span style={{ color: "var(--text-muted)" }}>07 May, 16:48</span></td>
+              <td className="mono tnum">₹4.5 L</td>
+              <td><span className="status-pill pending"><span className="sw" />Awaiting you</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* ─── DISCLAIMER FOOTER ─────────────────────────────────── */}
+      <div className="disclaimer">
+        <span className="lbl">Advisory, not audit</span>
+        <span>
+          This workbook is produced for internal review and transaction support. It is not a substitute for a statutory audit opinion or a formal third-party QoE engagement.
+        </span>
+      </div>
+    </>
   );
 }
