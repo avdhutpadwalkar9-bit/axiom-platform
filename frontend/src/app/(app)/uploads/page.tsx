@@ -1,118 +1,356 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import Link from "next/link";
 import {
-  FolderOpen,
   Upload,
+  FileText,
   FileSpreadsheet,
-  Clock,
-  CheckCircle2,
-  ArrowRight,
+  Eye,
+  MoreVertical,
+  Filter,
+  Trash2,
+  Lock,
+  Cloud,
 } from "lucide-react";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 
-function fmtINR(v: number): string {
-  const abs = Math.abs(v);
-  const sign = v < 0 ? "-" : "";
-  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
-  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(1)} L`;
-  if (abs >= 1000) return `${sign}₹${(abs / 1000).toFixed(0)}K`;
-  return `${sign}₹${abs.toFixed(0)}`;
+type UploadStatus = "ok-linked" | "ok-locked" | "ok-reconciled" | "warn-untagged" | "warn-action" | "processing";
+type FileType = "csv" | "xlsx" | "pdf" | "zip";
+
+interface SampleUpload {
+  type: FileType;
+  name: string;
+  meta: string;
+  category: "TB" | "STMT" | "BUNDLE";
+  progress: number;
+  status: UploadStatus;
+  statusLabel: string;
+  hash: string;
+}
+
+const SAMPLE_UPLOADS: SampleUpload[] = [
+  { type: "xlsx", name: "Trial Balance · FY 25-26 Q1.xlsx", meta: "2.4 MB · uploaded by VS · you · 12 min ago", category: "TB", progress: 82, status: "processing", statusLabel: "Mapping accounts…", hash: "81835" },
+  { type: "csv", name: "GSTR-3B · April 2026.csv", meta: "340 KB · uploaded by GST Portal · auto · 18 min ago", category: "TB", progress: 100, status: "ok-linked", statusLabel: "Linked", hash: "248ed" },
+  { type: "pdf", name: "HDFC Bank · March 2026.pdf", meta: "1.8 MB · uploaded by HDFC sync · 1 hr ago", category: "STMT", progress: 100, status: "ok-reconciled", statusLabel: "Reconciled", hash: "945f" },
+  { type: "xlsx", name: "TB · FY 24-25 Audited.xlsx", meta: "3.1 MB · uploaded by RN · CA · 5 hr ago", category: "TB", progress: 100, status: "ok-locked", statusLabel: "Locked", hash: "71f82" },
+  { type: "zip", name: "Vendor contracts · FY 24-25.zip", meta: "24 MB · uploaded by PM · controller · Yesterday", category: "BUNDLE", progress: 100, status: "warn-untagged", statusLabel: "3 untagged", hash: "4a12e" },
+  { type: "pdf", name: "GST Notice · ASMT-10 (₹4.2L).pdf", meta: "512 KB · uploaded by VS · you · 2 days ago", category: "STMT", progress: 100, status: "warn-action", statusLabel: "Action req", hash: "49318" },
+  { type: "csv", name: "Inventory snapshot · 31-Mar.csv", meta: "188 KB · uploaded by QuickBooks · 3 days ago", category: "TB", progress: 100, status: "ok-linked", statusLabel: "Linked", hash: "698a2" },
+  { type: "xlsx", name: "Payroll register · March.xlsx", meta: "740 KB · uploaded by PM · controller · 3 days ago", category: "TB", progress: 100, status: "ok-linked", statusLabel: "Linked", hash: "1b660" },
+];
+
+function statusPillClass(s: UploadStatus): string {
+  if (s.startsWith("ok")) return "ok";
+  if (s === "processing") return "info";
+  return "warn";
 }
 
 export default function UploadsPage() {
-  const router = useRouter();
-  const { lastResult, companyName, analysisDate, hasData } = useAnalysisStore();
-  const { upload } = useOnboardingStore();
+  const lastResult = useAnalysisStore((s) => s.lastResult);
+  const analysisCompany = useAnalysisStore((s) => s.companyName);
+  const analysisDate = useAnalysisStore((s) => s.analysisDate);
+  const { business } = useOnboardingStore();
+  const [activeTab, setActiveTab] = useState<"all" | "tb" | "bank" | "gst" | "contracts">("all");
+  const [activeSource, setActiveSource] = useState<"all" | "quickbooks" | "manual" | "gst" | "hdfc">("all");
 
-  const uploads = hasData && analysisDate
-    ? [
-        {
-          id: "1",
-          companyName,
-          financialYear: upload.financialYears.join(", ") || "FY 2025-26",
-          uploadDate: new Date(analysisDate).toLocaleDateString("en-IN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          }),
-          uploadTime: new Date(analysisDate).toLocaleTimeString("en-IN", {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          status: "analyzed" as const,
-          accounts: Object.values(lastResult?.classified_accounts || {}).flat().length,
-          revenue: lastResult?.financial_statements.total_revenue || 0,
-        },
-      ]
-    : [];
+  const companyName = business.companyName || "Vadodara Chem";
+  const hasRealUpload = !!lastResult;
+  // We don't have a real upload history in the store today — there's only
+  // the latest result. If one exists, prepend it to the sample list so the
+  // user sees their real upload at the top; otherwise show pure samples.
+  const realRow: SampleUpload | null = hasRealUpload
+    ? {
+        type: "xlsx",
+        name: `${analysisCompany || companyName} · Trial Balance`,
+        meta: `Uploaded · ${analysisDate ? new Date(analysisDate).toLocaleDateString("en-IN") : "recently"}`,
+        category: "TB",
+        progress: 100,
+        status: "ok-linked",
+        statusLabel: "Analysed",
+        hash: "live",
+      }
+    : null;
+  const items: SampleUpload[] = realRow ? [realRow, ...SAMPLE_UPLOADS.slice(0, 7)] : SAMPLE_UPLOADS;
 
   return (
-    <div className="p-6 lg:p-8 max-w-[1000px]">
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Upload history</h1>
-          <p className="text-sm text-white/40 mt-1">Manage your financial data uploads and run new analyses.</p>
+    <>
+      <section className="hero">
+        <div className="hero-meta">
+          <span className="dot" />
+          <span>Uploads · {companyName} · 21 months of data</span>
+          <span style={{ color: "rgba(255,255,255,0.3)" }}>•</span>
+          <span>Last sync · 12 min ago</span>
         </div>
-        <button
-          onClick={() => router.push("/analysis")}
-          className="flex items-center gap-2 bg-emerald-500 text-white font-medium px-5 py-2.5 rounded-lg hover:bg-emerald-400 transition-colors text-sm"
-        >
-          <Upload className="w-4 h-4" /> New upload
-        </button>
-      </div>
 
-      {uploads.length === 0 ? (
-        <div className="text-center py-20 bg-[#111] rounded-xl border border-white/8">
-          <FolderOpen className="w-12 h-12 text-white/15 mx-auto mb-4" />
-          <p className="text-lg text-white/60 mb-2">No uploads yet</p>
-          <p className="text-sm text-white/30 mb-6">Upload a Trial Balance or General Ledger to get started.</p>
-          <button
-            onClick={() => router.push("/analysis")}
-            className="inline-flex items-center gap-2 bg-white/5 border border-white/10 text-white/70 px-5 py-2.5 rounded-lg text-sm hover:bg-white/10 transition-colors"
-          >
-            <Upload className="w-4 h-4" /> Upload financial data
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {uploads.map((item) => (
-            <div
-              key={item.id}
-              className="bg-[#111] rounded-xl border border-white/8 p-5 hover:border-white/15 transition-all"
+        <h1 className="hero-title">
+          Bring your <span className="name">books</span> to Cortex.
+        </h1>
+
+        <p className="hero-sub" style={{ display: "block", maxWidth: 560 }}>
+          Drop a trial balance, sync QuickBooks, or invite your CA to upload. Every file is hashed, encrypted at rest, and traced to the figures it produces.
+        </p>
+
+        <div className="section-tabs" style={{ marginTop: 20 }}>
+          {[
+            { key: "all" as const, label: "All files", icon: Upload },
+            { key: "tb" as const, label: "Trial balance", icon: FileText },
+            { key: "bank" as const, label: "Bank", icon: Cloud },
+            { key: "gst" as const, label: "GST returns", icon: FileSpreadsheet },
+            { key: "contracts" as const, label: "Contracts", icon: FileText },
+          ].map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={`stab${activeTab === tab.key ? " active" : ""}`}
             >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                  <FileSpreadsheet className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-white truncate">{item.companyName}</h3>
-                    <span className="flex items-center gap-1 text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full">
-                      <CheckCircle2 className="w-2.5 h-2.5" /> Analysed
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4 mt-1 text-xs text-white/40 flex-wrap">
-                    <span>{item.financialYear}</span>
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {item.uploadDate} at {item.uploadTime}
-                    </span>
-                    <span>{item.accounts} accounts</span>
-                    <span>Revenue: {fmtINR(item.revenue)}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => router.push("/dashboard")}
-                  className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
-                >
-                  View analysis <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
+              <tab.icon />
+              {tab.label}
+            </button>
           ))}
         </div>
-      )}
-    </div>
+      </section>
+
+      <section style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14 }}>
+        <div
+          style={{
+            border: "2px dashed var(--border-strong)",
+            borderRadius: 18,
+            padding: 36,
+            textAlign: "center",
+            background: "linear-gradient(180deg, var(--card) 0%, var(--card-2) 100%)",
+            cursor: "pointer",
+          }}
+        >
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 14,
+              background: "var(--brand-soft)",
+              color: "var(--brand-text)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: 14,
+            }}
+          >
+            <Upload style={{ width: 28, height: 28 }} />
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: "-0.02em" }}>
+            Drop trial balance, bank statements, or GST returns
+          </div>
+          <div style={{ marginTop: 6, fontSize: 13, color: "var(--text-muted)" }}>
+            Or{" "}
+            <Link href="/analysis" style={{ color: "var(--brand-text)", textDecoration: "none", borderBottom: "1px dashed var(--brand-ring)" }}>
+              browse files
+            </Link>{" "}
+            · CSV, XLSX, PDF, ZIP · up to 200 MB · AES-256 encrypted
+          </div>
+          <div style={{ marginTop: 18, display: "inline-flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
+            <span className="chip" style={{ background: "var(--brand-soft)", color: "var(--brand-text)", borderColor: "var(--brand-ring)" }}>
+              Auto-detect period
+            </span>
+            <span className="chip">Smart-map accounts</span>
+            <span className="chip">Hash & audit-log</span>
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gap: 10 }}>
+          <div style={{ padding: "14px 16px", background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 10 }}>
+            <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-subtle)" }}>
+              Files this month
+            </div>
+            <div className="mono" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", marginTop: 4 }}>
+              {hasRealUpload ? items.length : 23}
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 2 }}>
+              <span style={{ color: "var(--positive)" }}>+8</span> vs last month
+            </div>
+          </div>
+
+          <div style={{ padding: "14px 16px", background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 10 }}>
+            <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-subtle)" }}>
+              Storage used
+            </div>
+            <div className="mono" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", marginTop: 4 }}>
+              412 <span style={{ fontSize: 14, color: "var(--text-muted)" }}>MB</span>
+            </div>
+            <div style={{ height: 4, background: "var(--card)", borderRadius: 2, overflow: "hidden", marginTop: 8 }}>
+              <div style={{ height: "100%", width: "8.2%", background: "linear-gradient(90deg, var(--brand), var(--positive))", borderRadius: 2 }} />
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text-subtle)", marginTop: 4 }}>of 5 GB · Growth plan</div>
+          </div>
+
+          <div style={{ padding: "14px 16px", background: "var(--brand-soft)", border: "1px solid var(--brand-ring)", borderRadius: 10 }}>
+            <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--brand-text)" }}>
+              Auto-sync active
+            </div>
+            <div className="mono" style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", marginTop: 4, color: "var(--text)" }}>
+              3 <span style={{ fontSize: 14, color: "var(--text-muted)" }}>sources</span>
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>QuickBooks · GSTN · HDFC Bank</div>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        {[
+          { key: "all" as const, label: "All sources", count: items.length, icon: null },
+          { key: "quickbooks" as const, label: "QuickBooks", count: 94, icon: Cloud },
+          { key: "manual" as const, label: "Manual upload", count: 62, icon: Upload },
+          { key: "gst" as const, label: "GST portal", count: 21, icon: FileSpreadsheet },
+          { key: "hdfc" as const, label: "HDFC sync", count: 9, icon: Cloud },
+        ].map((src) => {
+          const Icon = src.icon;
+          const active = activeSource === src.key;
+          return (
+            <button
+              key={src.key}
+              onClick={() => setActiveSource(src.key)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "10px 16px",
+                borderRadius: 10,
+                background: active ? "var(--brand-soft)" : "var(--card)",
+                border: active ? "1px solid var(--brand)" : "1px solid var(--border)",
+                color: active ? "var(--brand-text)" : "var(--text)",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+              }}
+            >
+              {Icon && <Icon style={{ width: 14, height: 14 }} />}
+              {src.label}
+              <span style={{ background: "var(--card-2)", padding: "1px 7px", borderRadius: 100, fontSize: 11, color: "var(--text-muted)" }}>
+                {src.count}
+              </span>
+            </button>
+          );
+        })}
+      </section>
+
+      <section className="card act-card" style={{ padding: 0, overflow: "hidden" }}>
+        <div className="act-head" style={{ padding: "16px 20px 12px" }}>
+          <div>
+            <div className="card-title">Recent uploads</div>
+            <div className="card-sub">Sorted newest · {items.length} files · hover for preview</div>
+          </div>
+          <div className="card-actions">
+            <button className="chip">
+              <Trash2 style={{ width: 11, height: 11 }} />
+              Bulk delete
+            </button>
+            <button className="chip">
+              <Filter style={{ width: 11, height: 11 }} />
+              Filter
+            </button>
+          </div>
+        </div>
+
+        <div style={{ borderTop: "1px solid var(--border)" }}>
+          {items.map((f, i) => {
+            const pill = statusPillClass(f.status);
+            const fileIconBg =
+              f.type === "csv" ? { bg: "#1F2A1F", color: "#86EFAC", border: "rgba(134,239,172,0.2)" } :
+              f.type === "xlsx" ? { bg: "#1F2A20", color: "#4ADE80", border: "rgba(74,222,128,0.2)" } :
+              f.type === "pdf" ? { bg: "#2A1F1F", color: "#FB7185", border: "rgba(251,113,133,0.2)" } :
+              { bg: "#262A1F", color: "#FBBF24", border: "rgba(251,191,36,0.2)" };
+
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "32px 1fr 90px 110px 120px 100px 80px",
+                  gap: 14,
+                  alignItems: "center",
+                  padding: "14px 16px",
+                  borderBottom: i < items.length - 1 ? "1px solid var(--border)" : "none",
+                  fontSize: 13,
+                }}
+              >
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontFamily: "Geist Mono, monospace",
+                    fontSize: 9,
+                    fontWeight: 600,
+                    background: fileIconBg.bg,
+                    color: fileIconBg.color,
+                    border: `1px solid ${fileIconBg.border}`,
+                  }}
+                >
+                  {f.type.toUpperCase()}
+                </div>
+
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 500, letterSpacing: "-0.005em", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {f.name}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 2 }}>{f.meta}</div>
+                </div>
+
+                <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-subtle)" }}>
+                  {f.category}
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <div style={{ height: 4, background: "var(--card-2)", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${f.progress}%`, background: "linear-gradient(90deg, var(--brand), var(--positive))", borderRadius: 2 }} />
+                  </div>
+                  <span style={{ fontSize: 10.5, color: "var(--text-muted)" }}>{f.progress}%</span>
+                </div>
+
+                <span className={`status-pill ${pill}`}>
+                  <span className="sw" />
+                  {f.statusLabel}
+                </span>
+
+                <span className="mono" style={{ fontSize: 11, color: "var(--text-subtle)" }}>{f.hash}</span>
+
+                <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                  <button className="icon-btn" style={{ width: 26, height: 26 }} aria-label="Preview">
+                    <Eye style={{ width: 13, height: 13 }} />
+                  </button>
+                  <button className="icon-btn" style={{ width: 26, height: 26 }} aria-label="More">
+                    <MoreVertical style={{ width: 13, height: 13 }} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 14,
+          padding: "16px 18px",
+          background: "var(--card-2)",
+          border: "1px solid var(--border)",
+          borderRadius: 10,
+          fontSize: 12.5,
+          color: "var(--text-muted)",
+        }}
+      >
+        <Lock style={{ width: 16, height: 16, color: "var(--brand-text)", flexShrink: 0, marginTop: 2 }} />
+        <div>
+          <strong style={{ color: "var(--text)", fontWeight: 600 }}>Encrypted in transit & at rest.</strong> Every figure traced from upload → mapping → output. Auto-deleted after 7 years per Ind AS retention.{" "}
+          <Link href="/profile" style={{ color: "var(--brand-text)" }}>
+            Audit log →
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }
