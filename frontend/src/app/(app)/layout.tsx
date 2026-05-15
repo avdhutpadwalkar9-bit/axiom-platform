@@ -55,6 +55,7 @@ function buildBreadcrumb(pathname: string, workspaceName: string) {
     "/uploads": "Uploads",
     "/feedback": "Reports",
     "/profile": "Profile",
+    "/billing": "Billing",
   };
   for (const [path, label] of Object.entries(pageMap)) {
     if (pathname.startsWith(path)) {

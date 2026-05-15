@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
-  TrendingUp,
   Sparkles,
   Upload,
   CreditCard,
@@ -11,35 +11,214 @@ import {
   Plus,
   Loader2,
   X,
+  Check,
+  Mail,
+  Phone,
+  Building2,
+  Globe,
+  Users,
+  HardDrive,
+  RefreshCw,
+  Lock,
+  ArrowUpRight,
+  ShieldCheck,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { useAuthStore } from "@/stores/authStore";
 import { api } from "@/lib/api";
 
 // The exact literal the backend requires. Kept in sync with
 // DELETE_ACCOUNT_CONFIRMATION in backend/app/routers/auth.py.
 const DELETE_CONFIRMATION_TEXT = "DELETE MY ACCOUNT";
 
+/* ────────────────────────────────────────────────────────────────
+   Plan catalogue
+   Single source of truth — referenced from both profile + billing.
+   Limits are explicit so the UI can decide whether to disable
+   "Invite teammate" / "Upload" / "Regenerate" CTAs without round-
+   tripping to the server.
+   ──────────────────────────────────────────────────────────────── */
+export type PlanKey = "starter" | "growth" | "scale" | "enterprise";
+
+export interface PlanDef {
+  key: PlanKey;
+  name: string;
+  price: string;
+  period: string;
+  tagline: string;
+  storageGB: number; // 0 means custom
+  uploadsPerMonth: number; // -1 means unlimited
+  regenerationsPerMonth: number; // -1 means unlimited
+  members: number; // -1 means unlimited
+  industries: string;
+  highlight?: boolean;
+  features: string[];
+}
+
+export const PLANS: PlanDef[] = [
+  {
+    key: "starter",
+    name: "Starter",
+    price: "₹0",
+    period: "free · 14-day trial",
+    tagline: "One workbook · solo founder",
+    storageGB: 1,
+    uploadsPerMonth: 5,
+    regenerationsPerMonth: 3,
+    members: 1,
+    industries: "Single sector benchmark",
+    features: [
+      "1 GB document storage",
+      "5 uploads / month",
+      "3 QoE regenerations / month",
+      "1 workspace member",
+      "Single-industry benchmarks",
+      "Email support",
+    ],
+  },
+  {
+    key: "growth",
+    name: "Growth",
+    price: "₹9,000",
+    period: "/month",
+    tagline: "MSMEs at ₹10–50 Cr revenue",
+    storageGB: 5,
+    uploadsPerMonth: -1,
+    regenerationsPerMonth: -1,
+    members: 5,
+    industries: "All sector benchmarks",
+    highlight: true,
+    features: [
+      "5 GB document storage",
+      "Unlimited TB / GST / contract uploads",
+      "Unlimited QoE regenerations",
+      "5 workspace members",
+      "All industries · 47 peers",
+      "CA-signed monthly report",
+      "Priority WhatsApp support",
+    ],
+  },
+  {
+    key: "scale",
+    name: "Scale",
+    price: "₹24,999",
+    period: "/month",
+    tagline: "Multi-entity groups · pre-IPO",
+    storageGB: 25,
+    uploadsPerMonth: -1,
+    regenerationsPerMonth: -1,
+    members: 15,
+    industries: "All sector benchmarks · custom peers",
+    features: [
+      "25 GB document storage",
+      "Unlimited uploads + regens",
+      "15 workspace members",
+      "Consolidated multi-entity view",
+      "Custom peer-set curation",
+      "Quarterly diligence pack",
+      "Dedicated CA reviewer",
+      "SLA · 4-hour response",
+    ],
+  },
+  {
+    key: "enterprise",
+    name: "Enterprise",
+    price: "Custom",
+    period: "talk to sales",
+    tagline: "CA firms, family offices, PE portcos",
+    storageGB: 0,
+    uploadsPerMonth: -1,
+    regenerationsPerMonth: -1,
+    members: -1,
+    industries: "Custom benchmarks · APIs",
+    features: [
+      "Unlimited storage + uploads",
+      "Unlimited workspace members",
+      "SSO + RBAC + audit trail",
+      "White-label reports",
+      "REST + Webhooks API",
+      "VPC / on-prem deployment",
+      "99.9% SLA + dedicated CSM",
+    ],
+  },
+];
+
+const lim = (v: number) => (v === -1 ? "Unlimited" : v.toLocaleString("en-IN"));
+const storageLabel = (gb: number) => (gb === 0 ? "Unlimited" : `${gb} GB`);
+
+/* ──────────── component ──────────── */
+
 export default function ProfilePage() {
   const router = useRouter();
   const { personal, business } = useOnboardingStore();
+  const authUser = useAuthStore((s) => s.user);
+  const checkAuth = useAuthStore((s) => s.checkAuth);
+
+  // Resolve real user data — pull from authStore first, then onboarding
+  const [meEmail, setMeEmail] = useState<string>("");
+  const [meName, setMeName] = useState<string>("");
+  const [memberSince, setMemberSince] = useState<string>("");
+
+  useEffect(() => {
+    // If authStore is already populated, use that. Otherwise force a
+    // refresh — the layout's gate normally does this on mount, so this
+    // should rarely have to actually hit the network.
+    if (authUser) {
+      setMeEmail(authUser.email);
+      setMeName(authUser.name ?? "");
+    } else {
+      checkAuth();
+    }
+  }, [authUser, checkAuth]);
+
+  // Derive a "member since" string. The /auth/me endpoint doesn't
+  // currently return created_at, so we fall back to a sample date
+  // until that field is added. Wiring is here for when it lands.
+  useEffect(() => {
+    setMemberSince("Joined Mar 2025");
+  }, []);
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"admin" | "member" | "viewer">("member");
 
-  const fullName = personal.fullName || "Vikram Shah";
+  // Current plan — when a real subscription endpoint is wired, source
+  // this from there. For now Growth is the realistic default.
+  const currentPlanKey: PlanKey = "growth";
+  const currentPlan = PLANS.find((p) => p.key === currentPlanKey)!;
+
+  // Sample usage state — wire to backend when subscription module ships
+  const usageReports = 14;
+  const usageMembers = 4;
+  const usageStorageMB = 412;
+  const usageUploadsMonth = 22;
+  const usageRegensMonth = 7;
+
+  // Compose names with real auth data taking precedence
+  const fullName = meName?.trim() || personal.fullName || "Vikram Shah";
+  const email = meEmail || "vikram@vadodarachem.com";
   const role = personal.role || "Chief Financial Officer";
   const companyName = business.companyName || "Vadodara Chem";
   const currency = business.currency || "INR";
+  const phone = personal.phone || "+91 98•••• 4521";
+  const industry = business.industry || "Specialty Chemicals";
+  const website = business.websiteUrl || "vadodarachem.com";
+  const gstin = business.gstin || "24AABCV1234M1ZP";
+  const pan = business.pan || "AABCV1234M";
 
   // Initials for the avatar
-  const initials = fullName
-    .split(" ")
-    .slice(0, 2)
-    .map((s) => s[0])
-    .join("")
-    .toUpperCase() || "U";
+  const initials =
+    fullName
+      .split(" ")
+      .slice(0, 2)
+      .map((s) => s[0])
+      .join("")
+      .toUpperCase() || "U";
 
   const handleDeleteAccount = async () => {
     setDeleteError(null);
@@ -60,13 +239,40 @@ export default function ProfilePage() {
     }
   };
 
+  // Sample team — first row is always "you", real teammates would
+  // come from a workspace API.
+  const teammates = [
+    { name: fullName, role: `${role} · you`, email, initials, bg: "#4A5526", status: "ok" as const, label: "Owner" },
+    { name: "Priya Mehta", role: "Controller", email: "priya@vadodarachem.com", initials: "PM", bg: "#2A4A6E", status: "info" as const, label: "Admin" },
+    { name: "Rajan Nagaraju", role: "CA · advisor", email: "rajan@cortexcfo.in", initials: "RN", bg: "#6E2A4A", status: "warn" as const, label: "Reviewer" },
+    { name: "Aman Doshi", role: "FP&A analyst", email: "aman@vadodarachem.com", initials: "AD", bg: "#4A2A6E", status: "warn" as const, label: "Member" },
+  ];
+
+  // Member slot logic
+  const memberLimit = currentPlan.members;
+  const membersUsed = teammates.length;
+  const atMemberLimit = memberLimit !== -1 && membersUsed >= memberLimit;
+  const memberSlotsLeft = memberLimit === -1 ? "∞" : Math.max(0, memberLimit - membersUsed);
+
+  // Storage / upload / regen usage percentages
+  const storagePct =
+    currentPlan.storageGB === 0 ? 0 : (usageStorageMB / (currentPlan.storageGB * 1024)) * 100;
+  const uploadsPct =
+    currentPlan.uploadsPerMonth === -1
+      ? 0
+      : (usageUploadsMonth / currentPlan.uploadsPerMonth) * 100;
+  const regensPct =
+    currentPlan.regenerationsPerMonth === -1
+      ? 0
+      : (usageRegensMonth / currentPlan.regenerationsPerMonth) * 100;
+
   return (
     <>
       {/* ─── HERO ────────────────────────────────────────────────── */}
       <section className="hero">
         <div className="hero-meta">
           <span className="dot" />
-          <span>Profile · workspace owner · joined 14 months ago</span>
+          <span>Profile · workspace owner · {memberSince}</span>
         </div>
         <div style={{ display: "flex", gap: 18, alignItems: "center", marginTop: 18 }}>
           <div
@@ -97,7 +303,7 @@ export default function ProfilePage() {
               </span>
               <span className="pill">
                 <Sparkles />
-                Workspace owner
+                {currentPlan.name} plan
               </span>
             </div>
           </div>
@@ -109,30 +315,16 @@ export default function ProfilePage() {
         <div className="kpi">
           <div className="kpi-head">
             <div className="kpi-icon">
-              <TrendingUp style={{ width: 13, height: 13 }} />
+              <HardDrive style={{ width: 13, height: 13 }} />
             </div>
-            <span className="kpi-label">QoE reports run</span>
+            <span className="kpi-label">Storage</span>
           </div>
           <div className="kpi-value">
-            <span>14</span>
+            <span>{usageStorageMB}</span>
+            <span className="unit">MB</span>
           </div>
           <div className="kpi-foot">
-            <span className="meta">3 this month · avg score 8.7</span>
-          </div>
-        </div>
-
-        <div className="kpi accent">
-          <div className="kpi-head">
-            <div className="kpi-icon">
-              <Sparkles style={{ width: 13, height: 13 }} />
-            </div>
-            <span className="kpi-label">AI conversations</span>
-          </div>
-          <div className="kpi-value">
-            <span>2,847</span>
-          </div>
-          <div className="kpi-foot">
-            <span className="meta">All cited · 94% useful rating</span>
+            <span className="meta">of {storageLabel(currentPlan.storageGB)} · {Math.round(storagePct)}% used</span>
           </div>
         </div>
 
@@ -141,41 +333,63 @@ export default function ProfilePage() {
             <div className="kpi-icon">
               <Upload style={{ width: 13, height: 13 }} />
             </div>
-            <span className="kpi-label">Uploads</span>
+            <span className="kpi-label">Uploads this month</span>
           </div>
           <div className="kpi-value">
-            <span>186</span>
+            <span>{usageUploadsMonth}</span>
             <span className="unit">files</span>
           </div>
           <div className="kpi-foot">
-            <span className="meta">412 MB · TB, FA, GST returns</span>
+            <span className="meta">
+              of {lim(currentPlan.uploadsPerMonth)} · TB, FA, GST, contracts
+            </span>
+          </div>
+        </div>
+
+        <div className="kpi accent">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <RefreshCw style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">QoE regenerations</span>
+          </div>
+          <div className="kpi-value">
+            <span>{usageRegensMonth}</span>
+            <span className="unit">runs</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="meta">
+              of {lim(currentPlan.regenerationsPerMonth)} this cycle · avg 9.0 score
+            </span>
           </div>
         </div>
 
         <div className="kpi">
           <div className="kpi-head">
             <div className="kpi-icon">
-              <CreditCard style={{ width: 13, height: 13 }} />
+              <Users style={{ width: 13, height: 13 }} />
             </div>
-            <span className="kpi-label">Plan · Growth</span>
+            <span className="kpi-label">Team members</span>
           </div>
           <div className="kpi-value">
-            <span>₹9k</span>
-            <span className="unit">/mo</span>
+            <span>{membersUsed}</span>
+            <span className="unit">of {lim(currentPlan.members)}</span>
           </div>
           <div className="kpi-foot">
-            <span className="meta">Renews 12 Dec 2026</span>
+            <span className="meta">
+              {memberLimit === -1 ? "Unlimited seats" : `${memberSlotsLeft} slots left`}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* ─── SPLIT: Personal details + Workspace ──────────────────── */}
+      {/* ─── SPLIT: Personal + Business ──────────────────────────── */}
       <div className="split">
         <div className="card">
           <div className="card-head">
             <div>
               <div className="card-title">Personal details</div>
-              <div className="card-sub">Visible to your workspace</div>
+              <div className="card-sub">Captured at sign-up · editable</div>
             </div>
             <div className="card-actions">
               <button className="chip">
@@ -186,13 +400,13 @@ export default function ProfilePage() {
           </div>
           <div style={{ padding: "8px 4px", display: "grid", gap: 14 }}>
             {[
-              { label: "Full name", value: fullName },
-              { label: "Designation", value: role },
-              { label: "Email (work)", value: "vikram@vadodarachem.com" },
-              { label: "Phone", value: personal.phone || "+91 98•••• 4521" },
-              { label: "Time zone", value: "Asia/Kolkata · IST (UTC +5:30)" },
-              { label: "Default currency", value: `${currency} · ₹` },
-              { label: "Language", value: "English (India)" },
+              { icon: <Sparkles style={{ width: 13, height: 13 }} />, label: "Full name", value: fullName },
+              { icon: <Building2 style={{ width: 13, height: 13 }} />, label: "Designation", value: role },
+              { icon: <Mail style={{ width: 13, height: 13 }} />, label: "Email (sign-in)", value: email },
+              { icon: <Phone style={{ width: 13, height: 13 }} />, label: "Phone", value: phone },
+              { icon: <Globe style={{ width: 13, height: 13 }} />, label: "Time zone", value: "Asia/Kolkata · IST (UTC +5:30)" },
+              { icon: <CreditCard style={{ width: 13, height: 13 }} />, label: "Default currency", value: `${currency} · ₹` },
+              { icon: <Globe style={{ width: 13, height: 13 }} />, label: "Language", value: "English (India)" },
             ].map((row, i, arr) => (
               <div
                 key={row.label}
@@ -205,7 +419,18 @@ export default function ProfilePage() {
                   borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none",
                 }}
               >
-                <span style={{ fontSize: 12, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <span style={{ color: "var(--text-subtle, var(--muted))" }}>{row.icon}</span>
                   {row.label}
                 </span>
                 <span style={{ fontSize: 13.5, fontWeight: 500 }}>{row.value}</span>
@@ -217,101 +442,381 @@ export default function ProfilePage() {
         <div className="card">
           <div className="card-head">
             <div>
-              <div className="card-title">Workspace</div>
-              <div className="card-sub">{companyName} · 4 members</div>
+              <div className="card-title">Business profile</div>
+              <div className="card-sub">From onboarding · used across the app</div>
+            </div>
+            <div className="card-actions">
+              <button className="chip">
+                <Edit3 style={{ width: 11, height: 11 }} />
+                Edit
+              </button>
             </div>
           </div>
-          <div style={{ padding: "8px 4px", display: "grid", gap: 10 }}>
+          <div style={{ padding: "8px 4px", display: "grid", gap: 14 }}>
             {[
-              { name: fullName, role: `${role} · you`, initials, bg: "#4A5526", status: "ok" as const, label: "Owner" },
-              { name: "Priya Mehta", role: "Controller", initials: "PM", bg: "#2A4A6E", status: "info" as const, label: "Admin" },
-              { name: "Rajan Nagaraju", role: "CA · advisor", initials: "RN", bg: "#6E2A4A", status: "warn" as const, label: "Reviewer" },
-              { name: "Aman Doshi", role: "FP&A analyst", initials: "AD", bg: "#4A2A6E", status: "warn" as const, label: "Member" },
-            ].map((m) => (
+              { label: "Legal name", value: `${companyName} Pvt Ltd` },
+              { label: "Industry", value: industry },
+              { label: "Website", value: website },
+              { label: "GSTIN", value: gstin },
+              { label: "PAN", value: pan },
+              { label: "Entity type", value: business.entityType || "Private Limited" },
+              {
+                label: "Turnover band",
+                value: business.turnoverRange || "₹10–50 Cr",
+              },
+            ].map((row, i, arr) => (
               <div
-                key={m.name}
+                key={row.label}
                 style={{
-                  display: "flex",
+                  display: "grid",
+                  gridTemplateColumns: "180px 1fr",
+                  gap: 16,
                   alignItems: "center",
-                  gap: 12,
-                  padding: 10,
-                  background: "var(--card-2)",
-                  border: "1px solid var(--border)",
-                  borderRadius: 10,
+                  padding: "6px 0",
+                  borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none",
                 }}
               >
-                <div
+                <span
                   style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    background: m.bg,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 13,
-                    fontWeight: 600,
-                    color: "#fff",
+                    fontSize: 12,
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
                   }}
                 >
-                  {m.initials}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</div>
-                  <div style={{ fontSize: 11.5, color: "var(--text-muted)" }}>{m.role}</div>
-                </div>
-                <span className={`status-pill ${m.status}`}>
-                  <span className="sw" />
-                  {m.label}
+                  {row.label}
+                </span>
+                <span className="mono" style={{ fontSize: 13.5, fontWeight: 500 }}>
+                  {row.value}
                 </span>
               </div>
             ))}
           </div>
-          <div style={{ padding: "12px 4px 0" }}>
-            <button className="btn btn-ghost" style={{ width: "100%" }}>
-              <Plus style={{ width: 14, height: 14 }} />
+        </div>
+      </div>
+
+      {/* ─── CURRENT PLAN + USAGE ────────────────────────────────── */}
+      <div className="card">
+        <div className="card-head">
+          <div>
+            <div className="card-title">
+              Your plan · {currentPlan.name}
+              <span className="pill" style={{ marginLeft: 10 }}>Active</span>
+            </div>
+            <div className="card-sub">
+              {currentPlan.price}
+              {currentPlan.period === "/month" ? currentPlan.period : ` · ${currentPlan.period}`} · renews 12 Dec 2026
+            </div>
+          </div>
+          <div className="card-actions">
+            <Link href="/billing" className="chip" style={{ textDecoration: "none" }}>
+              <CreditCard style={{ width: 11, height: 11 }} />
+              Manage billing
+            </Link>
+            <Link
+              href="/billing?action=upgrade"
+              className="chip"
+              style={{
+                textDecoration: "none",
+                background: "var(--brand)",
+                color: "#0A0B0D",
+                borderColor: "var(--brand)",
+              }}
+            >
+              <ArrowUpRight style={{ width: 11, height: 11 }} />
+              Upgrade
+            </Link>
+          </div>
+        </div>
+
+        {/* Three usage bars · storage / uploads / regens */}
+        <div style={{ padding: "16px 4px 8px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          <UsageBar
+            icon={<HardDrive style={{ width: 12, height: 12 }} />}
+            label="Storage"
+            used={`${usageStorageMB} MB`}
+            max={storageLabel(currentPlan.storageGB)}
+            pct={storagePct}
+          />
+          <UsageBar
+            icon={<Upload style={{ width: 12, height: 12 }} />}
+            label="Uploads (cycle)"
+            used={String(usageUploadsMonth)}
+            max={lim(currentPlan.uploadsPerMonth)}
+            pct={uploadsPct}
+          />
+          <UsageBar
+            icon={<RefreshCw style={{ width: 12, height: 12 }} />}
+            label="QoE regens (cycle)"
+            used={String(usageRegensMonth)}
+            max={lim(currentPlan.regenerationsPerMonth)}
+            pct={regensPct}
+          />
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 10,
+            padding: "0 4px 4px",
+          }}
+        >
+          {[
+            { label: "Reports run", value: String(usageReports), sub: "lifetime" },
+            { label: "Members", value: `${usageMembers}`, sub: `of ${lim(currentPlan.members)}` },
+            { label: "Cycle", value: "18 days", sub: "until renewal" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              style={{ padding: 12, background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 10 }}
+            >
+              <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
+                {s.label}
+              </div>
+              <div className="mono" style={{ fontSize: 22, fontWeight: 600, marginTop: 4 }}>{s.value}</div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{s.sub}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── PLAN COMPARISON TABLE ───────────────────────────────── */}
+      <div className="card">
+        <div className="card-head">
+          <div>
+            <div className="card-title">Compare plans</div>
+            <div className="card-sub">
+              Storage · uploads · QoE regenerations · team seats — choose what your workspace needs
+            </div>
+          </div>
+        </div>
+        <div style={{ padding: "0 0 4px" }}>
+          <table className="activity">
+            <thead>
+              <tr>
+                <th style={{ width: 180 }}>Limits</th>
+                {PLANS.map((p) => (
+                  <th key={p.key} style={{ textAlign: "center" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                      <span style={{ color: p.highlight ? "var(--brand-text)" : "var(--text)" }}>
+                        {p.name}
+                      </span>
+                      <span
+                        style={{
+                          textTransform: "none",
+                          letterSpacing: 0,
+                          fontWeight: 400,
+                          fontSize: 11,
+                          color: "var(--text-muted)",
+                        }}
+                      >
+                        {p.price}
+                        <span style={{ opacity: 0.6 }}> {p.period === "/month" ? p.period : ""}</span>
+                      </span>
+                      {p.key === currentPlanKey && (
+                        <span className="status-pill ok" style={{ marginTop: 2 }}>
+                          <span className="sw" />
+                          Current
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <ComparisonRow
+                icon={<HardDrive style={{ width: 12, height: 12 }} />}
+                label="Storage"
+                values={PLANS.map((p) => storageLabel(p.storageGB))}
+                current={currentPlanKey}
+                plans={PLANS}
+              />
+              <ComparisonRow
+                icon={<Upload style={{ width: 12, height: 12 }} />}
+                label="Uploads / month"
+                values={PLANS.map((p) => lim(p.uploadsPerMonth))}
+                current={currentPlanKey}
+                plans={PLANS}
+              />
+              <ComparisonRow
+                icon={<RefreshCw style={{ width: 12, height: 12 }} />}
+                label="QoE regenerations / month"
+                values={PLANS.map((p) => lim(p.regenerationsPerMonth))}
+                current={currentPlanKey}
+                plans={PLANS}
+              />
+              <ComparisonRow
+                icon={<Users style={{ width: 12, height: 12 }} />}
+                label="Workspace members"
+                values={PLANS.map((p) => lim(p.members))}
+                current={currentPlanKey}
+                plans={PLANS}
+              />
+              <ComparisonRow
+                icon={<Sparkles style={{ width: 12, height: 12 }} />}
+                label="Industries / peers"
+                values={PLANS.map((p) => p.industries)}
+                current={currentPlanKey}
+                plans={PLANS}
+              />
+              <ComparisonRow
+                icon={<ShieldCheck style={{ width: 12, height: 12 }} />}
+                label="CA-signed monthly pack"
+                values={PLANS.map((p) => (p.key === "starter" ? "—" : "Included"))}
+                current={currentPlanKey}
+                plans={PLANS}
+              />
+              <ComparisonRow
+                icon={<Lock style={{ width: 12, height: 12 }} />}
+                label="SSO + RBAC"
+                values={PLANS.map((p) => (p.key === "enterprise" ? "Included" : "—"))}
+                current={currentPlanKey}
+                plans={PLANS}
+              />
+              <tr>
+                <td></td>
+                {PLANS.map((p) => (
+                  <td key={p.key} style={{ textAlign: "center", padding: "12px 8px" }}>
+                    {p.key === currentPlanKey ? (
+                      <span className="status-pill ok">
+                        <span className="sw" />
+                        Active
+                      </span>
+                    ) : (
+                      <Link
+                        href={`/billing?plan=${p.key}`}
+                        className="chip"
+                        style={{
+                          textDecoration: "none",
+                          background: p.highlight ? "var(--brand)" : undefined,
+                          color: p.highlight ? "#0A0B0D" : undefined,
+                          borderColor: p.highlight ? "var(--brand)" : undefined,
+                        }}
+                      >
+                        {p.key === "enterprise"
+                          ? "Talk to sales"
+                          : PLANS.findIndex((x) => x.key === p.key) > PLANS.findIndex((x) => x.key === currentPlanKey)
+                          ? "Upgrade"
+                          : "Switch"}
+                      </Link>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ─── WORKSPACE MEMBERS ───────────────────────────────────── */}
+      <div className="card">
+        <div className="card-head">
+          <div>
+            <div className="card-title">
+              Workspace members
+              <span className="pill" style={{ marginLeft: 10 }}>
+                {membersUsed} / {lim(currentPlan.members)}
+              </span>
+            </div>
+            <div className="card-sub">
+              {companyName} · {atMemberLimit
+                ? "Member limit reached for your plan — upgrade to invite more"
+                : `${memberSlotsLeft} ${memberSlotsLeft === 1 ? "seat" : "seats"} left on ${currentPlan.name}`}
+            </div>
+          </div>
+          <div className="card-actions">
+            <button
+              className="chip"
+              onClick={() => !atMemberLimit && setInviteOpen(true)}
+              disabled={atMemberLimit}
+              style={
+                atMemberLimit
+                  ? { opacity: 0.5, cursor: "not-allowed" }
+                  : { background: "var(--brand-soft)", color: "var(--brand-text)", borderColor: "var(--brand)" }
+              }
+            >
+              <Plus style={{ width: 11, height: 11 }} />
               Invite teammate
             </button>
           </div>
         </div>
-      </div>
 
-      {/* ─── PLAN + BILLING ──────────────────────────────────────── */}
-      <div className="card">
-        <div className="card-head">
-          <div>
-            <div className="card-title">Plan & billing</div>
-            <div className="card-sub">Growth · ₹9,000 / month · INR</div>
-          </div>
-          <div className="card-actions">
-            <button className="chip" onClick={() => router.push("/pricing")}>
-              Upgrade
-            </button>
-          </div>
-        </div>
-        <div style={{ padding: "12px 4px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Usage this cycle · 18 days left</span>
-            <span className="mono" style={{ fontSize: 13, fontWeight: 500 }}>68% used</span>
-          </div>
-          <div style={{ height: 8, background: "var(--card-2)", borderRadius: 4, overflow: "hidden" }}>
-            <div style={{ height: "100%", width: "68%", background: "linear-gradient(90deg, var(--brand) 0%, var(--positive) 100%)", borderRadius: 4 }} />
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginTop: 18 }}>
-            {[
-              { label: "Reports", value: "14", sub: "of 25" },
-              { label: "Members", value: "4", sub: "of 8" },
-              { label: "Storage", value: "412 MB", sub: "of 5 GB" },
-            ].map((s) => (
-              <div key={s.label} style={{ padding: 12, background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 10 }}>
-                <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
-                  {s.label}
-                </div>
-                <div className="mono" style={{ fontSize: 22, fontWeight: 600, marginTop: 4 }}>{s.value}</div>
-                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{s.sub}</div>
+        <div style={{ padding: "8px 4px", display: "grid", gap: 10 }}>
+          {teammates.map((m) => (
+            <div
+              key={m.email}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: 12,
+                background: "var(--card-2)",
+                border: "1px solid var(--border)",
+                borderRadius: 10,
+              }}
+            >
+              <div
+                style={{
+                  width: 36,
+                  height: 36,
+                  borderRadius: "50%",
+                  background: m.bg,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 13,
+                  fontWeight: 600,
+                  color: "#fff",
+                }}
+              >
+                {m.initials}
               </div>
-            ))}
-          </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</div>
+                <div style={{ fontSize: 11.5, color: "var(--text-muted)" }}>
+                  {m.role} · {m.email}
+                </div>
+              </div>
+              <span className={`status-pill ${m.status}`}>
+                <span className="sw" />
+                {m.label}
+              </span>
+            </div>
+          ))}
+
+          {atMemberLimit && (
+            <div
+              style={{
+                marginTop: 4,
+                padding: 12,
+                background: "var(--brand-soft)",
+                border: "1px dashed color-mix(in oklab, var(--brand) 40%, transparent)",
+                borderRadius: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <Sparkles style={{ width: 14, height: 14, color: "var(--brand-text)" }} />
+              <div style={{ flex: 1, fontSize: 13 }}>
+                You&rsquo;re at the {currentPlan.name} seat limit. <strong>Scale</strong> unlocks {lim(PLANS[2].members)} members and unlimited regenerations.
+              </div>
+              <Link
+                href="/billing?plan=scale"
+                className="chip"
+                style={{
+                  textDecoration: "none",
+                  background: "var(--brand)",
+                  color: "#0A0B0D",
+                  borderColor: "var(--brand)",
+                }}
+              >
+                See Scale
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -362,6 +867,129 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* ─── INVITE MODAL ────────────────────────────────────────── */}
+      {inviteOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "rgba(0,0,0,0.7)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+          }}
+          onClick={() => setInviteOpen(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 480,
+              background: "var(--card)",
+              border: "1px solid var(--border-strong)",
+              borderRadius: 14,
+              padding: 24,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 16 }}>
+              <div style={{ flex: 1 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 600 }}>Invite a teammate</h2>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
+                  {memberSlotsLeft === "∞"
+                    ? "Unlimited seats on your plan."
+                    : `${memberSlotsLeft} ${memberSlotsLeft === 1 ? "seat" : "seats"} left on ${currentPlan.name}.`}{" "}
+                  They&rsquo;ll get an email and can sign in with the same workspace.
+                </p>
+              </div>
+              <button
+                className="icon-btn"
+                onClick={() => setInviteOpen(false)}
+                aria-label="Close"
+                style={{ width: 28, height: 28 }}
+              >
+                <X style={{ width: 14, height: 14 }} />
+              </button>
+            </div>
+
+            <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Work email
+            </label>
+            <input
+              type="email"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              placeholder="teammate@company.com"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                background: "var(--canvas)",
+                border: "1px solid var(--border-strong)",
+                borderRadius: 8,
+                color: "var(--text)",
+                fontSize: 13,
+                marginBottom: 14,
+              }}
+            />
+
+            <label
+              style={{
+                display: "block",
+                fontSize: 12,
+                color: "var(--text-muted)",
+                marginBottom: 6,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
+              Role
+            </label>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
+              {(["admin", "member", "viewer"] as const).map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setInviteRole(r)}
+                  style={{
+                    padding: "10px 12px",
+                    background: inviteRole === r ? "var(--brand-soft)" : "var(--canvas)",
+                    border: `1px solid ${inviteRole === r ? "var(--brand)" : "var(--border-strong)"}`,
+                    borderRadius: 8,
+                    color: inviteRole === r ? "var(--brand-text)" : "var(--text)",
+                    fontSize: 12.5,
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    textTransform: "capitalize",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+              <button className="btn btn-ghost" onClick={() => setInviteOpen(false)}>
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setInviteOpen(false);
+                  setInviteEmail("");
+                }}
+                disabled={!inviteEmail.includes("@")}
+              >
+                <Mail style={{ width: 13, height: 13 }} />
+                Send invite
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ─── DELETE MODAL ────────────────────────────────────────── */}
       {deleteOpen && (
@@ -467,11 +1095,7 @@ export default function ProfilePage() {
             />
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-              <button
-                className="btn btn-ghost"
-                onClick={() => setDeleteOpen(false)}
-                disabled={deleteLoading}
-              >
+              <button className="btn btn-ghost" onClick={() => setDeleteOpen(false)} disabled={deleteLoading}>
                 Cancel
               </button>
               <button
@@ -498,5 +1122,129 @@ export default function ProfilePage() {
         </div>
       )}
     </>
+  );
+}
+
+/* ──────────── helpers ──────────── */
+
+function UsageBar({
+  icon,
+  label,
+  used,
+  max,
+  pct,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  used: string;
+  max: string;
+  pct: number;
+}) {
+  const tone = pct >= 90 ? "var(--negative)" : pct >= 70 ? "var(--warning)" : "var(--brand)";
+  const safePct = Math.min(100, Math.max(2, pct || 2));
+  return (
+    <div
+      style={{
+        padding: 14,
+        background: "var(--card-2)",
+        border: "1px solid var(--border)",
+        borderRadius: 10,
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          color: "var(--text-subtle, var(--muted))",
+          fontSize: 11,
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          fontWeight: 600,
+        }}
+      >
+        <span style={{ color: "var(--text-muted)" }}>{icon}</span>
+        {label}
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginTop: 6 }}>
+        <span className="mono" style={{ fontSize: 18, fontWeight: 600 }}>
+          {used}
+        </span>
+        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>of {max}</span>
+      </div>
+      <div style={{ height: 6, background: "var(--canvas-2)", borderRadius: 3, marginTop: 8, overflow: "hidden" }}>
+        <div
+          style={{
+            height: "100%",
+            width: `${safePct}%`,
+            background: max === "Unlimited" ? "var(--positive)" : tone,
+            borderRadius: 3,
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ComparisonRow({
+  icon,
+  label,
+  values,
+  current,
+  plans,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  values: string[];
+  current: PlanKey;
+  plans: PlanDef[];
+}) {
+  return (
+    <tr>
+      <td>
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            color: "var(--text-muted, var(--muted))",
+            fontWeight: 500,
+          }}
+        >
+          <span style={{ color: "var(--text-subtle, var(--muted))" }}>{icon}</span>
+          {label}
+        </span>
+      </td>
+      {plans.map((p, i) => {
+        const isCurrent = p.key === current;
+        const v = values[i];
+        const isUnlimited = v === "Unlimited";
+        const isDash = v === "—";
+        return (
+          <td
+            key={p.key}
+            className={isUnlimited || /^\d/.test(v) ? "mono" : undefined}
+            style={{
+              textAlign: "center",
+              background: isCurrent ? "var(--brand-soft)" : undefined,
+              color: isDash
+                ? "var(--text-subtle, var(--muted))"
+                : isCurrent
+                ? "var(--brand-text)"
+                : "var(--text)",
+              fontWeight: isUnlimited || isCurrent ? 500 : 400,
+            }}
+          >
+            {isDash ? (
+              <span style={{ opacity: 0.5 }}>—</span>
+            ) : v === "Included" ? (
+              <Check style={{ width: 14, height: 14, color: "var(--positive)" }} />
+            ) : (
+              v
+            )}
+          </td>
+        );
+      })}
+    </tr>
   );
 }
