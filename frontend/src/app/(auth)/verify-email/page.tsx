@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { TrendingUp, Mail, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Mail, CheckCircle2, ArrowRight } from "lucide-react";
 import { api } from "@/lib/api";
+import { AuthAside } from "../_AuthAside";
 
 export default function VerifyEmailPage() {
   const router = useRouter();
-  const [code, setCode] = useState(["", "", "", "", "", ""]);
+  const [code, setCode] = useState<string[]>(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -17,56 +18,84 @@ export default function VerifyEmailPage() {
   const [success, setSuccess] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Fetch user email on mount
+  // Resolve current user / route guard
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) {
       router.replace("/login");
       return;
     }
-    api.getMe().then((user) => {
-      if (user.is_email_verified) {
-        router.replace("/onboarding");
-        return;
-      }
-      setEmail(user.email);
-    }).catch(() => {
-      router.replace("/login");
-    });
+    api
+      .getMe()
+      .then((user) => {
+        if (user.is_email_verified) {
+          router.replace("/onboarding");
+          return;
+        }
+        setEmail(user.email);
+      })
+      .catch(() => {
+        router.replace("/login");
+      });
   }, [router]);
 
   // Cooldown timer
   useEffect(() => {
     if (resendCooldown <= 0) return;
     const timer = setInterval(() => {
-      setResendCooldown((prev) => prev - 1);
+      setResendCooldown((p) => p - 1);
     }, 1000);
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
+  const submitCode = useCallback(
+    async (fullCode: string) => {
+      setError("");
+      setLoading(true);
+      try {
+        await api.verifyEmail(fullCode);
+        setSuccess(true);
+        setTimeout(() => router.push("/onboarding"), 900);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "";
+        setError(
+          msg.includes("Invalid or expired")
+            ? "Invalid or expired code. Please try again or request a new one."
+            : "Verification failed. Please try again."
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
   const handleChange = (index: number, value: string) => {
     if (value.length > 1) {
-      // Handle paste
+      // Paste handling
       const digits = value.replace(/\D/g, "").slice(0, 6).split("");
-      const newCode = [...code];
+      const next = [...code];
       digits.forEach((d, i) => {
-        if (index + i < 6) newCode[index + i] = d;
+        if (index + i < 6) next[index + i] = d;
       });
-      setCode(newCode);
-      const nextIdx = Math.min(index + digits.length, 5);
-      inputRefs.current[nextIdx]?.focus();
+      setCode(next);
+      const targetIdx = Math.min(index + digits.length, 5);
+      inputRefs.current[targetIdx]?.focus();
+      if (next.every((d) => d !== "")) submitCode(next.join(""));
       return;
     }
 
     if (value && !/^\d$/.test(value)) return;
 
-    const newCode = [...code];
-    newCode[index] = value;
-    setCode(newCode);
+    const next = [...code];
+    next[index] = value;
+    setCode(next);
 
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
+
+    if (next.every((d) => d !== "")) submitCode(next.join(""));
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -75,41 +104,15 @@ export default function VerifyEmailPage() {
     }
   };
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const fullCode = code.join("");
-    if (fullCode.length !== 6) {
+    const full = code.join("");
+    if (full.length !== 6) {
       setError("Please enter the full 6-digit code");
       return;
     }
-
-    setError("");
-    setLoading(true);
-    try {
-      await api.verifyEmail(fullCode);
-      setSuccess(true);
-      setTimeout(() => {
-        router.push("/onboarding");
-      }, 1000);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg.includes("Invalid or expired")) {
-        setError("Invalid or expired code. Please try again or request a new code.");
-      } else {
-        setError("Verification failed. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
+    submitCode(full);
   };
-
-  // Auto-submit when all 6 digits entered
-  useEffect(() => {
-    if (code.every((d) => d !== "")) {
-      handleSubmit();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code]);
 
   const handleResend = async () => {
     if (resendCooldown > 0 || resendLoading) return;
@@ -131,47 +134,58 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-app-canvas px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-app-text" />
-            </div>
-            <span className="text-lg font-semibold text-app-text">CortexCFO</span>
-          </Link>
-          <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-4">
-            <Mail className="w-6 h-6 text-emerald-600" />
-          </div>
-          <h1 className="text-2xl font-semibold text-app-text">Verify your email</h1>
-          <p className="text-sm text-app-text-subtle mt-2">
-            We sent a 6-digit code to<br />
-            <span className="text-app-text font-medium">{email || "..."}</span>
-          </p>
-        </div>
+    <div className="auth-wrap">
+      <AuthAside
+        eyebrow="One last step · we promise"
+        headline={
+          <>
+            Verify your <em>inbox</em>.
+            <br />
+            Unlock your workspace.
+          </>
+        }
+        sub="Email verification keeps your QoE workbook secure — only you can see the add-back schedules and underlying ledger references."
+      />
 
-        <div className="bg-app-card rounded-xl border border-app-border p-6">
+      <main className="auth-main">
+        <Link href="/login" className="auth-back">
+          <ArrowLeft style={{ width: 12, height: 12 }} />
+          Back to sign in
+        </Link>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="mail-halo">
+            <Mail style={{ width: 22, height: 22 }} />
+          </div>
+          <h1>
+            Verify your <span className="accent">email</span>.
+          </h1>
+          <p className="auth-form-sub">
+            We sent a 6-digit code to{" "}
+            <span style={{ color: "var(--text)", fontWeight: 500 }}>{email || "your inbox"}</span>
+            . Paste or type it in — we&rsquo;ll auto-submit when it&rsquo;s complete.
+          </p>
+
           {success ? (
-            <div className="text-center py-4">
-              <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-3">
-                <svg className="w-6 h-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <p className="text-sm font-medium text-emerald-600">Email verified! Redirecting...</p>
+            <div className="auth-alert success" style={{ marginTop: 22 }}>
+              <CheckCircle2 style={{ width: 16, height: 16, flexShrink: 0 }} />
+              <span>Email verified! Taking you to onboarding…</span>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <>
               {error && (
-                <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">{error}</div>
+                <div className="auth-alert error" role="alert" style={{ marginTop: 22 }}>
+                  {error}
+                </div>
               )}
 
-              {/* 6-digit code input */}
-              <div className="flex justify-center gap-2">
+              <div className="code-row" style={{ marginTop: error ? 14 : 22 }}>
                 {code.map((digit, i) => (
                   <input
                     key={i}
-                    ref={(el) => { inputRefs.current[i] = el; }}
+                    ref={(el) => {
+                      inputRefs.current[i] = el;
+                    }}
                     type="text"
                     inputMode="numeric"
                     maxLength={6}
@@ -179,45 +193,67 @@ export default function VerifyEmailPage() {
                     onChange={(e) => handleChange(i, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(i, e)}
                     onFocus={(e) => e.target.select()}
-                    className="w-11 h-13 text-center text-lg font-semibold rounded-lg border border-app-border-strong bg-app-card-hover text-app-text outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
                     autoFocus={i === 0}
+                    aria-label={`Digit ${i + 1}`}
                   />
                 ))}
               </div>
 
               <button
                 type="submit"
+                className="submit-btn"
                 disabled={loading || code.some((d) => d === "")}
-                className="w-full bg-emerald-500 text-app-text font-medium py-2.5 rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 text-sm flex items-center justify-center gap-2"
               >
                 {loading ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Verifying...</>
+                  <>
+                    <Loader2 className="spin" style={{ width: 14, height: 14 }} />
+                    Verifying…
+                  </>
                 ) : (
-                  "Verify email"
+                  <>
+                    Verify and continue
+                    <ArrowRight style={{ width: 14, height: 14 }} />
+                  </>
                 )}
               </button>
-            </form>
-          )}
-        </div>
 
-        {/* Resend */}
-        {!success && (
-          <p className="text-center text-sm text-app-text-subtle mt-6">
-            Didn&apos;t receive a code?{" "}
-            {resendCooldown > 0 ? (
-              <span className="text-app-text-subtle">Resend in {resendCooldown}s</span>
-            ) : (
-              <button
-                onClick={handleResend}
-                disabled={resendLoading}
-                className="text-emerald-600 hover:text-emerald-700 font-medium disabled:opacity-50"
-              >
-                {resendLoading ? "Sending..." : "Resend code"}
-              </button>
-            )}
-          </p>
-        )}
-      </div>
+              <p className="swap-mode">
+                Didn&rsquo;t receive a code?{" "}
+                {resendCooldown > 0 ? (
+                  <span style={{ color: "var(--text-subtle, var(--muted))" }}>
+                    Resend in {resendCooldown}s
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendLoading}
+                    style={{
+                      background: "transparent",
+                      border: 0,
+                      color: "var(--brand-text)",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      fontSize: "inherit",
+                      padding: 0,
+                    }}
+                  >
+                    {resendLoading ? "Sending…" : "Resend code"}
+                  </button>
+                )}
+              </p>
+            </>
+          )}
+        </form>
+
+        <div className="auth-foot">
+          <Link href="/terms">Terms</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/contact">Support</Link>
+          <span style={{ opacity: 0.6 }}>© {new Date().getFullYear()} CortexCFO</span>
+        </div>
+      </main>
     </div>
   );
 }

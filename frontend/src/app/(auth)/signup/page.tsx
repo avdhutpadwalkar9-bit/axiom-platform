@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { TrendingUp, Loader2, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Mail, Eye, EyeOff, Check, User } from "lucide-react";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/stores/authStore";
+import { AuthAside } from "../_AuthAside";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -13,10 +14,11 @@ export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Password-strength checks
+  // Password strength checks
   const checks = {
     length: password.length >= 8,
     letter: /[a-zA-Z]/.test(password),
@@ -37,10 +39,7 @@ export default function SignupPage() {
     try {
       await api.signup(email, password, name);
       await api.login(email, password);
-      // Populate the auth store + user cache so a later return to landing
-      // paints the signed-in state without a cold round-trip to /auth/me.
       await checkAuth();
-      // Backend sends verification code on signup; route user to the code-entry page.
       router.push("/verify-email");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
@@ -57,99 +56,149 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-app-canvas px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-app-text" />
-            </div>
-            <span className="text-lg font-semibold text-app-text">CortexCFO</span>
-          </Link>
-          <h1 className="text-2xl font-semibold text-app-text">Create your account</h1>
-          <p className="text-sm text-app-text-subtle mt-1">Start your 14-day trial. No card required.</p>
-        </div>
+    <div className="auth-wrap">
+      <AuthAside
+        eyebrow="QoE-ready in two weeks · not two months"
+        headline={
+          <>
+            Start your <em>QoE workbook</em>.
+            <br />
+            We&rsquo;ll do the joining.
+          </>
+        }
+        sub="14-day trial · no card · upload one trial balance to see your reported and adjusted EBITDA side-by-side within the hour."
+        cite={{
+          text: "Two clicks and we had a defensible add-back schedule the buyer's diligence team accepted as-is.",
+          who: "Ravi M · Promoter-CFO · Auto-components MSME",
+        }}
+      />
 
-        <div className="bg-app-card rounded-xl border border-app-border p-6">
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            {error && (
-              <div role="alert" className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
-                {error}
-              </div>
-            )}
-            <div>
-              <label className="block text-sm text-app-text-muted mb-1.5 font-medium">Name</label>
+      <main className="auth-main">
+        <Link href="/" className="auth-back">
+          <ArrowLeft style={{ width: 12, height: 12 }} />
+          Back to home
+        </Link>
+
+        <form className="auth-form" onSubmit={handleSubmit} noValidate>
+          <h1>
+            Create your <span className="accent">workspace</span>.
+            <br />
+            Free for 14 days.
+          </h1>
+          <p className="auth-form-sub">
+            We&rsquo;ll auto-classify your TB, flag QoE adjustments, and have a draft workbook ready before your first coffee.
+          </p>
+
+          {error && (
+            <div className="auth-alert error" role="alert" style={{ marginTop: 18 }}>
+              {error}
+            </div>
+          )}
+
+          <div className="field" style={{ marginTop: error ? 14 : 28 }}>
+            <label htmlFor="name">Your name</label>
+            <div className="field-wrap">
               <input
+                id="name"
+                type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder="Vikram Shah"
                 autoComplete="name"
-                className="w-full rounded-lg border border-app-border-strong bg-app-card-hover px-4 py-2.5 text-sm text-app-text placeholder:text-app-text-subtle outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
               />
+              <span className="field-icon" aria-hidden>
+                <User style={{ width: 15, height: 15 }} />
+              </span>
             </div>
-            <div>
-              <label className="block text-sm text-app-text-muted mb-1.5 font-medium">Email</label>
+          </div>
+
+          <div className="field">
+            <label htmlFor="email">Work email</label>
+            <div className="field-wrap">
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
-                required
                 autoComplete="email"
-                className="w-full rounded-lg border border-app-border-strong bg-app-card-hover px-4 py-2.5 text-sm text-app-text placeholder:text-app-text-subtle outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                required
               />
+              <span className="field-icon" aria-hidden>
+                <Mail style={{ width: 15, height: 15 }} />
+              </span>
             </div>
-            <div>
-              <label className="block text-sm text-app-text-muted mb-1.5 font-medium">Password</label>
+          </div>
+
+          <div className="field">
+            <label htmlFor="password">Password</label>
+            <div className="field-wrap">
               <input
-                type="password"
+                id="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min 8 characters"
-                required
-                minLength={8}
                 autoComplete="new-password"
-                className="w-full rounded-lg border border-app-border-strong bg-app-card-hover px-4 py-2.5 text-sm text-app-text placeholder:text-app-text-subtle outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20 transition-all"
+                minLength={8}
+                required
               />
-              {password.length > 0 && (
-                <ul className="mt-2 space-y-1 text-[11px]">
-                  <StrengthLine ok={checks.length} label="At least 8 characters" />
-                  <StrengthLine ok={checks.letter} label="Contains a letter" />
-                  <StrengthLine ok={checks.number} label="Contains a number" />
-                </ul>
-              )}
+              <button
+                type="button"
+                className="field-icon"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? (
+                  <EyeOff style={{ width: 15, height: 15 }} />
+                ) : (
+                  <Eye style={{ width: 15, height: 15 }} />
+                )}
+              </button>
             </div>
-            <button
-              type="submit"
-              disabled={loading || !allChecksPass}
-              className="w-full bg-emerald-500 text-app-text font-medium py-2.5 rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-sm flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Creating account...
-                </>
-              ) : (
-                "Create account"
-              )}
-            </button>
-          </form>
-        </div>
+            {password.length > 0 && (
+              <ul className="strength">
+                <StrengthLine ok={checks.length} label="At least 8 characters" />
+                <StrengthLine ok={checks.letter} label="Contains a letter" />
+                <StrengthLine ok={checks.number} label="Contains a number" />
+              </ul>
+            )}
+          </div>
 
-        <p className="text-center text-sm text-app-text-subtle mt-6">
-          Already have an account?{" "}
-          <Link href="/login" className="text-emerald-400 hover:text-emerald-300 font-medium">
-            Sign in
-          </Link>
-        </p>
-      </div>
+          <button type="submit" className="submit-btn" disabled={loading || !allChecksPass}>
+            {loading ? (
+              <>
+                <Loader2 className="spin" style={{ width: 14, height: 14 }} />
+                Creating account…
+              </>
+            ) : (
+              <>
+                Create my workspace
+                <ArrowRight style={{ width: 14, height: 14 }} />
+              </>
+            )}
+          </button>
+
+          <p className="swap-mode">
+            Already have an account? <Link href="/login">Sign in →</Link>
+          </p>
+        </form>
+
+        <div className="auth-foot">
+          <Link href="/terms">Terms</Link>
+          <Link href="/privacy">Privacy</Link>
+          <Link href="/contact">Support</Link>
+          <span style={{ opacity: 0.6 }}>© {new Date().getFullYear()} CortexCFO</span>
+        </div>
+      </main>
     </div>
   );
 }
 
 function StrengthLine({ ok, label }: { ok: boolean; label: string }) {
   return (
-    <li className={`flex items-center gap-2 ${ok ? "text-emerald-400" : "text-app-text-subtle"}`}>
-      <Check className={`w-3 h-3 ${ok ? "opacity-100" : "opacity-30"}`} />
+    <li className={ok ? "ok" : ""}>
+      <Check />
       <span>{label}</span>
     </li>
   );
