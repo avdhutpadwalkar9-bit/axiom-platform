@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { useIsDemoAccount } from "@/lib/demoMode";
+import { EmptyState } from "@/components/EmptyState";
 
 /* ════════════════════════════════════════════════════════════════════
    QoE Workbook · upgraded per US-diligence-report patterns we studied
@@ -433,8 +435,9 @@ export default function QoEPage() {
   // Keep these wired in so when a real analysis is loaded we can swap
   // in the live numbers. Sample fallback below preserves first-impression
   // quality of the workbook.
-  useAnalysisStore();
+  const lastResult = useAnalysisStore((s) => s.lastResult);
   const { business } = useOnboardingStore();
+  const isDemo = useIsDemoAccount();
 
   const [period, setPeriod] = useState<"fy23" | "fy24" | "fy25" | "ttm">("fy25");
 
@@ -479,6 +482,41 @@ export default function QoEPage() {
       .filter((x) => Math.abs(x.amount) > 0);
     return all;
   }, [periodKey]);
+
+  // Empty-state gate. The QoE workbook is the most data-hungry page
+  // in the app — without a TB we have nothing to adjust. Demo account
+  // shows the populated showcase; real empty account gets a CTA list.
+  if (!lastResult && !isDemo) {
+    return (
+      <>
+        <section className="hero">
+          <div className="hero-meta">
+            <span className="dot" />
+            <span>QoE Workbook · awaiting upload</span>
+          </div>
+          <h1 className="hero-title">
+            Quality of Earnings · <span className="name">ready when you are</span>
+          </h1>
+          <p className="hero-sub" style={{ display: "block", maxWidth: 600 }}>
+            Upload your trial balance to unlock the two-step adjustment ladder, EBITDA bridge, customer-concentration deep-dive, AR aging, cash-proof analysis and GAAP / Ind AS alignment table.
+          </p>
+        </section>
+        <EmptyState
+          title="The QoE workbook needs a few specific files"
+          message="Each section of the workbook is unlocked by a specific input. Start with the trial balance — that alone gets you the adjustment ladder, EBITDA bridge, and risk flags. The rest layer on as you upload more."
+          needs={[
+            "Trial Balance · unlocks add-back schedule, EBITDA bridge, risk flags",
+            "Sales register (Excel) · unlocks customer-concentration deep-dive",
+            "Bank statements (PDF / CSV) · unlocks cash-proof reconciliation",
+            "AR aging report · unlocks aging-bucket view + 90+ days flag",
+            "Audited financials · unlocks Ind AS / GAAP alignment table",
+          ]}
+          primary={{ label: "Upload trial balance", href: "/uploads" }}
+          secondary={{ label: "See the demo workspace", href: "/billing" }}
+        />
+      </>
+    );
+  }
 
   return (
     <>

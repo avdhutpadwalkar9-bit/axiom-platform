@@ -3,6 +3,9 @@
 import { useState } from "react";
 import { Save, RotateCcw, Sparkles } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { useAnalysisStore } from "@/stores/analysisStore";
+import { useIsDemoAccount } from "@/lib/demoMode";
+import { EmptyState } from "@/components/EmptyState";
 
 interface CaseCard {
   key: "bear" | "base" | "bull";
@@ -63,8 +66,43 @@ const sevLabel = (s: Sensitivity["severity"]) => (s === "high" ? "High" : s === 
 
 export default function ScenariosPage() {
   const { business } = useOnboardingStore();
+  const lastResult = useAnalysisStore((s) => s.lastResult);
+  const isDemo = useIsDemoAccount();
   const [activeCase, setActiveCase] = useState<"bear" | "base" | "bull">("base");
   const companyName = business.companyName || "Vadodara Chem";
+
+  // Scenarios need a base case grounded in the user's own numbers.
+  // Without an uploaded TB we'd just be drawing made-up Bear/Base/Bull
+  // cases against fabricated revenue — useless. Demo bypasses this.
+  if (!lastResult && !isDemo) {
+    return (
+      <>
+        <section className="hero">
+          <div className="hero-meta">
+            <span className="dot" />
+            <span>Scenarios · awaiting your run-rate</span>
+          </div>
+          <h1 className="hero-title">
+            Model the <span className="name">future</span> · once we have your present.
+          </h1>
+          <p className="hero-sub" style={{ display: "block", maxWidth: 580 }}>
+            Bear, Base and Bull cases are stress-tested against your own run-rate — revenue, EBITDA, working capital. Upload the trial balance first and we&rsquo;ll anchor every assumption against it.
+          </p>
+        </section>
+        <EmptyState
+          title="Upload your TB to unlock scenario modelling"
+          message="The three pre-built cases (Bear · Base · Bull) are anchored on your actual numbers — current revenue, margins, customer mix, working capital. Until that base is in, the scenarios are just abstractions."
+          needs={[
+            "Trial Balance · anchors the Base case",
+            "Optional · prior 2-3 year TBs to pick up trend",
+            "Optional · sales register · enables top-customer churn stress test",
+          ]}
+          primary={{ label: "Upload trial balance", href: "/uploads" }}
+          secondary={{ label: "See the demo workspace", href: "/billing" }}
+        />
+      </>
+    );
+  }
 
   return (
     <>

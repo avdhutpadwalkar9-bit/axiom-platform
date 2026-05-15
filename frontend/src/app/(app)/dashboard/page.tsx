@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { useIsDemoAccount } from "@/lib/demoMode";
+import { EmptyState } from "@/components/EmptyState";
 
 /* ------------------------------------------------------------------ */
 /*  Number formatting helpers                                          */
@@ -278,7 +280,47 @@ export default function DashboardPage() {
   const onboarding = useOnboardingStore();
   const business = onboarding.business;
   const personal = onboarding.personal;
+  const isDemo = useIsDemoAccount();
   const [period, setPeriod] = useState<"quarter" | "fy" | "custom">("fy");
+
+  // Show the populated showcase if either (a) the workspace has run
+  // an analysis or (b) this is the demo account. Otherwise render an
+  // empty state pointing at /uploads — we don't fabricate Vadodara
+  // Chem numbers on a real, empty workspace.
+  const hasShowcase = !!lastResult || isDemo;
+  if (!hasShowcase) {
+    const greeting = greetingByHour();
+    const namePart = (personal.fullName || "").split(" ")[0];
+    return (
+      <>
+        <section className="hero">
+          <div className="hero-meta">
+            <span className="dot" />
+            <span>Workspace · awaiting first upload</span>
+          </div>
+          <h1 className="hero-title">
+            {greeting}{namePart ? `, ${namePart}` : ""}.{" "}
+            <span className="name">Let&rsquo;s populate your dashboard.</span>
+          </h1>
+          <p className="hero-sub" style={{ display: "block", maxWidth: 580 }}>
+            Upload your latest trial balance to see your revenue, adjusted EBITDA, EBITDA bridge, key ratios and attention items — all cited back to the underlying line items.
+          </p>
+        </section>
+        <EmptyState
+          icon={<FileSpreadsheet style={{ width: 24, height: 24 }} />}
+          title="Upload your trial balance to begin"
+          message="The dashboard surfaces your reported and adjusted EBITDA, key ratios, and attention items. We can read CSV, Excel, JSON or PDF — and we'll classify accounts automatically."
+          needs={[
+            "Trial Balance (CSV / Excel / JSON / PDF) for the latest closed period",
+            "Optional · bank statements to unlock cash-proof analysis",
+            "Optional · sales register to unlock customer-concentration view",
+          ]}
+          primary={{ label: "Upload trial balance", href: "/uploads" }}
+          secondary={{ label: "See the demo workspace", href: "/billing" }}
+        />
+      </>
+    );
+  }
 
   const firstName = (personal.fullName || "").split(" ")[0] || "Founder";
   const companyName = business.companyName || "Vadodara Chem Pvt Ltd";

@@ -22,9 +22,12 @@ import {
   Lock,
   ArrowUpRight,
   ShieldCheck,
+  Sparkle,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useAnalysisStore } from "@/stores/analysisStore";
+import { useIsDemoAccount } from "@/lib/demoMode";
 import { api } from "@/lib/api";
 
 // The exact literal the backend requires. Kept in sync with
@@ -32,11 +35,10 @@ import { api } from "@/lib/api";
 const DELETE_CONFIRMATION_TEXT = "DELETE MY ACCOUNT";
 
 /* ────────────────────────────────────────────────────────────────
-   Plan catalogue
-   Single source of truth — referenced from both profile + billing.
-   Limits are explicit so the UI can decide whether to disable
-   "Invite teammate" / "Upload" / "Regenerate" CTAs without round-
-   tripping to the server.
+   Plan catalogue — single source of truth, also imported by
+   /billing. Each plan declares its hard limits so the UI can decide
+   whether to disable invite / upload / regenerate CTAs without a
+   round-trip.
    ──────────────────────────────────────────────────────────────── */
 export type PlanKey = "starter" | "growth" | "scale" | "enterprise";
 
@@ -46,10 +48,10 @@ export interface PlanDef {
   price: string;
   period: string;
   tagline: string;
-  storageGB: number; // 0 means custom
-  uploadsPerMonth: number; // -1 means unlimited
-  regenerationsPerMonth: number; // -1 means unlimited
-  members: number; // -1 means unlimited
+  storageGB: number; // 0 = unlimited
+  uploadsPerMonth: number; // -1 = unlimited
+  regenerationsPerMonth: number; // -1 = unlimited
+  members: number; // -1 = unlimited
   industries: string;
   highlight?: boolean;
   features: string[];
@@ -146,6 +148,53 @@ export const PLANS: PlanDef[] = [
 const lim = (v: number) => (v === -1 ? "Unlimited" : v.toLocaleString("en-IN"));
 const storageLabel = (gb: number) => (gb === 0 ? "Unlimited" : `${gb} GB`);
 
+/* ────────────────────────────────────────────────────────────────
+   Empty-state helper — render "—" with a tiny "Add in onboarding"
+   link instead of fake data. Keeps the row visible so users know
+   what they could fill in.
+   ──────────────────────────────────────────────────────────────── */
+function FieldValue({
+  value,
+  fallback,
+  cta,
+}: {
+  value: string | undefined | null;
+  fallback?: string;
+  cta?: { label: string; href: string };
+}) {
+  const v = (value ?? "").trim();
+  if (v) {
+    return <span style={{ fontSize: 13.5, fontWeight: 500 }}>{v}</span>;
+  }
+  return (
+    <span
+      style={{
+        fontSize: 13.5,
+        fontWeight: 500,
+        color: "var(--text-subtle, var(--muted))",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 8,
+      }}
+    >
+      <span style={{ opacity: 0.5 }}>{fallback ?? "—"}</span>
+      {cta && (
+        <Link
+          href={cta.href}
+          style={{
+            fontSize: 11,
+            color: "var(--brand-text)",
+            textDecoration: "none",
+            fontWeight: 500,
+          }}
+        >
+          {cta.label} →
+        </Link>
+      )}
+    </span>
+  );
+}
+
 /* ──────────── component ──────────── */
 
 export default function ProfilePage() {
@@ -153,30 +202,12 @@ export default function ProfilePage() {
   const { personal, business } = useOnboardingStore();
   const authUser = useAuthStore((s) => s.user);
   const checkAuth = useAuthStore((s) => s.checkAuth);
-
-  // Resolve real user data — pull from authStore first, then onboarding
-  const [meEmail, setMeEmail] = useState<string>("");
-  const [meName, setMeName] = useState<string>("");
-  const [memberSince, setMemberSince] = useState<string>("");
+  const lastResult = useAnalysisStore((s) => s.lastResult);
+  const isDemo = useIsDemoAccount();
 
   useEffect(() => {
-    // If authStore is already populated, use that. Otherwise force a
-    // refresh — the layout's gate normally does this on mount, so this
-    // should rarely have to actually hit the network.
-    if (authUser) {
-      setMeEmail(authUser.email);
-      setMeName(authUser.name ?? "");
-    } else {
-      checkAuth();
-    }
+    if (!authUser) checkAuth();
   }, [authUser, checkAuth]);
-
-  // Derive a "member since" string. The /auth/me endpoint doesn't
-  // currently return created_at, so we fall back to a sample date
-  // until that field is added. Wiring is here for when it lands.
-  useEffect(() => {
-    setMemberSince("Joined Mar 2025");
-  }, []);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
@@ -187,38 +218,45 @@ export default function ProfilePage() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"admin" | "member" | "viewer">("member");
 
-  // Current plan — when a real subscription endpoint is wired, source
-  // this from there. For now Growth is the realistic default.
-  const currentPlanKey: PlanKey = "growth";
+  // Plan defaults — Starter (free trial) for everyone except the
+  // demo workspace, which is on Growth so the UI shows what a
+  // paid customer sees. When real subscriptions ship, sub this for
+  // an api.getSubscription() call.
+  const currentPlanKey: PlanKey = isDemo ? "growth" : "starter";
   const currentPlan = PLANS.find((p) => p.key === currentPlanKey)!;
 
-  // Sample usage state — wire to backend when subscription module ships
-  const usageReports = 14;
-  const usageMembers = 4;
-  const usageStorageMB = 412;
-  const usageUploadsMonth = 22;
-  const usageRegensMonth = 7;
+  // Usage — only the demo workspace has fabricated activity. A real
+  // brand-new account starts at zero.
+  const usageReports = isDemo ? 14 : 0;
+  const usageStorageMB = isDemo ? 412 : lastResult ? 8 : 0;
+  const usageUploadsMonth = isDemo ? 22 : lastResult ? 1 : 0;
+  const usageRegensMonth = isDemo ? 7 : lastResult ? 1 : 0;
 
-  // Compose names with real auth data taking precedence
-  const fullName = meName?.trim() || personal.fullName || "Vikram Shah";
-  const email = meEmail || "vikram@vadodarachem.com";
-  const role = personal.role || "Chief Financial Officer";
-  const companyName = business.companyName || "Vadodara Chem";
+  // Identity — strictly real data, no fake fillers
+  const email = authUser?.email ?? "";
+  const fallbackNameFromEmail = email ? email.split("@")[0] : "";
+  const fullName = (authUser?.name?.trim() || personal.fullName || "").trim();
+  const displayName = fullName || fallbackNameFromEmail || "Your name";
+  const role = personal.role;
+  const phone = personal.phone;
+  const companyName = business.companyName;
   const currency = business.currency || "INR";
-  const phone = personal.phone || "+91 98•••• 4521";
-  const industry = business.industry || "Specialty Chemicals";
-  const website = business.websiteUrl || "vadodarachem.com";
-  const gstin = business.gstin || "24AABCV1234M1ZP";
-  const pan = business.pan || "AABCV1234M";
+  const industry = business.industry;
+  const website = business.websiteUrl;
+  const gstin = business.gstin;
+  const pan = business.pan;
+  const entityType = business.entityType;
+  const turnoverRange = business.turnoverRange;
 
-  // Initials for the avatar
+  // Initials — only from real data
   const initials =
-    fullName
-      .split(" ")
+    (fullName || fallbackNameFromEmail)
+      .split(/\s+|\./)
+      .filter(Boolean)
       .slice(0, 2)
       .map((s) => s[0])
       .join("")
-      .toUpperCase() || "U";
+      .toUpperCase() || "•";
 
   const handleDeleteAccount = async () => {
     setDeleteError(null);
@@ -239,14 +277,35 @@ export default function ProfilePage() {
     }
   };
 
-  // Sample team — first row is always "you", real teammates would
-  // come from a workspace API.
-  const teammates = [
-    { name: fullName, role: `${role} · you`, email, initials, bg: "#4A5526", status: "ok" as const, label: "Owner" },
-    { name: "Priya Mehta", role: "Controller", email: "priya@vadodarachem.com", initials: "PM", bg: "#2A4A6E", status: "info" as const, label: "Admin" },
-    { name: "Rajan Nagaraju", role: "CA · advisor", email: "rajan@cortexcfo.in", initials: "RN", bg: "#6E2A4A", status: "warn" as const, label: "Reviewer" },
-    { name: "Aman Doshi", role: "FP&A analyst", email: "aman@vadodarachem.com", initials: "AD", bg: "#4A2A6E", status: "warn" as const, label: "Member" },
-  ];
+  // Teammates — start with just the signed-in user. Demo workspace
+  // shows the Vadodara Chem sample team to demonstrate the look of
+  // a populated workspace.
+  const teammates: {
+    name: string;
+    role: string;
+    email: string;
+    initials: string;
+    bg: string;
+    status: "ok" | "info" | "warn";
+    label: string;
+  }[] = isDemo
+    ? [
+        { name: displayName, role: `${role || "CFO"} · you`, email, initials, bg: "#4A5526", status: "ok", label: "Owner" },
+        { name: "Priya Mehta", role: "Controller", email: "priya@vadodarachem.com", initials: "PM", bg: "#2A4A6E", status: "info", label: "Admin" },
+        { name: "Rajan Nagaraju", role: "CA · advisor", email: "rajan@cortexcfo.in", initials: "RN", bg: "#6E2A4A", status: "warn", label: "Reviewer" },
+        { name: "Aman Doshi", role: "FP&A analyst", email: "aman@vadodarachem.com", initials: "AD", bg: "#4A2A6E", status: "warn", label: "Member" },
+      ]
+    : [
+        {
+          name: displayName,
+          role: role ? `${role} · you` : "Workspace owner · you",
+          email,
+          initials,
+          bg: "#4A5526",
+          status: "ok",
+          label: "Owner",
+        },
+      ];
 
   // Member slot logic
   const memberLimit = currentPlan.members;
@@ -255,16 +314,11 @@ export default function ProfilePage() {
   const memberSlotsLeft = memberLimit === -1 ? "∞" : Math.max(0, memberLimit - membersUsed);
 
   // Storage / upload / regen usage percentages
-  const storagePct =
-    currentPlan.storageGB === 0 ? 0 : (usageStorageMB / (currentPlan.storageGB * 1024)) * 100;
+  const storagePct = currentPlan.storageGB === 0 ? 0 : (usageStorageMB / (currentPlan.storageGB * 1024)) * 100;
   const uploadsPct =
-    currentPlan.uploadsPerMonth === -1
-      ? 0
-      : (usageUploadsMonth / currentPlan.uploadsPerMonth) * 100;
+    currentPlan.uploadsPerMonth === -1 ? 0 : (usageUploadsMonth / currentPlan.uploadsPerMonth) * 100;
   const regensPct =
-    currentPlan.regenerationsPerMonth === -1
-      ? 0
-      : (usageRegensMonth / currentPlan.regenerationsPerMonth) * 100;
+    currentPlan.regenerationsPerMonth === -1 ? 0 : (usageRegensMonth / currentPlan.regenerationsPerMonth) * 100;
 
   return (
     <>
@@ -272,7 +326,10 @@ export default function ProfilePage() {
       <section className="hero">
         <div className="hero-meta">
           <span className="dot" />
-          <span>Profile · workspace owner · {memberSince}</span>
+          <span>
+            Profile · {isDemo ? "demo workspace" : "your workspace"}
+            {isDemo && <span style={{ marginLeft: 8, opacity: 0.7 }}>· seeded sample data</span>}
+          </span>
         </div>
         <div style={{ display: "flex", gap: 18, alignItems: "center", marginTop: 18 }}>
           <div
@@ -295,11 +352,11 @@ export default function ProfilePage() {
           </div>
           <div>
             <h1 className="hero-title" style={{ marginBottom: 4 }}>
-              {fullName}
+              {displayName}
             </h1>
             <div className="hero-sub" style={{ marginTop: 0 }}>
               <span>
-                {role} · {companyName}
+                {role || "Workspace owner"} {companyName && `· ${companyName}`}
               </span>
               <span className="pill">
                 <Sparkles />
@@ -309,6 +366,41 @@ export default function ProfilePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── PROFILE-COMPLETION BANNER (real account only, missing data) ─── */}
+      {!isDemo && (!fullName || !companyName || !phone || !gstin) && (
+        <div
+          className="card"
+          style={{
+            padding: 16,
+            background: "var(--brand-soft)",
+            border: "1px dashed color-mix(in oklab, var(--brand) 35%, transparent)",
+            display: "flex",
+            alignItems: "center",
+            gap: 14,
+            flexWrap: "wrap",
+          }}
+        >
+          <Sparkle style={{ width: 16, height: 16, color: "var(--brand-text)" }} />
+          <div style={{ flex: 1, minWidth: 240, fontSize: 13, lineHeight: 1.5 }}>
+            <strong>Finish your profile</strong> so reports, exports and invoices carry your real name and company details.
+            <span style={{ display: "block", color: "var(--text-muted)", fontSize: 12 }}>
+              Missing: {[
+                !fullName && "full name",
+                !phone && "phone",
+                !companyName && "company name",
+                !gstin && "GSTIN",
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </span>
+          </div>
+          <Link href="/onboarding" className="chip" style={{ textDecoration: "none" }}>
+            <Edit3 style={{ width: 11, height: 11 }} />
+            Complete onboarding
+          </Link>
+        </div>
+      )}
 
       {/* ─── KPI ROW ─────────────────────────────────────────────── */}
       <div className="kpi-row">
@@ -324,7 +416,9 @@ export default function ProfilePage() {
             <span className="unit">MB</span>
           </div>
           <div className="kpi-foot">
-            <span className="meta">of {storageLabel(currentPlan.storageGB)} · {Math.round(storagePct)}% used</span>
+            <span className="meta">
+              of {storageLabel(currentPlan.storageGB)} · {Math.round(storagePct)}% used
+            </span>
           </div>
         </div>
 
@@ -340,9 +434,7 @@ export default function ProfilePage() {
             <span className="unit">files</span>
           </div>
           <div className="kpi-foot">
-            <span className="meta">
-              of {lim(currentPlan.uploadsPerMonth)} · TB, FA, GST, contracts
-            </span>
+            <span className="meta">of {lim(currentPlan.uploadsPerMonth)}</span>
           </div>
         </div>
 
@@ -358,9 +450,7 @@ export default function ProfilePage() {
             <span className="unit">runs</span>
           </div>
           <div className="kpi-foot">
-            <span className="meta">
-              of {lim(currentPlan.regenerationsPerMonth)} this cycle · avg 9.0 score
-            </span>
+            <span className="meta">of {lim(currentPlan.regenerationsPerMonth)} this cycle</span>
           </div>
         </div>
 
@@ -389,24 +479,45 @@ export default function ProfilePage() {
           <div className="card-head">
             <div>
               <div className="card-title">Personal details</div>
-              <div className="card-sub">Captured at sign-up · editable</div>
+              <div className="card-sub">Captured at sign-up · editable from onboarding</div>
             </div>
             <div className="card-actions">
-              <button className="chip">
+              <Link href="/onboarding" className="chip" style={{ textDecoration: "none" }}>
                 <Edit3 style={{ width: 11, height: 11 }} />
                 Edit
-              </button>
+              </Link>
             </div>
           </div>
           <div style={{ padding: "8px 4px", display: "grid", gap: 14 }}>
             {[
-              { icon: <Sparkles style={{ width: 13, height: 13 }} />, label: "Full name", value: fullName },
-              { icon: <Building2 style={{ width: 13, height: 13 }} />, label: "Designation", value: role },
-              { icon: <Mail style={{ width: 13, height: 13 }} />, label: "Email (sign-in)", value: email },
-              { icon: <Phone style={{ width: 13, height: 13 }} />, label: "Phone", value: phone },
-              { icon: <Globe style={{ width: 13, height: 13 }} />, label: "Time zone", value: "Asia/Kolkata · IST (UTC +5:30)" },
-              { icon: <CreditCard style={{ width: 13, height: 13 }} />, label: "Default currency", value: `${currency} · ₹` },
-              { icon: <Globe style={{ width: 13, height: 13 }} />, label: "Language", value: "English (India)" },
+              {
+                icon: <Sparkles style={{ width: 13, height: 13 }} />,
+                label: "Full name",
+                value: fullName,
+                cta: { label: "Add", href: "/onboarding" },
+              },
+              {
+                icon: <Building2 style={{ width: 13, height: 13 }} />,
+                label: "Designation",
+                value: role,
+                cta: { label: "Add", href: "/onboarding" },
+              },
+              {
+                icon: <Mail style={{ width: 13, height: 13 }} />,
+                label: "Sign-in email",
+                value: email,
+              },
+              {
+                icon: <Phone style={{ width: 13, height: 13 }} />,
+                label: "Phone",
+                value: phone,
+                cta: { label: "Add", href: "/onboarding" },
+              },
+              {
+                icon: <Globe style={{ width: 13, height: 13 }} />,
+                label: "Default currency",
+                value: `${currency}`,
+              },
             ].map((row, i, arr) => (
               <div
                 key={row.label}
@@ -433,7 +544,7 @@ export default function ProfilePage() {
                   <span style={{ color: "var(--text-subtle, var(--muted))" }}>{row.icon}</span>
                   {row.label}
                 </span>
-                <span style={{ fontSize: 13.5, fontWeight: 500 }}>{row.value}</span>
+                <FieldValue value={row.value} cta={row.cta} />
               </div>
             ))}
           </div>
@@ -443,27 +554,24 @@ export default function ProfilePage() {
           <div className="card-head">
             <div>
               <div className="card-title">Business profile</div>
-              <div className="card-sub">From onboarding · used across the app</div>
+              <div className="card-sub">From onboarding · used across reports & invoices</div>
             </div>
             <div className="card-actions">
-              <button className="chip">
+              <Link href="/onboarding" className="chip" style={{ textDecoration: "none" }}>
                 <Edit3 style={{ width: 11, height: 11 }} />
                 Edit
-              </button>
+              </Link>
             </div>
           </div>
           <div style={{ padding: "8px 4px", display: "grid", gap: 14 }}>
             {[
-              { label: "Legal name", value: `${companyName} Pvt Ltd` },
+              { label: "Legal name", value: companyName },
               { label: "Industry", value: industry },
               { label: "Website", value: website },
               { label: "GSTIN", value: gstin },
               { label: "PAN", value: pan },
-              { label: "Entity type", value: business.entityType || "Private Limited" },
-              {
-                label: "Turnover band",
-                value: business.turnoverRange || "₹10–50 Cr",
-              },
+              { label: "Entity type", value: entityType },
+              { label: "Turnover band", value: turnoverRange },
             ].map((row, i, arr) => (
               <div
                 key={row.label}
@@ -486,9 +594,7 @@ export default function ProfilePage() {
                 >
                   {row.label}
                 </span>
-                <span className="mono" style={{ fontSize: 13.5, fontWeight: 500 }}>
-                  {row.value}
-                </span>
+                <FieldValue value={row.value} cta={{ label: "Add", href: "/onboarding" }} />
               </div>
             ))}
           </div>
@@ -501,11 +607,14 @@ export default function ProfilePage() {
           <div>
             <div className="card-title">
               Your plan · {currentPlan.name}
-              <span className="pill" style={{ marginLeft: 10 }}>Active</span>
+              <span className="pill" style={{ marginLeft: 10 }}>
+                {currentPlanKey === "starter" ? "Trial" : "Active"}
+              </span>
             </div>
             <div className="card-sub">
               {currentPlan.price}
-              {currentPlan.period === "/month" ? currentPlan.period : ` · ${currentPlan.period}`} · renews 12 Dec 2026
+              {currentPlan.period === "/month" ? currentPlan.period : ` · ${currentPlan.period}`}
+              {!isDemo && currentPlanKey === "starter" && " · upgrade anytime"}
             </div>
           </div>
           <div className="card-actions">
@@ -529,8 +638,14 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Three usage bars · storage / uploads / regens */}
-        <div style={{ padding: "16px 4px 8px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        <div
+          style={{
+            padding: "16px 4px 8px",
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 12,
+          }}
+        >
           <UsageBar
             icon={<HardDrive style={{ width: 12, height: 12 }} />}
             label="Storage"
@@ -564,17 +679,31 @@ export default function ProfilePage() {
         >
           {[
             { label: "Reports run", value: String(usageReports), sub: "lifetime" },
-            { label: "Members", value: `${usageMembers}`, sub: `of ${lim(currentPlan.members)}` },
-            { label: "Cycle", value: "18 days", sub: "until renewal" },
+            { label: "Members", value: `${membersUsed}`, sub: `of ${lim(currentPlan.members)}` },
+            { label: "Cycle", value: isDemo ? "18 days" : "—", sub: isDemo ? "until renewal" : "no active sub" },
           ].map((s) => (
             <div
               key={s.label}
-              style={{ padding: 12, background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 10 }}
+              style={{
+                padding: 12,
+                background: "var(--card-2)",
+                border: "1px solid var(--border)",
+                borderRadius: 10,
+              }}
             >
-              <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "var(--text-muted)",
+                }}
+              >
                 {s.label}
               </div>
-              <div className="mono" style={{ fontSize: 22, fontWeight: 600, marginTop: 4 }}>{s.value}</div>
+              <div className="mono" style={{ fontSize: 22, fontWeight: 600, marginTop: 4 }}>
+                {s.value}
+              </div>
               <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{s.sub}</div>
             </div>
           ))}
@@ -587,7 +716,7 @@ export default function ProfilePage() {
           <div>
             <div className="card-title">Compare plans</div>
             <div className="card-sub">
-              Storage · uploads · QoE regenerations · team seats — choose what your workspace needs
+              Storage · uploads · QoE regenerations · team seats — pick what your workspace needs
             </div>
           </div>
         </div>
@@ -599,9 +728,7 @@ export default function ProfilePage() {
                 {PLANS.map((p) => (
                   <th key={p.key} style={{ textAlign: "center" }}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                      <span style={{ color: p.highlight ? "var(--brand-text)" : "var(--text)" }}>
-                        {p.name}
-                      </span>
+                      <span style={{ color: p.highlight ? "var(--brand-text)" : "var(--text)" }}>{p.name}</span>
                       <span
                         style={{
                           textTransform: "none",
@@ -677,33 +804,34 @@ export default function ProfilePage() {
               />
               <tr>
                 <td></td>
-                {PLANS.map((p) => (
-                  <td key={p.key} style={{ textAlign: "center", padding: "12px 8px" }}>
-                    {p.key === currentPlanKey ? (
-                      <span className="status-pill ok">
-                        <span className="sw" />
-                        Active
-                      </span>
-                    ) : (
-                      <Link
-                        href={`/billing?plan=${p.key}`}
-                        className="chip"
-                        style={{
-                          textDecoration: "none",
-                          background: p.highlight ? "var(--brand)" : undefined,
-                          color: p.highlight ? "#0A0B0D" : undefined,
-                          borderColor: p.highlight ? "var(--brand)" : undefined,
-                        }}
-                      >
-                        {p.key === "enterprise"
-                          ? "Talk to sales"
-                          : PLANS.findIndex((x) => x.key === p.key) > PLANS.findIndex((x) => x.key === currentPlanKey)
-                          ? "Upgrade"
-                          : "Switch"}
-                      </Link>
-                    )}
-                  </td>
-                ))}
+                {PLANS.map((p) => {
+                  const sameAsCurrent = p.key === currentPlanKey;
+                  const isUpgrade =
+                    PLANS.findIndex((x) => x.key === p.key) > PLANS.findIndex((x) => x.key === currentPlanKey);
+                  return (
+                    <td key={p.key} style={{ textAlign: "center", padding: "12px 8px" }}>
+                      {sameAsCurrent ? (
+                        <span className="status-pill ok">
+                          <span className="sw" />
+                          Active
+                        </span>
+                      ) : (
+                        <Link
+                          href={`/billing?plan=${p.key}`}
+                          className="chip"
+                          style={{
+                            textDecoration: "none",
+                            background: p.highlight ? "var(--brand)" : undefined,
+                            color: p.highlight ? "#0A0B0D" : undefined,
+                            borderColor: p.highlight ? "var(--brand)" : undefined,
+                          }}
+                        >
+                          {p.key === "enterprise" ? "Talk to sales" : isUpgrade ? "Upgrade" : "Switch"}
+                        </Link>
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             </tbody>
           </table>
@@ -721,7 +849,8 @@ export default function ProfilePage() {
               </span>
             </div>
             <div className="card-sub">
-              {companyName} · {atMemberLimit
+              {companyName || "Your workspace"} ·{" "}
+              {atMemberLimit
                 ? "Member limit reached for your plan — upgrade to invite more"
                 : `${memberSlotsLeft} ${memberSlotsLeft === 1 ? "seat" : "seats"} left on ${currentPlan.name}`}
             </div>
@@ -746,7 +875,7 @@ export default function ProfilePage() {
         <div style={{ padding: "8px 4px", display: "grid", gap: 10 }}>
           {teammates.map((m) => (
             <div
-              key={m.email}
+              key={m.email || m.name}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -776,7 +905,8 @@ export default function ProfilePage() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</div>
                 <div style={{ fontSize: 11.5, color: "var(--text-muted)" }}>
-                  {m.role} · {m.email}
+                  {m.role}
+                  {m.email && ` · ${m.email}`}
                 </div>
               </div>
               <span className={`status-pill ${m.status}`}>
@@ -785,6 +915,38 @@ export default function ProfilePage() {
               </span>
             </div>
           ))}
+
+          {!isDemo && teammates.length === 1 && (
+            <div
+              style={{
+                marginTop: 4,
+                padding: 14,
+                background: "var(--canvas-2)",
+                border: "1px dashed var(--border)",
+                borderRadius: 10,
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <Users style={{ width: 14, height: 14, color: "var(--text-muted)" }} />
+              <div style={{ flex: 1, fontSize: 13, color: "var(--text-muted)" }}>
+                It&rsquo;s just you so far. Invite a controller, CA, or analyst to share the QoE workbook and add-back schedule.
+              </div>
+              <button
+                className="chip"
+                onClick={() => setInviteOpen(true)}
+                style={{
+                  background: "var(--brand-soft)",
+                  color: "var(--brand-text)",
+                  borderColor: "var(--brand)",
+                }}
+              >
+                <Plus style={{ width: 11, height: 11 }} />
+                Invite teammate
+              </button>
+            </div>
+          )}
 
           {atMemberLimit && (
             <div
@@ -903,7 +1065,7 @@ export default function ProfilePage() {
                   {memberSlotsLeft === "∞"
                     ? "Unlimited seats on your plan."
                     : `${memberSlotsLeft} ${memberSlotsLeft === 1 ? "seat" : "seats"} left on ${currentPlan.name}.`}{" "}
-                  They&rsquo;ll get an email and can sign in with the same workspace.
+                  They&rsquo;ll get an email invite and can sign in with this workspace.
                 </p>
               </div>
               <button
@@ -916,7 +1078,16 @@ export default function ProfilePage() {
               </button>
             </div>
 
-            <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: 12,
+                color: "var(--text-muted)",
+                marginBottom: 6,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
               Work email
             </label>
             <input
@@ -1052,7 +1223,16 @@ export default function ProfilePage() {
               </div>
             )}
 
-            <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: 12,
+                color: "var(--text-muted)",
+                marginBottom: 6,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
               Your password
             </label>
             <input
@@ -1073,7 +1253,16 @@ export default function ProfilePage() {
               }}
             />
 
-            <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: 12,
+                color: "var(--text-muted)",
+                marginBottom: 6,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
               Type <strong style={{ color: "var(--text)" }}>{DELETE_CONFIRMATION_TEXT}</strong> to confirm
             </label>
             <input

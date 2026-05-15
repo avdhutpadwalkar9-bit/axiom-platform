@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { useIsDemoAccount } from "@/lib/demoMode";
+import { EmptyState } from "@/components/EmptyState";
 
 /* ════════════════════════════════════════════════════════════════
    Analysis page — ported from CORTEX CFO design pack (Analysis.html).
@@ -497,6 +499,7 @@ export default function AnalysisPage() {
   const storedResult = useAnalysisStore((s) => s.lastResult);
   const storedCompanyName = useAnalysisStore((s) => s.companyName);
   const analysisDate = useAnalysisStore((s) => s.analysisDate);
+  const isDemo = useIsDemoAccount();
 
   // Selected row in the statement (drives the detail panel)
   const [activeKey, setActiveKey] = useState<string>("rev-ops");
@@ -620,6 +623,39 @@ export default function AnalysisPage() {
     }
     return n;
   }, [sections]);
+
+  // Empty-state gate. Real workspace + no analysis yet → show a CTA
+  // instead of fabricated Vadodara Chem P&L numbers. Demo account
+  // bypasses this and always sees the populated showcase.
+  if (!storedResult && !isDemo) {
+    return (
+      <>
+        <div className="page-head">
+          <div className="ph-left">
+            <div className="ph-eyebrow">Analysis · Income Statement</div>
+            <div className="ph-title">
+              Profit &amp; Loss
+              <span className="e">awaiting upload</span>
+            </div>
+            <div className="ph-sub">
+              <span>We&rsquo;ll classify every account · cite every figure back to a TB line</span>
+            </div>
+          </div>
+        </div>
+        <EmptyState
+          title="Upload your trial balance to see your P&L"
+          message="The analysis page builds a hierarchical Profit & Loss from your TB — revenue, expenses, earnings, and QoE adjustments — with every figure cited back to the underlying ledger entry."
+          needs={[
+            "Trial Balance for the latest closed period (CSV / Excel / JSON / PDF)",
+            "Optional · prior-year TB to unlock YoY variance bridge",
+            "Optional · audited financials PDF for Ind-AS alignment notes",
+          ]}
+          primary={{ label: "Upload trial balance", href: "/uploads" }}
+          secondary={{ label: "See the demo workspace", href: "/billing" }}
+        />
+      </>
+    );
+  }
 
   return (
     <>

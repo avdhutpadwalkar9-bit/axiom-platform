@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { useAuthStore } from "@/stores/authStore";
+import { useIsDemoAccount } from "@/lib/demoMode";
 import { PLANS } from "../profile/page";
 import type { PlanKey } from "../profile/page";
 
@@ -50,6 +51,7 @@ function BillingInner() {
   const authUser = useAuthStore((s) => s.user);
   const checkAuth = useAuthStore((s) => s.checkAuth);
   const { business, personal } = useOnboardingStore();
+  const isDemo = useIsDemoAccount();
 
   useEffect(() => {
     if (!authUser) checkAuth();
@@ -61,12 +63,19 @@ function BillingInner() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const [method, setMethod] = useState<PayMethod>("card");
 
-  // Auto-filled from auth + onboarding (per user's request)
-  const fullName = (authUser?.name || personal.fullName || "Vikram Shah").trim();
-  const email = authUser?.email || "vikram@vadodarachem.com";
-  const companyName = business.companyName || "Vadodara Chem";
-  const gstin = business.gstin || "24AABCV1234M1ZP";
-  const billingAddress = "Plot 14, GIDC Phase II · Vadodara · Gujarat 390010 · India";
+  // Auto-filled from auth + onboarding — strict. No fabricated
+  // "Vikram Shah / Vadodara Chem" fallbacks. Empty fields show as
+  // editable inputs the user can fill in, not made-up data.
+  const fullName = (authUser?.name || personal.fullName || "").trim();
+  const email = authUser?.email || "";
+  const companyName = business.companyName || "";
+  const gstin = business.gstin || "";
+
+  // Demo workspace gets a sample billing address so the page looks
+  // populated end-to-end for prospects. Real accounts collect it
+  // inline (one-time, on first paid checkout).
+  const sampleDemoAddress = "Plot 14, GIDC Phase II · Vadodara · Gujarat 390010 · India";
+  const [billingAddress, setBillingAddress] = useState(isDemo ? sampleDemoAddress : "");
 
   // Editable card/UPI/bank fields — we DON'T auto-fill these
   const [cardNumber, setCardNumber] = useState("");
@@ -290,15 +299,48 @@ function BillingInner() {
           </div>
 
           <form onSubmit={handleSubmit} style={{ padding: "0 18px 18px", display: "grid", gap: 18 }}>
-            {/* ── Account & billing details — auto-filled ── */}
+            {/* ── Account & billing details — auto-filled from sign-up
+                + onboarding. Empty fields render as editable inputs so
+                the user can complete them at checkout (instead of us
+                fabricating a Vadodara Chem address that isn't theirs). ── */}
             <section>
               <SectionLabel>Account & billing</SectionLabel>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                <ReadField label="Full name" value={fullName} icon={<Sparkles style={{ width: 11, height: 11 }} />} />
-                <ReadField label="Sign-in email" value={email} icon={<CreditCard style={{ width: 11, height: 11 }} />} />
-                <ReadField label="Company" value={companyName} icon={<Building2 style={{ width: 11, height: 11 }} />} />
-                <ReadField label="GSTIN" value={gstin} icon={<ShieldCheck style={{ width: 11, height: 11 }} />} />
-                <ReadField full label="Billing address" value={billingAddress} icon={<Info style={{ width: 11, height: 11 }} />} />
+                <AutoOrInputField
+                  label="Full name"
+                  value={fullName}
+                  placeholder="Your full name"
+                  icon={<Sparkles style={{ width: 11, height: 11 }} />}
+                  href="/onboarding"
+                />
+                <AutoOrInputField
+                  label="Sign-in email"
+                  value={email}
+                  placeholder="you@company.com"
+                  icon={<CreditCard style={{ width: 11, height: 11 }} />}
+                  href="/profile"
+                />
+                <AutoOrInputField
+                  label="Company"
+                  value={companyName}
+                  placeholder="Your company"
+                  icon={<Building2 style={{ width: 11, height: 11 }} />}
+                  href="/onboarding"
+                />
+                <AutoOrInputField
+                  label="GSTIN"
+                  value={gstin}
+                  placeholder="22AAAAA0000A1Z5"
+                  icon={<ShieldCheck style={{ width: 11, height: 11 }} />}
+                  href="/onboarding"
+                />
+                <FormInput
+                  full
+                  label="Billing address"
+                  value={billingAddress}
+                  onChange={setBillingAddress}
+                  placeholder="Street, city, state, PIN, country"
+                />
               </div>
               <div
                 style={{
@@ -311,7 +353,7 @@ function BillingInner() {
                 }}
               >
                 <Info style={{ width: 11, height: 11 }} />
-                Auto-filled from your sign-in. Edit in <Link href="/profile" style={{ color: "var(--brand-text)" }}>Profile</Link>.
+                Auto-filled from your sign-up. Missing fields can be completed in <Link href="/onboarding" style={{ color: "var(--brand-text)" }}>onboarding</Link> or <Link href="/profile" style={{ color: "var(--brand-text)" }}>profile</Link>.
               </div>
             </section>
 
@@ -722,6 +764,81 @@ function ReadField({
         }}
       >
         {value}
+      </div>
+    </div>
+  );
+}
+
+/* When the field has a real value, render as read-only (auto-filled
+   from sign-up). When empty, render as a clear "missing" pill that
+   links the user to the place where they can fill it in. We avoid
+   inline-editing here so the user always sees what was captured at
+   sign-up and where to change it — keeps the source of truth honest. */
+function AutoOrInputField({
+  label,
+  value,
+  placeholder,
+  icon,
+  href,
+  full,
+}: {
+  label: string;
+  value: string;
+  placeholder?: string;
+  icon?: React.ReactNode;
+  href?: string;
+  full?: boolean;
+}) {
+  const empty = !value.trim();
+  return (
+    <div style={{ gridColumn: full ? "1 / -1" : undefined }}>
+      <div
+        style={{
+          fontSize: 10.5,
+          color: "var(--text-subtle, var(--muted))",
+          textTransform: "uppercase",
+          letterSpacing: "0.08em",
+          fontWeight: 600,
+          marginBottom: 6,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+        }}
+      >
+        {icon}
+        {label}
+      </div>
+      <div
+        style={{
+          padding: "10px 12px",
+          background: empty ? "var(--canvas-2)" : "var(--card-2)",
+          border: `1px ${empty ? "dashed" : "solid"} var(--border)`,
+          borderRadius: 8,
+          fontSize: 13,
+          color: empty ? "var(--text-subtle, var(--muted))" : "var(--text)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+        }}
+      >
+        <span style={{ fontStyle: empty ? "italic" : "normal" }}>
+          {empty ? placeholder || "Not yet provided" : value}
+        </span>
+        {empty && href && (
+          <Link
+            href={href}
+            style={{
+              fontSize: 11,
+              color: "var(--brand-text)",
+              textDecoration: "none",
+              fontWeight: 500,
+              whiteSpace: "nowrap",
+            }}
+          >
+            Add →
+          </Link>
+        )}
       </div>
     </div>
   );

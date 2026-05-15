@@ -2,6 +2,9 @@
 
 import { TrendingUp, BarChart3, Circle, Sparkles } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { useAnalysisStore } from "@/stores/analysisStore";
+import { useIsDemoAccount } from "@/lib/demoMode";
+import { EmptyState } from "@/components/EmptyState";
 
 interface RatioRow {
   label: string;
@@ -61,8 +64,48 @@ const QOE_NORMS: Norm[] = [
 
 export default function IndustriesPage() {
   const { business } = useOnboardingStore();
+  const lastResult = useAnalysisStore((s) => s.lastResult);
+  const isDemo = useIsDemoAccount();
   const industry = business.industry || "Specialty Chemicals";
   const companyName = business.companyName || "Vadodara Chem";
+
+  // Industry benchmarks need (a) the user's industry to pick the
+  // right peer set and (b) the user's ratios to compare against
+  // peer medians. Without either, we can't render anything useful.
+  const hasIndustry = !!business.industry?.trim();
+  if (!isDemo && (!lastResult || !hasIndustry)) {
+    return (
+      <>
+        <section className="hero">
+          <div className="hero-meta">
+            <span className="dot" />
+            <span>Industry benchmarks · awaiting peer-set anchor</span>
+          </div>
+          <h1 className="hero-title">
+            Where you sit · <span className="name">across your industry</span>.
+          </h1>
+          <p className="hero-sub" style={{ display: "block", maxWidth: 580 }}>
+            We benchmark every ratio against the 40-50 listed peers closest to your company — same revenue band, same product mix, same regional concentration. Two things needed before we can do that.
+          </p>
+        </section>
+        <EmptyState
+          title="Industry benchmarks need an industry + your ratios"
+          message="Tell us your industry in onboarding so we can pick the right peer set; upload a TB so we have your ratios to compare against peer medians."
+          needs={[
+            !hasIndustry && "Complete onboarding · set your industry & turnover band",
+            !lastResult && "Trial Balance · gives us your DSO, margins, leverage ratios",
+            "Optional · audited financials for closest-peer matching",
+          ].filter(Boolean) as string[]}
+          primary={
+            !hasIndustry
+              ? { label: "Complete onboarding", href: "/onboarding" }
+              : { label: "Upload trial balance", href: "/uploads" }
+          }
+          secondary={{ label: "See the demo workspace", href: "/billing" }}
+        />
+      </>
+    );
+  }
 
   return (
     <>

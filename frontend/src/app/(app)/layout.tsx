@@ -22,9 +22,16 @@ import {
   FileText,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
+import { useAuthStore } from "@/stores/authStore";
 import { api } from "@/lib/api";
 import AIChatPanel from "@/components/AIChatPanel";
 import { FxProvider } from "@/context/FxContext";
+import {
+  isDemoEmail,
+  isDemoAlreadySeeded,
+  seedDemoOnboarding,
+  clearDemoOnboarding,
+} from "@/lib/demoMode";
 
 // Top-level workspace navigation
 const workspaceNav: { label: string; href: string; icon: typeof Home; badge?: string }[] = [
@@ -73,6 +80,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [hasAiAccess, setHasAiAccess] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { business, personal } = useOnboardingStore();
+  const authUser = useAuthStore((s) => s.user);
 
   useEffect(() => {
     let cancelled = false;
@@ -90,6 +98,32 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           router.replace("/verify-email");
           return;
         }
+
+        // Two-class demo-account handling. See lib/demoMode.ts for
+        // the full rationale. tl;dr — demo email autoseeds Vadodara
+        // Chem showcase data so prospects see a populated workspace;
+        // real email sweeps any stale demo data so users don't see
+        // a previous demo session bleeding into their own pages.
+        if (isDemoEmail(me.email)) {
+          if (!isDemoAlreadySeeded()) seedDemoOnboarding();
+        } else {
+          clearDemoOnboarding();
+        }
+
+        // Cache the user in the auth store so /profile, /billing,
+        // SiteNav etc. all read from one source. Without this,
+        // pages have to wait for their own getMe() round-trip.
+        useAuthStore.setState({
+          user: { id: me.id, email: me.email, name: me.name ?? null },
+          isAuthenticated: true,
+          isLoading: false,
+        });
+        try {
+          localStorage.setItem("cortexcfo:user", JSON.stringify(me));
+        } catch {
+          /* quota — non-fatal */
+        }
+
         setHasAiAccess(me.has_ai_access !== false);
         setMounted(true);
       } catch {
@@ -120,8 +154,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const workspaceName = business.companyName || "My Workspace";
-  const userName = personal.fullName || "User";
+  // Sidebar identity — prefer the actual sign-in user, then any
+  // onboarding-captured name, then a graceful default. Email-prefix
+  // (the bit before "@") is a far better fallback than the word
+  // "User" when a brand-new account has no name yet.
+  const workspaceName =
+    business.companyName ||
+    (authUser?.email ? authUser.email.split("@")[1]?.split(".")[0] || "Workspace" : "My Workspace");
+  const userName =
+    (authUser?.name?.trim()) ||
+    personal.fullName ||
+    (authUser?.email ? authUser.email.split("@")[0] : "") ||
+    "User";
   const userInitials = userName
     .split(" ")
     .slice(0, 2)
