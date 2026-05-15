@@ -1,449 +1,271 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import {
-  GitBranch,
-  Plus,
-  Users,
-  IndianRupee,
-  Building,
-  Banknote,
-  GripVertical,
-  AlertTriangle,
-  Factory,
-  TrendingUp,
-  type LucideIcon,
-} from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { useState } from "react";
+import { Save, RotateCcw, Sparkles } from "lucide-react";
+import { useOnboardingStore } from "@/stores/onboardingStore";
 
-type EventType = "hiring" | "pricing" | "financing" | "opex" | "capex";
+interface CaseCard {
+  key: "bear" | "base" | "bull";
+  label: string;
+  delta: string;
+  deltaColor: string;
+  revenue: string;
+  ebitda: string;
+  margin: string;
+  cash: string;
+  note: string;
+  dot: string;
+}
 
-interface ScenarioEvent {
-  id: string;
-  title: string;
-  month: string;
-  type: EventType;
+const CASES: CaseCard[] = [
+  { key: "bear", label: "Bear case", delta: "−15%", deltaColor: "#F87171", revenue: "₹38.5 Cr", ebitda: "₹52 L", margin: "13.5%", cash: "₹2.8 Cr", note: "Top customer loss + GST credit reversal", dot: "#F87171" },
+  { key: "base", label: "Base case", delta: "+15%", deltaColor: "#A8B554", revenue: "₹52.0 Cr", ebitda: "₹94 L", margin: "18.1%", cash: "₹5.4 Cr", note: "Current run-rate · normalised", dot: "#A8B554" },
+  { key: "bull", label: "Bull case", delta: "+35%", deltaColor: "#34D399", revenue: "₹61.2 Cr", ebitda: "₹118 L", margin: "19.3%", cash: "₹7.2 Cr", note: "Win 2 named accounts · mix shift", dot: "#34D399" },
+];
+
+interface Driver {
+  label: string;
+  value: string;
+  position: number;
   color: string;
-  impact: { burnDelta?: number; revenueDelta?: number; cashDelta?: number };
+  fromLabel: string;
+  toLabel: string;
 }
 
-const EVENT_TYPE_META: Record<EventType, { icon: LucideIcon; label: string }> = {
-  hiring: { icon: Users, label: "Hiring" },
-  pricing: { icon: IndianRupee, label: "Pricing" },
-  financing: { icon: Banknote, label: "Financing" },
-  opex: { icon: Building, label: "OpEx" },
-  capex: { icon: Factory, label: "Capex" },
-};
-
-const EVENTS: ScenarioEvent[] = [
-  {
-    id: "evt-1",
-    title: "Hire 3 sales reps (Mumbai + Pune)",
-    month: "Jun 2026",
-    type: "hiring",
-    color: "#10b981",
-    impact: { burnDelta: 900000, revenueDelta: 650000 },
-  },
-  {
-    id: "evt-2",
-    title: "Price increase 8% on enterprise SKUs",
-    month: "Aug 2026",
-    type: "pricing",
-    color: "#14b8a6",
-    impact: { revenueDelta: 520000 },
-  },
-  {
-    id: "evt-3",
-    title: "MSME loan drawdown (HDFC, ₹2 Cr)",
-    month: "Oct 2026",
-    type: "financing",
-    color: "#2dd4bf",
-    impact: { cashDelta: 20000000, burnDelta: 180000 },
-  },
-  {
-    id: "evt-4",
-    title: "New plant &mdash; capex order",
-    month: "Sep 2026",
-    type: "capex",
-    color: "#84cc16",
-    impact: { cashDelta: -8500000 },
-  },
-  {
-    id: "evt-5",
-    title: "Open Bengaluru office",
-    month: "Nov 2026",
-    type: "opex",
-    color: "#a3e635",
-    impact: { burnDelta: 280000 },
-  },
+const DRIVERS: Driver[] = [
+  { label: "Revenue growth", value: "+15%", position: 55, color: "var(--brand)", fromLabel: "from 0%", toLabel: "to +35%" },
+  { label: "Gross margin", value: "42.5%", position: 65, color: "var(--positive)", fromLabel: "from 38%", toLabel: "to 48%" },
+  { label: "Volume growth", value: "+12%", position: 40, color: "var(--brand)", fromLabel: "from 0%", toLabel: "to +30%" },
+  { label: "Price increase", value: "+3%", position: 35, color: "var(--brand)", fromLabel: "from 0%", toLabel: "to +8%" },
+  { label: "DSO days", value: "55", position: 35, color: "var(--warning)", fromLabel: "from 45", toLabel: "to 90" },
+  { label: "Headcount add", value: "+6", position: 30, color: "var(--text-muted)", fromLabel: "from 0", toLabel: "to +20" },
+  { label: "Capex", value: "₹1.2 Cr", position: 40, color: "var(--text-muted)", fromLabel: "from 0", toLabel: "to ₹3 Cr" },
 ];
 
-const FORECAST = {
-  base: [
-    { month: "May 2026", cash: 14500000, revenue: 8200000, burn: 3800000 },
-    { month: "Jun 2026", cash: 14100000, revenue: 8450000, burn: 3900000 },
-    { month: "Jul 2026", cash: 13700000, revenue: 8700000, burn: 4000000 },
-    { month: "Aug 2026", cash: 13300000, revenue: 8950000, burn: 4050000 },
-    { month: "Sep 2026", cash: 12850000, revenue: 9200000, burn: 4100000 },
-    { month: "Oct 2026", cash: 12400000, revenue: 9480000, burn: 4200000 },
-    { month: "Nov 2026", cash: 11950000, revenue: 9760000, burn: 4250000 },
-    { month: "Dec 2026", cash: 11500000, revenue: 10050000, burn: 4300000 },
-  ],
-  best: [
-    { month: "May 2026", cash: 14500000, revenue: 8450000, burn: 3750000 },
-    { month: "Jun 2026", cash: 14250000, revenue: 8850000, burn: 3800000 },
-    { month: "Jul 2026", cash: 14050000, revenue: 9400000, burn: 3850000 },
-    { month: "Aug 2026", cash: 13900000, revenue: 10100000, burn: 3900000 },
-    { month: "Sep 2026", cash: 13800000, revenue: 10800000, burn: 3950000 },
-    { month: "Oct 2026", cash: 33650000, revenue: 11450000, burn: 4000000 },
-    { month: "Nov 2026", cash: 33800000, revenue: 12150000, burn: 4100000 },
-    { month: "Dec 2026", cash: 34100000, revenue: 12900000, burn: 4200000 },
-  ],
-  worst: [
-    { month: "May 2026", cash: 14500000, revenue: 7900000, burn: 4100000 },
-    { month: "Jun 2026", cash: 13850000, revenue: 7700000, burn: 4350000 },
-    { month: "Jul 2026", cash: 13050000, revenue: 7500000, burn: 4500000 },
-    { month: "Aug 2026", cash: 12150000, revenue: 7300000, burn: 4650000 },
-    { month: "Sep 2026", cash: 11100000, revenue: 7100000, burn: 4800000 },
-    { month: "Oct 2026", cash: 9900000, revenue: 6900000, burn: 4950000 },
-    { month: "Nov 2026", cash: 8550000, revenue: 6750000, burn: 5050000 },
-    { month: "Dec 2026", cash: 7050000, revenue: 6600000, burn: 5150000 },
-  ],
-};
-
-const SCENARIOS = [
-  { key: "base" as const, label: "Base case", color: "#10b981", description: "Current trajectory &middot; no major events" },
-  { key: "best" as const, label: "Upside", color: "#22c55e", description: "Pricing + sales hires + MSME drawdown land" },
-  { key: "worst" as const, label: "Downside", color: "#f43f5e", description: "GST rate hike + large receivable default" },
-];
-
-function fmt(v: number) {
-  const abs = Math.abs(v);
-  const sign = v < 0 ? "-" : "";
-  if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
-  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(1)} L`;
-  if (abs >= 1000) return `${sign}₹${(abs / 1000).toFixed(0)}K`;
-  return `${sign}₹${abs.toFixed(0)}`;
+interface Sensitivity {
+  label: string;
+  impact: string;
+  severity: "high" | "med" | "low";
+  barWidth: number;
 }
+
+const SENSITIVITIES: Sensitivity[] = [
+  { label: "Top-3 customer retention", impact: "±₹42 L", severity: "high", barWidth: 100 },
+  { label: "Volume", impact: "±₹24 L", severity: "high", barWidth: 57 },
+  { label: "Price", impact: "±₹18 L", severity: "med", barWidth: 43 },
+  { label: "Gross margin (input cost)", impact: "±₹15 L", severity: "med", barWidth: 36 },
+  { label: "DSO · working capital", impact: "±₹9 L", severity: "low", barWidth: 21 },
+  { label: "Opex efficiency", impact: "±₹7 L", severity: "low", barWidth: 17 },
+];
+
+const sevColor = (s: Sensitivity["severity"]) => (s === "high" ? "#F87171" : s === "med" ? "#FBBF24" : "#A8B554");
+const sevLabel = (s: Sensitivity["severity"]) => (s === "high" ? "High" : s === "med" ? "Med" : "Low");
 
 export default function ScenariosPage() {
-  const [active, setActive] = useState<"base" | "best" | "worst">("base");
-  const [enabled, setEnabled] = useState<Set<string>>(new Set(["evt-1", "evt-2"]));
-
-  const toggle = (id: string) =>
-    setEnabled((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-
-  const activeData = FORECAST[active];
-  const last = activeData[activeData.length - 1];
-  const runwayMonths = useMemo(() => {
-    if (active === "best") return 999;
-    return last.burn > 0 ? Math.max(0, Math.round(last.cash / last.burn)) : 0;
-  }, [active, last]);
-
-  const comparison = useMemo(() => {
-    const row = (key: "base" | "best" | "worst") => {
-      const data = FORECAST[key];
-      const end = data[data.length - 1];
-      const start = data[0];
-      const avgBurn = Math.round(data.reduce((s, d) => s + d.burn, 0) / data.length);
-      const growth = ((end.revenue - start.revenue) / start.revenue) * 100;
-      return { end, avgBurn, growth };
-    };
-    return { base: row("base"), best: row("best"), worst: row("worst") };
-  }, []);
+  const { business } = useOnboardingStore();
+  const [activeCase, setActiveCase] = useState<"bear" | "base" | "bull">("base");
+  const companyName = business.companyName || "Vadodara Chem";
 
   return (
-    <div className="p-6 lg:p-8 space-y-6 max-w-[1400px]">
-      {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <GitBranch className="w-4 h-4 text-emerald-400" />
-            <p className="text-[11px] font-semibold tracking-[0.2em] uppercase text-emerald-400">Scenario canvas</p>
-          </div>
-          <h1 className="text-2xl font-bold text-white">Model different futures</h1>
-          <p className="text-sm text-white/40 mt-1">
-            Stack MSME-specific events on a base forecast &middot; see cash, revenue and runway move in real time.
-          </p>
+    <>
+      <section className="hero">
+        <div className="hero-meta">
+          <span className="dot" />
+          <span>Scenarios · FY 25-26 · cited from FY 24-25 books</span>
         </div>
-      </div>
+        <h1 className="hero-title">
+          Model what your <span className="name">future</span> looks like.
+        </h1>
+        <p className="hero-sub" style={{ display: "block", maxWidth: 580 }}>
+          Three pre-built cases anchored on the {companyName} run-rate, plus a driver panel that lets you stress every assumption. Every output is cited back to the underlying line item.
+        </p>
+      </section>
 
-      {/* Scenario selector */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {SCENARIOS.map((s) => {
-          const isActive = active === s.key;
+      <section style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
+        {CASES.map((c) => {
+          const active = activeCase === c.key;
+          const cardStyle: React.CSSProperties = active
+            ? {
+                padding: 20,
+                background: "linear-gradient(180deg, var(--brand-soft) 0%, var(--card) 100%)",
+                borderColor: "var(--brand)",
+              }
+            : { padding: 20 };
           return (
             <button
-              key={s.key}
-              onClick={() => setActive(s.key)}
-              className={`p-4 rounded-xl border text-left transition-all ${
-                isActive
-                  ? "bg-emerald-500/5 border-emerald-500/30 shadow-lg shadow-emerald-500/5"
-                  : "bg-[#111] border-white/8 hover:border-white/15"
-              }`}
+              key={c.key}
+              onClick={() => setActiveCase(c.key)}
+              className="card"
+              style={{ ...cardStyle, textAlign: "left", cursor: "pointer" }}
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: s.color }} />
-                <span className={`text-sm font-semibold ${isActive ? "text-white" : "text-white/70"}`}>{s.label}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: c.dot }} />
+                <div
+                  style={{
+                    fontSize: 11,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.12em",
+                    color: "var(--text-muted)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {c.label}
+                </div>
+                <span className="mono" style={{ marginLeft: "auto", fontSize: 12, color: c.deltaColor, fontWeight: 600 }}>
+                  {c.delta}
+                </span>
               </div>
-              <p className="text-xs text-white/40" dangerouslySetInnerHTML={{ __html: s.description }} />
+              <div className="mono" style={{ fontSize: 32, fontWeight: 600, letterSpacing: "-0.02em" }}>
+                {c.revenue}
+              </div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Revenue · FY 25-26</div>
+              <div style={{ height: 1, background: "var(--border)", margin: "14px 0" }} />
+              <div style={{ display: "grid", gap: 8 }}>
+                {[
+                  { l: "Adj. EBITDA", v: c.ebitda },
+                  { l: "Margin", v: c.margin },
+                  { l: "Closing cash", v: c.cash },
+                ].map((row) => (
+                  <div key={row.l} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                    <span style={{ color: "var(--text-muted)" }}>{row.l}</span>
+                    <span className="mono" style={{ fontWeight: 500 }}>{row.v}</span>
+                  </div>
+                ))}
+              </div>
+              <div
+                style={{
+                  fontSize: 11.5,
+                  color: "var(--text-muted)",
+                  marginTop: 14,
+                  paddingTop: 12,
+                  borderTop: "1px dashed var(--border)",
+                  fontStyle: "italic",
+                }}
+              >
+                {c.note}
+              </div>
             </button>
           );
         })}
-      </div>
+      </section>
 
-      {/* Forecast chart */}
-      <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-        <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
-          <div>
-            <h3 className="text-sm font-semibold text-white">Cash balance forecast</h3>
-            <p className="text-xs text-white/40 mt-0.5">May 2026 &ndash; Dec 2026</p>
+      <div className="split">
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">
+                Driver controls · {CASES.find((c) => c.key === activeCase)?.label.toLowerCase()}
+              </div>
+              <div className="card-sub">Edit any value · model recalculates · cited from books</div>
+            </div>
+            <div className="card-actions">
+              <button className="chip">
+                <RotateCcw style={{ width: 11, height: 11 }} />
+                Reset to books
+              </button>
+              <button className="chip">
+                <Save style={{ width: 11, height: 11 }} />
+                Save scenario
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            {SCENARIOS.map((s) => (
-              <span key={s.key} className="flex items-center gap-1.5 text-white/50">
-                <span className="w-3 h-0.5 rounded-full" style={{ backgroundColor: s.color }} /> {s.label}
-              </span>
+          <div style={{ padding: "8px 4px", display: "grid", gap: 18 }}>
+            {DRIVERS.map((d) => (
+              <div key={d.label}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                  <span style={{ fontSize: 13 }}>{d.label}</span>
+                  <span className="mono" style={{ fontSize: 14, fontWeight: 600 }}>{d.value}</span>
+                </div>
+                <div style={{ position: "relative", height: 6, background: "var(--card-2)", borderRadius: 3 }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: `${d.position}%`,
+                      background: d.color,
+                      borderRadius: 3,
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: `${d.position}%`,
+                      top: -4,
+                      width: 14,
+                      height: 14,
+                      borderRadius: "50%",
+                      background: d.color,
+                      transform: "translateX(-7px)",
+                      boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
+                    }}
+                  />
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
+                  <span>{d.fromLabel}</span>
+                  <span>{d.toLabel}</span>
+                </div>
+              </div>
             ))}
           </div>
         </div>
-        <ResponsiveContainer width="100%" height={320}>
-          <LineChart>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-            <XAxis
-              dataKey="month"
-              tick={{ fill: "#999", fontSize: 11 }}
-              tickLine={false}
-              axisLine={false}
-              allowDuplicatedCategory={false}
-            />
-            <YAxis
-              tick={{ fill: "#999", fontSize: 11 }}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v) => fmt(Number(v))}
-            />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#0a0a0a",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "8px",
-                fontSize: "12px",
-                color: "#fff",
-              }}
-              itemStyle={{ color: "#fff" }}
-              labelStyle={{ color: "#fff" }}
-              formatter={(value) => [fmt(Number(value)), ""]}
-            />
-            <Line
-              data={FORECAST.base}
-              type="monotone"
-              dataKey="cash"
-              stroke="#10b981"
-              strokeWidth={active === "base" ? 2.5 : 1.25}
-              dot={false}
-              name="Base"
-              opacity={active === "base" ? 1 : 0.25}
-            />
-            <Line
-              data={FORECAST.best}
-              type="monotone"
-              dataKey="cash"
-              stroke="#22c55e"
-              strokeWidth={active === "best" ? 2.5 : 1.25}
-              dot={false}
-              name="Best"
-              opacity={active === "best" ? 1 : 0.25}
-            />
-            <Line
-              data={FORECAST.worst}
-              type="monotone"
-              dataKey="cash"
-              stroke="#f43f5e"
-              strokeWidth={active === "worst" ? 2.5 : 1.25}
-              dot={false}
-              name="Worst"
-              opacity={active === "worst" ? 1 : 0.25}
-            />
-          </LineChart>
-        </ResponsiveContainer>
 
-        {/* Runway indicator */}
-        <div className="mt-6 pt-5 border-t border-white/5 flex items-center gap-8 flex-wrap">
-          <div>
-            <p className="text-[11px] text-white/40 uppercase tracking-wider">Projected runway</p>
-            <p
-              className={`text-lg font-bold tabular-nums ${
-                runwayMonths > 18 ? "text-emerald-400" : runwayMonths > 9 ? "text-amber-400" : "text-rose-400"
-              }`}
-            >
-              {runwayMonths > 100 ? "∞ (cash-flow positive)" : `${runwayMonths} months`}
-            </p>
-          </div>
-          <div>
-            <p className="text-[11px] text-white/40 uppercase tracking-wider">Dec 2026 cash</p>
-            <p className="text-lg font-bold text-white tabular-nums">{fmt(last.cash)}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-white/40 uppercase tracking-wider">Dec 2026 revenue</p>
-            <p className="text-lg font-bold text-white tabular-nums">{fmt(last.revenue)}</p>
-          </div>
-          {active === "worst" && (
-            <div className="ml-auto flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 rounded-lg px-4 py-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400" />
-              <span className="text-xs text-rose-200">
-                Runway compresses by Q3 &middot; consider pulling forward the MSME drawdown.
-              </span>
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">Sensitivity · EBITDA impact</div>
+              <div className="card-sub">±10% move in each driver · ranked by leverage</div>
             </div>
-          )}
-        </div>
-      </div>
-
-      {/* Event blocks + comparison */}
-      <div className="grid lg:grid-cols-2 gap-6">
-        <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-sm font-semibold text-white">Event blocks</h3>
-            <button className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 transition-colors">
-              <Plus className="w-3 h-3" /> Add event
-            </button>
           </div>
-          <p className="text-xs text-white/40 mb-4">Toggle events on/off to see the impact on the forecast.</p>
-          <div className="space-y-2.5">
-            {EVENTS.map((event) => {
-              const meta = EVENT_TYPE_META[event.type];
-              const Icon = meta.icon;
-              const isOn = enabled.has(event.id);
+          <div style={{ padding: "12px 4px", display: "grid", gap: 12 }}>
+            {SENSITIVITIES.map((s) => {
+              const c = sevColor(s.severity);
               return (
-                <motion.div
-                  key={event.id}
-                  layout
-                  onClick={() => toggle(event.id)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
-                    isOn
-                      ? "border-emerald-500/20 bg-emerald-500/5"
-                      : "border-white/8 bg-white/[0.02] opacity-60 hover:opacity-90"
-                  }`}
-                >
-                  <GripVertical className="w-3.5 h-3.5 text-white/20" />
-                  <div
-                    className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: `${event.color}22` }}
-                  >
-                    <Icon className="w-4 h-4" style={{ color: event.color }} />
+                <div key={s.label}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                    <span style={{ fontSize: 13 }}>{s.label}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span className="mono" style={{ fontSize: 13, fontWeight: 600, color: c }}>
+                        {s.impact}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                          color: "var(--text-muted)",
+                          width: 32,
+                          textAlign: "right",
+                        }}
+                      >
+                        {sevLabel(s.severity)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className="text-sm text-white truncate"
-                      dangerouslySetInnerHTML={{ __html: event.title }}
-                    />
-                    <p className="text-[11px] text-white/40">
-                      {event.month} &middot; {meta.label}
-                    </p>
+                  <div style={{ height: 5, background: "var(--card-2)", borderRadius: 3, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${s.barWidth}%`, background: c, borderRadius: 3 }} />
                   </div>
-                  <div className="text-right text-[11px] tabular-nums leading-tight">
-                    {event.impact.burnDelta !== undefined && (
-                      <p className="text-rose-400">+{fmt(event.impact.burnDelta)}/mo burn</p>
-                    )}
-                    {event.impact.revenueDelta !== undefined && (
-                      <p className="text-emerald-400">+{fmt(event.impact.revenueDelta)}/mo rev</p>
-                    )}
-                    {event.impact.cashDelta !== undefined && (
-                      <p className={event.impact.cashDelta > 0 ? "text-emerald-400" : "text-rose-400"}>
-                        {event.impact.cashDelta > 0 ? "+" : ""}
-                        {fmt(event.impact.cashDelta)} cash
-                      </p>
-                    )}
-                  </div>
-                  <div
-                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                      isOn ? "border-emerald-500 bg-emerald-500" : "border-white/15"
-                    }`}
-                  >
-                    {isOn && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                  </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
         </div>
+      </div>
 
-        <div className="bg-[#111] rounded-xl border border-white/8 p-6">
-          <div className="flex items-center gap-2 mb-5">
-            <TrendingUp className="w-4 h-4 text-white/40" />
-            <h3 className="text-sm font-semibold text-white">Scenario comparison</h3>
+      <div className="synth">
+        <div className="synth-icon">
+          <Sparkles style={{ width: 14, height: 14 }} />
+        </div>
+        <div className="synth-body">
+          <div className="synth-label">
+            CortexAI scenario read · <span className="by">CA-tone</span>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-white/5">
-                  <th className="text-left text-[11px] text-white/30 pb-3 font-medium">Metric</th>
-                  <th className="text-right text-[11px] pb-3 font-medium" style={{ color: "#10b981" }}>Base</th>
-                  <th className="text-right text-[11px] pb-3 font-medium" style={{ color: "#22c55e" }}>Upside</th>
-                  <th className="text-right text-[11px] pb-3 font-medium" style={{ color: "#f43f5e" }}>Downside</th>
-                </tr>
-              </thead>
-              <tbody>
-                <ComparisonRow
-                  label="Dec 2026 cash"
-                  base={fmt(comparison.base.end.cash)}
-                  best={fmt(comparison.best.end.cash)}
-                  worst={fmt(comparison.worst.end.cash)}
-                />
-                <ComparisonRow
-                  label="Dec 2026 revenue"
-                  base={fmt(comparison.base.end.revenue)}
-                  best={fmt(comparison.best.end.revenue)}
-                  worst={fmt(comparison.worst.end.revenue)}
-                />
-                <ComparisonRow
-                  label="Avg monthly burn"
-                  base={fmt(comparison.base.avgBurn)}
-                  best={fmt(comparison.best.avgBurn)}
-                  worst={fmt(comparison.worst.avgBurn)}
-                />
-                <ComparisonRow
-                  label="Revenue growth (8 mo)"
-                  base={`${comparison.base.growth.toFixed(1)}%`}
-                  best={`${comparison.best.growth.toFixed(1)}%`}
-                  worst={`${comparison.worst.growth.toFixed(1)}%`}
-                />
-                <ComparisonRow
-                  label="Runway (months)"
-                  base="36"
-                  best="∞"
-                  worst="14"
-                />
-              </tbody>
-            </table>
+          <div className="synth-text">
+            The single biggest lever on next-year EBITDA is <mark>top-3 customer retention</mark> — a ±10% move there is worth ±₹42 L versus your current adjusted EBITDA of ₹94 L. Volume and pricing follow next. Drop top-3 concentration below 45% before the next raise and you de-risk roughly half the bear case.
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function ComparisonRow({ label, base, best, worst }: { label: string; base: string; best: string; worst: string }) {
-  return (
-    <tr className="border-b border-white/3">
-      <td className="py-3 text-xs text-white/40">{label}</td>
-      <td className="py-3 text-xs text-right text-white/80 tabular-nums font-medium">{base}</td>
-      <td className="py-3 text-xs text-right text-emerald-400 tabular-nums font-medium">{best}</td>
-      <td className="py-3 text-xs text-right text-rose-400 tabular-nums font-medium">{worst}</td>
-    </tr>
+    </>
   );
 }

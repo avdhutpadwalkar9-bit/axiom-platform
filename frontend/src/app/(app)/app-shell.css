@@ -1419,6 +1419,36 @@ button:focus-visible,
   transform: translateY(-1px);
 }
 
+/* ── MANUAL SIDEBAR COLLAPSE ─────────────────────────────────
+   Toggle in layout.tsx adds .sidebar-collapsed to .app and switches
+   the grid column from 220px to 64px. These rules hide every inner
+   element that doesn't belong in a 64px-wide rail so text doesn't
+   bleed into the main content area. The design's stylesheet only
+   handled this via @media max-width:1100px; this gives us the same
+   behaviour on click, regardless of viewport. */
+.app.sidebar-collapsed .sidebar { padding-left: 0; padding-right: 0; }
+.app.sidebar-collapsed .sb-brand { justify-content: center; padding: 16px 0; }
+.app.sidebar-collapsed .sb-brand .sb-wordmark,
+.app.sidebar-collapsed .sb-section,
+.app.sidebar-collapsed .sb-item > span:not(.sb-icon),
+.app.sidebar-collapsed .sb-badge,
+.app.sidebar-collapsed .sb-foot .sb-user {
+  display: none;
+}
+.app.sidebar-collapsed .sb-item {
+  justify-content: center;
+  padding: 8px 0;
+  margin: 0 8px;
+}
+.app.sidebar-collapsed .sb-nav { padding: 0 4px; }
+.app.sidebar-collapsed .sb-foot {
+  padding: 8px 4px;
+  justify-content: center;
+  gap: 6px;
+}
+.app.sidebar-collapsed .sb-foot .sb-avatar { margin: 0; }
+.app.sidebar-collapsed .sb-foot .sb-toggle { margin-left: 0; }
+
 /* ── KEEP REDUCED MOTION CIVILIZED ──────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -1,567 +1,306 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { FadeIn } from "@/components/Animate";
+import { TrendingUp, BarChart3, Circle, Sparkles } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
-import {
-  Factory,
-  Monitor,
-  Briefcase,
-  ShoppingCart,
-  Globe,
-  HeartPulse,
-  GraduationCap,
-  Building,
-  Wheat,
-  Package,
-  Truck,
-  TrendingUp,
-  AlertTriangle,
-  Target,
-  BarChart3,
-  ChevronDown,
-  Download,
-  ArrowRight,
-} from "lucide-react";
 
-/* ------------------------------------------------------------------ */
-/*  Industry data — comprehensive benchmarks and insights              */
-/* ------------------------------------------------------------------ */
-const industries = [
-  {
-    id: "manufacturing",
-    name: "Manufacturing",
-    icon: Factory,
-    color: "bg-blue-50 text-blue-600",
-    marketSize: "₹44 Lakh Cr",
-    growth: "11.5%",
-    msmePct: "20.93%",
-    overview: "India's manufacturing sector contributes around 17% to GDP. MSMEs account for 35.4% of total manufacturing output. The sector is benefiting from PLI schemes, Make in India, and China+1 sourcing shifts. Key challenge remains working capital management and raw material price volatility.",
-    kpis: [
-      { label: "Gross Margin", low: "20%", avg: "32%", good: "40%", note: "Below 20% signals raw material cost pressure" },
-      { label: "Net Margin", low: "3%", avg: "8%", good: "15%", note: "Top performers maintain 12-15% through operational efficiency" },
-      { label: "Current Ratio", low: "1.0x", avg: "1.5x", good: "2.0x", note: "Below 1.0 signals working capital stress" },
-      { label: "Inventory Turnover", low: "4x", avg: "8x", good: "12x", note: "Low turnover means dead stock accumulation" },
-      { label: "Debt-to-Equity", low: "2.0x", avg: "1.2x", good: "0.5x", note: "High leverage common in capex-heavy units" },
-      { label: "COGS Ratio", low: "70%", avg: "60%", good: "55%", note: "Raw material typically 55-70% of revenue" },
-    ],
-    redFlags: [
-      "Inventory growing faster than revenue. Possible obsolescence risk.",
-      "COGS ratio increasing year-over-year. Check supplier costs and production efficiency.",
-      "Debtor days exceeding 90. Collection risk is high in Indian manufacturing.",
-      "No depreciation on plant and machinery. Schedule II non-compliance under Companies Act.",
-      "High finished goods with low raw material. Indicates production bottleneck.",
-    ],
-    insights: [
-      "Working capital cycle optimization is the single biggest lever for manufacturing MSMEs. Aim for less than 60 days.",
-      "GST input credit utilization on raw materials deserves close monitoring. Blocked ITC is a common cash trap.",
-      "Capacity utilization above 75% is the threshold where unit economics start improving significantly.",
-      "PLI scheme eligibility can provide 4-6% incremental margin. Review thresholds against current production.",
-    ],
-  },
-  {
-    id: "saas",
-    name: "SaaS & Technology",
-    icon: Monitor,
-    color: "bg-purple-50 text-purple-600",
-    marketSize: "₹5.3 Lakh Cr",
-    growth: "18.2%",
-    msmePct: "Growing fastest",
-    overview: "India's SaaS sector is projected to reach $50B by 2030. Gross margins above 70% are standard for product companies. The key challenge is balancing growth investment (people, marketing) with path to profitability. Employee costs are the primary expense line.",
-    kpis: [
-      { label: "Gross Margin", low: "60%", avg: "72%", good: "85%", note: "Below 60% means service-heavy, not pure SaaS" },
-      { label: "Net Margin", low: "-50%", avg: "-15%", good: "20%", note: "Early stage losses are normal; track improvement" },
-      { label: "Employee Cost Ratio", low: "60%", avg: "45%", good: "35%", note: "Above 50% means overhired for current ARR" },
-      { label: "Burn Rate", low: "High", avg: "Moderate", good: "Cash positive", note: "Track months of runway at current burn" },
-      { label: "Rule of 40", low: "<20", avg: "30", good: ">40", note: "Growth % + Profit % should exceed 40" },
-      { label: "LTV/CAC Ratio", low: "1x", avg: "2.5x", good: ">3x", note: "Below 3x means acquisition isn't profitable" },
-    ],
-    redFlags: [
-      "Employee costs above 50% of revenue. Team is too large for current ARR.",
-      "Marketing spend growing but CAC increasing. Signals channel saturation.",
-      "No deferred revenue account. Revenue recognition risk under Ind AS 115.",
-      "Cloud hosting costs growing faster than revenue. Architecture inefficiency.",
-      "High receivables relative to ARR. Annual contracts not collected upfront.",
-    ],
-    insights: [
-      "Revenue per employee is the key metric for SaaS efficiency. Top Indian SaaS companies achieve Rs 50-80L per employee.",
-      "Net Revenue Retention above 110% means existing customers grow faster than churn. This is the best indicator of product-market fit.",
-      "Indian SaaS exports are zero-rated for GST but compliance is heavy. Maintain proper documentation for LUT filing.",
-      "Focus on contribution margin per customer before scaling marketing. Unprofitable growth accelerates cash burn.",
-    ],
-  },
-  {
-    id: "services",
-    name: "Professional Services",
-    icon: Briefcase,
-    color: "bg-emerald-500/10 text-emerald-400",
-    marketSize: "₹12 Lakh Cr",
-    growth: "14.3%",
-    msmePct: "35.27%",
-    overview: "Services represent the largest MSME segment in India at 35.27% of all registered MSMEs. The business model is people-intensive with employee costs typically at 50-65% of revenue. Utilization rates and billing rates are the primary levers for profitability.",
-    kpis: [
-      { label: "Gross Margin", low: "30%", avg: "42%", good: "55%", note: "Directly tied to utilization rates" },
-      { label: "Net Margin", low: "5%", avg: "12%", good: "22%", note: "Top firms achieve 20%+ through premium pricing" },
-      { label: "Employee Cost Ratio", low: "65%", avg: "52%", good: "40%", note: "Below 50% indicates good leverage" },
-      { label: "Revenue per Employee", low: "₹8L", avg: "₹15L", good: "₹25L+", note: "Varies widely by service type" },
-      { label: "Debtor Days", low: "60+", avg: "45", good: "<30", note: "Cash collection is the biggest challenge" },
-      { label: "Utilization Rate", low: "60%", avg: "72%", good: ">80%", note: "Billable hours vs total hours" },
-    ],
-    redFlags: [
-      "Employee costs growing faster than revenue. Pricing not keeping up with salary inflation.",
-      "Outstanding invoices beyond 60 days. Collection is always a challenge in Indian services.",
-      "No TDS receivable. Clients should deduct TDS on professional fees under Section 194J.",
-      "Revenue concentration above 30% from a single client. Dependency risk.",
-      "Subcontractor costs misclassified as employee expenses. Creates compliance risk.",
-    ],
-    insights: [
-      "Utilization rate improvement of even 5% can translate to 10-15% margin improvement in services businesses.",
-      "Annual rate revision of 8-12% is essential to keep pace with Indian salary inflation, which averages 9-10% for skilled professionals.",
-      "TDS compliance is critical. Both inward (from clients) and outward (to subcontractors) need Section 194J compliance.",
-      "Services MSMEs supplying directly to end-users enjoy better margins than those supplying through intermediaries.",
-    ],
-  },
-  {
-    id: "trading",
-    name: "Trading & Distribution",
-    icon: ShoppingCart,
-    color: "bg-amber-500/5 text-amber-600",
-    marketSize: "₹18 Lakh Cr",
-    growth: "9.8%",
-    msmePct: "43.79%",
-    overview: "Trading is the largest MSME segment at 43.79% of registered MSMEs. Margins are thin (8-20%) and the business is volume-driven. Working capital management and cash conversion cycle optimization are the primary success factors. GST reconciliation is critical due to high transaction volumes.",
-    kpis: [
-      { label: "Gross Margin", low: "5%", avg: "12%", good: "20%", note: "Below 5% is unsustainable without massive volume" },
-      { label: "Net Margin", low: "1%", avg: "3%", good: "7%", note: "Thin margins require tight cost control" },
-      { label: "Inventory Turnover", low: "6x", avg: "12x", good: "24x", note: "Higher is better. Dead stock kills margins" },
-      { label: "Cash Conversion Cycle", low: "45+ days", avg: "20 days", good: "Negative", note: "Get paid before you pay suppliers" },
-      { label: "Stock Days", low: "45+", avg: "30", good: "<20", note: "Lower means faster inventory movement" },
-      { label: "Debt-to-Equity", low: "2.5x", avg: "1.5x", good: "0.8x", note: "Working capital loans are common" },
-    ],
-    redFlags: [
-      "Gross margin below 5%. Not sustainable even with high volume.",
-      "Inventory turnover declining quarter over quarter. Dead stock accumulation.",
-      "Trade discounts exceeding 5% of revenue. Pricing power eroding.",
-      "GST mismatch between purchases and sales. Audit risk from GSTR-2A discrepancies.",
-      "Large sundry creditors without aging analysis. Potential disputes building up.",
-    ],
-    insights: [
-      "Cash conversion cycle is the most important metric for traders. Aim to collect from customers before paying suppliers.",
-      "GST reconciliation (GSTR-2A matching) is critical for trading businesses due to high transaction volumes.",
-      "Over 85% of trading MSMEs integrated with e-commerce platforms report increased sales and profit margins.",
-      "Negotiating creditor days to 45-60 days while maintaining debtor days under 30 creates a powerful working capital advantage.",
-    ],
-  },
-  {
-    id: "ecommerce",
-    name: "E-commerce & D2C",
-    icon: Globe,
-    color: "bg-pink-50 text-pink-600",
-    marketSize: "₹7.5 Lakh Cr",
-    growth: "25.5%",
-    msmePct: "Fast growing",
-    overview: "India's e-commerce market is growing at 25%+ annually. Unit economics discipline is the key differentiator between surviving and failing brands. Contribution margin per order (after returns, discounts, delivery) must be tracked rigorously. Marketplace reconciliation is a common accounting gap.",
-    kpis: [
-      { label: "Gross Margin", low: "15%", avg: "30%", good: "45%", note: "After COGS, before marketing/delivery" },
-      { label: "Net Margin", low: "-30%", avg: "-5%", good: "8%", note: "Path to profitability matters more than current loss" },
-      { label: "CAC (Customer Acquisition)", low: "₹800+", avg: "₹400", good: "<₹200", note: "Must be lower than first-order margin" },
-      { label: "Return Rate", low: "20%+", avg: "12%", good: "<8%", note: "Above 15% signals product/listing issues" },
-      { label: "ROAS", low: "2x", avg: "3.5x", good: ">5x", note: "Return on Ad Spend. Below 3x is concerning" },
-      { label: "Fulfillment Cost %", low: "20%+", avg: "12%", good: "<8%", note: "Logistics costs eat into thin margins" },
-    ],
-    redFlags: [
-      "Marketing costs above 25% of revenue. Customer acquisition cost is too high.",
-      "Return rate exceeding 15%. Product quality or listing accuracy issues.",
-      "Discount-driven sales above 40% of GMV. Brand value eroding.",
-      "Large marketplace clearing account balances. Reconciliation gaps building.",
-      "Payment gateway charges not separately tracked. Hidden cost center.",
-    ],
-    insights: [
-      "Contribution margin per order is the most important metric. Revenue minus COGS minus returns minus discounts minus delivery minus marketing must be positive.",
-      "Reconcile marketplace settlements (Amazon, Flipkart) monthly. Delayed settlements trap working capital.",
-      "D2C brands with 30%+ repeat purchase rate are 3x more likely to achieve profitability.",
-      "In India, consider GST implications carefully. E-commerce operators must collect TCS at 1% under GST.",
-    ],
-  },
-  {
-    id: "healthcare",
-    name: "Healthcare & Pharma",
-    icon: HeartPulse,
-    color: "bg-red-500/5 text-red-600",
-    marketSize: "₹8.5 Lakh Cr",
-    growth: "16.8%",
-    msmePct: "Growing",
-    overview: "India's healthcare sector is expected to reach $372B by 2027. The sector is capital-intensive with long payback periods. Asset utilization (revenue per bed, per machine) and payer mix optimization are key. Pharma MSMEs benefit from India's position as the world's pharmacy.",
-    kpis: [
-      { label: "Gross Margin", low: "40%", avg: "55%", good: "70%", note: "Higher for speciality, lower for general" },
-      { label: "Net Margin", low: "5%", avg: "12%", good: "20%", note: "Capital costs impact net margins" },
-      { label: "Occupancy Rate", low: "50%", avg: "65%", good: ">75%", note: "For hospitals and clinics" },
-      { label: "Staff Cost Ratio", low: "45%", avg: "35%", good: "28%", note: "Doctors and nurses are the biggest cost" },
-      { label: "Revenue per Bed", low: "₹15L/yr", avg: "₹25L/yr", good: "₹40L+/yr", note: "Key efficiency metric for hospitals" },
-      { label: "Insurance Collection Days", low: "90+", avg: "60", good: "<45", note: "TPA delays are a cash flow killer" },
-    ],
-    redFlags: [
-      "Insurance receivables exceeding 60 days. TPA settlement delays impacting cash flow.",
-      "Consumable costs rising faster than revenue. Procurement inefficiency or wastage.",
-      "No provisions for medical malpractice contingencies. Legal exposure risk.",
-      "Low occupancy with high fixed costs. Operational leverage working against you.",
-      "High capital expenditure without proportional revenue growth from new equipment.",
-    ],
-    insights: [
-      "Payer mix optimization is critical. Balance between insurance, government schemes (Ayushman Bharat), and cash patients.",
-      "Asset utilization benchmarking (revenue per bed, per OT hour, per diagnostic machine) directly correlates to profitability.",
-      "Generic pharma MSMEs in India enjoy 60-70% gross margins but face pricing pressure from DPCO regulations.",
-      "Healthcare GST is complex. Most services are exempt but medical devices and consumables attract 12-18% GST.",
-    ],
-  },
-  {
-    id: "education",
-    name: "Education & EdTech",
-    icon: GraduationCap,
-    color: "bg-indigo-50 text-indigo-600",
-    marketSize: "₹4.2 Lakh Cr",
-    growth: "20.1%",
-    msmePct: "Growing",
-    overview: "India's education sector is one of the largest in the world. EdTech saw explosive growth and is now focused on sustainable unit economics. Student acquisition cost, retention, and revenue per student are the key metrics. Revenue recognition (Ind AS 115) is complex for annual fee models.",
-    kpis: [
-      { label: "Gross Margin", low: "40%", avg: "58%", good: "72%", note: "Higher for digital, lower for physical" },
-      { label: "Net Margin", low: "-20%", avg: "5%", good: "18%", note: "EdTech losses normalizing post-2023" },
-      { label: "Student Acquisition Cost", low: "₹5000+", avg: "₹2500", good: "<₹1000", note: "Must be below first-year revenue" },
-      { label: "Retention Rate", low: "50%", avg: "70%", good: ">85%", note: "Drop-off rate is the real cost killer" },
-      { label: "Revenue per Student", low: "₹5K", avg: "₹15K", good: "₹30K+", note: "Annual, varies by program" },
-      { label: "Refund Rate", low: "15%+", avg: "8%", good: "<5%", note: "High refunds signal course quality issues" },
-    ],
-    redFlags: [
-      "High acquisition cost with low course completion rates. Product-market fit issue.",
-      "Deferred revenue not properly recognized. Upfront annual fees need Ind AS 115 treatment.",
-      "Content development costs capitalized but should be expensed. Watch for aggressive accounting.",
-      "Heavy dependence on paid marketing with declining returns on ad spend.",
-      "Refund rate above 10%. Course quality or mismatched student expectations.",
-    ],
-    insights: [
-      "Student lifetime value modeling is essential. Factor in upsell potential across courses and programs.",
-      "GST exemptions apply to formal educational institutions but not most edtech platforms. Verify classification carefully.",
-      "Content reusability ratio (students served per content investment) directly drives margin improvement.",
-      "Cohort-based analysis of student outcomes drives organic referrals, reducing CAC by 40-60% for top platforms.",
-    ],
-  },
-  {
-    id: "realestate",
-    name: "Real Estate & Construction",
-    icon: Building,
-    color: "bg-slate-50 text-slate-600",
-    marketSize: "₹16 Lakh Cr",
-    growth: "8.5%",
-    msmePct: "Significant",
-    overview: "India's real estate sector is the second largest employer after agriculture. Accounting is complex due to Ind AS 115 (revenue recognition on percentage of completion), RERA compliance, and GST on under-construction properties. Project-wise profitability tracking is essential.",
-    kpis: [
-      { label: "Gross Margin", low: "15%", avg: "28%", good: "40%", note: "Varies significantly by location and segment" },
-      { label: "Net Margin", low: "5%", avg: "12%", good: "22%", note: "After interest on project loans" },
-      { label: "Debt-to-Equity", low: "3.0x", avg: "1.8x", good: "0.8x", note: "Real estate is inherently leveraged" },
-      { label: "DSCR", low: "1.0x", avg: "1.5x", good: ">2.0x", note: "Debt Service Coverage Ratio. Below 1.2 is risky" },
-      { label: "Unsold Inventory", low: "24+ months", avg: "15 months", good: "<9 months", note: "Months of supply at current sales pace" },
-      { label: "Construction Cost/Sq.Ft.", low: "Varies", avg: "₹2000-3500", good: "Below avg", note: "Monitor against project budgets" },
-    ],
-    redFlags: [
-      "Revenue recognized but cash not collected. Aggressive revenue recognition under Ind AS 115.",
-      "Land advances without project approvals. Capital at risk.",
-      "High inter-company transactions. Related party issues under Ind AS 24.",
-      "RERA compliance costs not provisioned. Regulatory penalty exposure.",
-      "GST on under-construction vs completed property not properly differentiated.",
-    ],
-    insights: [
-      "Project-wise profitability is more important than consolidated P&L for real estate MSMEs.",
-      "Cash flow forecasting by project milestone prevents the common trap of diverting funds between projects.",
-      "RERA compliance creates cost obligations that must be provisioned upfront in project budgets.",
-      "Interest capitalization during construction phase (Ind AS 23) can materially impact project margins if not tracked properly.",
-    ],
-  },
-  {
-    id: "agriculture",
-    name: "Agriculture & Agri-Processing",
-    icon: Wheat,
-    color: "bg-lime-50 text-lime-600",
-    marketSize: "₹32 Lakh Cr",
-    growth: "4.2%",
-    msmePct: "Large informal",
-    overview: "Agriculture contributes 17.5% to India's GDP and employs 42% of the workforce. Agricultural income enjoys tax exemptions under Section 10(1) but must be properly segregated from non-agricultural income. Seasonality and weather risk are inherent challenges. Post-harvest value addition improves margins significantly.",
-    kpis: [
-      { label: "Gross Margin", low: "15%", avg: "28%", good: "40%", note: "Much higher for processed vs raw produce" },
-      { label: "Net Margin", low: "3%", avg: "10%", good: "20%", note: "Weather and price volatility affect this" },
-      { label: "Post-Harvest Loss", low: "25%+", avg: "15%", good: "<8%", note: "India loses 10-16% of produce post-harvest" },
-      { label: "Working Capital Cycle", low: "180+ days", avg: "120 days", good: "<90 days", note: "Seasonal income creates cash gaps" },
-      { label: "Input Cost Ratio", low: "70%+", avg: "55%", good: "<45%", note: "Seeds, fertilizer, labor" },
-      { label: "Yield per Hectare", low: "Below avg", avg: "National avg", good: "Above avg", note: "Varies by crop and region" },
-    ],
-    redFlags: [
-      "No provision for crop failure. Agriculture is inherently risky and needs contingency planning.",
-      "Input costs (seeds, fertilizer) capitalized instead of expensed. Accounting irregularity.",
-      "Government subsidies not properly accounted for. Creates audit trail issues.",
-      "Seasonal cash flow mismatch with no bridge financing arrangement.",
-      "No crop insurance. Single season failure can wipe out the business.",
-    ],
-    insights: [
-      "Post-harvest value addition (grading, packaging, processing) can improve margins from 15% to 40%+.",
-      "Agricultural income tax exemption under Section 10(1) requires proper segregation of agri vs non-agri income.",
-      "Government subsidies (PM-KISAN, state schemes) should be recognized as income in the period received.",
-      "Cold chain infrastructure investment, while capital-intensive, reduces post-harvest losses by 60-70% and commands premium pricing.",
-    ],
-  },
-  {
-    id: "fmcg",
-    name: "FMCG & Consumer Goods",
-    icon: Package,
-    color: "bg-orange-50 text-orange-600",
-    marketSize: "₹6.5 Lakh Cr",
-    growth: "10.8%",
-    msmePct: "Significant",
-    overview: "India's FMCG sector is the 4th largest globally. The Union Budget 2025-26 boosted the sector through increased disposable income and rural development focus. Distribution reach, brand building, and working capital efficiency are the key success factors. Rural markets now contribute over 36% of FMCG revenue.",
-    kpis: [
-      { label: "Gross Margin", low: "25%", avg: "40%", good: "55%", note: "Premium brands command higher margins" },
-      { label: "Net Margin", low: "5%", avg: "12%", good: "20%", note: "Distribution costs compress margins" },
-      { label: "Distribution Cost %", low: "15%+", avg: "10%", good: "<7%", note: "Logistics and channel margins" },
-      { label: "Inventory Days", low: "45+", avg: "30", good: "<20", note: "Perishables need faster turnover" },
-      { label: "Ad Spend % of Revenue", low: "15%+", avg: "8%", good: "<5%", note: "Brand building vs performance" },
-      { label: "Revenue per SKU", low: "Low", avg: "Medium", good: "High", note: "SKU rationalization drives efficiency" },
-    ],
-    redFlags: [
-      "Distribution costs exceeding 15% of revenue. Channel inefficiency or over-reliance on intermediaries.",
-      "Inventory days increasing. Risk of expiry or obsolescence, especially for perishable goods.",
-      "Trade scheme expenses growing faster than revenue. Channel dependence increasing.",
-      "Returns and damaged goods exceeding 3% of revenue. Quality or logistics issues.",
-      "Raw material costs highly volatile with no hedging strategy. Margin risk.",
-    ],
-    insights: [
-      "Rural India contributes 36% of FMCG revenue and is growing faster than urban. Distribution reach in Tier 3-4 towns is a competitive moat.",
-      "SKU rationalization typically improves working capital efficiency by 15-20%. Focus on top 20% of SKUs that drive 80% of revenue.",
-      "Direct-to-consumer (D2C) channel can improve gross margins by 15-25% compared to traditional trade.",
-      "GST has streamlined distribution. Companies with strong GST compliance and e-way bill processes have a logistics advantage.",
-    ],
-  },
-  {
-    id: "logistics",
-    name: "Logistics & Supply Chain",
-    icon: Truck,
-    color: "bg-teal-50 text-teal-600",
-    marketSize: "₹11 Lakh Cr",
-    growth: "12.5%",
-    msmePct: "Growing",
-    overview: "India's logistics sector is transforming with GST unification, dedicated freight corridors, and digital adoption. The sector contributes 14% to GDP. Asset-heavy (fleet owners) vs asset-light (3PL brokers) models have very different financial profiles. Fuel costs and vehicle utilization are the primary margin drivers.",
-    kpis: [
-      { label: "Gross Margin", low: "12%", avg: "22%", good: "35%", note: "Asset-light models have higher margins" },
-      { label: "Net Margin", low: "2%", avg: "6%", good: "12%", note: "Fuel cost volatility impacts this" },
-      { label: "Fleet Utilization", low: "55%", avg: "70%", good: ">82%", note: "Empty miles destroy profitability" },
-      { label: "Fuel Cost %", low: "45%+", avg: "35%", good: "<30%", note: "Biggest variable cost for fleet owners" },
-      { label: "Revenue per Vehicle/Month", low: "₹80K", avg: "₹1.5L", good: "₹2.5L+", note: "Net of fuel and driver costs" },
-      { label: "Debtor Days", low: "60+", avg: "40", good: "<25", note: "Large shippers often delay payments" },
-    ],
-    redFlags: [
-      "Fleet utilization below 60%. Too many empty return trips. Optimize with load matching.",
-      "Fuel costs above 40% of revenue without hedging. Margin vulnerable to oil price spikes.",
-      "Driver costs increasing without productivity improvement. Consider fleet management tech.",
-      "Large receivables from a few major clients. Concentration and payment delay risk.",
-      "Vehicle depreciation policy not aligned with actual useful life. Review asset schedules.",
-    ],
-    insights: [
-      "Fleet utilization optimization from 65% to 80% can improve margins by 6-8% through reduced empty miles.",
-      "Digital load matching platforms can reduce empty trips by 30-40%. Consider technology adoption.",
-      "GST e-way bill compliance has reduced transit times by 20-30%. Efficient compliance is a competitive advantage.",
-      "Electric vehicle transition for last-mile delivery can reduce per-km costs by 40% despite higher upfront investment.",
-    ],
-  },
+interface RatioRow {
+  label: string;
+  your: number;
+  industry: number;
+  unit: string;
+  /** Higher is better (true) or lower is better (false) */
+  higherBetter: boolean;
+  /** Absolute scale max for the bar */
+  scaleMax: number;
+}
+
+const RATIOS: RatioRow[] = [
+  { label: "Adj. EBITDA margin", your: 15.0, industry: 11.0, unit: "%", higherBetter: true, scaleMax: 20 },
+  { label: "Gross margin", your: 42.5, industry: 38.0, unit: "%", higherBetter: true, scaleMax: 50 },
+  { label: "Revenue growth (YoY)", your: 18.0, industry: 12.0, unit: "%", higherBetter: true, scaleMax: 25 },
+  { label: "Return on capital", your: 22.0, industry: 17.5, unit: "%", higherBetter: true, scaleMax: 30 },
+  { label: "DSO (days)", your: 68, industry: 52, unit: "", higherBetter: false, scaleMax: 100 },
+  { label: "DPO (days)", your: 45, industry: 58, unit: "", higherBetter: true, scaleMax: 100 },
+  { label: "Customer concentration top-3", your: 58, industry: 38, unit: "%", higherBetter: false, scaleMax: 80 },
+  { label: "Working capital cycle", your: 38, industry: 28, unit: "d", higherBetter: false, scaleMax: 60 },
 ];
 
-/* ================================================================== */
-/*  COMPONENT                                                          */
-/* ================================================================== */
-export default function IndustryExpertisePage() {
+interface Peer {
+  name: string;
+  revenue: string;
+  ebitdaPct: string;
+  dso: number;
+  qoe?: string;
+  highlight?: boolean;
+}
+
+const PEERS: Peer[] = [
+  { name: "Vadodara Chem (you)", revenue: "₹45.2 Cr", ebitdaPct: "15.0%", dso: 68, qoe: "9.0", highlight: true },
+  { name: "Anupam Specialty", revenue: "₹118 Cr", ebitdaPct: "16.8%", dso: 55 },
+  { name: "Pidilite Specialties", revenue: "₹342 Cr", ebitdaPct: "19.2%", dso: 48 },
+  { name: "Aarti Surfactants", revenue: "₹278 Cr", ebitdaPct: "13.5%", dso: 61 },
+  { name: "Vinati Organics", revenue: "₹195 Cr", ebitdaPct: "22.4%", dso: 52 },
+  { name: "Camlin Fine", revenue: "₹160 Cr", ebitdaPct: "11.2%", dso: 58 },
+  { name: "Galaxy Surfactants", revenue: "₹224 Cr", ebitdaPct: "12.8%", dso: 54 },
+  { name: "Heubach Colorants", revenue: "₹98 Cr", ebitdaPct: "9.8%", dso: 64 },
+];
+
+interface Norm {
+  label: string;
+  severity: "high" | "med" | "low";
+  detail: string;
+}
+
+const QOE_NORMS: Norm[] = [
+  { label: "Concentration haircut", severity: "high", detail: "Buyers apply 0.5x EBITDA discount when top-3 exceeds 50%" },
+  { label: "Inventory write-down", severity: "med", detail: "12-month aging norm — anything older flagged for write-down" },
+  { label: "Related-party rent", severity: "med", detail: "FMV certificate must accompany add-back schedule" },
+  { label: "Capex normalisation", severity: "low", detail: "5-year average plant capex is the typical normalisation base" },
+  { label: "Working capital peg", severity: "med", detail: "Buyers peg WC at 38d trailing 12-month median in this band" },
+];
+
+export default function IndustriesPage() {
   const { business } = useOnboardingStore();
-  const userIndustry = business.industry?.toLowerCase() || "";
-
-  // Find user's industry and put it first
-  const sortedIndustries = useMemo(() => {
-    const matchIdx = industries.findIndex((ind) => {
-      const name = ind.name.toLowerCase();
-      return userIndustry && (name.includes(userIndustry) || userIndustry.includes(name.split(" ")[0]));
-    });
-    if (matchIdx > 0) {
-      const matched = industries[matchIdx];
-      return [matched, ...industries.filter((_, i) => i !== matchIdx)];
-    }
-    return industries;
-  }, [userIndustry]);
-
-  const defaultExpanded = sortedIndustries[0]?.id || "manufacturing";
-  const [expandedId, setExpandedId] = useState<string | null>(defaultExpanded);
-  const [activeSection, setActiveSection] = useState<Record<string, string>>({});
-  const [showAll, setShowAll] = useState(false);
-
-  const toggleIndustry = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
-
-  const getSection = (id: string) => activeSection[id] || "benchmarks";
-
-  // Show user's industry + 2 related, or all if "Show all" clicked
-  const displayedIndustries = showAll ? sortedIndustries : sortedIndustries.slice(0, 3);
+  const industry = business.industry || "Specialty Chemicals";
+  const companyName = business.companyName || "Vadodara Chem";
 
   return (
-    <div className="p-6 lg:p-8 max-w-[1200px]">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">Industry Expertise</h1>
-        <p className="text-sm text-white/40">
-          Financial benchmarks, KPIs, and strategic insights across {industries.length} Indian industry sectors.
-          Use these to benchmark your business performance.
+    <>
+      {/* HERO */}
+      <section className="hero">
+        <div className="hero-meta">
+          <span className="dot" />
+          <span>Industry benchmarks · {industry} · 47 listed peers · ₹100–500 Cr band</span>
+        </div>
+        <h1 className="hero-title">
+          You sit in the <span className="name">top quartile</span>.
+        </h1>
+        <p className="hero-sub" style={{ display: "block", maxWidth: 580 }}>
+          We benchmark every ratio against the 47 listed specialty-chemical peers closest to {companyName} — same revenue band, same product mix, same regional concentration.
         </p>
-      </div>
+      </section>
 
-      {/* Market overview cards */}
-      <FadeIn>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        {[
-          { label: "Industries Covered", value: `${industries.length}`, sub: "Sectors" },
-          { label: "MSME Contribution to GDP", value: "31.1%", sub: "FY2025" },
-          { label: "Registered MSMEs", value: "4.7 Cr+", sub: "Udyam portal" },
-          { label: "MSME Manufacturing Output", value: "35.4%", sub: "Of total mfg" },
-        ].map((card) => (
-          <div key={card.label} className="bg-[#111] rounded-xl border border-white/8 p-4">
-            <p className="text-2xl font-bold text-white">{card.value}</p>
-            <p className="text-xs text-white/40 mt-0.5">{card.label}</p>
-            <p className="text-[10px] text-white/20">{card.sub}</p>
+      {/* KPIs */}
+      <div className="kpi-row">
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon"><BarChart3 style={{ width: 13, height: 13 }} /></div>
+            <span className="kpi-label">Peer set size</span>
           </div>
-        ))}
+          <div className="kpi-value"><span>47</span></div>
+          <div className="kpi-foot"><span className="meta">Listed · ₹100–500 Cr revenue band</span></div>
+        </div>
+
+        <div className="kpi accent">
+          <div className="kpi-head">
+            <div className="kpi-icon"><TrendingUp style={{ width: 13, height: 13 }} /></div>
+            <span className="kpi-label">Overall percentile</span>
+          </div>
+          <div className="kpi-value">
+            <span>72</span>
+            <span className="unit">th</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="delta up"><TrendingUp />+8</span>
+            <span className="meta">vs FY 23-24</span>
+          </div>
+        </div>
+
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon"><TrendingUp style={{ width: 13, height: 13 }} /></div>
+            <span className="kpi-label">EBITDA margin rank</span>
+          </div>
+          <div className="kpi-value">
+            <span>12</span>
+            <span className="unit">/47</span>
+          </div>
+          <div className="kpi-foot"><span className="meta">Top quartile · 15.0%</span></div>
+        </div>
+
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon"><Circle style={{ width: 13, height: 13 }} /></div>
+            <span className="kpi-label">QoE multiple</span>
+          </div>
+          <div className="kpi-value">
+            <span>7.8</span>
+            <span className="unit">x</span>
+          </div>
+          <div className="kpi-foot"><span className="meta">Industry median EV/EBITDA</span></div>
+        </div>
       </div>
-      </FadeIn>
 
-      {/* Industry accordion list */}
-      {userIndustry && !showAll && (
-        <p className="text-xs text-emerald-400 mb-3">Showing your industry first. <button onClick={() => setShowAll(true)} className="underline hover:text-emerald-300">Show all {industries.length} industries</button></p>
-      )}
-      <div className="space-y-3">
-        {displayedIndustries.map((ind, idx) => {
-          const Icon = ind.icon;
-          const isOpen = expandedId === ind.id;
-          const section = getSection(ind.id);
+      {/* Ratios vs medians */}
+      <div className="card">
+        <div className="card-head">
+          <div>
+            <div className="card-title">Your ratios vs industry medians</div>
+            <div className="card-sub">Bar shows your value · marker shows industry median · 47 peers</div>
+          </div>
+        </div>
+        <div style={{ padding: "16px 4px", display: "grid", gap: 22 }}>
+          {RATIOS.map((r) => {
+            // Position of the user's value as % of scale
+            const yourPct = Math.min(100, (r.your / r.scaleMax) * 100);
+            // Median marker position
+            const medianPct = Math.min(100, (r.industry / r.scaleMax) * 100);
+            // Beating median?
+            const beating = r.higherBetter ? r.your > r.industry : r.your < r.industry;
+            const valueColor = beating ? "var(--positive)" : "var(--warning)";
+            const barBg = beating
+              ? "linear-gradient(90deg, var(--positive) 0%, color-mix(in oklab, var(--positive) 88%, transparent) 100%)"
+              : "linear-gradient(90deg, var(--warning) 0%, color-mix(in oklab, var(--warning) 88%, transparent) 100%)";
 
-          return (
-            <FadeIn key={ind.id} delay={idx * 50}>
-            <div className="bg-[#111] rounded-xl border border-white/8 overflow-hidden hover:border-white/12">
-              {/* Header */}
-              <button
-                onClick={() => toggleIndustry(ind.id)}
-                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-white/3 transition-colors"
-              >
-                <div className={`w-10 h-10 rounded-xl ${ind.color} flex items-center justify-center`}>
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="flex-1 text-left">
-                  <h3 className="text-sm font-semibold text-white">{ind.name}</h3>
-                  <div className="flex items-center gap-4 mt-0.5">
-                    <span className="text-[11px] text-white/30">Market: {ind.marketSize}</span>
-                    <span className="text-[11px] text-emerald-400">Growth: {ind.growth}</span>
-                    <span className="text-[11px] text-white/20">MSMEs: {ind.msmePct}</span>
+            return (
+              <div key={r.label}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+                  <span style={{ fontSize: 13 }}>{r.label}</span>
+                  <div style={{ display: "flex", gap: 18, alignItems: "baseline" }}>
+                    <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                      Industry <span className="mono">{r.industry}{r.unit}</span>
+                    </span>
+                    <span className="mono" style={{ fontSize: 14, fontWeight: 600, color: valueColor }}>
+                      {r.your}{r.unit}
+                    </span>
                   </div>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-white/15 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-              </button>
-
-              {/* Expanded content */}
-              {isOpen && (
-                <div className="border-t border-white/5">
-                  {/* Overview */}
-                  <div className="px-6 py-4 bg-white/3">
-                    <p className="text-sm text-white/60 leading-relaxed">{ind.overview}</p>
+                <div style={{ position: "relative", height: 8, background: "var(--card-2)", borderRadius: 4 }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: `${yourPct}%`,
+                      background: barBg,
+                      borderRadius: 4,
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: `${medianPct}%`,
+                      top: -4,
+                      bottom: -4,
+                      width: 2,
+                      background: "var(--text)",
+                      transform: "translateX(-1px)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: `${medianPct}%`,
+                      top: -14,
+                      fontSize: 9,
+                      color: "var(--text-muted)",
+                      transform: "translateX(-50%)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    median
                   </div>
-
-                  {/* Sub-tabs */}
-                  <div className="flex gap-1 px-6 py-3 border-b border-white/5">
-                    {[
-                      { key: "benchmarks", label: "Benchmarks", icon: BarChart3 },
-                      { key: "redflags", label: "Red Flags", icon: AlertTriangle },
-                      { key: "insights", label: "Insights", icon: Target },
-                    ].map((tab) => {
-                      const TabIcon = tab.icon;
-                      return (
-                        <button
-                          key={tab.key}
-                          onClick={() => setActiveSection((prev) => ({ ...prev, [ind.id]: tab.key }))}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                            section === tab.key ? "bg-[#1a1a1a] text-white" : "text-white/30 hover:bg-white/5"
-                          }`}
-                        >
-                          <TabIcon className="w-3 h-3" />
-                          {tab.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Benchmarks */}
-                  {section === "benchmarks" && (
-                    <div className="px-6 py-4">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="text-[11px] text-white/30 uppercase tracking-wider border-b border-white/5">
-                            <th className="text-left py-2 font-medium">KPI</th>
-                            <th className="text-center py-2 font-medium text-red-400">Needs Work</th>
-                            <th className="text-center py-2 font-medium text-amber-400">Average</th>
-                            <th className="text-center py-2 font-medium text-emerald-500">Good</th>
-                            <th className="text-left py-2 font-medium pl-4">Note</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {ind.kpis.map((kpi) => (
-                            <tr key={kpi.label} className="border-b border-white/3">
-                              <td className="py-3 font-medium text-white">{kpi.label}</td>
-                              <td className="py-3 text-center text-red-500 font-mono text-xs">{kpi.low}</td>
-                              <td className="py-3 text-center text-amber-600 font-mono text-xs">{kpi.avg}</td>
-                              <td className="py-3 text-center text-emerald-400 font-mono text-xs">{kpi.good}</td>
-                              <td className="py-3 text-white/30 text-xs pl-4">{kpi.note}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* Red Flags */}
-                  {section === "redflags" && (
-                    <div className="px-6 py-4 space-y-2">
-                      {ind.redFlags.map((flag, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-red-500/5/50 border border-red-500/10">
-                          <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
-                          <p className="text-sm text-white/60 leading-relaxed">{flag}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Insights */}
-                  {section === "insights" && (
-                    <div className="px-6 py-4 space-y-2">
-                      {ind.insights.map((insight, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-emerald-500/10/50 border border-emerald-500/10">
-                          <div className="w-5 h-5 rounded-full bg-[#1a1a1a] text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">
-                            {i + 1}
-                          </div>
-                          <p className="text-sm text-white/60 leading-relaxed">{insight}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Split: Peers + QoE norms */}
+      <div className="split">
+        <div className="card act-card">
+          <div className="act-head">
+            <div>
+              <div className="card-title">Top 8 peers · most comparable</div>
+              <div className="card-sub">{industry} · ₹100–500 Cr · India listed</div>
             </div>
-            </FadeIn>
-          );
-        })}
-        {!showAll && displayedIndustries.length < sortedIndustries.length && (
-          <button onClick={() => setShowAll(true)} className="w-full py-3 rounded-xl border border-white/8 text-sm text-white/40 hover:text-white/60 hover:bg-white/5 transition-colors">
-            Show all {sortedIndustries.length} industries
-          </button>
-        )}
+            <div className="card-actions">
+              <button className="chip">View all 47</button>
+            </div>
+          </div>
+          <table className="activity">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Revenue</th>
+                <th>EBITDA %</th>
+                <th>DSO</th>
+                <th>QoE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PEERS.map((p, i) => (
+                <tr key={i} style={p.highlight ? { background: "var(--brand-soft)" } : undefined}>
+                  <td>{p.highlight ? <strong>{p.name}</strong> : p.name}</td>
+                  <td className="mono">{p.revenue}</td>
+                  <td className="mono">{p.ebitdaPct}</td>
+                  <td className="mono">{p.dso}</td>
+                  <td className="mono" style={{ color: p.qoe ? "var(--brand-text)" : "var(--text-muted)" }}>
+                    {p.qoe ?? "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">Industry-specific QoE norms</div>
+              <div className="card-sub">What buyers in chemicals look for</div>
+            </div>
+          </div>
+          <div style={{ padding: "8px 4px", display: "grid", gap: 14 }}>
+            {QOE_NORMS.map((n, i) => {
+              const dotColor = n.severity === "high" ? "#F87171" : n.severity === "med" ? "#FBBF24" : "#A8B554";
+              const sevLabel = n.severity === "high" ? "High" : n.severity === "med" ? "Med" : "Low";
+              return (
+                <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                  <div
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: dotColor,
+                      marginTop: 7,
+                      flexShrink: 0,
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12 }}>
+                      <span style={{ fontSize: 13, fontWeight: 500 }}>{n.label}</span>
+                      <span
+                        style={{
+                          fontSize: 10,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                          color: dotColor,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {sevLabel}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 3, lineHeight: 1.45 }}>
+                      {n.detail}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="disclaimer">
+        <span className="lbl">Sourced from</span>
+        <span>
+          Public filings · 47 listed peers in {industry.toLowerCase()} · ₹100–500 Cr revenue band · last refreshed 18 Apr 2026. Comparable doesn&rsquo;t mean comparable forever; we re-rank peers every quarter.
+        </span>
+      </div>
+    </>
   );
 }
