@@ -2,363 +2,501 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Building2, Save, AlertTriangle, Loader2, X } from "lucide-react";
+import {
+  TrendingUp,
+  Sparkles,
+  Upload,
+  CreditCard,
+  Edit3,
+  Plus,
+  Loader2,
+  X,
+} from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { api } from "@/lib/api";
-import { CURRENCIES, regionFromCurrency, type Currency } from "@/lib/currency";
 
-// The exact literal the backend requires. Kept in sync manually with
+// The exact literal the backend requires. Kept in sync with
 // DELETE_ACCOUNT_CONFIRMATION in backend/app/routers/auth.py.
 const DELETE_CONFIRMATION_TEXT = "DELETE MY ACCOUNT";
 
-// Shared field/input class strings. Pulled out so the whole form stays
-// visually consistent and future token tweaks are one-file changes.
-// Tokens are defined in app/globals.css (`--color-app-*`).
-const LABEL_CLS = "block text-xs text-app-text-muted mb-1";
-const INPUT_CLS =
-  "w-full rounded-lg bg-app-canvas border border-app-border px-3 py-2.5 text-sm text-app-text outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/15 transition-colors";
-const INPUT_READONLY_CLS =
-  "w-full rounded-lg bg-app-canvas border border-app-border px-3 py-2.5 text-sm text-app-text-muted cursor-not-allowed";
-
 export default function ProfilePage() {
   const router = useRouter();
-  const { personal, business, setPersonal, setBusiness } = useOnboardingStore();
-
-  // Delete-account modal state. Kept local — no need to touch a store
-  // for transient UI state that vanishes on close.
+  const { personal, business } = useOnboardingStore();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  async function handleDeleteAccount() {
+  const fullName = personal.fullName || "Vikram Shah";
+  const role = personal.role || "Chief Financial Officer";
+  const companyName = business.companyName || "Vadodara Chem";
+  const currency = business.currency || "INR";
+
+  // Initials for the avatar
+  const initials = fullName
+    .split(" ")
+    .slice(0, 2)
+    .map((s) => s[0])
+    .join("")
+    .toUpperCase() || "U";
+
+  const handleDeleteAccount = async () => {
     setDeleteError(null);
+    if (deleteConfirm !== DELETE_CONFIRMATION_TEXT) {
+      setDeleteError(`Type "${DELETE_CONFIRMATION_TEXT}" exactly to confirm.`);
+      return;
+    }
     setDeleteLoading(true);
     try {
       await api.deleteAccount(deletePassword, deleteConfirm);
-      // Wipe every client-side trace so a later visitor on the same
-      // browser can't see stale data. Covers auth tokens plus the two
-      // persisted Zustand stores (cortexcfo-onboarding, cortexcfo-analysis).
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("cortexcfo-onboarding");
-        localStorage.removeItem("cortexcfo-analysis");
-      }
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       router.replace("/login");
     } catch (e) {
-      // api.ts throws Error(text) where text is the JSON body from the
-      // server. Try to pull the `detail` field out; otherwise surface raw.
-      let message = "Could not delete account. Please try again.";
-      try {
-        const parsed = JSON.parse((e as Error).message);
-        if (parsed?.detail) message = parsed.detail;
-      } catch { /* non-JSON — keep default */ }
-      setDeleteError(message);
+      const msg = e instanceof Error ? e.message : "Could not delete account.";
+      setDeleteError(msg);
       setDeleteLoading(false);
     }
-  }
-
-  const canConfirmDelete =
-    deletePassword.length > 0 && deleteConfirm === DELETE_CONFIRMATION_TEXT;
+  };
 
   return (
-    <div className="p-6 lg:p-8 max-w-[900px]">
-      <h1 className="text-2xl font-bold text-app-text mb-1">Profile & Business Details</h1>
-      <p className="text-sm text-app-text-muted mb-8">Manage your personal and business information. Changes here improve AI analysis accuracy.</p>
-
-      {/* Personal */}
-      <div className="bg-app-card rounded-xl border border-app-border p-6 mb-6">
-        <div className="flex items-center gap-2 mb-5">
-          <User className="w-4 h-4 text-emerald-400" />
-          <h2 className="text-sm font-semibold text-app-text">Personal Information</h2>
+    <>
+      {/* ─── HERO ────────────────────────────────────────────────── */}
+      <section className="hero">
+        <div className="hero-meta">
+          <span className="dot" />
+          <span>Profile · workspace owner · joined 14 months ago</span>
         </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className={LABEL_CLS}>Full Name</label>
-            <input value={personal.fullName} onChange={(e) => setPersonal({ fullName: e.target.value })} className={INPUT_CLS} />
+        <div style={{ display: "flex", gap: 18, alignItems: "center", marginTop: 18 }}>
+          <div
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, var(--brand) 0%, #047857 100%)",
+              color: "#0A0B0D",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 26,
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              flexShrink: 0,
+            }}
+          >
+            {initials}
           </div>
           <div>
-            <label className={LABEL_CLS}>Phone</label>
-            <input value={personal.phone} onChange={(e) => setPersonal({ phone: e.target.value })} className={INPUT_CLS} />
-          </div>
-          <div>
-            <label className={LABEL_CLS}>Role</label>
-            <input value={personal.role} readOnly className={INPUT_READONLY_CLS} />
-          </div>
-        </div>
-      </div>
-
-      {/* Business */}
-      <div className="bg-app-card rounded-xl border border-app-border p-6 mb-6">
-        <div className="flex items-center gap-2 mb-5">
-          <Building2 className="w-4 h-4 text-emerald-400" />
-          <h2 className="text-sm font-semibold text-app-text">Business Information</h2>
-        </div>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="md:col-span-2">
-            {/* Currency selector — drives:
-                - Symbol + number formatting everywhere
-                - Live FX strip on the dashboard
-                - AI voice (INR routes to Indian CFO, others to US SMB)
-                - FAQ bank filter (INR routes to Indian FAQs)
-                Sits at the top of the business card because it's a
-                global knob, not per-section. */}
-            <label className={LABEL_CLS}>Reporting currency</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-              {CURRENCIES.map((c) => {
-                const active = (business.currency ?? "USD") === c.code;
-                return (
-                  <CurrencyButton
-                    key={c.code}
-                    active={active}
-                    code={c.code}
-                    symbol={c.symbol}
-                    name={c.name}
-                    country={c.country}
-                    onClick={() => {
-                      // Currency is the user-facing field; region is
-                      // derived so the backend AI voice + FAQ filter
-                      // follow along automatically.
-                      setBusiness({
-                        currency: c.code,
-                        region: regionFromCurrency(c.code),
-                      });
-                    }}
-                  />
-                );
-              })}
+            <h1 className="hero-title" style={{ marginBottom: 4 }}>
+              {fullName}
+            </h1>
+            <div className="hero-sub" style={{ marginTop: 0 }}>
+              <span>
+                {role} · {companyName}
+              </span>
+              <span className="pill">
+                <Sparkles />
+                Workspace owner
+              </span>
             </div>
-            <p className="text-[10px] text-app-text-subtle mt-1.5">
-              Switches currency symbol and number formatting across every
-              page. Dashboard shows live FX rates between your chosen
-              currency and the other four. Selecting INR also switches
-              the AI to Indian CFO voice with Ind AS references;
-              everything else uses US SMB voice with GAAP.
-            </p>
           </div>
-          <div>
-            <label className={LABEL_CLS}>Company Name</label>
-            <input value={business.companyName} onChange={(e) => setBusiness({ companyName: e.target.value })} className={INPUT_CLS} />
+        </div>
+      </section>
+
+      {/* ─── KPI ROW ─────────────────────────────────────────────── */}
+      <div className="kpi-row">
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <TrendingUp style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">QoE reports run</span>
           </div>
-          <div>
-            <label className={LABEL_CLS}>Industry</label>
-            <input value={business.industry} readOnly className={INPUT_READONLY_CLS} />
+          <div className="kpi-value">
+            <span>14</span>
           </div>
-          <div>
-            <label className={LABEL_CLS}>Entity Type</label>
-            <input value={business.entityType} readOnly className={INPUT_READONLY_CLS} />
+          <div className="kpi-foot">
+            <span className="meta">3 this month · avg score 8.7</span>
           </div>
-          <div>
-            <label className={LABEL_CLS}>Year Founded</label>
-            <input value={business.yearFounded} onChange={(e) => setBusiness({ yearFounded: e.target.value })} className={INPUT_CLS} />
+        </div>
+
+        <div className="kpi accent">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <Sparkles style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">AI conversations</span>
           </div>
-          <div className="md:col-span-2">
-            <label className={LABEL_CLS}>Services & Products Description</label>
-            <textarea value={business.servicesDescription} onChange={(e) => setBusiness({ servicesDescription: e.target.value })} rows={3} className={`${INPUT_CLS} resize-none`} />
+          <div className="kpi-value">
+            <span>2,847</span>
           </div>
-          <div>
-            <label className={LABEL_CLS}>Website</label>
-            <input value={business.websiteUrl} onChange={(e) => setBusiness({ websiteUrl: e.target.value })} className={INPUT_CLS} />
+          <div className="kpi-foot">
+            <span className="meta">All cited · 94% useful rating</span>
           </div>
-          <div>
-            <label className={LABEL_CLS}>Turnover Range</label>
-            <input value={business.turnoverRange} readOnly className={INPUT_READONLY_CLS} />
+        </div>
+
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <Upload style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Uploads</span>
           </div>
-          {business.currency === "INR" && (
-            <>
-              <div>
-                <label className={LABEL_CLS}>GSTIN</label>
-                <input value={business.gstin} onChange={(e) => setBusiness({ gstin: e.target.value })} className={INPUT_CLS} />
-              </div>
-              <div>
-                <label className={LABEL_CLS}>PAN</label>
-                <input value={business.pan} onChange={(e) => setBusiness({ pan: e.target.value })} className={INPUT_CLS} />
-              </div>
-            </>
-          )}
+          <div className="kpi-value">
+            <span>186</span>
+            <span className="unit">files</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="meta">412 MB · TB, FA, GST returns</span>
+          </div>
+        </div>
+
+        <div className="kpi">
+          <div className="kpi-head">
+            <div className="kpi-icon">
+              <CreditCard style={{ width: 13, height: 13 }} />
+            </div>
+            <span className="kpi-label">Plan · Growth</span>
+          </div>
+          <div className="kpi-value">
+            <span>₹9k</span>
+            <span className="unit">/mo</span>
+          </div>
+          <div className="kpi-foot">
+            <span className="meta">Renews 12 Dec 2026</span>
+          </div>
         </div>
       </div>
 
-      <button
-        onClick={() => {
-          // Changes auto-persist via Zustand localStorage, show confirmation
-          const el = document.getElementById("save-confirmation");
-          if (el) { el.style.opacity = "1"; setTimeout(() => { el.style.opacity = "0"; }, 2000); }
+      {/* ─── SPLIT: Personal details + Workspace ──────────────────── */}
+      <div className="split">
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">Personal details</div>
+              <div className="card-sub">Visible to your workspace</div>
+            </div>
+            <div className="card-actions">
+              <button className="chip">
+                <Edit3 style={{ width: 11, height: 11 }} />
+                Edit
+              </button>
+            </div>
+          </div>
+          <div style={{ padding: "8px 4px", display: "grid", gap: 14 }}>
+            {[
+              { label: "Full name", value: fullName },
+              { label: "Designation", value: role },
+              { label: "Email (work)", value: "vikram@vadodarachem.com" },
+              { label: "Phone", value: personal.phone || "+91 98•••• 4521" },
+              { label: "Time zone", value: "Asia/Kolkata · IST (UTC +5:30)" },
+              { label: "Default currency", value: `${currency} · ₹` },
+              { label: "Language", value: "English (India)" },
+            ].map((row, i, arr) => (
+              <div
+                key={row.label}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "180px 1fr",
+                  gap: 16,
+                  alignItems: "center",
+                  padding: "6px 0",
+                  borderBottom: i < arr.length - 1 ? "1px solid var(--border)" : "none",
+                }}
+              >
+                <span style={{ fontSize: 12, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                  {row.label}
+                </span>
+                <span style={{ fontSize: 13.5, fontWeight: 500 }}>{row.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">Workspace</div>
+              <div className="card-sub">{companyName} · 4 members</div>
+            </div>
+          </div>
+          <div style={{ padding: "8px 4px", display: "grid", gap: 10 }}>
+            {[
+              { name: fullName, role: `${role} · you`, initials, bg: "#4A5526", status: "ok" as const, label: "Owner" },
+              { name: "Priya Mehta", role: "Controller", initials: "PM", bg: "#2A4A6E", status: "info" as const, label: "Admin" },
+              { name: "Rajan Nagaraju", role: "CA · advisor", initials: "RN", bg: "#6E2A4A", status: "warn" as const, label: "Reviewer" },
+              { name: "Aman Doshi", role: "FP&A analyst", initials: "AD", bg: "#4A2A6E", status: "warn" as const, label: "Member" },
+            ].map((m) => (
+              <div
+                key={m.name}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: 10,
+                  background: "var(--card-2)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 10,
+                }}
+              >
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "50%",
+                    background: m.bg,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#fff",
+                  }}
+                >
+                  {m.initials}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>{m.name}</div>
+                  <div style={{ fontSize: 11.5, color: "var(--text-muted)" }}>{m.role}</div>
+                </div>
+                <span className={`status-pill ${m.status}`}>
+                  <span className="sw" />
+                  {m.label}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div style={{ padding: "12px 4px 0" }}>
+            <button className="btn btn-ghost" style={{ width: "100%" }}>
+              <Plus style={{ width: 14, height: 14 }} />
+              Invite teammate
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── PLAN + BILLING ──────────────────────────────────────── */}
+      <div className="card">
+        <div className="card-head">
+          <div>
+            <div className="card-title">Plan & billing</div>
+            <div className="card-sub">Growth · ₹9,000 / month · INR</div>
+          </div>
+          <div className="card-actions">
+            <button className="chip" onClick={() => router.push("/pricing")}>
+              Upgrade
+            </button>
+          </div>
+        </div>
+        <div style={{ padding: "12px 4px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+            <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Usage this cycle · 18 days left</span>
+            <span className="mono" style={{ fontSize: 13, fontWeight: 500 }}>68% used</span>
+          </div>
+          <div style={{ height: 8, background: "var(--card-2)", borderRadius: 4, overflow: "hidden" }}>
+            <div style={{ height: "100%", width: "68%", background: "linear-gradient(90deg, var(--brand) 0%, var(--positive) 100%)", borderRadius: 4 }} />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginTop: 18 }}>
+            {[
+              { label: "Reports", value: "14", sub: "of 25" },
+              { label: "Members", value: "4", sub: "of 8" },
+              { label: "Storage", value: "412 MB", sub: "of 5 GB" },
+            ].map((s) => (
+              <div key={s.label} style={{ padding: 12, background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 10 }}>
+                <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
+                  {s.label}
+                </div>
+                <div className="mono" style={{ fontSize: 22, fontWeight: 600, marginTop: 4 }}>{s.value}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{s.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ─── DANGER ZONE ─────────────────────────────────────────── */}
+      <div
+        className="card"
+        style={{
+          borderColor: "color-mix(in oklab, var(--negative, #C44030) 30%, var(--border))",
+          background: "color-mix(in oklab, var(--negative, #C44030) 4%, var(--card))",
         }}
-        className="flex items-center gap-2 bg-emerald-500 text-white font-medium px-6 py-3 rounded-xl hover:bg-emerald-400 transition-all text-sm"
       >
-        <Save className="w-4 h-4" /> Save Changes
-      </button>
-      <p id="save-confirmation" className="text-xs text-emerald-400 mt-2 transition-opacity duration-300" style={{ opacity: 0 }}>Changes saved successfully.</p>
-
-      {/* Danger Zone — destructive actions isolated below the save button
-          so they can't be confused with normal edits. Visually red to
-          signal irreversibility. */}
-      <div className="mt-12 bg-app-card rounded-xl border border-red-500/25 p-6">
-        <div className="flex items-center gap-2 mb-2">
-          <AlertTriangle className="w-4 h-4 text-red-400" />
-          <h2 className="text-sm font-semibold text-red-400">Danger Zone</h2>
+        <div className="card-head">
+          <div>
+            <div className="card-title" style={{ color: "var(--negative, #C44030)" }}>
+              Danger zone
+            </div>
+            <div className="card-sub">Irreversible action · requires password and exact confirmation</div>
+          </div>
         </div>
-        <p className="text-xs text-app-text-subtle mb-5 leading-relaxed">
-          Permanently delete your account and every piece of data tied to it —
-          profile details, uploaded financials, analysis history, workspaces,
-          scenarios and models. This cannot be undone.
-        </p>
-        <button
-          onClick={() => {
-            setDeleteError(null);
-            setDeletePassword("");
-            setDeleteConfirm("");
-            setDeleteOpen(true);
-          }}
-          className="flex items-center gap-2 border border-red-500/40 text-red-400 hover:bg-red-500/10 hover:border-red-500/60 font-medium px-4 py-2 rounded-lg transition-colors text-[13px]"
-        >
-          <AlertTriangle className="w-3.5 h-3.5" /> Delete account and all data
-        </button>
+        <div style={{ padding: "8px 4px", display: "grid", gap: 10 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 14,
+              padding: 12,
+              background: "var(--card-2)",
+              border: "1px solid var(--border)",
+              borderRadius: 10,
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>Delete account and all data</div>
+              <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 2 }}>
+                Permanently removes your profile, every uploaded financial file, every analysis, every QoE workbook, every chat thread. Cannot be undone.
+              </div>
+            </div>
+            <button
+              className="btn"
+              onClick={() => setDeleteOpen(true)}
+              style={{
+                borderColor: "color-mix(in oklab, var(--negative, #C44030) 30%, var(--border))",
+                color: "var(--negative, #C44030)",
+              }}
+            >
+              Delete account
+            </button>
+          </div>
+        </div>
       </div>
 
+      {/* ─── DELETE MODAL ────────────────────────────────────────── */}
       {deleteOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "rgba(0,0,0,0.7)",
+            backdropFilter: "blur(4px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 24,
+          }}
           onClick={() => !deleteLoading && setDeleteOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-app-elevated border border-red-500/40 p-6 shadow-[0_10px_40px_rgba(0,0,0,0.6)]"
             onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "100%",
+              maxWidth: 480,
+              background: "var(--card)",
+              border: "1px solid var(--border-strong)",
+              borderRadius: 14,
+              padding: 24,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+            }}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
-                  <AlertTriangle className="w-4 h-4 text-red-400" />
-                </div>
-                <h3 className="text-base font-semibold text-app-text">Delete account</h3>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginBottom: 16 }}>
+              <div style={{ flex: 1 }}>
+                <h2 style={{ fontSize: 18, fontWeight: 600, color: "var(--negative, #C44030)" }}>Delete account</h2>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
+                  This cannot be undone. We will erase every piece of data tied to your account within 24 hours.
+                </p>
               </div>
               <button
+                className="icon-btn"
                 onClick={() => !deleteLoading && setDeleteOpen(false)}
-                disabled={deleteLoading}
-                className="text-app-text-subtle hover:text-app-text-muted disabled:opacity-30 transition-colors"
                 aria-label="Close"
+                style={{ width: 28, height: 28 }}
               >
-                <X className="w-4 h-4" />
+                <X style={{ width: 14, height: 14 }} />
               </button>
             </div>
 
-            <p className="text-[13px] text-app-text-muted mb-5 leading-relaxed">
-              This wipes your user record, business profile, all workspaces you
-              own, every financial model, scenario and analysis result. It
-              cannot be undone.
-            </p>
-
-            <div className="mb-4">
-              <label className="block text-[11px] text-app-text-subtle mb-1.5 font-medium">
-                Confirm your password
-              </label>
-              <input
-                type="password"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-                disabled={deleteLoading}
-                placeholder="Current password"
-                className="w-full rounded-lg bg-app-canvas border border-app-border px-3 py-2.5 text-sm text-app-text outline-none focus:border-red-500/60 focus:ring-2 focus:ring-red-500/15 disabled:opacity-60 transition-colors"
-                autoComplete="current-password"
-              />
-            </div>
-
-            <div className="mb-5">
-              <label className="block text-[11px] text-app-text-subtle mb-1.5 font-medium">
-                Type <span className="text-red-400 font-mono">{DELETE_CONFIRMATION_TEXT}</span> to confirm
-              </label>
-              <input
-                type="text"
-                value={deleteConfirm}
-                onChange={(e) => setDeleteConfirm(e.target.value)}
-                disabled={deleteLoading}
-                placeholder={DELETE_CONFIRMATION_TEXT}
-                className="w-full rounded-lg bg-app-canvas border border-app-border px-3 py-2.5 text-sm text-app-text font-mono outline-none focus:border-red-500/60 focus:ring-2 focus:ring-red-500/15 disabled:opacity-60 transition-colors"
-                autoComplete="off"
-                spellCheck={false}
-              />
-            </div>
-
             {deleteError && (
-              <p className="mb-4 text-[12px] text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
+              <div
+                style={{
+                  background: "rgba(196,64,48,0.10)",
+                  border: "1px solid rgba(196,64,48,0.3)",
+                  borderRadius: 8,
+                  padding: 10,
+                  fontSize: 12.5,
+                  color: "var(--negative, #C44030)",
+                  marginBottom: 12,
+                }}
+              >
                 {deleteError}
-              </p>
+              </div>
             )}
 
-            <div className="flex gap-2 justify-end">
+            <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Your password
+            </label>
+            <input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              disabled={deleteLoading}
+              placeholder="••••••••"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                background: "var(--canvas)",
+                border: "1px solid var(--border-strong)",
+                borderRadius: 8,
+                color: "var(--text)",
+                fontSize: 13,
+                marginBottom: 14,
+              }}
+            />
+
+            <label style={{ display: "block", fontSize: 12, color: "var(--text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Type <strong style={{ color: "var(--text)" }}>{DELETE_CONFIRMATION_TEXT}</strong> to confirm
+            </label>
+            <input
+              type="text"
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              disabled={deleteLoading}
+              placeholder={DELETE_CONFIRMATION_TEXT}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                background: "var(--canvas)",
+                border: "1px solid var(--border-strong)",
+                borderRadius: 8,
+                color: "var(--text)",
+                fontSize: 13,
+                marginBottom: 16,
+              }}
+            />
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
               <button
+                className="btn btn-ghost"
                 onClick={() => setDeleteOpen(false)}
                 disabled={deleteLoading}
-                className="text-[13px] text-app-text-muted hover:text-app-text px-4 py-2 disabled:opacity-40 transition-colors"
               >
                 Cancel
               </button>
               <button
+                className="btn"
                 onClick={handleDeleteAccount}
-                disabled={!canConfirmDelete || deleteLoading}
-                className="flex items-center gap-2 bg-red-500 hover:bg-red-400 text-white text-[13px] font-medium px-4 py-2 rounded-lg disabled:opacity-40 disabled:hover:bg-red-500 transition-colors"
+                disabled={deleteLoading || !deletePassword || deleteConfirm !== DELETE_CONFIRMATION_TEXT}
+                style={{
+                  background: "var(--negative, #C44030)",
+                  border: "1px solid var(--negative, #C44030)",
+                  color: "#fff",
+                }}
               >
                 {deleteLoading ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Deleting…
+                    <Loader2 className="animate-spin" style={{ width: 13, height: 13 }} />
+                    Deleting…
                   </>
                 ) : (
-                  <>Delete account permanently</>
+                  "Delete forever"
                 )}
               </button>
             </div>
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-// Currency tile — used in the Business Information card. Each tile
-// shows the symbol, ISO code, full name, and country so users can
-// pick without needing to know the 3-letter code from memory.
-function CurrencyButton({
-  active,
-  code,
-  symbol,
-  name,
-  country,
-  onClick,
-}: {
-  active: boolean;
-  code: Currency;
-  symbol: string;
-  name: string;
-  country: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex flex-col items-start gap-0.5 px-3 py-2.5 rounded-lg border text-left transition-all ${
-        active
-          ? "border-emerald-500/50 bg-emerald-500/10 text-app-text shadow-[0_0_0_1px_rgba(52,211,153,0.25)]"
-          : "border-app-border bg-app-card-hover text-app-text-muted hover:text-app-text hover:border-app-border-strong"
-      }`}
-      aria-pressed={active}
-    >
-      <span className="flex items-center gap-1.5">
-        <span
-          className={`text-[15px] font-bold leading-none ${
-            active ? "text-emerald-400" : "text-app-text"
-          }`}
-        >
-          {symbol}
-        </span>
-        <span className="text-[12px] font-semibold font-mono tabular-nums">{code}</span>
-      </span>
-      <span className="text-[10px] text-app-text-subtle truncate w-full" title={`${name} — ${country}`}>
-        {name}
-      </span>
-    </button>
+    </>
   );
 }

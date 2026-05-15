@@ -14,16 +14,11 @@ import {
   LogOut,
   ChevronsLeft,
   ChevronsRight,
-  FileSpreadsheet,
   FolderOpen,
   TrendingUp,
   Loader2,
   Search,
-  Bell,
-  HelpCircle,
   Settings,
-  MessageSquare,
-  Briefcase,
   FileText,
 } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
@@ -141,7 +136,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <FxProvider>
-      <div className={`app${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
+      {/* style override: the design's .app uses 3-column grid (220 | 1fr | 44px)
+          for a static chat dock. We removed the dock to avoid showing the AI
+          twice, so drop the 3rd column and reclaim those 44px for the main
+          content area. */}
+      <div
+        className={`app${sidebarCollapsed ? " sidebar-collapsed" : ""}`}
+        style={{ gridTemplateColumns: sidebarCollapsed ? "64px 1fr" : "220px 1fr" }}
+      >
         {/* ─── SIDEBAR ─────────────────────────────────────────── */}
         <aside className="sidebar">
           <div className="sb-brand">
@@ -227,13 +229,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="top-actions">
-              <button className="icon-btn" aria-label="Notifications" title="Notifications">
-                <Bell style={{ width: 15, height: 15 }} />
-                <span className="dot" />
-              </button>
-              <button className="icon-btn" aria-label="Help" title="Help">
-                <HelpCircle style={{ width: 15, height: 15 }} />
-              </button>
+              {/* Topbar deliberately minimal — only the two icons that actually
+                  do something today (settings + logout). Notifications, help
+                  and other affordances will return when there's real plumbing
+                  behind them. */}
               <button
                 className="icon-btn"
                 aria-label="Profile & settings"
@@ -257,28 +256,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="content">{children}</div>
         </main>
 
-        {/* ─── AI CHAT DOCK ───────────────────────────────────── */}
-        {hasAiAccess && (
-          <aside className="chat-dock">
-            <div className="chat-collapsed">
-              <div
-                className="chat-tab"
-                role="button"
-                tabIndex={0}
-                onClick={() => {
-                  // Tap the floating panel — handled by AIChatPanel.
-                  document.dispatchEvent(new CustomEvent("cortex:open-chat"));
-                }}
-              >
-                <MessageSquare />
-                <span>CortexAI</span>
-              </div>
-              <div className="chat-pulse" />
-            </div>
-          </aside>
-        )}
-
-        {/* Floating chat overlay — opens via tab in chat-dock or via its own button */}
+        {/* AI chat — single surface. The AIChatPanel component owns its
+            own floating button (bottom-right) and full expand state, so
+            we don't need the chat-dock aside too. */}
         {hasAiAccess && <AIChatPanel />}
       </div>
     </FxProvider>

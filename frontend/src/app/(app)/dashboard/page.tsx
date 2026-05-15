@@ -11,17 +11,13 @@ import {
   Sparkles,
   ArrowRight,
   Info,
-  MoreHorizontal,
   CheckCircle2,
-  AlertTriangle,
   FileSpreadsheet,
   Shield,
   FileText,
-  Download,
   HelpCircle,
-  ChevronDown,
+  Download,
   ArrowUpRight,
-  Filter,
 } from "lucide-react";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
@@ -366,8 +362,6 @@ export default function DashboardPage() {
           <span>
             {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
           </span>
-          <span style={{ color: "rgba(255,255,255,0.3)" }}>•</span>
-          <span>Books synced 2 hrs ago</span>
         </div>
 
         <h1 className="hero-title">
@@ -530,14 +524,9 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="card-actions">
-              <button className="chip">
-                {fy}
-                <ChevronDown />
-              </button>
-              <button className="chip">
-                <Download />
-                Export
-              </button>
+              <Link href="/qoe" className="chip">
+                Open workbook
+              </Link>
             </div>
           </div>
 
@@ -586,12 +575,6 @@ export default function DashboardPage() {
             <div>
               <div className="card-title">What needs attention</div>
               <div className="card-sub">3 items flagged this week · sorted by impact</div>
-            </div>
-            <div className="card-actions">
-              <button className="chip">
-                All
-                <ChevronDown />
-              </button>
             </div>
           </div>
 
@@ -718,11 +701,6 @@ export default function DashboardPage() {
             <div className="card-sub">Last 7 days · uploads, reviews, exports</div>
           </div>
           <div className="card-actions">
-            <button className="chip">
-              <Filter />
-              All sources
-              <ChevronDown />
-            </button>
             <Link href="/uploads" className="chip">
               View all
               <ArrowUpRight style={{ width: 11, height: 11 }} />
