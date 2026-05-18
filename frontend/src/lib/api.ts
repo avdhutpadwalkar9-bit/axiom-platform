@@ -118,6 +118,43 @@ class ApiClient {
     });
   }
 
+  /**
+   * Request a password-reset email. Always resolves regardless of
+   * whether the email exists — leaking that signal would let an
+   * attacker enumerate registered accounts. The backend will (when
+   * the endpoint ships) email a one-time reset token to the address.
+   * A 404 here means the endpoint isn't deployed yet — we swallow it
+   * so the UI can still show its always-success confirmation.
+   */
+  async requestPasswordReset(email: string): Promise<void> {
+    try {
+      await this.request<{ message: string }>("/api/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      // 404 = endpoint not deployed yet. Other 4xx (rate-limit, etc.)
+      // should still surface so the user can act on them.
+      if (msg.includes("404") || msg.toLowerCase().includes("not found")) {
+        return;
+      }
+      throw err;
+    }
+  }
+
+  /**
+   * Complete the reset flow: submit the token + the new password.
+   * Backend validates the token + writes the new password hash, then
+   * invalidates all refresh tokens on the account.
+   */
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    await this.request<{ message: string }>("/api/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token, new_password: newPassword }),
+    });
+  }
+
   // Irreversible. Wipes the user row and every record tied to it.
   // Caller is responsible for clearing localStorage + redirecting on success.
   async deleteAccount(password: string, confirmation: string) {
