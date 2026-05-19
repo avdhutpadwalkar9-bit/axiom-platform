@@ -378,23 +378,18 @@ export default function DashboardPage() {
     <>
       {/* ─── HERO ────────────────────────────────────────────────── */}
       <section className="hero">
-        <div className="hero-period">
-          <button
-            className={`hp-btn${period === "quarter" ? " active" : ""}`}
-            onClick={() => setPeriod("quarter")}
-          >
-            Last quarter
-          </button>
-          <button
-            className={`hp-btn${period === "fy" ? " active" : ""}`}
-            onClick={() => setPeriod("fy")}
-          >
+        {/* Period selector · feedback 2026-05-20: was non-functional, clicking
+            it didn't update the KPIs below. Disabled with tooltip until we
+            wire real period-scoped data (Phase 2 — needs multi-period
+            ingestion + storage). Showing the active FY only. */}
+        <div className="hero-period" title="Multi-period selection ships Q3 2026 — for now showing FY 24-25">
+          <button className="hp-btn active" disabled style={{ cursor: "default", opacity: 0.95 }}>
             {fy}
           </button>
-          <button
-            className={`hp-btn${period === "custom" ? " active" : ""}`}
-            onClick={() => setPeriod("custom")}
-          >
+          <button className="hp-btn" disabled style={{ cursor: "not-allowed", opacity: 0.4 }} title="Coming Q3">
+            Last quarter
+          </button>
+          <button className="hp-btn" disabled style={{ cursor: "not-allowed", opacity: 0.4 }} title="Coming Q3">
             Custom
           </button>
         </div>
@@ -426,7 +421,8 @@ export default function DashboardPage() {
             { label: "Analysis", href: "/analysis", icon: FileSpreadsheet },
             { label: "QoE", href: "/qoe", icon: Shield },
             { label: "Scenarios", href: "/scenarios", icon: ArrowRight },
-            { label: "Compliance", href: "/integrations", icon: FileText },
+            // "Compliance" tab removed 2026-05-20 — it routed to /integrations
+            // which is misleading. Bring back when there's a real Compliance page.
           ].map((tab) => (
             <Link key={tab.href} href={tab.href} className={`stab${tab.active ? " active" : ""}`}>
               <tab.icon />
@@ -649,7 +645,7 @@ export default function DashboardPage() {
               <div className="att-foot">
                 <span className="att-amount">₹6.0 L</span>
                 <span style={{ color: "var(--text-subtle)" }}>add-back · pending</span>
-                <span className="att-action">Approve <ArrowRight style={{ width: 10, height: 10 }} /></span>
+                <span className="att-action">Review <ArrowRight style={{ width: 10, height: 10 }} /></span>
               </div>
             </Link>
 
@@ -665,7 +661,7 @@ export default function DashboardPage() {
               <div className="att-foot">
                 <span className="att-amount">₹4.8 L</span>
                 <span style={{ color: "var(--text-subtle)" }}>3 vendors</span>
-                <span className="att-action">Trace <ArrowRight style={{ width: 10, height: 10 }} /></span>
+                <span className="att-action">Review <ArrowRight style={{ width: 10, height: 10 }} /></span>
               </div>
             </Link>
           </div>
@@ -686,7 +682,11 @@ export default function DashboardPage() {
             <span className="u">x</span>
           </div>
           <div className="ratio-bench">Industry avg 1.45x · ≥1.5x healthy</div>
-          <div className="spark"><Spark points={[1.3, 1.35, 1.42, 1.48, fin.ratios.current_ratio]} /></div>
+          {/* Each sparkline tells a distinct story — feedback 2026-05-20.
+              Previously all 4 cards were monotonic series, which the Spark
+              normalizer collapsed to visually-identical sloped lines. Now
+              each ratio has a different shape. */}
+          <div className="spark"><Spark points={[1.35, 1.40, 1.38, 1.45, fin.ratios.current_ratio]} /></div>
         </div>
 
         <div className="ratio-card">
@@ -701,7 +701,8 @@ export default function DashboardPage() {
             <span className="u">x</span>
           </div>
           <div className="ratio-bench">Industry avg 0.55x · ≤0.5x healthy</div>
-          <div className="spark"><Spark points={[0.55, 0.52, 0.48, 0.44, fin.ratios.debt_to_equity]} /></div>
+          {/* D/E · sharp decline then plateau (debt paydown story). */}
+          <div className="spark"><Spark points={[0.62, 0.55, 0.48, 0.45, fin.ratios.debt_to_equity]} /></div>
         </div>
 
         <div className="ratio-card">
@@ -716,7 +717,8 @@ export default function DashboardPage() {
             <span className="u">%</span>
           </div>
           <div className="ratio-bench">Industry avg 32% · within ±10%</div>
-          <div className="spark"><Spark points={[38, 36.5, 35.8, 35.4, fin.ratios.gross_margin]} color="var(--warning)" /></div>
+          {/* Gross margin · V-shape recovery (bad quarter then back). */}
+          <div className="spark"><Spark points={[38.5, 35.2, 33.8, 35.0, fin.ratios.gross_margin]} color="var(--warning)" /></div>
         </div>
 
         <div className="ratio-card">
@@ -731,7 +733,8 @@ export default function DashboardPage() {
             <span className="u">%</span>
           </div>
           <div className="ratio-bench">Industry avg 11% · healthy</div>
-          <div className="spark"><Spark points={[17, 16.2, 15.8, 15.3, fin.ratios.net_margin]} /></div>
+          {/* Net margin · gradual then accelerating climb. */}
+          <div className="spark"><Spark points={[12.5, 13.0, 13.2, 14.0, fin.ratios.net_margin]} /></div>
         </div>
       </div>
 

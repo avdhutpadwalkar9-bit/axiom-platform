@@ -71,27 +71,43 @@ export default function ScenariosPage() {
   const [activeCase, setActiveCase] = useState<"bear" | "base" | "bull">("base");
   const companyName = business.companyName || "Vadodara Chem";
 
-  // Scenarios need a base case grounded in the user's own numbers.
-  // Without an uploaded TB we'd just be drawing made-up Bear/Base/Bull
-  // cases against fabricated revenue — useless. Demo bypasses this.
-  if (!lastResult && !isDemo) {
+  // Gate TIGHTENED 2026-05-20. Previously: empty state only when
+  // BOTH lastResult missing AND not demo — meaning a real account
+  // with a TB uploaded would see Vadodara Chem hardcoded Bear/Base/
+  // Bull. That's the same Vadodara-bleed bug we fixed on QoE.
+  //
+  // New rule: only the demo account sees populated scenarios. Real
+  // accounts (regardless of whether they have a TB) get the empty
+  // state until we build scenario modelling against user data
+  // (Phase 2 — needs the analyzer to compute revenue/margin/cash
+  // sensitivities from the user's own historical TBs).
+  if (!isDemo) {
+    const hasTbButNoScenariosYet = !!lastResult;
     return (
       <>
         <section className="hero">
           <div className="hero-meta">
             <span className="dot" />
-            <span>Scenarios · awaiting your run-rate</span>
+            <span>
+              Scenarios · {hasTbButNoScenariosYet ? "Coming Q3 for your own data" : "awaiting your run-rate"}
+            </span>
           </div>
           <h1 className="hero-title">
-            Model the <span className="name">future</span> · once we have your present.
+            Model the <span className="name">future</span> · {hasTbButNoScenariosYet ? "for your own books" : "once we have your present"}.
           </h1>
           <p className="hero-sub" style={{ display: "block", maxWidth: 580 }}>
-            Bear, Base and Bull cases are stress-tested against your own run-rate — revenue, EBITDA, working capital. Upload the trial balance first and we&rsquo;ll anchor every assumption against it.
+            {hasTbButNoScenariosYet
+              ? "Your trial balance is loaded — Analysis is live. Scenario modelling against your own run-rate (Bear / Base / Bull, driver sliders, sensitivity) ships Q3 2026. Want to see what it looks like? Sign into the demo workspace."
+              : "Bear, Base and Bull cases are stress-tested against your own run-rate — revenue, EBITDA, working capital. Upload the trial balance first and we'll anchor every assumption against it."}
           </p>
         </section>
         <EmptyState
-          title="Upload your TB to unlock scenario modelling"
-          message="The three pre-built cases (Bear · Base · Bull) are anchored on your actual numbers — current revenue, margins, customer mix, working capital. Until that base is in, the scenarios are just abstractions."
+          title={hasTbButNoScenariosYet ? "Scenarios on your data · Coming Q3 2026" : "Upload your TB to unlock scenario modelling"}
+          message={
+            hasTbButNoScenariosYet
+              ? "The scenario engine against real customer data ships Q3 2026. Until then, the live preview lives on the demo workspace."
+              : "The three pre-built cases (Bear · Base · Bull) are anchored on your actual numbers — current revenue, margins, customer mix, working capital. Until that base is in, the scenarios are just abstractions."
+          }
           needs={[
             "Trial Balance · anchors the Base case",
             "Optional · prior 2-3 year TBs to pick up trend",
@@ -197,11 +213,23 @@ export default function ScenariosPage() {
               <div className="card-sub">Edit any value · model recalculates · cited from books</div>
             </div>
             <div className="card-actions">
-              <button className="chip">
+              {/* Save / Reset disabled · feedback 2026-05-20 — were
+                  non-functional. Scenario persistence ships Phase 2. */}
+              <button
+                className="chip"
+                disabled
+                style={{ opacity: 0.5, cursor: "not-allowed" }}
+                title="Scenario reset ships Q3 2026"
+              >
                 <RotateCcw style={{ width: 11, height: 11 }} />
                 Reset to books
               </button>
-              <button className="chip">
+              <button
+                className="chip"
+                disabled
+                style={{ opacity: 0.5, cursor: "not-allowed" }}
+                title="Saved scenarios ship Q3 2026"
+              >
                 <Save style={{ width: 11, height: 11 }} />
                 Save scenario
               </button>

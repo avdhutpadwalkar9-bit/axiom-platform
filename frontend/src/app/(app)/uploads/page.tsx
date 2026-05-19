@@ -53,7 +53,8 @@ export default function UploadsPage() {
   const analysisDate = useAnalysisStore((s) => s.analysisDate);
   const { business } = useOnboardingStore();
   const [activeTab, setActiveTab] = useState<"all" | "tb" | "bank" | "gst" | "contracts">("all");
-  const [activeSource, setActiveSource] = useState<"all" | "quickbooks" | "manual" | "gst" | "hdfc">("all");
+  // activeSource state removed 2026-05-20 — its UI consumers (source filter
+  // tabs) were dead controls. Re-add when real per-source filtering ships.
 
   const companyName = business.companyName || "Vadodara Chem";
   const hasRealUpload = !!lastResult;
@@ -195,59 +196,23 @@ export default function UploadsPage() {
         </div>
       </section>
 
-      <section style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {[
-          { key: "all" as const, label: "All sources", count: items.length, icon: null },
-          { key: "quickbooks" as const, label: "QuickBooks", count: 94, icon: Cloud },
-          { key: "manual" as const, label: "Manual upload", count: 62, icon: Upload },
-          { key: "gst" as const, label: "GST portal", count: 21, icon: FileSpreadsheet },
-          { key: "hdfc" as const, label: "HDFC sync", count: 9, icon: Cloud },
-        ].map((src) => {
-          const Icon = src.icon;
-          const active = activeSource === src.key;
-          return (
-            <button
-              key={src.key}
-              onClick={() => setActiveSource(src.key)}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "10px 16px",
-                borderRadius: 10,
-                background: active ? "var(--brand-soft)" : "var(--card)",
-                border: active ? "1px solid var(--brand)" : "1px solid var(--border)",
-                color: active ? "var(--brand-text)" : "var(--text)",
-                fontSize: 13,
-                fontWeight: 500,
-                cursor: "pointer",
-              }}
-            >
-              {Icon && <Icon style={{ width: 14, height: 14 }} />}
-              {src.label}
-              <span style={{ background: "var(--card-2)", padding: "1px 7px", borderRadius: 100, fontSize: 11, color: "var(--text-muted)" }}>
-                {src.count}
-              </span>
-            </button>
-          );
-        })}
-      </section>
+      {/* Source filter tabs removed 2026-05-20 — clicking them didn't
+          filter the list. Wiring a real per-source filter needs a
+          source field on each upload row + matching ingest tagging;
+          ships Phase 2. Until then, removed rather than mislead. */}
 
       <section className="card act-card" style={{ padding: 0, overflow: "hidden" }}>
         <div className="act-head" style={{ padding: "16px 20px 12px" }}>
           <div>
             <div className="card-title">Recent uploads</div>
-            <div className="card-sub">Sorted newest · {items.length} files · hover for preview</div>
+            {/* "hover for preview" claim removed — feedback 2026-05-20
+                noted no preview triggers on hover. */}
+            <div className="card-sub">Sorted newest · {items.length} files</div>
           </div>
           <div className="card-actions">
-            <button className="chip">
-              <Trash2 style={{ width: 11, height: 11 }} />
-              Bulk delete
-            </button>
-            <button className="chip">
-              <Filter style={{ width: 11, height: 11 }} />
-              Filter
-            </button>
+            {/* Bulk delete + Filter buttons removed — neither was wired.
+                Bulk delete especially has no place without a confirmation
+                step on a finance product. Adds back in Phase 2. */}
           </div>
         </div>
 
@@ -328,6 +293,35 @@ export default function UploadsPage() {
               </div>
             );
           })}
+        </div>
+
+        {/* Status legend · feedback 2026-05-20 — labels weren't
+            self-documenting. Now explicit beneath the list. */}
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 14,
+            padding: "10px 20px 16px",
+            borderTop: "1px solid var(--border)",
+            fontSize: 11.5,
+            color: "var(--text-muted)",
+          }}
+        >
+          <span style={{ fontWeight: 600, color: "var(--text-subtle, var(--muted))", textTransform: "uppercase", letterSpacing: "0.08em", fontSize: 10.5 }}>
+            Status legend
+          </span>
+          {[
+            { dot: "var(--positive)", label: "Linked / Reconciled / Locked", help: "ingested + connected to figures" },
+            { dot: "var(--info)", label: "Mapping accounts…", help: "in-progress · auto-classifying" },
+            { dot: "var(--warning)", label: "Action req · Untagged", help: "needs you · click row to see what" },
+          ].map((s) => (
+            <span key={s.label} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+              <span style={{ width: 6, height: 6, borderRadius: 3, background: s.dot, display: "inline-block" }} />
+              <span style={{ color: "var(--text)" }}>{s.label}</span>
+              <span style={{ opacity: 0.7 }}>· {s.help}</span>
+            </span>
+          ))}
         </div>
       </section>
 

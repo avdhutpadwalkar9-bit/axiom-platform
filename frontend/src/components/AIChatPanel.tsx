@@ -414,27 +414,38 @@ export default function AIChatPanel() {
 
   // ── Collapsed floating button ─────────────────────────────────────────
   if (!open) {
+    // FAB repositioned bottom-LEFT 2026-05-20 · feedback noted the
+    // bottom-right position overlapped the QoE-norms right-rail and
+    // the Industry-page peer table on smaller viewports. Bottom-left
+    // is clear of every right-rail layout we use.
+    // Also collapsed to icon-only (no text) by default — text appears
+    // on hover via the group:hover trick. Less visual weight when the
+    // user isn't actively asking.
     return (
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-medium pl-4 pr-5 py-3 rounded-full shadow-[0_10px_40px_rgba(16,185,129,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98]"
+        className="group fixed bottom-6 left-6 z-50 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-medium pl-3 pr-3 hover:pr-5 py-2.5 rounded-full shadow-[0_10px_40px_rgba(16,185,129,0.35)] transition-all hover:scale-[1.02] active:scale-[0.98]"
         aria-label="Open CortexAI chat"
+        title="Ask CortexAI"
       >
         <div className="relative">
           <Sparkles className="w-4 h-4" />
           <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white animate-pulse" />
         </div>
-        <span className="text-[13px]">Ask CortexAI</span>
+        <span className="text-[13px] max-w-0 group-hover:max-w-[120px] overflow-hidden whitespace-nowrap transition-all duration-200">
+          Ask CortexAI
+        </span>
       </button>
     );
   }
 
   // ── Expanded panel ───────────────────────────────────────────────────
+  // Panel also moved to bottom-left to match the FAB anchor.
   return (
     <div
       role="dialog"
       aria-label="CortexAI chat"
-      className="fixed bottom-6 right-6 z-50 w-[min(440px,calc(100vw-2rem))] h-[min(680px,calc(100vh-3rem))] flex flex-col bg-app-elevated border border-app-border-strong rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] overflow-hidden"
+      className="fixed bottom-6 left-6 z-50 w-[min(440px,calc(100vw-2rem))] h-[min(680px,calc(100vh-3rem))] flex flex-col bg-app-elevated border border-app-border-strong rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] overflow-hidden"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-app-border bg-app-card">

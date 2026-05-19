@@ -43,9 +43,14 @@ const workspaceNav: { label: string; href: string; icon: typeof Home; badge?: st
 ];
 
 // Data + integrations section
+// "Reports" renamed to "AI Feedback" 2026-05-20 — the page is an
+// internal AI feedback analytics dashboard, not a generated-reports
+// surface. CFOs clicking "Reports" expected board packs / P&L
+// exports / diligence PDFs, then landed on thumbs-up/down stats —
+// misleading. Real Reports page ships Phase 2.
 const dataNav: { label: string; href: string; icon: typeof Home }[] = [
   { label: "Uploads", href: "/uploads", icon: FolderOpen },
-  { label: "Reports", href: "/feedback", icon: FileText },
+  { label: "AI Feedback", href: "/feedback", icon: FileText },
   { label: "Integrations", href: "/integrations", icon: Plug },
 ];
 
@@ -60,7 +65,7 @@ function buildBreadcrumb(pathname: string, workspaceName: string) {
     "/industries": "Industry",
     "/integrations": "Integrations",
     "/uploads": "Uploads",
-    "/feedback": "Reports",
+    "/feedback": "AI Feedback",
     "/profile": "Profile",
     "/billing": "Billing",
   };
@@ -240,8 +245,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="sb-foot">
             <div className="sb-avatar">{userInitials}</div>
             <div className="sb-user">
-              <div className="sb-user-name">{userName}</div>
-              <div className="sb-user-org">{workspaceName}</div>
+              <div className="sb-user-name" title={userName}>{userName}</div>
+              <div className="sb-user-org" title={workspaceName}>{workspaceName}</div>
             </div>
             <button
               className="sb-toggle"

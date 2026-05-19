@@ -259,7 +259,7 @@ const AR_AGING: AgingBucket[] = [
   { label: "31-60 days", amount: 1_64_00_000, share: 19.5, tone: "ok" },
   { label: "61-90 days", amount: 56_00_000, share: 6.6, tone: "warn" },
   { label: "91-180 days", amount: 28_60_000, share: 3.4, tone: "warn" },
-  { label: "Over 180d (suspect)", amount: 11_00_000, share: 1.3, tone: "risk" },
+  { label: "Over 180d · impaired", amount: 11_00_000, share: 1.3, tone: "risk" },
 ];
 
 /* ────────────────────────────────────────────────────────────────
@@ -483,27 +483,44 @@ export default function QoEPage() {
     return all;
   }, [periodKey]);
 
-  // Empty-state gate. The QoE workbook is the most data-hungry page
-  // in the app — without a TB we have nothing to adjust. Demo account
-  // shows the populated showcase; real empty account gets a CTA list.
-  if (!lastResult && !isDemo) {
+  // Empty-state gate — TIGHTENED 2026-05-20 after Tohands-account
+  // feedback. Previously: showed the full Vadodara Chem demo content
+  // whenever lastResult was present. Problem: real accounts (e.g.
+  // Tohands with their own TB uploaded) saw Vadodara numbers on QoE
+  // while Dashboard showed their real data. Credibility break.
+  //
+  // New rule: ONLY the demo account sees populated QoE content. Every
+  // other account gets the empty state with a "Coming Q3" promise.
+  // The full QoE compute path against real user data is Phase 2 work
+  // (~2-3 weeks of analyzer engineering); until then we'd rather show
+  // an honest empty state than mix real + demo numbers.
+  if (!isDemo) {
+    const hasTbButNoQoeYet = !!lastResult;
     return (
       <>
         <section className="hero">
           <div className="hero-meta">
             <span className="dot" />
-            <span>QoE Workbook · awaiting upload</span>
+            <span>
+              QoE Workbook · {hasTbButNoQoeYet ? "Coming Q3 for your own data" : "awaiting upload"}
+            </span>
           </div>
           <h1 className="hero-title">
-            Quality of Earnings · <span className="name">ready when you are</span>
+            Quality of Earnings · <span className="name">{hasTbButNoQoeYet ? "in build" : "ready when you are"}</span>
           </h1>
           <p className="hero-sub" style={{ display: "block", maxWidth: 600 }}>
-            Upload your trial balance to unlock the two-step adjustment ladder, EBITDA bridge, customer-concentration deep-dive, AR aging, cash-proof analysis and GAAP / Ind AS alignment table.
+            {hasTbButNoQoeYet
+              ? "Your trial balance is loaded — Analysis is live. The full QoE workbook (two-step adjustment ladder, EBITDA bridge, customer-concentration, AR aging, cash proof, Ind AS alignment) for your own data ships Q3 2026. Want to see what it looks like in the meantime? Sign into the demo workspace."
+              : "Upload your trial balance to unlock the two-step adjustment ladder, EBITDA bridge, customer-concentration deep-dive, AR aging, cash-proof analysis and GAAP / Ind AS alignment table."}
           </p>
         </section>
         <EmptyState
-          title="The QoE workbook needs a few specific files"
-          message="Each section of the workbook is unlocked by a specific input. Start with the trial balance — that alone gets you the adjustment ladder, EBITDA bridge, and risk flags. The rest layer on as you upload more."
+          title={hasTbButNoQoeYet ? "QoE on your data · Coming Q3 2026" : "The QoE workbook needs a few specific files"}
+          message={
+            hasTbButNoQoeYet
+              ? "We're building the QoE adjustment engine against real customer data right now — currently it's CA-curated per engagement. Until then, Analysis gives you the P&L breakdown derived from your TB. The full QoE preview lives on the demo workspace."
+              : "Each section of the workbook is unlocked by a specific input. Start with the trial balance — that alone gets you the adjustment ladder, EBITDA bridge, and risk flags. The rest layer on as you upload more."
+          }
           needs={[
             "Trial Balance · unlocks add-back schedule, EBITDA bridge, risk flags",
             "Sales register (Excel) · unlocks customer-concentration deep-dive",
@@ -553,28 +570,10 @@ export default function QoEPage() {
           </span>
         </div>
 
-        <div className="section-tabs">
-          <span className="stab active">
-            <Shield />
-            Workbook
-          </span>
-          <span className="stab">
-            <CheckCircle2 />
-            SDE ({SDE_ITEMS.length})
-          </span>
-          <span className="stab">
-            <CheckCircle2 />
-            QoE ({QOE_ITEMS.length})
-          </span>
-          <span className="stab">
-            <AlertTriangle />
-            Risk flags ({openRisks})
-          </span>
-          <span className="stab">
-            <FileText />
-            Diligence pack
-          </span>
-        </div>
+        {/* Section tabs removed 2026-05-20 — they were decorative
+            spans (no onClick), so clicking them looked broken. The
+            page already organizes the same content into clearly
+            labeled cards below. Diligence-pack export ships Phase 2. */}
       </section>
 
       {/* ─── AI SYNTHESIS RIBBON ─────────────────────────────────── */}
@@ -1007,7 +1006,7 @@ export default function QoEPage() {
             </div>
           </div>
           <div className="card-actions">
-            <button className="chip"><Building2 />Ind AS catalogue</button>
+            {/* "Ind AS catalogue" chip removed 2026-05-20 — it was a dead control. */}
           </div>
         </div>
         <table className="activity">

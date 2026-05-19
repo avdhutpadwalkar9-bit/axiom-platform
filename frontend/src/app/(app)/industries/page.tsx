@@ -22,10 +22,10 @@ const RATIOS: RatioRow[] = [
   { label: "Gross margin", your: 42.5, industry: 38.0, unit: "%", higherBetter: true, scaleMax: 50 },
   { label: "Revenue growth (YoY)", your: 18.0, industry: 12.0, unit: "%", higherBetter: true, scaleMax: 25 },
   { label: "Return on capital", your: 22.0, industry: 17.5, unit: "%", higherBetter: true, scaleMax: 30 },
-  { label: "DSO (days)", your: 68, industry: 52, unit: "", higherBetter: false, scaleMax: 100 },
-  { label: "DPO (days)", your: 45, industry: 58, unit: "", higherBetter: true, scaleMax: 100 },
+  { label: "DSO (days · shorter is better)", your: 68, industry: 52, unit: "", higherBetter: false, scaleMax: 100 },
+  { label: "DPO (days · longer is better)", your: 45, industry: 58, unit: "", higherBetter: true, scaleMax: 100 },
   { label: "Customer concentration top-3", your: 58, industry: 38, unit: "%", higherBetter: false, scaleMax: 80 },
-  { label: "Working capital cycle", your: 38, industry: 28, unit: "d", higherBetter: false, scaleMax: 60 },
+  { label: "Cash Conversion Cycle (DSO + DIO − DPO)", your: 38, industry: 28, unit: "d", higherBetter: false, scaleMax: 60 },
 ];
 
 interface Peer {
@@ -37,15 +37,26 @@ interface Peer {
   highlight?: boolean;
 }
 
-const PEERS: Peer[] = [
+// Split into two groups · feedback 2026-05-20.
+// CLOSEST_PEERS · revenue band ₹30-80 Cr · the honest "people you're
+// actually like" comparison. Vadodara Chem highlighted here.
+const CLOSEST_PEERS: Peer[] = [
   { name: "Vadodara Chem (you)", revenue: "₹45.2 Cr", ebitdaPct: "15.0%", dso: 68, qoe: "9.0", highlight: true },
+  { name: "Privi Speciality", revenue: "₹62 Cr", ebitdaPct: "13.4%", dso: 58 },
+  { name: "Sudarshan Chemical (small-cap arm)", revenue: "₹71 Cr", ebitdaPct: "14.8%", dso: 54 },
+  { name: "Bodal Chemicals", revenue: "₹38 Cr", ebitdaPct: "9.6%", dso: 72 },
+  { name: "Heubach Colorants", revenue: "₹68 Cr", ebitdaPct: "11.2%", dso: 64 },
+];
+
+// CATEGORY_BENCHMARKS · revenue band ₹100-350 Cr · larger listed
+// peers shown as aspirational context — what the category looks like
+// when scaled. NOT direct comparators; framed clearly so a CFO doesn't
+// think we're claiming Vadodara should match Pidilite tomorrow.
+const CATEGORY_BENCHMARKS: Peer[] = [
   { name: "Anupam Specialty", revenue: "₹118 Cr", ebitdaPct: "16.8%", dso: 55 },
-  { name: "Pidilite Specialties", revenue: "₹342 Cr", ebitdaPct: "19.2%", dso: 48 },
-  { name: "Aarti Surfactants", revenue: "₹278 Cr", ebitdaPct: "13.5%", dso: 61 },
-  { name: "Vinati Organics", revenue: "₹195 Cr", ebitdaPct: "22.4%", dso: 52 },
-  { name: "Camlin Fine", revenue: "₹160 Cr", ebitdaPct: "11.2%", dso: 58 },
   { name: "Galaxy Surfactants", revenue: "₹224 Cr", ebitdaPct: "12.8%", dso: 54 },
-  { name: "Heubach Colorants", revenue: "₹98 Cr", ebitdaPct: "9.8%", dso: 64 },
+  { name: "Aarti Surfactants", revenue: "₹278 Cr", ebitdaPct: "13.5%", dso: 61 },
+  { name: "Pidilite Specialties", revenue: "₹342 Cr", ebitdaPct: "19.2%", dso: 48 },
 ];
 
 interface Norm {
@@ -69,11 +80,15 @@ export default function IndustriesPage() {
   const industry = business.industry || "Specialty Chemicals";
   const companyName = business.companyName || "Vadodara Chem";
 
-  // Industry benchmarks need (a) the user's industry to pick the
-  // right peer set and (b) the user's ratios to compare against
-  // peer medians. Without either, we can't render anything useful.
+  // Gate TIGHTENED 2026-05-20. Previously real accounts could fall
+  // through to the Vadodara Chem hardcoded peer set if they had a
+  // TB + industry set. Same Vadodara-bleed problem as QoE/Scenarios.
+  //
+  // New rule: only the demo account sees populated benchmarks. Real
+  // accounts get the empty state until we build peer-set curation
+  // against user industry + ratios (Phase 2).
   const hasIndustry = !!business.industry?.trim();
-  if (!isDemo && (!lastResult || !hasIndustry)) {
+  if (!isDemo) {
     return (
       <>
         <section className="hero">
@@ -113,13 +128,13 @@ export default function IndustriesPage() {
       <section className="hero">
         <div className="hero-meta">
           <span className="dot" />
-          <span>Industry benchmarks · {industry} · 47 listed peers · ₹100–500 Cr band</span>
+          <span>Industry benchmarks · {industry} · closest-size + category peers</span>
         </div>
         <h1 className="hero-title">
           You sit in the <span className="name">top quartile</span>.
         </h1>
         <p className="hero-sub" style={{ display: "block", maxWidth: 580 }}>
-          We benchmark every ratio against the 47 listed specialty-chemical peers closest to {companyName} — same revenue band, same product mix, same regional concentration.
+          Every ratio benchmarked two ways: against five **closest-size peers** in the ₹30–80 Cr band ({companyName}&rsquo;s real comp set), and against **category benchmarks** at ₹100–350 Cr (where the sector goes when scaled).
         </p>
       </section>
 
@@ -130,8 +145,8 @@ export default function IndustriesPage() {
             <div className="kpi-icon"><BarChart3 style={{ width: 13, height: 13 }} /></div>
             <span className="kpi-label">Peer set size</span>
           </div>
-          <div className="kpi-value"><span>47</span></div>
-          <div className="kpi-foot"><span className="meta">Listed · ₹100–500 Cr revenue band</span></div>
+          <div className="kpi-value"><span>9</span></div>
+          <div className="kpi-foot"><span className="meta">5 closest-size · 4 category benchmark</span></div>
         </div>
 
         <div className="kpi accent">
@@ -251,22 +266,23 @@ export default function IndustriesPage() {
         </div>
       </div>
 
-      {/* Split: Peers + QoE norms */}
+      {/* Split: Peers (now two-section) + QoE norms */}
       <div className="split">
         <div className="card act-card">
           <div className="act-head">
             <div>
-              <div className="card-title">Top 8 peers · most comparable</div>
-              <div className="card-sub">{industry} · ₹100–500 Cr · India listed</div>
+              <div className="card-title">Peer comparison</div>
+              <div className="card-sub">
+                Two views: closest-size peers (your real comps) + category benchmarks (where the sector goes when scaled)
+              </div>
             </div>
-            <div className="card-actions">
-              <button className="chip">View all 47</button>
-            </div>
+            {/* "View all 47" removed 2026-05-20 — it led nowhere. Real
+                peer-set expansion ships Phase 2 with filters. */}
           </div>
           <table className="activity">
             <thead>
               <tr>
-                <th>Company</th>
+                <th>Closest-size peers · ₹30–80 Cr</th>
                 <th>Revenue</th>
                 <th>EBITDA %</th>
                 <th>DSO</th>
@@ -274,8 +290,8 @@ export default function IndustriesPage() {
               </tr>
             </thead>
             <tbody>
-              {PEERS.map((p, i) => (
-                <tr key={i} style={p.highlight ? { background: "var(--brand-soft)" } : undefined}>
+              {CLOSEST_PEERS.map((p, i) => (
+                <tr key={`close-${i}`} style={p.highlight ? { background: "var(--brand-soft)" } : undefined}>
                   <td>{p.highlight ? <strong>{p.name}</strong> : p.name}</td>
                   <td className="mono">{p.revenue}</td>
                   <td className="mono">{p.ebitdaPct}</td>
@@ -283,6 +299,27 @@ export default function IndustriesPage() {
                   <td className="mono" style={{ color: p.qoe ? "var(--brand-text)" : "var(--text-muted)" }}>
                     {p.qoe ?? "—"}
                   </td>
+                </tr>
+              ))}
+            </tbody>
+            <thead>
+              <tr>
+                <th colSpan={5} style={{ paddingTop: 16, borderTop: "1px solid var(--border)" }}>
+                  Category benchmarks · ₹100–350 Cr
+                  <span style={{ fontSize: 10, fontWeight: 400, textTransform: "none", letterSpacing: 0, color: "var(--text-muted)", marginLeft: 8 }}>
+                    aspirational context · not direct comparators
+                  </span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {CATEGORY_BENCHMARKS.map((p, i) => (
+                <tr key={`cat-${i}`}>
+                  <td>{p.name}</td>
+                  <td className="mono">{p.revenue}</td>
+                  <td className="mono">{p.ebitdaPct}</td>
+                  <td className="mono">{p.dso}</td>
+                  <td className="mono" style={{ color: "var(--text-muted)" }}>—</td>
                 </tr>
               ))}
             </tbody>
@@ -341,7 +378,7 @@ export default function IndustriesPage() {
       <div className="disclaimer">
         <span className="lbl">Sourced from</span>
         <span>
-          Public filings · 47 listed peers in {industry.toLowerCase()} · ₹100–500 Cr revenue band · last refreshed 18 Apr 2026. Comparable doesn&rsquo;t mean comparable forever; we re-rank peers every quarter.
+          Public filings · {industry.toLowerCase()} · closest-size peers ₹30–80 Cr + category benchmarks ₹100–350 Cr · last refreshed 18 Apr 2026. Comparable doesn&rsquo;t mean comparable forever; we re-rank peers every quarter.
         </span>
       </div>
     </>

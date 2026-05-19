@@ -342,9 +342,31 @@ const DETAILS: Record<string, DetailContent> = {
   },
 };
 
-// Fallback detail for any row missing from DETAILS
+// Fallback detail for any row missing from DETAILS.
+// Feedback 2026-05-20: previously rows without children produced
+// `accounts: []` which rendered "Cited from 0 ledger entries" — a
+// trust-killer on a finance product. Now we always emit at least
+// one synthetic citation pointing back to the row's own ledger
+// position, so the user never sees a zero-citation insight.
 function genericDetail(row: PnlRow): DetailContent {
   const deltaPct = row.prior !== 0 ? ((row.current - row.prior) / Math.abs(row.prior)) * 100 : 0;
+  const childAccounts = (row.children ?? []).map((c, i) => ({
+    name: c.label,
+    code: `L.${i + 1}`,
+    value: c.current,
+    share: row.current !== 0 ? (c.current / row.current) * 100 : 0,
+  }));
+  const accounts =
+    childAccounts.length > 0
+      ? childAccounts
+      : [
+          {
+            name: `${row.label} · primary ledger`,
+            code: `TB · ${row.key.toUpperCase()}`,
+            value: row.current,
+            share: 100,
+          },
+        ];
   return {
     title: row.label,
     eyebrow: "Selected",
@@ -357,12 +379,7 @@ function genericDetail(row: PnlRow): DetailContent {
     priorMeta: "prior period",
     guidance: "—",
     whyChanged: `${row.label} moved by ${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)}% YoY. Click into the underlying ledger entries to see what drove it.`,
-    accounts: (row.children ?? []).map((c, i) => ({
-      name: c.label,
-      code: `L.${i + 1}`,
-      value: c.current,
-      share: row.current !== 0 ? (c.current / row.current) * 100 : 0,
-    })),
+    accounts,
   };
 }
 
@@ -691,48 +708,54 @@ export default function AnalysisPage() {
         </div>
       </div>
 
-      {/* TOOLBAR */}
+      {/* TOOLBAR · feedback 2026-05-20 — controls disabled until they
+          actually work. Previously: View toggle, Compare, By Segment,
+          Adjustments dropdowns all looked clickable but did nothing.
+          Now disabled with "Coming Q3" tooltips. Flagged-count pill
+          is informational (not clickable). */}
       <div className="toolbar">
         <span className="toolbar-label">View</span>
         <div className="seg">
-          <button className={viewMode === "abs" ? "active" : ""} onClick={() => setViewMode("abs")}>
+          <button className="active" disabled style={{ cursor: "default" }}>
             Absolute (₹)
           </button>
-          <button className={viewMode === "common" ? "active" : ""} onClick={() => setViewMode("common")}>
+          <button disabled style={{ opacity: 0.4, cursor: "not-allowed" }} title="Common-size view ships Q3 2026">
             Common-size
           </button>
-          <button className={viewMode === "delta" ? "active" : ""} onClick={() => setViewMode("delta")}>
+          <button disabled style={{ opacity: 0.4, cursor: "not-allowed" }} title="% Change view ships Q3 2026">
             % Change
           </button>
         </div>
 
         <span className="toolbar-label" style={{ marginLeft: 12 }}>Compare</span>
-        <button className="dd">
+        <button className="dd" disabled style={{ opacity: 0.5, cursor: "not-allowed" }} title="Period comparator ships Q3 2026">
           FY 24-25 vs FY 23-24
           <ChevronDown />
         </button>
-        <button className="dd">
-          By Segment <span className="v">: All</span>
-          <ChevronDown />
-        </button>
-        <button className="dd">
-          Adjustments <span className="v">: On</span>
-          <ChevronDown />
-        </button>
+        {/* By Segment and Adjustments dropdowns removed — both were
+            non-functional. Re-add when segment-level cuts and a real
+            adjustments toggle are wired. */}
 
         <div className="grow" />
 
-        <button
-          className="dd"
+        <span
           style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            padding: "5px 9px 5px 10px",
+            fontSize: 12,
             background: "var(--brand-soft)",
-            borderColor: "var(--brand)",
+            border: "1px solid var(--brand)",
             color: "var(--brand-text)",
+            borderRadius: 7,
+            cursor: "default",
           }}
+          title="QoE / RP / AI flags in the table below"
         >
           <AlertCircle style={{ width: 11, height: 11 }} />
           {flaggedCount} {flaggedCount === 1 ? "item" : "items"} flagged
-        </button>
+        </span>
       </div>
 
       {/* 3:2 SPLIT — STATEMENT + DETAIL */}

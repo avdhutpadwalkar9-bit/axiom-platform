@@ -162,7 +162,12 @@ export default function IntegrationsPage() {
                 <span className="mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>
                   {it.meta}
                 </span>
-                <button className="btn btn-ghost" style={{ padding: "6px 12px", fontSize: 12 }}>
+                <button
+                  className="btn btn-ghost"
+                  style={{ padding: "6px 12px", fontSize: 12, opacity: 0.5, cursor: "not-allowed" }}
+                  disabled
+                  title="Per-connection settings ship Q3 2026"
+                >
                   Configure
                 </button>
               </div>
@@ -214,7 +219,12 @@ export default function IntegrationsPage() {
                 <span className="mono" style={{ fontSize: 11, color: "var(--text-subtle)" }}>
                   Not connected
                 </span>
-                <button className="btn btn-primary" style={{ padding: "6px 12px", fontSize: 12 }}>
+                <button
+                  className="btn btn-primary"
+                  style={{ padding: "6px 12px", fontSize: 12, opacity: 0.5, cursor: "not-allowed" }}
+                  disabled
+                  title="Live connectors ship Q3 2026"
+                >
                   Connect →
                 </button>
               </div>
