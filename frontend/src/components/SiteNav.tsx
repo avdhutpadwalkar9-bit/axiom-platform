@@ -14,7 +14,9 @@ const useIsomorphicLayoutEffect =
 
 const productLinks = [
   { label: "Product overview", desc: "Full tour of what CortexCFO does.", href: "/product" },
-  { label: "How it works", desc: "The multi-model Cognitive Engine.", href: "/how-it-works" },
+  // Subtitle rewritten 2026-05-20 from "The multi-model Cognitive Engine"
+  // (feature-led) to an outcome-led line a CFO actually cares about.
+  { label: "How it works", desc: "Upload once · stay diligence-ready.", href: "/how-it-works" },
   { label: "Pricing", desc: "Region-aware plans and tiers.", href: "/pricing" },
 ];
 

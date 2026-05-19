@@ -28,11 +28,14 @@ export default function AboutPage() {
     { icon: Users, title: "Open by default", desc: "Open APIs, open integrations, open export. Your data is yours. Easy to connect, easy to leave, easy to trust." },
   ];
 
+  // Milestones cleaned up 2026-05-20 — removed unverifiable "200+ businesses"
+  // claim per founder bio source-of-truth (founders_bio.md). Keeping the
+  // language honest for a seed-stage product is more credible than puffery.
   const milestones = [
-    { year: "2024", title: "The idea", desc: "Founded with a vision to democratize financial intelligence for SMBs." },
-    { year: "2025", title: "First product", desc: "Launched Trial Balance analyzer with AI-powered insights and GAAP compliance." },
-    { year: "2026", title: "Scaling up", desc: "11 industry verticals, multi-model Cognitive Engine in production, and 200+ businesses onboarded." },
-    { year: "Next", title: "The future", desc: "Real-time accounting integrations, predictive analytics, and white-label for CA firms." },
+    { year: "2024", title: "The idea", desc: "Founded with a vision to democratize financial intelligence for ₹10–50 Cr Indian MSMEs." },
+    { year: "2025", title: "First product", desc: "Trial Balance analyzer + Ind AS classification + ratio analysis in production." },
+    { year: "2026", title: "Scaling up", desc: "Two-step SDE→QoE adjustment ladder, peer benchmarking, multi-model Cognitive Engine in active use." },
+    { year: "Next", title: "The future", desc: "Real-time accounting integrations, scenario engine on user data, and white-label for CA firms." },
   ];
 
   return (

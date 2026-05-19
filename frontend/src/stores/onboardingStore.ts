@@ -61,10 +61,15 @@ const defaultPersonal: PersonalProfile = {
   role: "",
 };
 
+// Default to INR/IN — CortexCFO's primary market is Indian MSMEs at
+// ₹10-50 Cr (per project_cortexcfo.md memory). Pre-2026-05-20 this
+// was USD/US, which surfaced as the wrong default currency on every
+// new signup. Friend feedback caught it on the Tohands profile page.
+// Region-specific landing pages (/us) can override before save.
 const defaultBusiness: BusinessProfile = {
   companyName: "",
-  currency: "USD",
-  region: "US",
+  currency: "INR",
+  region: "IN",
   gstin: "",
   pan: "",
   cin: "",

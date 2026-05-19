@@ -75,26 +75,11 @@ export default function SiteFooter() {
               )}
             </ul>
           </div>
-          <div>
-            <p className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-4">
-              Customers
-            </p>
-            <ul className="space-y-2.5">
-              {[
-                { label: "Success Stories", href: "/about" },
-                { label: "Case Studies", href: "/blog" },
-              ].map((l) => (
-                <li key={l.label}>
-                  <Link
-                    href={l.href}
-                    className="text-[13px] text-white/30 hover:text-white/60 transition-colors"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* "Customers" column removed 2026-05-20 — its "Success Stories"
+              and "Case Studies" labels promised content we don't yet have,
+              routed to /about and /blog respectively. Bring back as real
+              column when we've shipped named case studies (the P0 named-
+              testimonial workstream — see project_cortexcfo.md memory). */}
           <div>
             <p className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-4">
               Resources
@@ -138,15 +123,19 @@ export default function SiteFooter() {
               ))}
             </ul>
           </div>
+          {/* Social column cleaned up 2026-05-20 — Twitter @cortexcfo and
+              YouTube @cortexcfo were placeholders pointing at non-existent
+              accounts. LinkedIn handle corrected to Avdhut's verified URL
+              (avdhut09) per founders_bio.md. */}
           <div>
             <p className="text-[11px] font-semibold text-white/40 uppercase tracking-wider mb-4">
-              Social
+              Connect
             </p>
             <ul className="space-y-2.5">
               {[
-                { label: "LinkedIn", href: "https://www.linkedin.com/in/avdhutpadwalkar/" },
-                { label: "Twitter / X", href: "https://x.com/cortexcfo" },
-                { label: "YouTube", href: "https://youtube.com/@cortexcfo" },
+                { label: "Avdhut · LinkedIn", href: "https://www.linkedin.com/in/avdhut09/" },
+                { label: "Rajan · LinkedIn", href: "https://www.linkedin.com/in/rajan1705" },
+                { label: "Email founders", href: "mailto:avdhutpadwalkar.9@gmail.com" },
               ].map((l) => (
                 <li key={l.label}>
                   <a

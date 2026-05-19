@@ -63,17 +63,20 @@ export const PLANS: PlanDef[] = [
     name: "Starter",
     price: "₹0",
     period: "free · 14-day trial",
-    tagline: "One workbook · solo founder",
+    tagline: "Solo founder + your CA",
     storageGB: 1,
     uploadsPerMonth: 5,
     regenerationsPerMonth: 3,
-    members: 1,
+    // Bumped 1 → 2 on 2026-05-20: feedback noted that a trial user
+    // can't invite their CA without an extra slot, which kills the
+    // strongest activation event for this product category.
+    members: 2,
     industries: "Single sector benchmark",
     features: [
       "1 GB document storage",
       "5 uploads / month",
       "3 QoE regenerations / month",
-      "1 workspace member",
+      "2 workspace members · invite your CA",
       "Single-industry benchmarks",
       "Email support",
     ],
@@ -164,7 +167,25 @@ function FieldValue({
 }) {
   const v = (value ?? "").trim();
   if (v) {
-    return <span style={{ fontSize: 13.5, fontWeight: 500 }}>{v}</span>;
+    // title= tooltip on hover · 2026-05-20 friend feedback noted that
+    // long legal names + URLs got truncated mid-string with no recovery
+    // path. Tooltip surfaces the full value on hover.
+    return (
+      <span
+        title={v}
+        style={{
+          fontSize: 13.5,
+          fontWeight: 500,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          display: "block",
+          minWidth: 0,
+        }}
+      >
+        {v}
+      </span>
+    );
   }
   return (
     <span
@@ -358,9 +379,13 @@ export default function ProfilePage() {
               <span>
                 {role || "Workspace owner"} {companyName && `· ${companyName}`}
               </span>
+              {/* Plan naming consistency · 2026-05-20 — was "Starter plan"
+                  in hero, "Your plan · Starter · Trial" below. Unify to
+                  "Starter · trial" everywhere for non-paid accounts. */}
               <span className="pill">
                 <Sparkles />
-                {currentPlan.name} plan
+                {currentPlan.name}
+                {currentPlanKey === "starter" && !isDemo ? " · trial" : ""}
               </span>
             </div>
           </div>
@@ -677,8 +702,62 @@ export default function ProfilePage() {
             padding: "0 4px 4px",
           }}
         >
+          {/* Reports tile · feedback 2026-05-20 — for a brand-new account
+              "0 reports · lifetime" reads as discouraging. Turn it into
+              a "Run your first QoE report →" CTA for non-demo zero state. */}
+          {usageReports === 0 && !isDemo ? (
+            <Link
+              href="/uploads"
+              style={{
+                padding: 12,
+                background: "var(--brand-soft)",
+                border: "1px dashed color-mix(in oklab, var(--brand) 40%, transparent)",
+                borderRadius: 10,
+                textDecoration: "none",
+                color: "inherit",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                gap: 4,
+                transition: "border-color .12s",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.1em",
+                  color: "var(--brand-text)",
+                  fontWeight: 600,
+                }}
+              >
+                First QoE
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 500, marginTop: 2 }}>
+                Run your first report →
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>upload your TB · 60 sec</div>
+            </Link>
+          ) : (
+            <div
+              style={{
+                padding: 12,
+                background: "var(--card-2)",
+                border: "1px solid var(--border)",
+                borderRadius: 10,
+              }}
+            >
+              <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-muted)" }}>
+                Reports run
+              </div>
+              <div className="mono" style={{ fontSize: 22, fontWeight: 600, marginTop: 4 }}>
+                {usageReports}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--text-muted)" }}>lifetime</div>
+            </div>
+          )}
+
           {[
-            { label: "Reports run", value: String(usageReports), sub: "lifetime" },
             { label: "Members", value: `${membersUsed}`, sub: `of ${lim(currentPlan.members)}` },
             { label: "Cycle", value: isDemo ? "18 days" : "—", sub: isDemo ? "until renewal" : "no active sub" },
           ].map((s) => (
