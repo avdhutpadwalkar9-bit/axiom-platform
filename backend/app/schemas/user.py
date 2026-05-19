@@ -53,5 +53,26 @@ class DeleteAccountRequest(BaseModel):
     confirmation: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    """Payload for POST /api/auth/forgot-password.
+
+    Only the email — the route's response never depends on whether
+    the email is registered, so attackers can't enumerate accounts.
+    """
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Payload for POST /api/auth/reset-password.
+
+    The token comes from the link the user received in their inbox;
+    the new password is the plain text they typed (the server hashes
+    it). Password rules (length / letter / digit) are validated in
+    the service layer for parity with signup.
+    """
+    token: str
+    new_password: str
+
+
 class MessageResponse(BaseModel):
     message: str

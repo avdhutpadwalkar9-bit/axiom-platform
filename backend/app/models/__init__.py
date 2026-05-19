@@ -7,6 +7,7 @@ from app.models.scenario import Scenario
 from app.models.cell_value import CellValue
 from app.models.business_profile import BusinessProfile
 from app.models.email_verification import EmailVerification
+from app.models.password_reset import PasswordResetToken
 from app.models.chat_feedback import ChatFeedback
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     "CellValue",
     "BusinessProfile",
     "EmailVerification",
+    "PasswordResetToken",
     "ChatFeedback",
 ]
