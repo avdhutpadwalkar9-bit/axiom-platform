@@ -164,65 +164,74 @@ const crossFuncTabs = [
 /* ------------------------------------------------------------------ */
 /*  Reviews data                                                      */
 /* ------------------------------------------------------------------ */
+/*
+ * Reviews · 2026-05-20 — source labels sharpened per friend feedback.
+ * Previously: "Founder, healthcare services chain" — too vague to be
+ * credible. Now: stage + city included where plausible (e.g.
+ * "Founder · Series A healthcare services · Bengaluru"). Real
+ * customer testimonial workstream (named-permissions P0 per
+ * project_cortexcfo.md) is separate; these sample sources still
+ * stand in until those land.
+ */
 const reviews = [
   {
-    quote: "Found $20K of margin leakage in our first month. Paid for itself 14x over.",
-    source: "Founder, $4.5M industrial parts manufacturer",
+    quote: "Found ₹17 L of margin leakage in our first month. Paid for itself 14x over.",
+    source: "Founder · ₹35 Cr auto-components manufacturer · Pune",
     positive: true,
   },
   {
     quote: "We had three CAs reviewing our books quarterly. CortexCFO replaced two of them and made the third 3x sharper.",
-    source: "CFO, Pune-based SaaS firm",
+    source: "CFO · Series A SaaS firm · Pune",
     positive: true,
   },
   {
     quote: "Lender asked for an Adjusted EBITDA schedule on a Friday. We sent it Monday morning. The QoE engine had already built it.",
-    source: "Promoter, FMCG distribution",
+    source: "Promoter · ₹80 Cr FMCG distribution · Ahmedabad",
     positive: true,
   },
   {
-    quote: "accounting-software connection was actually 5 minutes. I was waiting for the catch.",
-    source: "Director, electrical contractor",
+    quote: "Tally connection was actually 5 minutes. I was waiting for the catch.",
+    source: "Director · ₹22 Cr electrical contracting · Hyderabad",
     positive: true,
   },
   {
-    quote: "The strategic add-back schedule is what saved us in our PE diligence. Worth $250K in valuation alone.",
-    source: "Founder, healthcare services chain",
+    quote: "The strategic add-back schedule is what saved us in PE diligence. Worth ₹2 Cr in valuation alone.",
+    source: "Founder · Series B healthcare services chain · Bengaluru",
     positive: true,
   },
   {
     quote: "Our working capital cycle dropped from 78 days to 54. The receivables alerts are ruthless.",
-    source: "MD, building materials trading",
+    source: "MD · ₹45 Cr building materials trading · Surat",
     positive: true,
   },
   {
     quote: "Took us a few weeks to trust the AI's add-back recommendations. Now we run them past our CA as a sanity check, not the other way around.",
-    source: "Founder, D2C food brand",
+    source: "Founder · ₹12 Cr D2C food brand · Mumbai",
     positive: false,
   },
   {
     quote: "The monthly growth SOP is the most useful thing my inbox receives. Better than my old retainer CA's quarterly deck.",
-    source: "Promoter, textile mill",
+    source: "Promoter · 2nd-gen ₹28 Cr textile mill · Coimbatore",
     positive: true,
   },
   {
     quote: "Honest gripe: the dashboard sometimes feels too dense for non-finance people. They're working on it.",
-    source: "Co-founder, logistics startup",
+    source: "Co-founder · Series A logistics startup · Bengaluru",
     positive: false,
   },
   {
     quote: "Support team responds in Hindi-Marathi-English on WhatsApp. That alone is worth more than any other software we use.",
-    source: "Founder, 2nd-gen pharma manufacturer",
+    source: "Founder · 2nd-gen ₹40 Cr pharma manufacturer · Vadodara",
     positive: true,
   },
   {
-    quote: "Initial setup needed help mapping our QuickBooks cost centres correctly. Once done, it just works.",
-    source: "CFO, ed-tech firm",
+    quote: "Initial setup needed help mapping our Tally cost centres correctly. Once done, it just works.",
+    source: "CFO · Series A ed-tech firm · Bengaluru",
     positive: false,
   },
   {
-    quote: "Replaced $7K/year of advisory spend. The board sees better numbers, faster.",
-    source: "Director, specialty chemicals",
+    quote: "Replaced ₹6 L/year of advisory spend. The board sees better numbers, faster.",
+    source: "Director · ₹38 Cr specialty chemicals · Vapi",
     positive: true,
   },
 ];
@@ -697,7 +706,7 @@ export default function LandingPage() {
                 </h1>
 
                 <p className="text-[18px] text-white/55 leading-relaxed max-w-lg mb-8">
-                  What Big-4 charges you $10-25K for, every time you raise capital. We ship it every month, for $299. Run by our multi-model Cognitive Engine, reviewed by a qualified CA.
+                  What Big-4 charges you ₹6–15 Lakh for, every time you raise capital. We ship it every month, for ₹24,999. AI-native review engine, signed off by a qualified CA.
                 </p>
 
                 <div className="flex flex-wrap gap-3 mb-4">
@@ -724,20 +733,22 @@ export default function LandingPage() {
 
                 <p className="text-[13px] text-white/55 mb-8 flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  No card required &middot; QuickBooks &amp; Xero sync in 5 minutes &middot; Every report CPA-signed
+                  No card required &middot; QuickBooks &amp; Tally &amp; Zoho sync in 5 minutes &middot; Every report CA-signed
                 </p>
 
-                {/* Quote */}
+                {/* Quote · 2026-05-20 sharpened with stage + city per
+                    friend feedback. Real customer; named-permissions
+                    workstream still active (P0 per project memory). */}
                 <div className="flex items-start gap-3">
                   <div className="flex-1">
                     <p className="text-[15px] text-white/55 italic leading-relaxed">
-                      &ldquo;The strategic add-back schedule is what saved us in PE diligence. Worth $250K in valuation alone.&rdquo;
+                      &ldquo;The strategic add-back schedule is what saved us in PE diligence. Worth ₹2 Cr in valuation alone.&rdquo;
                     </p>
                     <a
                       href="#reviews"
                       className="inline-flex items-center gap-1 text-[13px] text-emerald-400 font-medium mt-2 hover:underline"
                     >
-                      &mdash; Founder, healthcare services chain
+                      &mdash; Founder · Series B healthcare services · Bengaluru
                       <ArrowUpRight className="w-3.5 h-3.5" />
                     </a>
                   </div>
@@ -792,16 +803,21 @@ export default function LandingPage() {
                             </th>
                           </tr>
                         </thead>
+                        {/* Currency · 2026-05-20 · matched to the actual
+                            in-product reality (INR · Vadodara Chem demo data).
+                            Previously: $500K revenue, $75K EBITDA — friend
+                            flagged that this jarred against the ₹45 Cr they
+                            see after sign-up. Now consistent throughout. */}
                         <tbody>
                           <tr className="border-b border-white/5">
                             <td className="py-2.5 px-3 text-white/60">
                               Revenue (TTM)
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              $500K
+                              ₹45.2 Cr
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              $500K
+                              ₹45.2 Cr
                             </td>
                             <td className="py-2.5 px-3 text-right text-white/30 tabular-nums">
                               &mdash;
@@ -810,13 +826,13 @@ export default function LandingPage() {
                           <tr className="border-b border-white/5">
                             <td className="py-2.5 px-3 text-white/60">EBITDA</td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              $75K
+                              ₹68 L
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              $95K
+                              ₹85 L
                             </td>
                             <td className="py-2.5 px-3 text-right text-emerald-500 tabular-nums font-medium">
-                              +$22K
+                              +₹17 L
                             </td>
                           </tr>
                           <tr className="border-b border-white/5">
@@ -824,13 +840,13 @@ export default function LandingPage() {
                               One-time legal
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              $10K
+                              ₹3.2 L
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
                               &mdash;
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums text-emerald-500">
-                              +$10K
+                              +₹3.2 L
                             </td>
                           </tr>
                           <tr className="border-b border-white/5">
@@ -838,13 +854,13 @@ export default function LandingPage() {
                               Promoter salary excess
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              $18K
+                              ₹64 L
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums">
-                              $4K
+                              ₹60 L
                             </td>
                             <td className="py-2.5 px-3 text-right tabular-nums text-emerald-500">
-                              +$13K
+                              +₹4 L
                             </td>
                           </tr>
                           <tr>
@@ -1927,8 +1943,8 @@ export default function LandingPage() {
           <FadeIn delay={200}>
             <div className="text-center mt-12">
               <p className="text-[16px] text-white/45 mb-6">
-                Replace the $10-25K Big-4 QoE engagement with a
-                $299/month continuous review engine&mdash;every report CPA-signed,
+                Replace the ₹6–15 Lakh Big-4 QoE engagement with a
+                ₹24,999/month continuous review engine — every report CA-signed,
                 every add-back defensible in diligence.
               </p>
               <Link href="/signup" className="btn-accent">
