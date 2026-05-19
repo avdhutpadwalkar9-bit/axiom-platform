@@ -701,8 +701,9 @@ export default function LandingPage() {
                 </p>
 
                 <div className="flex flex-wrap gap-3 mb-4">
+                  {/* CTA unified to "Start free trial" across landing/pricing/auth */}
                   <Link href="/signup" className="btn-accent">
-                    Start your 14-day trial
+                    Start free trial
                   </Link>
                   <Link href="/contact" className="inline-flex items-center gap-2 text-white/80 hover:text-white px-5 py-3 rounded-xl border border-white/[0.14] hover:border-white/[0.28] hover:bg-white/[0.03] text-sm font-medium transition-all">
                     Book a QoE walkthrough
@@ -924,13 +925,16 @@ export default function LandingPage() {
             Built on trust. Backed by standards.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+            {/* Trust badges · 2026-05-20 friend feedback noted "SOC 2 Type II
+                in progress" reads as a negative trust signal (you don't have
+                it yet). Removed pending real certification — when SOC 2 ships
+                we add it back. Cognitive Engine → AI-native, less jargon. */}
             {[
-              { label: "Every report CPA-signed", icon: FileText },
-              { label: "SOC 2 Type II in progress", icon: Shield },
-              { label: "SOC 2 data residency", icon: Lock },
+              { label: "Every report CA-signed", icon: FileText },
+              { label: "Data residency · India", icon: Lock },
               { label: "AES-256 + TLS 1.3", icon: Shield },
-              { label: "Certified QuickBooks partner", icon: Plug },
-              { label: "Cognitive Engine inside", icon: Sparkles },
+              { label: "QuickBooks + Tally + Zoho", icon: Plug },
+              { label: "AI-native review engine", icon: Sparkles },
             ].map((badge) => {
               const Icon = badge.icon;
               return (
@@ -1928,7 +1932,7 @@ export default function LandingPage() {
                 every add-back defensible in diligence.
               </p>
               <Link href="/signup" className="btn-accent">
-                Start your 14-day trial
+                Start free trial
               </Link>
             </div>
           </FadeIn>
@@ -2042,7 +2046,7 @@ export default function LandingPage() {
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:scale-105 hover:bg-emerald-400 active:scale-95 transition-all text-[13px] font-semibold"
       >
         <Plug className="w-4 h-4" />
-        Start 14-day trial
+        Start free trial
       </Link>
 
       <SiteFooter />

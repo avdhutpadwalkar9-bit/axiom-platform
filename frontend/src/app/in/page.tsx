@@ -59,7 +59,7 @@ const TIERS = [
       "Top-line + top-3 cost anomaly flags",
       "GST 2A/2B vs books: first-pass reconciliation",
     ],
-    cta: "Start free",
+    cta: "Start free trial",
     href: "/signup",
     tone: "neutral" as const,
   },
@@ -306,6 +306,79 @@ export default function InLandingPage() {
                 <p className="text-[13px] text-white/55 leading-relaxed">{p.body}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───── How it works · 3 steps · 2026-05-20 ─────────────────────
+          Friend feedback round 3 specifically called out the missing
+          "upload → analysis → CA-reviewed report" pipeline visualisation
+          as the biggest activation gap on the public site. Three honest
+          steps · screenshots will land in Phase 2 when we have polished
+          ones. For now the text alone is enough to bridge landing →
+          signup. */}
+      <section className="py-20 lg:py-24">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <span className="inline-block text-[11px] uppercase tracking-[0.18em] text-emerald-400 font-semibold mb-3">
+              How it works
+            </span>
+            <h2 className="text-[36px] lg:text-[44px] font-bold tracking-tight mb-4 leading-[1.1]">
+              From messy books to QoE-ready in three steps.
+            </h2>
+            <p className="text-[16px] text-white/50 leading-relaxed">
+              No call. No setup fee. No long onboarding deck. Upload
+              the file, watch the engine, sign off the report.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-5">
+            {[
+              {
+                step: "01",
+                title: "Drop your books",
+                body: "Trial Balance from Tally, Zoho, Excel, or QuickBooks. Bank statements as PDF if you want cash proof. We hash + encrypt every file and never train AI on it.",
+                meta: "~60 seconds",
+              },
+              {
+                step: "02",
+                title: "CortexAI does the work",
+                body: "Accounts classified to Ind AS / Schedule III. Ratios computed against your peer set. Two-step SDE → QoE adjustment ladder drafted with every figure cited back to a TB line.",
+                meta: "~10 minutes",
+              },
+              {
+                step: "03",
+                title: "CA reviews + signs off",
+                body: "A qualified Chartered Accountant on our review panel walks every add-back, every classification, every flag. You get the signed report + the underlying workbook to share with your buyer.",
+                meta: "2–3 business days",
+              },
+            ].map((s) => (
+              <div
+                key={s.step}
+                className="bg-white/[0.02] border border-white/8 rounded-2xl p-6 hover:border-emerald-500/25 transition-colors"
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <span className="text-[11px] font-mono font-bold text-emerald-400 tracking-wider">
+                    {s.step}
+                  </span>
+                  <span className="text-[10.5px] text-white/35 uppercase tracking-wider font-semibold">
+                    {s.meta}
+                  </span>
+                </div>
+                <h3 className="text-[18px] font-bold text-white mb-3">{s.title}</h3>
+                <p className="text-[13.5px] text-white/55 leading-relaxed">{s.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white text-[14px] font-semibold px-7 py-3 rounded-full transition-all shadow-[0_4px_20px_rgba(52,211,153,0.3)]"
+            >
+              Start free trial — no card required
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

@@ -52,7 +52,7 @@ const TIERS = [
       "Top-line + top-3 cost anomaly flags",
       "Industry best-practice gap scan",
     ],
-    cta: "Start free",
+    cta: "Start free trial",
     href: "/signup",
     tone: "neutral" as const,
   },
@@ -210,7 +210,7 @@ export default function UsLandingPage() {
                   href="/signup?region=us"
                   className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-6 py-3.5 rounded-full transition-all shadow-[0_4px_20px_rgba(52,211,153,0.3)] text-[14px]"
                 >
-                  Start free — no credit card
+                  Start free trial — no credit card
                   <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link
@@ -496,7 +496,7 @@ export default function UsLandingPage() {
               href="/signup?region=us"
               className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-semibold px-7 py-4 rounded-full transition-all shadow-[0_4px_20px_rgba(52,211,153,0.3)] text-[14px]"
             >
-              Start free — no credit card
+              Start free trial — no credit card
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link

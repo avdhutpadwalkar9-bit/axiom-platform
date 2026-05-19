@@ -22,6 +22,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Globe, X, ArrowRight } from "lucide-react";
 
 const LS_KEY = "cortexcfo-region-prompt-v2"; // v2 — now handles IN too
@@ -58,9 +59,20 @@ function guessRegion(): Region {
 export default function RegionPicker() {
   const [show, setShow] = useState(false);
   const [region, setRegion] = useState<Region>("default");
+  const pathname = usePathname();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Don't show the picker on region-specific pages. Friend feedback
+    // 2026-05-20 noted the India popup firing "even on the India page"
+    // — RegionPicker is mounted only on /, but if a user navigates to
+    // /in while the dialog is still on screen, the visual stays. Hard
+    // pathname guard fixes both cases.
+    if (pathname && (pathname.startsWith("/in") || pathname.startsWith("/us"))) {
+      return;
+    }
+
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (raw) {
@@ -81,7 +93,7 @@ export default function RegionPicker() {
     // Small delay so the banner doesn't jank above-the-fold paint.
     const t = setTimeout(() => setShow(true), 1200);
     return () => clearTimeout(t);
-  }, []);
+  }, [pathname]);
 
   const record = (v: Choice) => {
     try {
