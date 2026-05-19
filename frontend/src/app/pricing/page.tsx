@@ -2,78 +2,134 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { ArrowRight, Check, Minus, Sparkles, LayoutDashboard } from "lucide-react";
+import { Suspense, useState } from "react";
+import { ArrowRight, Check, Minus, Sparkles, LayoutDashboard, ChevronDown } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import SiteFooter from "@/components/SiteFooter";
 import { FadeIn } from "@/components/Animate";
 
-const plans = [
-  {
-    name: "Diligence Report",
-    price: "\u20B949,000",
-    period: "one-time",
-    desc: "For a specific deal or board meeting",
-    features: [
-      "One full QoE report",
-      "Adjusted EBITDA with add-back schedule",
-      "GAAP-aligned P&L, BS, CFS",
-      "CA sign-off on every report",
-      "30-day access to underlying dashboard",
-      "Delivered in 48 hours",
-    ],
-    highlighted: false,
-    cta: "Buy one report",
-  },
+/*
+ * Pricing model \u00B7 2026-05-20 redesign per friend feedback round 3.
+ *
+ * Each plan carries BOTH monthly and annual INR prices. Annual = 10x
+ * monthly (2 months free, ~17% off) \u2014 standard SaaS commitment lever.
+ * The "Diligence Report" tier is a one-time deliverable, no monthly/
+ * annual variant \u2014 it's now listed LAST so it doesn't sit between
+ * Free and Growth and confuse buyers about whether the monthly sub
+ * costs less than a one-off report. Currency is INR throughout
+ * (primary market = Indian MSMEs per project_cortexcfo.md memory).
+ */
+
+type Plan = {
+  name: string;
+  monthly: string;
+  annual: string;
+  period: string;
+  oneTime?: boolean;
+  desc: string;
+  features: string[];
+  highlighted?: boolean;
+  cta: string;
+};
+
+const plans: Plan[] = [
   {
     name: "Growth",
-    price: "\u20B924,999",
+    monthly: "\u20B924,999",
+    annual: "\u20B92,49,990",
     period: "/month",
-    desc: "For SMBs at \u20B910\u201350M revenue",
+    desc: "For MSMEs at \u20B910\u201350 Cr revenue",
     features: [
-      "Everything in Diligence Report, monthly",
-      "Unlimited QuickBooks/Xero syncs",
+      "Monthly QoE report \u00B7 CA-signed",
+      "Unlimited QuickBooks / Xero / Tally syncs",
       "Continuous QoE engine",
-      "Multi-year GAAP reports",
-      "Unlimited AI chat",
-      "Industry benchmarks",
+      "Multi-year Ind AS reports",
+      "Unlimited AI chat on your ledger",
+      "Industry benchmarks \u00B7 47 peers",
       "Monthly growth SOPs",
       "Priority WhatsApp support",
     ],
     highlighted: true,
-    cta: "Start 14-day trial",
+    cta: "Start free trial",
   },
   {
     name: "Portfolio",
-    price: "\u20B91.5 L",
+    monthly: "\u20B91,50,000",
+    annual: "\u20B915,00,000",
     period: "/month per fund",
-    desc: "For PE/VC firms with 10+ portfolio cos",
+    desc: "PE / VC firms \u00B7 10+ portfolio cos",
     features: [
-      "Everything in Growth, all portfolio cos",
+      "Everything in Growth \u00B7 all portfolio cos",
       "Cross-portfolio dashboard",
       "White-label reports in your brand",
       "Quarterly rollup for LPs",
       "API + webhook access",
       "Dedicated partner success lead",
     ],
-    highlighted: false,
     cta: "Talk to partnerships",
   },
   {
     name: "Enterprise",
-    price: "Custom",
+    monthly: "Custom",
+    annual: "Custom",
     period: "",
-    desc: "For CA firms, family offices, holdcos",
+    desc: "CA firms \u00B7 family offices \u00B7 holdcos",
     features: [
       "Custom AI models trained on your ledger",
       "On-premise / VPC deployment",
       "SSO + role-based access",
       "Audit trail + compliance controls",
       "99.9% SLA + dedicated CSM",
-      "GAAP, IFRS, US GAAP",
+      "GAAP \u00B7 Ind AS \u00B7 IFRS",
     ],
-    highlighted: false,
     cta: "Contact sales",
+  },
+  {
+    name: "Diligence Report",
+    monthly: "\u20B949,000",
+    annual: "\u20B949,000",
+    period: "one-time",
+    oneTime: true,
+    desc: "One specific deal or board meeting",
+    features: [
+      "One full QoE report",
+      "Adjusted EBITDA with add-back schedule",
+      "Ind AS-aligned P&L, BS, CFS",
+      "CA sign-off on the report",
+      "30-day dashboard access",
+      "Delivered in 48 hours",
+    ],
+    cta: "Buy one report",
+  },
+];
+
+/* FAQs added 2026-05-20 \u2014 every pricing page for a CFO tool needs to
+   answer these before a buyer hits Talk-to-sales. Friend feedback
+   correctly flagged their absence. */
+const PRICING_FAQS = [
+  {
+    q: "Do you store my trial balance?",
+    a: "Yes \u2014 encrypted at rest (AES-256), in a database located in India. Your TB powers the analysis you see in the dashboard; nothing in it ever leaves CortexCFO except outputs you explicitly export. We never train AI models on customer data.",
+  },
+  {
+    q: "Who actually signs off the QoE report?",
+    a: "A qualified Chartered Accountant on our review panel \u2014 not the AI, not the founders. Every report carries the reviewer's name and ICAI membership number. The founders themselves are management consultants, not CAs; we are intentionally upfront about this.",
+  },
+  {
+    q: "What accounting software do you support?",
+    a: "Tally Prime \u00B7 Zoho Books \u00B7 QuickBooks \u00B7 Xero \u00B7 Excel / CSV trial balance \u00B7 Audited financials PDF. We're adding Marg ERP, Busy, and SAP Business One on the Growth + Enterprise tiers.",
+  },
+  {
+    q: "Can I cancel mid-cycle?",
+    a: "Yes \u2014 cancel any time in /billing. Monthly plans bill until the end of the current month; annual plans are pro-rated for the months unused. No retention call, no exit fee.",
+  },
+  {
+    q: "How long does the first QoE report take?",
+    a: "If you've uploaded a trial balance + last 12 months of bank statements, the first draft is ready within 48 hours. CA sign-off + revisions add 2-3 business days. Most customers go from sign-up to investor-ready in under a week.",
+  },
+  {
+    q: "What if my numbers change after the report ships?",
+    a: "Growth plan customers re-generate any time \u2014 the engine refreshes against the latest TB and the CA reviews the diff. No additional charge. Diligence-Report (one-time) customers get 30 days of free regenerations to handle revisions.",
   },
 ];
 
@@ -85,6 +141,11 @@ function PricingPageInner() {
   const region = searchParams.get("region"); // "us" | "in" | null
   const fromOnboarding = searchParams.get("source") === "onboarding";
   const regionQuery = region ? `&region=${region}` : "";
+
+  // Monthly / Annual toggle · 2026-05-20. Annual = 10x monthly (2 months
+  // free, ~17% off). Diligence Report is unaffected (one-off).
+  const [cycle, setCycle] = useState<"monthly" | "annual">("monthly");
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white">
@@ -134,28 +195,62 @@ function PricingPageInner() {
           <FadeIn className="text-center mb-6">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-emerald-400 mb-3">Pricing</p>
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Big-4 charges $10-25K per QoE.
+              Big-4 charges ₹6–15 Lakh per QoE.
               <br />
-              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">We ship one every month for $299.</span>
+              <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">We ship one every month for ₹24,999.</span>
             </h1>
             <p className="text-white/60 text-lg max-w-2xl mx-auto">
-              Every report is CPA-signed. No per-seat surprises. Cancel anytime.
+              Every report CA-signed. No per-seat surprises. Cancel anytime.
             </p>
           </FadeIn>
 
-          {/* Anchor strip */}
+          {/* Anchor strip · currency unified to INR after friend feedback —
+              page previously mixed $ + ₹ + L (lakhs) which was confusing. */}
           <FadeIn delay={100}>
-            <div className="max-w-3xl mx-auto mb-14 bg-white/[0.02] border border-white/8 rounded-2xl p-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[13px]">
+            <div className="max-w-3xl mx-auto mb-10 bg-white/[0.02] border border-white/8 rounded-2xl p-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[13px]">
               <div className="flex items-center gap-2">
                 <span className="text-white/40">Big-4 QoE engagement</span>
-                <span className="text-white/60 font-semibold tabular-nums">$6–15 L</span>
+                <span className="text-white/60 font-semibold tabular-nums">₹6–15 L</span>
                 <span className="text-white/30">&middot; 6–8 weeks</span>
               </div>
               <span className="text-white/20">vs.</span>
               <div className="flex items-center gap-2">
                 <span className="text-emerald-400 font-semibold">CortexCFO Growth</span>
-                <span className="text-white tabular-nums">$299/mo</span>
+                <span className="text-white tabular-nums">₹25K/mo</span>
                 <span className="text-white/30">&middot; continuous</span>
+              </div>
+            </div>
+          </FadeIn>
+
+          {/* Monthly / Annual toggle · 2026-05-20 · annual = 17% off */}
+          <FadeIn delay={140}>
+            <div className="flex justify-center mb-8">
+              <div
+                role="group"
+                aria-label="Billing cycle"
+                className="inline-flex items-center bg-white/[0.04] border border-white/10 rounded-full p-1"
+              >
+                <button
+                  onClick={() => setCycle("monthly")}
+                  className={`px-5 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors ${
+                    cycle === "monthly"
+                      ? "bg-emerald-500 text-white"
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setCycle("annual")}
+                  className={`px-5 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors ${
+                    cycle === "annual"
+                      ? "bg-emerald-500 text-white"
+                      : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  Annual
+                  <span className="ml-1.5 text-[10.5px] opacity-75">save 17%</span>
+                </button>
               </div>
             </div>
           </FadeIn>
@@ -175,9 +270,29 @@ function PricingPageInner() {
                 <div className={`relative p-6 rounded-2xl border h-full card-shine ${plan.highlighted ? "border-emerald-500/40 bg-emerald-500/5 glow-border shadow-xl shadow-emerald-500/10" : "border-white/8 bg-[#111]"}`}>
                   <p className="text-sm text-white/50 mb-1 mt-1">{plan.name}</p>
                   <div className="mb-1">
-                    <span className="text-3xl font-bold">{plan.price}</span>
-                    <span className="text-sm text-white/30 ml-1">{plan.period}</span>
+                    <span className="text-3xl font-bold">
+                      {plan.oneTime || plan.monthly === "Custom"
+                        ? plan.monthly
+                        : cycle === "annual"
+                        ? plan.annual
+                        : plan.monthly}
+                    </span>
+                    <span className="text-sm text-white/30 ml-1">
+                      {plan.oneTime
+                        ? plan.period
+                        : plan.monthly === "Custom"
+                        ? plan.period
+                        : cycle === "annual"
+                        ? "/year"
+                        : plan.period}
+                    </span>
                   </div>
+                  {/* Annual savings sub-line when toggle is on */}
+                  {cycle === "annual" && !plan.oneTime && plan.monthly !== "Custom" && (
+                    <p className="text-[11px] text-emerald-400/80 mb-2">
+                      ≈ 2 months free
+                    </p>
+                  )}
                   <p className="text-xs text-white/40 mb-6 min-h-[32px]">{plan.desc}</p>
                   <Link
                     href={
@@ -211,12 +326,14 @@ function PricingPageInner() {
               <div className="bg-[#111] rounded-2xl border border-white/8 overflow-x-auto">
                 <table className="w-full text-sm min-w-[720px]">
                   <thead>
-                    <tr className="border-b border-white/5">
-                      <th className="text-left px-5 py-4 text-white/30 font-medium">Feature</th>
-                      <th className="text-center px-3 py-4 text-white/50 font-medium">Diligence</th>
-                      <th className="text-center px-3 py-4 text-emerald-400 font-semibold">Growth</th>
-                      <th className="text-center px-3 py-4 text-white/50 font-medium">Portfolio</th>
-                      <th className="text-center px-3 py-4 text-white/50 font-medium">Enterprise</th>
+                    {/* Header contrast bumped 2026-05-20 — friend flagged
+                        white/30 text on near-black as a WCAG fail. */}
+                    <tr className="border-b border-white/10 bg-white/[0.02]">
+                      <th className="text-left px-5 py-4 text-white/80 font-semibold">Feature</th>
+                      <th className="text-center px-3 py-4 text-white/75 font-semibold">Diligence</th>
+                      <th className="text-center px-3 py-4 text-emerald-400 font-bold">Growth</th>
+                      <th className="text-center px-3 py-4 text-white/75 font-semibold">Portfolio</th>
+                      <th className="text-center px-3 py-4 text-white/75 font-semibold">Enterprise</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -284,17 +401,67 @@ function PricingPageInner() {
         </FadeIn>
       </section>
 
+      {/* FAQs · added 2026-05-20 — every pricing page for a finance
+          product needs these. Friend flagged absence. */}
+      <section className="px-6 pb-10">
+        <FadeIn>
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-2xl font-bold text-center mb-3">Pricing questions, answered</h2>
+            <p className="text-center text-white/45 text-sm mb-8">
+              What every CFO asks before they hit "Talk to sales".
+            </p>
+            <div className="space-y-3">
+              {PRICING_FAQS.map((faq, i) => {
+                const isOpen = openFaq === i;
+                return (
+                  <div
+                    key={i}
+                    className="bg-[#111] rounded-2xl border border-white/8 overflow-hidden"
+                  >
+                    <button
+                      onClick={() => setOpenFaq(isOpen ? null : i)}
+                      className="w-full px-6 py-4 flex items-center justify-between text-left gap-4 hover:bg-white/[0.02] transition-colors"
+                    >
+                      <span className="text-[15px] font-semibold text-white">{faq.q}</span>
+                      <ChevronDown
+                        className={`w-4 h-4 text-white/40 flex-shrink-0 transition-transform ${
+                          isOpen ? "rotate-180" : ""
+                        }`}
+                      />
+                    </button>
+                    {isOpen && (
+                      <div className="px-6 pb-5 text-[13.5px] text-white/65 leading-relaxed">
+                        {faq.a}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </FadeIn>
+      </section>
+
       {/* CTA */}
       <section className="py-20 px-6">
         <FadeIn>
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl font-bold mb-4">Not sure which tier fits?</h2>
-            <p className="text-white/40 mb-8">Start with a one-time Diligence Report for $49K. Upgrade to Growth anytime and we&rsquo;ll credit it toward your first month.</p>
+            <p className="text-white/40 mb-8">
+              Start with a one-time Diligence Report at ₹49,000. Upgrade to Growth anytime and we&rsquo;ll credit it toward your first month.
+            </p>
             <div className="flex flex-wrap justify-center gap-3">
-              <Link href="/signup" className="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-xl btn-magnetic text-sm font-semibold">
-                Start 14-day trial <ArrowRight className="w-4 h-4" />
+              {/* CTA unified across pages · "Start free trial" everywhere */}
+              <Link
+                href="/signup"
+                className="inline-flex items-center gap-2 bg-emerald-500 text-white px-8 py-3.5 rounded-xl btn-magnetic text-sm font-semibold"
+              >
+                Start free trial <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/contact" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white/80 px-8 py-3.5 rounded-xl border border-white/10 text-sm font-semibold transition-all">
+              <Link
+                href="/contact"
+                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 text-white/80 px-8 py-3.5 rounded-xl border border-white/10 text-sm font-semibold transition-all"
+              >
                 Talk to sales
               </Link>
             </div>
