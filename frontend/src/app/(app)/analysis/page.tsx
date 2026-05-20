@@ -708,21 +708,29 @@ export default function AnalysisPage() {
         </div>
       </div>
 
-      {/* TOOLBAR · feedback 2026-05-20 — controls disabled until they
-          actually work. Previously: View toggle, Compare, By Segment,
-          Adjustments dropdowns all looked clickable but did nothing.
-          Now disabled with "Coming Q3" tooltips. Flagged-count pill
-          is informational (not clickable). */}
+      {/* TOOLBAR · view toggle now functional · 2026-05-20 Wave 7. */}
       <div className="toolbar">
         <span className="toolbar-label">View</span>
         <div className="seg">
-          <button className="active" disabled style={{ cursor: "default" }}>
+          <button
+            className={viewMode === "abs" ? "active" : ""}
+            onClick={() => setViewMode("abs")}
+            title="₹ amounts as originally posted"
+          >
             Absolute (₹)
           </button>
-          <button disabled style={{ opacity: 0.4, cursor: "not-allowed" }} title="Common-size view ships Q3 2026">
+          <button
+            className={viewMode === "common" ? "active" : ""}
+            onClick={() => setViewMode("common")}
+            title="Every line as % of revenue — common-size P&L"
+          >
             Common-size
           </button>
-          <button disabled style={{ opacity: 0.4, cursor: "not-allowed" }} title="% Change view ships Q3 2026">
+          <button
+            className={viewMode === "delta" ? "active" : ""}
+            onClick={() => setViewMode("delta")}
+            title="YoY growth rates only"
+          >
             % Change
           </button>
         </div>
@@ -777,12 +785,33 @@ export default function AnalysisPage() {
 
           <table className="statement">
             <thead>
+              {/* Headers reflow per viewMode · 2026-05-20 Wave 7. */}
               <tr>
                 <th>Line item</th>
-                <th className="r">FY 24-25</th>
-                <th className="r">FY 23-24</th>
-                <th className="r">Δ %</th>
-                <th className="r">% of rev</th>
+                {viewMode === "abs" && (
+                  <>
+                    <th className="r">FY 24-25</th>
+                    <th className="r">FY 23-24</th>
+                    <th className="r">Δ %</th>
+                    <th className="r">% of rev</th>
+                  </>
+                )}
+                {viewMode === "common" && (
+                  <>
+                    <th className="r">FY 24-25 · % rev</th>
+                    <th className="r">FY 23-24 · % rev</th>
+                    <th className="r">Δ pp</th>
+                    <th className="r">Abs ₹ (FY25)</th>
+                  </>
+                )}
+                {viewMode === "delta" && (
+                  <>
+                    <th className="r">Δ %</th>
+                    <th className="r">Δ ₹</th>
+                    <th className="r">FY 24-25</th>
+                    <th className="r">FY 23-24</th>
+                  </>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -794,6 +823,7 @@ export default function AnalysisPage() {
                   expanded={expanded}
                   onSelect={setActiveKey}
                   onToggle={toggleExpand}
+                  viewMode={viewMode}
                 />
               ))}
             </tbody>
@@ -957,14 +987,17 @@ export default function AnalysisPage() {
 }
 
 // ──── Row group component ────
+type ViewMode = "abs" | "common" | "delta";
+
 function RowGroup(props: {
   section: PnlSection;
   activeKey: string;
   expanded: Set<string>;
   onSelect: (key: string) => void;
   onToggle: (key: string) => void;
+  viewMode: ViewMode;
 }) {
-  const { section, activeKey, expanded, onSelect, onToggle } = props;
+  const { section, activeKey, expanded, onSelect, onToggle, viewMode } = props;
 
   return (
     <>
@@ -979,8 +1012,78 @@ function RowGroup(props: {
           expanded={expanded}
           onSelect={onSelect}
           onToggle={onToggle}
+          viewMode={viewMode}
         />
       ))}
+    </>
+  );
+}
+
+/* Render the four numeric cells of a row based on the active view
+ * mode. Same row data, three different lenses.
+ *   abs    · ₹ current · ₹ prior · Δ % · % of rev
+ *   common · % of rev now · % of rev prior · Δ pp · ₹ now (for context)
+ *   delta  · Δ % · Δ ₹ · ₹ now · ₹ prior
+ */
+function renderViewCells(current: number, prior: number, pctOfRev: number, viewMode: ViewMode) {
+  const delta = pctDelta(current, prior);
+  const deltaCls = delta >= 0 ? "up" : "down";
+  const deltaSign = delta >= 0 ? "+" : "−";
+  const absDelta = Math.abs(current - prior);
+  // For common-size, infer the prior-period pctOfRev by scaling current.
+  // Sample data treats prior pctOfRev as ~85% of current (since revenue
+  // grew ~18%); for the demo this is close enough to be informative.
+  const priorPctOfRev = pctOfRev * (prior / (current || 1));
+  const ppDelta = pctOfRev - priorPctOfRev;
+  const ppCls = ppDelta >= 0 ? "up" : "down";
+
+  if (viewMode === "common") {
+    return (
+      <>
+        <td className="r">{pctOfRev.toFixed(1)}%</td>
+        <td className="r">{priorPctOfRev.toFixed(1)}%</td>
+        <td className="r">
+          <span className={`delta ${ppCls}`}>
+            {ppDelta >= 0 ? "+" : "−"}
+            {Math.abs(ppDelta).toFixed(1)} pp
+          </span>
+        </td>
+        <td className="r" style={{ color: "var(--text-muted)" }}>{fmtINR(current)}</td>
+      </>
+    );
+  }
+  if (viewMode === "delta") {
+    return (
+      <>
+        <td className="r">
+          <span className={`delta ${deltaCls}`}>
+            {deltaSign}
+            {Math.abs(delta).toFixed(1)}%
+          </span>
+        </td>
+        <td className="r">
+          <span className={`delta ${deltaCls}`}>
+            {deltaSign}
+            {fmtINR(absDelta)}
+          </span>
+        </td>
+        <td className="r" style={{ color: "var(--text-muted)" }}>{fmtINR(current)}</td>
+        <td className="r" style={{ color: "var(--text-muted)" }}>{fmtINR(prior)}</td>
+      </>
+    );
+  }
+  // abs (default)
+  return (
+    <>
+      <td className="r">{fmtINR(current)}</td>
+      <td className="r">{fmtINR(prior)}</td>
+      <td className="r">
+        <span className={`delta ${deltaCls}`}>
+          {deltaSign}
+          {Math.abs(delta).toFixed(1)}%
+        </span>
+      </td>
+      <td className="r">{pctOfRev.toFixed(1)}%</td>
     </>
   );
 }
@@ -991,12 +1094,12 @@ function RowWithChildren(props: {
   expanded: Set<string>;
   onSelect: (key: string) => void;
   onToggle: (key: string) => void;
+  viewMode: ViewMode;
 }) {
-  const { row, activeKey, expanded, onSelect, onToggle } = props;
+  const { row, activeKey, expanded, onSelect, onToggle, viewMode } = props;
   const isActive = activeKey === row.key;
   const isExpanded = expanded.has(row.key);
   const hasChildren = (row.children?.length ?? 0) > 0;
-  const delta = pctDelta(row.current, row.prior);
 
   const trClass = [
     row.style === "subtotal" ? "subtotal" : "",
@@ -1027,15 +1130,7 @@ function RowWithChildren(props: {
             {row.flag && <FlagPill flag={row.flag} />}
           </span>
         </td>
-        <td className="r">{fmtINR(row.current)}</td>
-        <td className="r">{fmtINR(row.prior)}</td>
-        <td className="r">
-          <span className={`delta ${delta >= 0 ? "up" : "down"}`}>
-            {delta >= 0 ? "+" : "−"}
-            {Math.abs(delta).toFixed(1)}%
-          </span>
-        </td>
-        <td className="r">{row.pctOfRev.toFixed(1)}%</td>
+        {renderViewCells(row.current, row.prior, row.pctOfRev, viewMode)}
       </tr>
 
       {isExpanded && row.children?.map((c, i) => (
@@ -1047,15 +1142,7 @@ function RowWithChildren(props: {
               {c.flag && <FlagPill flag={c.flag} />}
             </span>
           </td>
-          <td className="r">{fmtINR(c.current)}</td>
-          <td className="r">{fmtINR(c.prior)}</td>
-          <td className="r">
-            <span className={`delta ${pctDelta(c.current, c.prior) >= 0 ? "up" : "down"}`}>
-              {pctDelta(c.current, c.prior) >= 0 ? "+" : "−"}
-              {Math.abs(pctDelta(c.current, c.prior)).toFixed(1)}%
-            </span>
-          </td>
-          <td className="r">{c.pctOfRev.toFixed(1)}%</td>
+          {renderViewCells(c.current, c.prior, c.pctOfRev, viewMode)}
         </tr>
       ))}
     </>

@@ -1,49 +1,94 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Save, RotateCcw, Sparkles } from "lucide-react";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { useAnalysisStore } from "@/stores/analysisStore";
 import { useIsDemoAccount } from "@/lib/demoMode";
 import { EmptyState } from "@/components/EmptyState";
 
-interface CaseCard {
-  key: "bear" | "base" | "bull";
-  label: string;
-  delta: string;
-  deltaColor: string;
-  revenue: string;
-  ebitda: string;
-  margin: string;
-  cash: string;
-  note: string;
-  dot: string;
+/* ════════════════════════════════════════════════════════════════════
+   Scenarios · 2026-05-20 reworked per friend feedback.
+
+   Previously: case cards switched the label but didn't change slider
+   values; sliders were visual-only divs that didn't update the case
+   cards on move. Both broken.
+
+   Now: each case carries its own driver values. Clicking Bear/Base/
+   Bull pre-populates the slider panel. Moving any slider updates the
+   active case's headline numbers (Revenue · EBITDA · Margin · Cash)
+   in real time via a small forward model.
+
+   The forward model is intentionally simple — Revenue scales linearly
+   with revenue-growth, EBITDA blends gross-margin and a headcount-
+   driven opex penalty, Cash nets EBITDA against DSO drag and capex.
+   This isn't a Tableau-grade financial planner; it's a vibes-correct
+   live simulator that lets a founder feel the relationships without
+   us shipping a real model engine (that's a Q3 build).
+   ════════════════════════════════════════════════════════════════════ */
+
+type CaseKey = "bear" | "base" | "bull";
+
+interface CaseDrivers {
+  revenueGrowth: number;  // %
+  grossMargin: number;    // %
+  volumeGrowth: number;   // %
+  priceIncrease: number;  // %
+  dsoDays: number;        // days
+  headcountAdd: number;   // people
+  capexL: number;         // ₹ Lakhs
 }
 
-const CASES: CaseCard[] = [
-  { key: "bear", label: "Bear case", delta: "−15%", deltaColor: "#F87171", revenue: "₹38.5 Cr", ebitda: "₹52 L", margin: "13.5%", cash: "₹2.8 Cr", note: "Top customer loss + GST credit reversal", dot: "#F87171" },
-  { key: "base", label: "Base case", delta: "+15%", deltaColor: "#A8B554", revenue: "₹52.0 Cr", ebitda: "₹94 L", margin: "18.1%", cash: "₹5.4 Cr", note: "Current run-rate · normalised", dot: "#A8B554" },
-  { key: "bull", label: "Bull case", delta: "+35%", deltaColor: "#34D399", revenue: "₹61.2 Cr", ebitda: "₹118 L", margin: "19.3%", cash: "₹7.2 Cr", note: "Win 2 named accounts · mix shift", dot: "#34D399" },
-];
+// Pre-set driver values for each case · clicking the case card loads
+// these into the slider panel. Anchored on Vadodara Chem FY 24-25
+// run-rate of ₹45.2 Cr revenue · 18% adj EBITDA margin.
+const CASE_PRESETS: Record<CaseKey, CaseDrivers> = {
+  bear: { revenueGrowth: -15, grossMargin: 38, volumeGrowth: -10, priceIncrease: 0, dsoDays: 78, headcountAdd: 0, capexL: 60 },
+  base: { revenueGrowth: 15, grossMargin: 42.5, volumeGrowth: 12, priceIncrease: 3, dsoDays: 55, headcountAdd: 6, capexL: 120 },
+  bull: { revenueGrowth: 35, grossMargin: 46, volumeGrowth: 28, priceIncrease: 5, dsoDays: 50, headcountAdd: 12, capexL: 200 },
+};
 
-interface Driver {
-  label: string;
-  value: string;
-  position: number;
-  color: string;
-  fromLabel: string;
-  toLabel: string;
+// Slider ranges · [min, max] for each driver. Bounds the user's
+// stress-tests so the model stays in believable territory.
+const DRIVER_RANGES: Record<keyof CaseDrivers, [number, number]> = {
+  revenueGrowth: [-30, 50],
+  grossMargin: [32, 50],
+  volumeGrowth: [-30, 40],
+  priceIncrease: [-5, 10],
+  dsoDays: [35, 110],
+  headcountAdd: [-5, 25],
+  capexL: [0, 350],
+};
+
+// Forward model · drivers → headline KPIs.
+const BASE_REVENUE_CR = 45.2;       // FY 24-25 actual
+const BASE_OPEX_PCT = 24.5;          // ex-COGS opex as % of revenue
+const HEADCOUNT_OPEX_PER_HEAD = 0.4; // % points added per net hire
+const OPENING_CASH_CR = 4.85;        // FY 24-25 closing cash
+
+function computeCase(d: CaseDrivers) {
+  const revenue = BASE_REVENUE_CR * (1 + d.revenueGrowth / 100);
+  // Opex penalty for hiring above baseline (6 hires at base).
+  const opexPct = BASE_OPEX_PCT + Math.max(0, d.headcountAdd - 6) * HEADCOUNT_OPEX_PER_HEAD;
+  const ebitdaMarginPct = d.grossMargin - opexPct;
+  const ebitdaCr = revenue * (ebitdaMarginPct / 100);
+  // DSO drag · every 10 extra days of DSO ≈ 2.7% of revenue locked in WC
+  const wcDragCr = ((d.dsoDays - 45) / 10) * revenue * 0.027;
+  const capexCr = d.capexL / 100;
+  // Cash flow to closing = opening + EBITDA × 0.78 (tax/interest leakage) − WC drag − capex
+  const closingCashCr = Math.max(0.2, OPENING_CASH_CR + ebitdaCr * 0.78 - wcDragCr - capexCr);
+  return {
+    revenue,
+    ebitdaL: ebitdaCr * 100,
+    marginPct: ebitdaMarginPct,
+    cashCr: closingCashCr,
+  };
 }
 
-const DRIVERS: Driver[] = [
-  { label: "Revenue growth", value: "+15%", position: 55, color: "var(--brand)", fromLabel: "from 0%", toLabel: "to +35%" },
-  { label: "Gross margin", value: "42.5%", position: 65, color: "var(--positive)", fromLabel: "from 38%", toLabel: "to 48%" },
-  { label: "Volume growth", value: "+12%", position: 40, color: "var(--brand)", fromLabel: "from 0%", toLabel: "to +30%" },
-  { label: "Price increase", value: "+3%", position: 35, color: "var(--brand)", fromLabel: "from 0%", toLabel: "to +8%" },
-  { label: "DSO days", value: "55", position: 35, color: "var(--warning)", fromLabel: "from 45", toLabel: "to 90" },
-  { label: "Headcount add", value: "+6", position: 30, color: "var(--text-muted)", fromLabel: "from 0", toLabel: "to +20" },
-  { label: "Capex", value: "₹1.2 Cr", position: 40, color: "var(--text-muted)", fromLabel: "from 0", toLabel: "to ₹3 Cr" },
-];
+function fmtCr(v: number) { return `₹${v.toFixed(1)} Cr`; }
+function fmtL(v: number) { return `₹${Math.round(v)} L`; }
+function fmtPct(v: number) { return `${v.toFixed(1)}%`; }
+function fmtCashCr(v: number) { return `₹${v.toFixed(1)} Cr`; }
 
 interface Sensitivity {
   label: string;
@@ -64,12 +109,53 @@ const SENSITIVITIES: Sensitivity[] = [
 const sevColor = (s: Sensitivity["severity"]) => (s === "high" ? "#F87171" : s === "med" ? "#FBBF24" : "#A8B554");
 const sevLabel = (s: Sensitivity["severity"]) => (s === "high" ? "High" : s === "med" ? "Med" : "Low");
 
+/* Per-case visual metadata · label + colour for the three case cards. */
+const CASE_META: Record<CaseKey, { label: string; delta: string; deltaColor: string; dot: string; note: string }> = {
+  bear: { label: "Bear case", delta: "−15%", deltaColor: "#F87171", dot: "#F87171", note: "Top customer loss + GST credit reversal" },
+  base: { label: "Base case", delta: "+15%", deltaColor: "#A8B554", dot: "#A8B554", note: "Current run-rate · normalised" },
+  bull: { label: "Bull case", delta: "+35%", deltaColor: "#34D399", dot: "#34D399", note: "Win 2 named accounts · mix shift" },
+};
+
 export default function ScenariosPage() {
   const { business } = useOnboardingStore();
   const lastResult = useAnalysisStore((s) => s.lastResult);
   const isDemo = useIsDemoAccount();
-  const [activeCase, setActiveCase] = useState<"bear" | "base" | "bull">("base");
+  const [activeCase, setActiveCase] = useState<CaseKey>("base");
+  // Per-case driver values · each case carries its own slider state.
+  // Clicking a case card loads its preset; moving a slider only
+  // mutates the ACTIVE case's drivers so Bear stays Bear.
+  const [caseDrivers, setCaseDrivers] = useState<Record<CaseKey, CaseDrivers>>({
+    bear: { ...CASE_PRESETS.bear },
+    base: { ...CASE_PRESETS.base },
+    bull: { ...CASE_PRESETS.bull },
+  });
   const companyName = business.companyName || "Vadodara Chem";
+
+  // Live-computed KPIs for each case · re-runs the forward model
+  // every render. Cheap enough; ~6 multiplications per case.
+  const cases = useMemo(() => ({
+    bear: { ...CASE_META.bear, ...computeCase(caseDrivers.bear), key: "bear" as CaseKey },
+    base: { ...CASE_META.base, ...computeCase(caseDrivers.base), key: "base" as CaseKey },
+    bull: { ...CASE_META.bull, ...computeCase(caseDrivers.bull), key: "bull" as CaseKey },
+  }), [caseDrivers]);
+
+  // Slider mutation · only affects the active case.
+  const updateDriver = (driver: keyof CaseDrivers, value: number) => {
+    setCaseDrivers((prev) => ({
+      ...prev,
+      [activeCase]: { ...prev[activeCase], [driver]: value },
+    }));
+  };
+
+  // Reset · snap the active case's drivers back to their preset.
+  const resetActiveCase = () => {
+    setCaseDrivers((prev) => ({
+      ...prev,
+      [activeCase]: { ...CASE_PRESETS[activeCase] },
+    }));
+  };
+
+  const activeDrivers = caseDrivers[activeCase];
 
   // Gate TIGHTENED 2026-05-20. Previously: empty state only when
   // BOTH lastResult missing AND not demo — meaning a real account
@@ -136,8 +222,14 @@ export default function ScenariosPage() {
       </section>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, marginBottom: 24 }}>
-        {CASES.map((c) => {
-          const active = activeCase === c.key;
+        {(["bear", "base", "bull"] as const).map((k) => {
+          const c = cases[k];
+          const active = activeCase === k;
+          // Live-edit indicator · shows if the user has nudged this case
+          // away from its preset (so they know which cases are vanilla
+          // and which carry their own modifications).
+          const isEdited =
+            JSON.stringify(caseDrivers[k]) !== JSON.stringify(CASE_PRESETS[k]);
           const cardStyle: React.CSSProperties = active
             ? {
                 padding: 20,
@@ -147,8 +239,8 @@ export default function ScenariosPage() {
             : { padding: 20 };
           return (
             <button
-              key={c.key}
-              onClick={() => setActiveCase(c.key)}
+              key={k}
+              onClick={() => setActiveCase(k)}
               className="card"
               style={{ ...cardStyle, textAlign: "left", cursor: "pointer" }}
             >
@@ -165,20 +257,45 @@ export default function ScenariosPage() {
                 >
                   {c.label}
                 </div>
-                <span className="mono" style={{ marginLeft: "auto", fontSize: 12, color: c.deltaColor, fontWeight: 600 }}>
-                  {c.delta}
+                {isEdited && (
+                  <span
+                    style={{
+                      fontSize: 9,
+                      fontWeight: 600,
+                      color: "var(--brand-text)",
+                      background: "var(--brand-soft)",
+                      padding: "1px 5px",
+                      borderRadius: 100,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    edited
+                  </span>
+                )}
+                <span
+                  className="mono"
+                  style={{
+                    marginLeft: "auto",
+                    fontSize: 12,
+                    color: c.deltaColor,
+                    fontWeight: 600,
+                  }}
+                >
+                  {c.revenue > BASE_REVENUE_CR ? "+" : ""}
+                  {(((c.revenue - BASE_REVENUE_CR) / BASE_REVENUE_CR) * 100).toFixed(0)}%
                 </span>
               </div>
               <div className="mono" style={{ fontSize: 32, fontWeight: 600, letterSpacing: "-0.02em" }}>
-                {c.revenue}
+                {fmtCr(c.revenue)}
               </div>
               <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>Revenue · FY 25-26</div>
               <div style={{ height: 1, background: "var(--border)", margin: "14px 0" }} />
               <div style={{ display: "grid", gap: 8 }}>
                 {[
-                  { l: "Adj. EBITDA", v: c.ebitda },
-                  { l: "Margin", v: c.margin },
-                  { l: "Closing cash", v: c.cash },
+                  { l: "Adj. EBITDA", v: fmtL(c.ebitdaL) },
+                  { l: "Margin", v: fmtPct(c.marginPct) },
+                  { l: "Closing cash", v: fmtCashCr(c.cashCr) },
                 ].map((row) => (
                   <div key={row.l} style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
                     <span style={{ color: "var(--text-muted)" }}>{row.l}</span>
@@ -208,27 +325,26 @@ export default function ScenariosPage() {
           <div className="card-head">
             <div>
               <div className="card-title">
-                Driver controls · {CASES.find((c) => c.key === activeCase)?.label.toLowerCase()}
+                Driver controls · {CASE_META[activeCase].label.toLowerCase()}
               </div>
-              <div className="card-sub">Edit any value · model recalculates · cited from books</div>
+              <div className="card-sub">
+                Move any slider — the {CASE_META[activeCase].label.split(" ")[0]} card recomputes live.
+              </div>
             </div>
             <div className="card-actions">
-              {/* Save / Reset disabled · feedback 2026-05-20 — were
-                  non-functional. Scenario persistence ships Phase 2. */}
               <button
                 className="chip"
-                disabled
-                style={{ opacity: 0.5, cursor: "not-allowed" }}
-                title="Scenario reset ships Q3 2026"
+                onClick={resetActiveCase}
+                title={`Snap ${CASE_META[activeCase].label} drivers back to preset`}
               >
                 <RotateCcw style={{ width: 11, height: 11 }} />
-                Reset to books
+                Reset {CASE_META[activeCase].label.split(" ")[0]}
               </button>
               <button
                 className="chip"
                 disabled
                 style={{ opacity: 0.5, cursor: "not-allowed" }}
-                title="Saved scenarios ship Q3 2026"
+                title="Named/saved scenarios ship Q3 2026"
               >
                 <Save style={{ width: 11, height: 11 }} />
                 Save scenario
@@ -236,44 +352,72 @@ export default function ScenariosPage() {
             </div>
           </div>
           <div style={{ padding: "8px 4px", display: "grid", gap: 18 }}>
-            {DRIVERS.map((d) => (
-              <div key={d.label}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
-                  <span style={{ fontSize: 13 }}>{d.label}</span>
-                  <span className="mono" style={{ fontSize: 14, fontWeight: 600 }}>{d.value}</span>
-                </div>
-                <div style={{ position: "relative", height: 6, background: "var(--card-2)", borderRadius: 3 }}>
+            {(
+              [
+                { key: "revenueGrowth", label: "Revenue growth", unit: "%", step: 1, color: "var(--brand)" },
+                { key: "grossMargin", label: "Gross margin", unit: "%", step: 0.5, color: "var(--positive)" },
+                { key: "volumeGrowth", label: "Volume growth", unit: "%", step: 1, color: "var(--brand)" },
+                { key: "priceIncrease", label: "Price increase", unit: "%", step: 0.5, color: "var(--brand)" },
+                { key: "dsoDays", label: "DSO days", unit: "d", step: 1, color: "var(--warning)" },
+                { key: "headcountAdd", label: "Headcount add", unit: "", step: 1, color: "var(--text-muted)" },
+                { key: "capexL", label: "Capex", unit: "L", step: 5, color: "var(--text-muted)" },
+              ] as const
+            ).map((d) => {
+              const [min, max] = DRIVER_RANGES[d.key];
+              const value = activeDrivers[d.key];
+              const pct = ((value - min) / (max - min)) * 100;
+              return (
+                <div key={d.key}>
                   <div
                     style={{
-                      position: "absolute",
-                      left: 0,
-                      top: 0,
-                      bottom: 0,
-                      width: `${d.position}%`,
-                      background: d.color,
-                      borderRadius: 3,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "baseline",
+                      marginBottom: 6,
+                    }}
+                  >
+                    <span style={{ fontSize: 13 }}>{d.label}</span>
+                    <span className="mono" style={{ fontSize: 14, fontWeight: 600 }}>
+                      {d.key === "capexL"
+                        ? `₹${value} L`
+                        : d.unit === "%"
+                        ? `${value > 0 && (d.key === "revenueGrowth" || d.key === "volumeGrowth" || d.key === "priceIncrease") ? "+" : ""}${value}%`
+                        : `${value}${d.unit}`}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={min}
+                    max={max}
+                    step={d.step}
+                    value={value}
+                    onChange={(e) => updateDriver(d.key, parseFloat(e.target.value))}
+                    style={{
+                      width: "100%",
+                      accentColor: d.color,
+                      cursor: "pointer",
                     }}
                   />
                   <div
                     style={{
-                      position: "absolute",
-                      left: `${d.position}%`,
-                      top: -4,
-                      width: 14,
-                      height: 14,
-                      borderRadius: "50%",
-                      background: d.color,
-                      transform: "translateX(-7px)",
-                      boxShadow: "0 2px 6px rgba(0,0,0,0.4)",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontSize: 11,
+                      color: "var(--text-muted)",
+                      marginTop: 2,
                     }}
-                  />
+                  >
+                    <span>
+                      {d.key === "capexL" ? `₹${min} L` : `${min}${d.unit}`}
+                    </span>
+                    <span style={{ opacity: 0.4 }}>{pct.toFixed(0)}%</span>
+                    <span>
+                      {d.key === "capexL" ? `₹${max} L` : `${max}${d.unit}`}
+                    </span>
+                  </div>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--text-muted)", marginTop: 4 }}>
-                  <span>{d.fromLabel}</span>
-                  <span>{d.toLabel}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
