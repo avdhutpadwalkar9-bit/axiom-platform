@@ -33,7 +33,7 @@ import { Resend } from "resend";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(request: Request) {
-  let body: { email?: string } = {};
+  let body: { email?: string; source?: string; firm?: string } = {};
   try {
     body = await request.json();
   } catch {
@@ -44,6 +44,12 @@ export async function POST(request: Request) {
   }
 
   const email = (body.email ?? "").trim().toLowerCase();
+  // Optional source tag · routes to different welcome templates.
+  // "early-access" comes from the stealth CA-firm landing at /early —
+  // requires a name-of-product-free email back. Default is the
+  // CortexCFO-branded newsletter welcome.
+  const source = (body.source ?? "").trim().toLowerCase();
+  const firm = (body.firm ?? "").trim();
   if (!email || !EMAIL_RE.test(email) || email.length > 254) {
     return NextResponse.json(
       { ok: false, error: "Please enter a valid email address." },
@@ -83,28 +89,95 @@ export async function POST(request: Request) {
     }
   }
 
-  // 2) Welcome email — the copy the user asked for. Plain + HTML versions
-  // so it renders on every client. Honest about the product state.
-  const subject = "Welcome to The CortexCFO Brief";
+  // 2) Welcome email · branch on source.
+  // For source=early-access (stealth CA-firm landing), strip every
+  // CortexCFO mention. Founder's cover stays intact until they
+  // explicitly want to reveal the product.
+  const isStealth = source === "early-access";
+  const subject = isStealth
+    ? "You're on the early-access list"
+    : "Welcome to The CortexCFO Brief";
 
-  const text = [
-    "Thanks for subscribing.",
-    "",
-    "We're still building the program and it'll take a few more months to ship —",
-    "we want to be double-sure on the encryption and the quality of the analysis",
-    "coming out the other side. The moment the first issue is ready, you'll hear",
-    "from us.",
-    "",
-    "In the meantime, everything that IS live is at axiom-platform.vercel.app —",
-    "the knowledge base, glossary, and /how-it-works page covering our",
-    "multi-model Cognitive Engine.",
-    "",
-    "— The CortexCFO team",
-    "",
-    "If you didn't subscribe, just ignore this email — we won't send another.",
-  ].join("\n");
+  const text = isStealth
+    ? [
+        "Thanks for putting your name down.",
+        "",
+        firm ? `Noted: ${firm}.` : "We've got your email.",
+        "",
+        "We're in private beta with a handful of boutique CA firms working with",
+        "Indian MSMEs in the ₹10-50 Cr band. AI handles the account clean-up +",
+        "draft insights; your team reviews and signs off.",
+        "",
+        "We'll reach out once we have a slot open — probably in the next 2-4",
+        "weeks. If you have questions in the meantime, just reply to this email.",
+        "",
+        "— The team",
+        "",
+        "If you didn't sign up, just ignore this email — we won't send another.",
+      ].join("\n")
+    : [
+        "Thanks for subscribing.",
+        "",
+        "We're still building the program and it'll take a few more months to ship —",
+        "we want to be double-sure on the encryption and the quality of the analysis",
+        "coming out the other side. The moment the first issue is ready, you'll hear",
+        "from us.",
+        "",
+        "In the meantime, everything that IS live is at axiom-platform.vercel.app —",
+        "the knowledge base, glossary, and /how-it-works page covering our",
+        "multi-model Cognitive Engine.",
+        "",
+        "— The CortexCFO team",
+        "",
+        "If you didn't subscribe, just ignore this email — we won't send another.",
+      ].join("\n");
 
-  const html = `
+  const html = isStealth
+    ? `
+  <!doctype html>
+  <html>
+    <body style="margin:0;padding:0;background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0a0a0a;padding:48px 16px;">
+        <tr>
+          <td align="center">
+            <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+              <tr>
+                <td style="padding:40px 40px 24px;">
+                  <div style="display:inline-block;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.35);color:#6ee7b7;font-size:11px;font-weight:600;letter-spacing:1.6px;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:20px;">
+                    Early access · private beta
+                  </div>
+                  <h1 style="margin:0 0 16px;font-size:26px;line-height:1.25;color:#ffffff;font-weight:700;letter-spacing:-0.01em;">
+                    You&rsquo;re on the list.
+                  </h1>
+                  ${firm ? `<p style="margin:0 0 16px;font-size:14px;color:rgba(255,255,255,0.5);">Noted: ${firm}</p>` : ""}
+                  <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.72);">
+                    We&rsquo;re in private beta with a handful of boutique CA firms working with Indian MSMEs in the ₹10&ndash;50 Cr band.
+                  </p>
+                  <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.72);">
+                    AI handles the account clean-up + draft insights. Your team reviews and signs off.
+                  </p>
+                  <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:rgba(255,255,255,0.72);">
+                    We&rsquo;ll reach out once we have a slot open &mdash; probably in the next 2&ndash;4 weeks. Questions in the meantime? Just reply.
+                  </p>
+                  <p style="margin:0 0 0;font-size:13px;line-height:1.6;color:rgba(255,255,255,0.45);">
+                    &mdash; The team
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px 40px 32px;border-top:1px solid rgba(255,255,255,0.06);">
+                  <p style="margin:0;font-size:12px;line-height:1.5;color:rgba(255,255,255,0.35);">
+                    If you didn&rsquo;t sign up, ignore this email &mdash; we won&rsquo;t send another.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </body>
+  </html>`
+    : `
   <!doctype html>
   <html>
     <body style="margin:0;padding:0;background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
