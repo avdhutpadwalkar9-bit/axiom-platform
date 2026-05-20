@@ -43,12 +43,11 @@ const workspaceNav: { label: string; href: string; icon: typeof Home; badge?: st
 ];
 
 // Data + integrations section
-// "Reports" renamed to "AI Feedback" 2026-05-20 — the page is an
-// internal AI feedback analytics dashboard, not a generated-reports
-// surface. CFOs clicking "Reports" expected board packs / P&L
-// exports / diligence PDFs, then landed on thumbs-up/down stats —
-// misleading. Real Reports page ships Phase 2.
+// "Reports" now points at the REAL Reports page (Wave 9 ships 2026-
+// 05-20) — board packs, P&L exports, diligence packs. The previous
+// /feedback (AI feedback analytics) keeps its own nav slot.
 const dataNav: { label: string; href: string; icon: typeof Home }[] = [
+  { label: "Reports", href: "/reports", icon: FileText },
   { label: "Uploads", href: "/uploads", icon: FolderOpen },
   { label: "AI Feedback", href: "/feedback", icon: FileText },
   { label: "Integrations", href: "/integrations", icon: Plug },
@@ -66,6 +65,7 @@ function buildBreadcrumb(pathname: string, workspaceName: string) {
     "/integrations": "Integrations",
     "/uploads": "Uploads",
     "/feedback": "AI Feedback",
+    "/reports": "Reports",
     "/profile": "Profile",
     "/billing": "Billing",
   };
