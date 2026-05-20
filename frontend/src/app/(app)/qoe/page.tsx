@@ -23,6 +23,37 @@ import { useAnalysisStore } from "@/stores/analysisStore";
 import { useOnboardingStore } from "@/stores/onboardingStore";
 import { useIsDemoAccount } from "@/lib/demoMode";
 import { EmptyState } from "@/components/EmptyState";
+import { useEffect } from "react";
+
+/* ─── Action-item framework · 2026-05-20 Wave 10 ─────────────────────
+   Per friend feedback: every insight should have a path to action.
+   Risk flags previously had no follow-through — "Customer
+   concentration · top 3 = 58%" just sat there as a fact.
+
+   Each flag now carries a status. User can mark it via a small menu:
+     open      · default (just flagged)
+     review    · "Mark for review" (queue for next CFO desk-time)
+     ca        · "Send to CA" (parked with their CA partner)
+     board     · "Add to board pack" (will surface in next pack)
+     resolved  · "Mark resolved" (closes the loop)
+
+   Status persists in localStorage keyed by flag-id. Future Phase 3
+   work moves this into the workspace DB and emails when items go
+   from "review" → blocking-the-close. */
+type FlagStatus = "open" | "review" | "ca" | "board" | "resolved";
+
+const FLAG_STATUS_META: Record<
+  FlagStatus,
+  { label: string; pillClass: string; emoji: string }
+> = {
+  open: { label: "Open", pillClass: "warn", emoji: "•" },
+  review: { label: "In review", pillClass: "info", emoji: "○" },
+  ca: { label: "With CA", pillClass: "info", emoji: "↗" },
+  board: { label: "On next board pack", pillClass: "info", emoji: "★" },
+  resolved: { label: "Resolved", pillClass: "ok", emoji: "✓" },
+};
+
+const FLAG_STATUS_STORAGE_KEY = "cortexcfo-flag-statuses";
 
 /* ════════════════════════════════════════════════════════════════════
    QoE Workbook · upgraded per US-diligence-report patterns we studied
@@ -440,6 +471,44 @@ export default function QoEPage() {
   const isDemo = useIsDemoAccount();
 
   const [period, setPeriod] = useState<"fy23" | "fy24" | "fy25" | "ttm">("fy25");
+
+  // Per-flag action status · persisted to localStorage. Future Phase 3
+  // work moves this into the workspace DB so the CA, controller, and
+  // founder all see the same status. For now: per-browser is fine for
+  // the demo experience.
+  const [flagStatuses, setFlagStatuses] = useState<Record<string, FlagStatus>>({});
+  const [openMenuIdx, setOpenMenuIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(FLAG_STATUS_STORAGE_KEY);
+      if (raw) setFlagStatuses(JSON.parse(raw));
+    } catch {
+      /* corrupt storage — start fresh */
+    }
+  }, []);
+
+  const updateFlagStatus = (flagKey: string, status: FlagStatus) => {
+    setFlagStatuses((prev) => {
+      const next = { ...prev, [flagKey]: status };
+      try {
+        window.localStorage.setItem(FLAG_STATUS_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        /* quota — non-fatal */
+      }
+      return next;
+    });
+    setOpenMenuIdx(null);
+  };
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (openMenuIdx === null) return;
+    const handler = () => setOpenMenuIdx(null);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [openMenuIdx]);
 
   const companyName = business.companyName || "Vadodara Chem Pvt Ltd";
 
@@ -1186,31 +1255,113 @@ export default function QoEPage() {
         <div className="card">
           <div className="card-head">
             <div>
-              <div className="card-title">Risk flags · severity heatmap</div>
-              <div className="card-sub">{openRisks} open · 8 resolved this quarter</div>
+              <div className="card-title">
+                Risk flags · severity heatmap
+                <span className="pill" style={{ marginLeft: 10 }}>
+                  {RISK_FLAGS.filter((f) => (flagStatuses[f.label] ?? "open") === "open").length} open
+                </span>
+              </div>
+              <div className="card-sub">
+                Click a flag&rsquo;s status to mark it · review · with CA · on next board pack · resolved
+              </div>
             </div>
           </div>
           <table className="activity">
             <thead>
               <tr>
-                <th style={{ width: "55%" }}>Flag</th>
+                <th style={{ width: "42%" }}>Flag</th>
                 <th>Severity</th>
                 <th>Likely buyer reaction</th>
+                <th style={{ width: 130 }}>Status</th>
               </tr>
             </thead>
             <tbody>
-              {RISK_FLAGS.map((f, i) => (
-                <tr key={i}>
-                  <td>{f.label}</td>
-                  <td>
-                    <span className={`status-pill ${f.severity === "high" ? "pending" : "warn"}`}>
-                      <span className="sw" />
-                      {f.severity === "high" ? "High" : "Med"}
-                    </span>
-                  </td>
-                  <td style={{ color: "var(--text-muted, var(--muted))" }}>{f.reaction}</td>
-                </tr>
-              ))}
+              {RISK_FLAGS.map((f, i) => {
+                const status: FlagStatus = flagStatuses[f.label] ?? "open";
+                const statusMeta = FLAG_STATUS_META[status];
+                const isMenuOpen = openMenuIdx === i;
+                return (
+                  <tr key={i}>
+                    <td>{f.label}</td>
+                    <td>
+                      <span className={`status-pill ${f.severity === "high" ? "pending" : "warn"}`}>
+                        <span className="sw" />
+                        {f.severity === "high" ? "High" : "Med"}
+                      </span>
+                    </td>
+                    <td style={{ color: "var(--text-muted, var(--muted))" }}>{f.reaction}</td>
+                    <td style={{ position: "relative", overflow: "visible" }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuIdx(isMenuOpen ? null : i);
+                        }}
+                        className={`status-pill ${statusMeta.pillClass}`}
+                        style={{
+                          cursor: "pointer",
+                          border: "1px solid color-mix(in oklab, var(--text) 12%, transparent)",
+                          background: status === "open" ? "var(--card-2)" : undefined,
+                        }}
+                      >
+                        <span className="sw" />
+                        {statusMeta.label}
+                        <ChevronDown style={{ width: 9, height: 9, marginLeft: 2 }} />
+                      </button>
+                      {isMenuOpen && (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
+                            position: "absolute",
+                            top: "calc(100% + 4px)",
+                            right: 4,
+                            background: "var(--card)",
+                            border: "1px solid var(--border-strong)",
+                            borderRadius: 10,
+                            boxShadow: "0 12px 32px rgba(0,0,0,0.45)",
+                            padding: 4,
+                            zIndex: 50,
+                            minWidth: 180,
+                          }}
+                        >
+                          {(Object.keys(FLAG_STATUS_META) as FlagStatus[]).map((s) => (
+                            <button
+                              key={s}
+                              onClick={() => updateFlagStatus(f.label, s)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 8,
+                                width: "100%",
+                                padding: "7px 10px",
+                                background: status === s ? "var(--brand-soft)" : "transparent",
+                                border: 0,
+                                color: status === s ? "var(--brand-text)" : "var(--text)",
+                                fontSize: 12.5,
+                                fontFamily: "inherit",
+                                cursor: "pointer",
+                                borderRadius: 7,
+                                textAlign: "left",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: 16,
+                                  textAlign: "center",
+                                  fontWeight: 700,
+                                  color: status === s ? "var(--brand-text)" : "var(--text-subtle, var(--muted))",
+                                }}
+                              >
+                                {FLAG_STATUS_META[s].emoji}
+                              </span>
+                              {FLAG_STATUS_META[s].label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
