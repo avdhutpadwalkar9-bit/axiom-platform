@@ -291,6 +291,53 @@ export default function DashboardPage() {
   if (!hasShowcase) {
     const greeting = greetingByHour();
     const namePart = (personal.fullName || "").split(" ")[0];
+
+    // Onboarding checklist · 2026-05-20 Wave 8. Friend feedback: first-
+    // time activation is the biggest churn moment for any SaaS tool;
+    // there's currently no guided path. This block sits BELOW the
+    // EmptyState and walks the user through 4 numbered steps to a
+    // populated dashboard. Each step auto-detects completion from
+    // existing state — no manual "mark complete" needed.
+    const hasCompanyName = !!business.companyName?.trim();
+    const hasTb = !!lastResult; // false here — we're inside the !hasShowcase branch
+    // Member count not yet wired to a real API — for the empty-state
+    // pre-upload moment, "Invite your CA" is correctly always-todo.
+    const hasInvitedCa = false;
+
+    const steps = [
+      {
+        label: "Sign up & verify your email",
+        done: true, // they're logged in to see this page
+        href: undefined,
+        sub: "Done — welcome aboard.",
+      },
+      {
+        label: "Set your business profile",
+        done: hasCompanyName,
+        href: hasCompanyName ? undefined : "/onboarding",
+        sub: hasCompanyName
+          ? `${business.companyName} · ${business.industry || "industry pending"}`
+          : "Industry, GSTIN, turnover band — 30 seconds.",
+      },
+      {
+        label: "Upload your first trial balance",
+        done: hasTb,
+        href: hasTb ? undefined : "/uploads",
+        sub: hasTb
+          ? "Analysis ready"
+          : "CSV / Excel / JSON / PDF — we'll classify accounts automatically.",
+      },
+      {
+        label: "Invite your CA or controller",
+        done: hasInvitedCa,
+        href: hasInvitedCa ? undefined : "/profile",
+        sub: hasInvitedCa
+          ? "Workspace populated"
+          : "Strongest activation event — your CA reviews the report inside the workspace.",
+      },
+    ];
+    const completedCount = steps.filter((s) => s.done).length;
+
     return (
       <>
         <section className="hero">
@@ -306,6 +353,7 @@ export default function DashboardPage() {
             Upload your latest trial balance to see your revenue, adjusted EBITDA, EBITDA bridge, key ratios and attention items — all cited back to the underlying line items.
           </p>
         </section>
+
         <EmptyState
           icon={<FileSpreadsheet style={{ width: 24, height: 24 }} />}
           title="Upload your trial balance to begin"
@@ -318,6 +366,99 @@ export default function DashboardPage() {
           primary={{ label: "Upload trial balance", href: "/uploads" }}
           secondary={{ label: "See the demo workspace", href: "/billing" }}
         />
+
+        {/* ─── ONBOARDING CHECKLIST ─────────────────────────────────── */}
+        <div className="card">
+          <div className="card-head">
+            <div>
+              <div className="card-title">
+                Your first-week checklist
+                <span className="pill" style={{ marginLeft: 10 }}>
+                  {completedCount} of {steps.length}
+                </span>
+              </div>
+              <div className="card-sub">
+                Each step takes under a minute · the dashboard fills in as you complete them.
+              </div>
+            </div>
+          </div>
+          <div style={{ padding: "8px 4px 4px", display: "grid", gap: 10 }}>
+            {steps.map((step, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                  padding: 14,
+                  background: step.done
+                    ? "color-mix(in oklab, var(--brand) 6%, var(--card-2))"
+                    : "var(--card-2)",
+                  border: "1px solid var(--border)",
+                  borderColor: step.done
+                    ? "color-mix(in oklab, var(--brand) 25%, var(--border))"
+                    : "var(--border)",
+                  borderRadius: 10,
+                }}
+              >
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: "50%",
+                    background: step.done
+                      ? "var(--brand)"
+                      : "var(--canvas-2)",
+                    border: `1.5px solid ${step.done ? "var(--brand)" : "var(--border-strong, var(--border))"}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    color: step.done ? "#0A0B0D" : "var(--text-subtle, var(--muted))",
+                    flexShrink: 0,
+                  }}
+                >
+                  {step.done ? (
+                    <CheckCircle2 style={{ width: 14, height: 14 }} />
+                  ) : (
+                    i + 1
+                  )}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      fontSize: 13.5,
+                      fontWeight: 500,
+                      color: step.done ? "var(--text-muted)" : "var(--text)",
+                      textDecoration: step.done ? "line-through" : "none",
+                    }}
+                  >
+                    {step.label}
+                  </div>
+                  <div style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 2 }}>
+                    {step.sub}
+                  </div>
+                </div>
+                {step.href && (
+                  <Link
+                    href={step.href}
+                    className="chip"
+                    style={{
+                      textDecoration: "none",
+                      background: "var(--brand-soft)",
+                      color: "var(--brand-text)",
+                      borderColor: "color-mix(in oklab, var(--brand) 30%, transparent)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Do this →
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </>
     );
   }
