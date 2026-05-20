@@ -570,6 +570,66 @@ export default function QoEPage() {
           </span>
         </div>
 
+        {/* Quotable numbers · 2026-05-20 friend feedback — "9.0/10
+            doesn't survive a board conversation." Bottom row gives
+            three numbers a CFO can repeat verbatim: sellable EBITDA,
+            multiple range, diligence-ready verdict. */}
+        <div
+          style={{
+            marginTop: 18,
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 12,
+            padding: 14,
+            background: "var(--card-2)",
+            border: "1px solid var(--border)",
+            borderRadius: 12,
+          }}
+        >
+          <div>
+            <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-subtle, var(--muted))" }}>
+              Sellable EBITDA
+            </div>
+            <div className="mono" style={{ fontSize: 22, fontWeight: 600, marginTop: 4, letterSpacing: "-0.02em" }}>
+              {fmtCrLakh(adjusted)}
+              <span style={{ fontSize: 13, color: "var(--text-muted, var(--muted))", fontWeight: 400, marginLeft: 6 }}>
+                · {(adjusted / reported).toFixed(2)}× reported
+              </span>
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--text-muted, var(--muted))", marginTop: 4 }}>
+              What buyers anchor a multiple on
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-subtle, var(--muted))" }}>
+              Buyer multiple range
+            </div>
+            <div className="mono" style={{ fontSize: 22, fontWeight: 600, marginTop: 4, letterSpacing: "-0.02em" }}>
+              7–9×
+              <span style={{ fontSize: 13, color: "var(--text-muted, var(--muted))", fontWeight: 400, marginLeft: 6 }}>
+                → {fmtCrLakh(adjusted * 7)}–{fmtCrLakh(adjusted * 9)}
+              </span>
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--text-muted, var(--muted))", marginTop: 4 }}>
+              Specialty-chem peer median
+            </div>
+          </div>
+          <div>
+            <div style={{ fontSize: 10.5, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-subtle, var(--muted))" }}>
+              Diligence-ready
+            </div>
+            <div style={{ fontSize: 22, fontWeight: 600, marginTop: 4, letterSpacing: "-0.02em", color: "var(--brand-text)" }}>
+              Yes
+              <span style={{ fontSize: 13, color: "var(--text-muted, var(--muted))", fontWeight: 400, marginLeft: 6 }}>
+                · with 3 caveats
+              </span>
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--text-muted, var(--muted))", marginTop: 4 }}>
+              FMV cert · RP rent · top-3 concentration
+            </div>
+          </div>
+        </div>
+
         {/* Section tabs removed 2026-05-20 — they were decorative
             spans (no onClick), so clicking them looked broken. The
             page already organizes the same content into clearly
@@ -960,6 +1020,83 @@ export default function QoEPage() {
                 <div style={{ fontSize: 11, color: "var(--text-subtle, var(--muted))", marginTop: 6 }}>{m.note}</div>
               </div>
             ))}
+          </div>
+
+          {/* Recommended actions · 2026-05-20 friend feedback —
+              "Even a one-line tooltip like 'To reach median CCC,
+              focus on DSO: recover 13 days to release ~₹1.2 Cr cash'
+              would be transformative." Three concrete moves the CFO
+              can actually do this month. */}
+          <div style={{ padding: "0 18px 18px" }}>
+            <div
+              style={{
+                fontSize: 10.5,
+                fontWeight: 600,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: "var(--text-subtle, var(--muted))",
+                marginBottom: 8,
+              }}
+            >
+              How to close the gap
+            </div>
+            <div style={{ display: "grid", gap: 8 }}>
+              {[
+                {
+                  text: "Recover 13 days of DSO (68 → peer 55) to release",
+                  amount: "₹1.6 Cr",
+                  note: "cash · email top-5 debtors · factor D24",
+                },
+                {
+                  text: "Extend DPO 7 days (51 → peer 48 is already close, push to 58)",
+                  amount: "₹86 L",
+                  note: "free WC · renegotiate top-3 supplier terms",
+                },
+                {
+                  text: "Pull DIO 4 days (42 → peer 38) by tightening Q3 inventory build",
+                  amount: "₹48 L",
+                  note: "stock release · review SKUs >120 days aging",
+                },
+              ].map((row, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: "10px 12px",
+                    background: "var(--canvas-2)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 8,
+                    display: "grid",
+                    gridTemplateColumns: "1fr auto",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  <div>
+                    <div style={{ fontSize: 12.5, color: "var(--text)", lineHeight: 1.45 }}>
+                      {row.text}{" "}
+                      <span className="mono" style={{ color: "var(--brand-text)", fontWeight: 600 }}>
+                        {row.amount}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 11, color: "var(--text-subtle, var(--muted))", marginTop: 2 }}>
+                      {row.note}
+                    </div>
+                  </div>
+                  <button
+                    className="chip"
+                    style={{
+                      background: "var(--brand-soft)",
+                      color: "var(--brand-text)",
+                      borderColor: "color-mix(in oklab, var(--brand) 30%, transparent)",
+                      fontSize: 11,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Mark for review →
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
