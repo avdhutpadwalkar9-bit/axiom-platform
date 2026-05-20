@@ -55,6 +55,68 @@ interface ChatMessage {
   streaming?: boolean;
 }
 
+// Per-page suggested prompts · feedback 2026-05-20.
+// Empty chat input is intimidating — first-time users don't know what
+// the assistant can actually answer. Show 4 starter prompts on the
+// empty state, tailored to whichever page they're on. Clicking one
+// auto-submits, so it's a single tap from "where do I start?" to a
+// real answer streaming in.
+function suggestedPrompts(pathname: string | null): string[] {
+  if (!pathname) return DEFAULT_PROMPTS;
+  if (pathname.startsWith("/qoe")) {
+    return [
+      "What's my biggest QoE risk?",
+      "Walk me through the EBITDA bridge",
+      "Will the related-party rent survive diligence?",
+      "How does my customer concentration compare to peers?",
+    ];
+  }
+  if (pathname.startsWith("/analysis")) {
+    return [
+      "Why did revenue grow this year?",
+      "Which expense lines moved the most?",
+      "What's the biggest variance to flag for the board?",
+      "Anything weird in the P&L I should look at?",
+    ];
+  }
+  if (pathname.startsWith("/scenarios")) {
+    return [
+      "What if I lose my top-3 customer?",
+      "What drives EBITDA most in the bear case?",
+      "How much cash do I free up by tightening DSO 10 days?",
+      "Bull-case timing — when does it become real?",
+    ];
+  }
+  if (pathname.startsWith("/industries")) {
+    return [
+      "Where am I ahead of peers? Where behind?",
+      "What's the buyer haircut on my concentration?",
+      "Which ratio should I focus on next quarter?",
+      "Sector-specific compliance norms I'm missing?",
+    ];
+  }
+  if (pathname.startsWith("/dashboard")) {
+    return [
+      "What's the headline finding this period?",
+      "What needs my attention this week?",
+      "Cash runway — am I tight?",
+      "Three things to tell my board on Monday",
+    ];
+  }
+  return DEFAULT_PROMPTS;
+}
+const DEFAULT_PROMPTS = [
+  "What's the headline finding from my last analysis?",
+  "What's my biggest QoE risk?",
+  "How does my DSO compare to peers?",
+  "Three things to tell my board on Monday",
+];
+
+// localStorage key for persisting chat history across page reloads.
+// Capped at 40 messages (~20 turns) to keep storage reasonable.
+const CHAT_HISTORY_KEY = "cortexcfo-chat-history";
+const CHAT_HISTORY_MAX = 40;
+
 // Build a short per-page context so the model knows what's on screen,
 // not just the TB analysis blob. Prepended (bracketed) to the user's
 // question server-side.
@@ -146,6 +208,41 @@ export default function AIChatPanel() {
     }, 250);
     return () => clearInterval(tick);
   }, [loading]);
+
+  // History persistence · 2026-05-20 friend feedback.
+  // Previously: opening the chat showed a blank slate every time.
+  // Now: messages persist in localStorage (capped at 40 entries) so
+  // a follow-up the next day starts from where the previous session
+  // left off. Streaming-in-progress messages are NOT persisted —
+  // they'd resume in a half-broken state on refresh.
+  // Hydrate on first mount.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(CHAT_HISTORY_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as ChatMessage[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setMessages(parsed.filter((m) => !m.streaming));
+      }
+    } catch {
+      /* corrupt storage — start fresh */
+    }
+  }, []);
+  // Persist on every change, excluding in-flight streaming bubbles.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const toSave = messages
+        .filter((m) => !m.streaming)
+        .slice(-CHAT_HISTORY_MAX);
+      window.localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(toSave));
+    } catch {
+      /* quota — non-fatal */
+    }
+  }, [messages]);
+
+  const prompts = useMemo(() => suggestedPrompts(pathname), [pathname]);
 
   const businessContext = useMemo(() => {
     if (!business) return undefined;
@@ -528,20 +625,45 @@ export default function AIChatPanel() {
         className="flex-1 overflow-y-auto px-4 py-4 space-y-3 scroll-smooth"
       >
         {messages.length === 0 && !loading && (
-          <div className="flex flex-col items-start gap-2.5 pt-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
+          <div className="flex flex-col gap-3 pt-2">
+            <div className="flex items-start gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center flex-shrink-0">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div>
+                <p className="text-[13px] text-app-text leading-relaxed">
+                  Ask me anything about the numbers on this page.
+                </p>
+                <p className="text-[11px] text-app-text-subtle mt-1.5 leading-relaxed">
+                  I read your trial balance, ratios, adjustments, and company context live.
+                  Use <span className="text-app-text-muted font-medium">Think deeper</span> when you want strategic reasoning.
+                </p>
+              </div>
             </div>
-            <div>
-              <p className="text-[13px] text-app-text leading-relaxed">
-                Ask me anything about the numbers on this page, your FP&amp;A,
-                or general CFO-level strategy for your business.
+
+            {/* Suggested prompts · feedback 2026-05-20 — friend flagged the
+                empty input as intimidating for first-use. Four tappable
+                prompts tailored to whichever page the user is on (qoe,
+                analysis, scenarios, industries, dashboard, or default).
+                Clicking one calls send() directly — single tap from
+                "where do I start?" to a streaming answer. */}
+            <div className="mt-1">
+              <p className="text-[10.5px] uppercase tracking-[0.08em] font-semibold text-app-text-subtle mb-2">
+                Try one of these
               </p>
-              <p className="text-[11px] text-app-text-subtle mt-1.5 leading-relaxed">
-                I read your trial balance, ratios, adjustments, and company context
-                live. Use <span className="text-app-text-muted font-medium">Think deeper</span>{" "}
-                when you want strategic reasoning over a quick answer.
-              </p>
+              <div className="flex flex-col gap-1.5">
+                {prompts.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => send(p)}
+                    disabled={loading}
+                    className="text-left text-[12.5px] text-app-text-muted hover:text-app-text bg-app-card hover:bg-app-card-hover border border-app-border hover:border-emerald-500/40 rounded-lg px-3 py-2 transition-colors disabled:opacity-50"
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         )}
